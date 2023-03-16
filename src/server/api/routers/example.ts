@@ -1,3 +1,4 @@
+import { AuthenticationClient } from "auth0";
 import { z } from "zod";
 
 import {
@@ -16,7 +17,7 @@ export const exampleRouter = createTRPCRouter({
     }),
 
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.example.findMany();
+    return [];
   }),
 
   getSecretMessage: protectedProcedure.query(() => {

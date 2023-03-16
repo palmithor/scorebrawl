@@ -17,6 +17,8 @@
     "@trpc/next": "^10.9.0",
     "@trpc/react-query": "^10.9.0",
     "@trpc/server": "^10.9.0",
+    "@types/auth0": "^2.35.11",
+    "auth0": "^3.2.0",
     "next": "^13.2.1",
     "next-auth": "^4.19.0",
     "react": "18.2.0",
