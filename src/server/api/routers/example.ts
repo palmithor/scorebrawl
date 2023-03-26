@@ -1,10 +1,9 @@
-import { AuthenticationClient } from "auth0";
 import { z } from "zod";
 
 import {
   createTRPCRouter,
-  publicProcedure,
   protectedProcedure,
+  publicProcedure,
 } from "~/server/api/trpc";
 
 export const exampleRouter = createTRPCRouter({
@@ -15,12 +14,12 @@ export const exampleRouter = createTRPCRouter({
         greeting: `Hello ${input.text}`,
       };
     }),
-
-  getAll: publicProcedure.query(({ ctx }) => {
-    return [];
+  secret: protectedProcedure.query(({}) => {
+    return {
+      greeting: `Hello Secret`,
+    };
   }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.example.findMany();
   }),
 });
