@@ -4,12 +4,19 @@ import { ClerkProvider, SignedIn, SignedOut, SignIn } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
+import { MainLayout } from "~/components/layout/layout";
+import { type NavbarTab } from "~/components/layout/navbar";
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+const MyApp: AppType<{ currentTab: NavbarTab }> = ({
+  Component,
+  pageProps,
+}) => {
   return (
     <ClerkProvider {...pageProps}>
       <SignedIn>
-        <Component {...pageProps} />
+        <MainLayout currentTab={pageProps.currentTab}>
+          <Component {...pageProps} />
+        </MainLayout>
       </SignedIn>
       <SignedOut>
         <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

@@ -27,6 +27,11 @@ type CreateContextOptions = {
   auth: SignedInAuthObject | SignedOutAuthObject;
 };
 
+export type TrpcContext = {
+  auth: SignedInAuthObject | SignedOutAuthObject;
+  prisma: PrismaClient;
+};
+
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
  * it from here.
@@ -37,7 +42,7 @@ type CreateContextOptions = {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = (_opts: CreateContextOptions): TrpcContext => {
   return {
     prisma,
     auth: _opts.auth,
@@ -65,6 +70,7 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { PrismaClient } from "@prisma/client";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
