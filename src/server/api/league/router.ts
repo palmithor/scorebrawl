@@ -1,6 +1,12 @@
+import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getCursor } from "../pagination/paginationUtils";
-import { leaguesByUserIdSchema } from "./schema";
+import { pageQuerySchema } from "../pagination/schema";
+
+const leaguesByUserIdSchema = z.object({
+  userId: z.string(),
+  pageQuery: pageQuerySchema,
+});
 
 export const leagueRouter = createTRPCRouter({
   getLeaguesByUserId: protectedProcedure
