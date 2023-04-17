@@ -4,9 +4,10 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 
 type SlideOverProps = {
   title: string;
+  children: React.ReactNode;
 };
 
-export const SlideOver = ({ title }: SlideOverProps) => {
+export const SlideOver = ({ title, children }: SlideOverProps) => {
   const [open, setOpen] = useState(true);
 
   return (
@@ -64,7 +65,7 @@ export const SlideOver = ({ title }: SlideOverProps) => {
                       </Dialog.Title>
                     </div>
                     <div className="relative mt-6 flex-1 px-4 sm:px-6">
-                      {/* Your content */}
+                      {children}
                     </div>
                   </div>
                 </Dialog.Panel>

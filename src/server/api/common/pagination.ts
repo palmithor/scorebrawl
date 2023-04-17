@@ -7,3 +7,6 @@ export const pageQuerySchema = z
   })
   .optional()
   .default({ cursor: undefined, limit: 30 });
+
+export const getCursor = ({ cursor }: { cursor?: string }) =>
+  cursor ? { id: cursor } : undefined;

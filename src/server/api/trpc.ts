@@ -42,12 +42,12 @@ export type TrpcContext = {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions): TrpcContext => {
-  return {
-    prisma,
-    auth: _opts.auth,
-  };
-};
+export const createInnerTRPCContext = (
+  _opts: CreateContextOptions
+): TrpcContext => ({
+  prisma,
+  auth: _opts.auth,
+});
 
 /**
  * This is the actual context you will use in your router. It will be used to process every request
@@ -70,7 +70,7 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,

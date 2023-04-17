@@ -1,6 +1,5 @@
 import { type GetServerSidePropsResult, type NextPage } from "next";
 import { type NavbarTab } from "~/components/layout/navbar";
-import { api } from "~/utils/api";
 
 const Leagues: NextPage = () => {
   return <div>hello leagues</div>;

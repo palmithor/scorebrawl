@@ -1,5 +1,5 @@
 import { createTRPCRouter } from "~/server/api/trpc";
-import { leagueRouter } from "~/server/api/league/router";
+import { leagueRouter } from "~/server/api/league/league.router";
 
 /**
  * This is the primary router for your server.
