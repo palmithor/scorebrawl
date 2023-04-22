@@ -34,12 +34,12 @@ export const Navbar = ({ currentTab }: { currentTab: NavbarTab }) => {
                 <div className="flex flex-shrink-0 items-center">
                   <img
                     className="block h-8 w-auto lg:hidden"
-                    src="/mascot.png"
+                    src="/logo.png"
                     alt="Point Up"
                   />
                   <img
                     className="hidden h-8 w-auto lg:block"
-                    src="/mascot.png"
+                    src="/logo.png"
                     alt="Point Up"
                   />
                 </div>

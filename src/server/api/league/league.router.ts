@@ -29,7 +29,7 @@ export const leagueRouter = createTRPCRouter({
             { isPrivate: false },
           ],
         },
-        orderBy: { id: "asc" },
+        orderBy: { id: "desc" },
       });
 
       return {

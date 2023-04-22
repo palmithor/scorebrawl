@@ -83,7 +83,7 @@ model Season {
   id        String         @id @default(cuid())
   name      String
   startedAt DateTime       @default(now())
-  endedAt   DateTime?
+  endsAt    DateTime?
   leagueId  String
   league    League         @relation(fields: [leagueId], references: [id], onDelete: Cascade)
   players   SeasonPlayer[]

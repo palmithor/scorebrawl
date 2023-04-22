@@ -1,7 +1,8 @@
 import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getCursor, pageQuerySchema } from "~/server/api/common/pagination";
-import { getByIdWhereMember } from "../league.repository";
+import { getByIdWhereMember } from "~/server/api/league/league.repository";
+import { TRPCError } from "@trpc/server";
 
 export const seasonRouter = createTRPCRouter({
   getAllSeasons: protectedProcedure
@@ -31,7 +32,7 @@ export const seasonRouter = createTRPCRouter({
             ],
           },
         },
-        orderBy: { id: "asc" },
+        orderBy: { id: "desc" },
       });
       return {
         data: result,
@@ -44,19 +45,30 @@ export const seasonRouter = createTRPCRouter({
         leagueId: z.string().nonempty(),
         name: z.string().nonempty(),
         startedAt: z.date().optional().default(new Date()),
+        endsAt: z.date().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (input.endsAt && input.startedAt.getTime() >= input.endsAt.getTime()) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "endsAt has to be after startedAt",
+        });
+      }
       const league = await getByIdWhereMember({
         leagueId: input.leagueId,
         userId: ctx.auth.userId,
         allowedRoles: ["owner", "editor"],
       });
+      if (!league) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
       const season = await ctx.prisma.season.create({
         data: {
           name: input.name,
           leagueId: input.leagueId,
           startedAt: input.startedAt,
+          endsAt: input.endsAt,
           updatedBy: ctx.auth.userId,
           createdBy: ctx.auth.userId,
         },
@@ -78,5 +90,33 @@ export const seasonRouter = createTRPCRouter({
       );
 
       return season;
+    }),
+  updateEndsAt: protectedProcedure
+    .input(
+      z.object({
+        seasonId: z.string().nonempty(),
+        endsAt: z.date(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const season = await ctx.prisma.season.findUnique({
+        where: { id: input.seasonId },
+      });
+      if (!season) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      const league = await getByIdWhereMember({
+        leagueId: season.leagueId,
+        userId: ctx.auth.userId,
+        allowedRoles: ["owner", "editor"],
+      });
+      if (!league) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      await ctx.prisma.season.update({
+        where: { id: season.id },
+        data: { endsAt: input.endsAt },
+      });
+      return { ...season, endsAt: input.endsAt };
     }),
 });

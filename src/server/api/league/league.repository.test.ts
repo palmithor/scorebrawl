@@ -4,7 +4,6 @@ import { beforeEach, expect, describe, test } from "vitest";
 import { prisma } from "~/server/db";
 import { getByIdWhereMember } from "./league.repository";
 import { type League, LeagueMemberRole } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
 
 describe("leagueRepository", () => {
   describe("getByIdWhereMember", () => {
@@ -41,21 +40,21 @@ describe("leagueRepository", () => {
     });
 
     test("should not get when league does not exist", async () => {
-      await expect(
-        getByIdWhereMember({
+      expect(
+        await getByIdWhereMember({
           leagueId: "not-found",
           userId: "userId",
         })
-      ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND" }));
+      ).toBeNull();
     });
 
     test("should not get when not member", async () => {
-      await expect(
-        getByIdWhereMember({
+      expect(
+        await getByIdWhereMember({
           leagueId: existingLeague.id,
           userId: "userId",
         })
-      ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND" }));
+      ).toBeNull();
     });
 
     test("should not get when role not allowed", async () => {
@@ -63,13 +62,13 @@ describe("leagueRepository", () => {
         data: { role: "member", userId: "userId", leagueId: existingLeague.id },
       });
 
-      await expect(
-        getByIdWhereMember({
+      expect(
+        await getByIdWhereMember({
           leagueId: existingLeague.id,
           userId: "userId",
           allowedRoles: ["owner"],
         })
-      ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND" }));
+      );
     });
   });
 });

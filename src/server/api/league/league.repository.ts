@@ -10,8 +10,8 @@ export const getByIdWhereMember = async ({
   userId: string;
   leagueId: string;
   allowedRoles?: LeagueMemberRole[];
-}): Promise<League> => {
-  const league = await prisma.league.findFirst({
+}): Promise<League | null> =>
+  prisma.league.findFirst({
     where: {
       id: leagueId,
       members: {
@@ -29,8 +29,3 @@ export const getByIdWhereMember = async ({
       },
     },
   });
-  if (!league) {
-    throw new TRPCError({ code: "NOT_FOUND" });
-  }
-  return league;
-};

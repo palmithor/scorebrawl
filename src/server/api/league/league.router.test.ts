@@ -5,7 +5,7 @@ import type { inferProcedureInput } from "@trpc/server";
 import type { SignedInAuthObject } from "@clerk/nextjs/dist/api";
 import { faker } from "@faker-js/faker";
 import { LeagueMemberRole } from "@prisma/client";
-import slugify from "@sindresorhus/slugify";
+import { createLeague } from "~/test-helper/league.data-generator";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
 
@@ -18,8 +18,7 @@ describe("leagueRouter", () => {
   describe("createLeague", () => {
     test("should create league", async () => {
       const imageUrl = faker.image.imageUrl();
-      type Input = inferProcedureInput<AppRouter["league"]["create"]>;
-      const input: Input = {
+      const input: CreateLeagueInput = {
         logoUrl: imageUrl,
         name: "Rocket League",
         initialElo: 1200,
@@ -94,50 +93,10 @@ describe("leagueRouter", () => {
       const result = await caller.league.getAllLeagues({});
       expect(result.nextCursor).toBeUndefined();
       expect(result.data.map((l) => l.name)).toEqual([
-        "privateMine",
-        "privateMember",
         "public",
+        "privateMember",
+        "privateMine",
       ]);
     });
   });
-
-  const createLeague = async ({
-    leagueOwner = "userId",
-    initialElo = 1200,
-    logoUrl = faker.image.imageUrl(),
-    name = faker.company.name(),
-    isPrivate = false,
-    members = [],
-  }: Partial<
-    CreateLeagueInput & {
-      leagueOwner: string;
-      members: { userId: string; role: LeagueMemberRole }[];
-    }
-  > = {}) => {
-    const league = await ctx.prisma.league.create({
-      data: {
-        createdBy: leagueOwner,
-        updatedBy: leagueOwner,
-        initialElo,
-        logoUrl,
-        name,
-        isPrivate,
-        nameSlug: slugify(name),
-      },
-    });
-
-    await Promise.all(
-      [{ userId: leagueOwner, role: LeagueMemberRole.owner }, ...members].map(
-        (m) =>
-          ctx.prisma.leagueMember.create({
-            data: {
-              userId: m.userId,
-              role: m.role,
-              leagueId: league.id,
-            },
-          })
-      )
-    );
-    return league;
-  };
 });
