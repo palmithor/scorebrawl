@@ -248,6 +248,11 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
+"@ihs7/ts-elo@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@ihs7/ts-elo/-/ts-elo-0.2.4.tgz#89e200727281db922b380e6895cf91c88aa917fa"
+  integrity sha512-M8cLdcxv+EysZk94fa1eAteCwt8od6gKBu+EDxQPB6CpNVzWrwDbzNodKkNdatDGF8r8g7I0hAccoVK49Sf3UA==
+
 "@jridgewell/sourcemap-codec@^1.4.13":
   version "1.4.15"
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.15.tgz#d7c6e6755c78567a951e04ab52ef0fd26de59f32"

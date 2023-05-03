@@ -1,6 +1,5 @@
 import { prisma } from "~/server/db";
 import { type League, LeagueMemberRole } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
 
 export const getByIdWhereMember = async ({
   userId,

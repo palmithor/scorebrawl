@@ -1,15 +1,14 @@
 import { faker } from "@faker-js/faker";
 import { LeagueMemberRole } from "@prisma/client";
 import slugify from "@sindresorhus/slugify";
-import { inferProcedureInput } from "@trpc/server";
-import { AppRouter } from "~/server/api/root";
+import { type inferProcedureInput } from "@trpc/server";
+import { type AppRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
 
 export const createLeague = async ({
   leagueOwner = "userId",
-  initialElo = 1200,
   logoUrl = faker.image.imageUrl(),
   name = faker.company.name(),
   isPrivate = false,
@@ -24,7 +23,6 @@ export const createLeague = async ({
     data: {
       createdBy: leagueOwner,
       updatedBy: leagueOwner,
-      initialElo,
       logoUrl,
       name,
       isPrivate,

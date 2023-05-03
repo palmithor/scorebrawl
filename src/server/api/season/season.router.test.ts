@@ -1,18 +1,11 @@
-import { expect, describe, test, beforeEach } from "vitest";
-import { createInnerTRPCContext } from "~/server/api/trpc";
-import { type AppRouter, appRouter } from "~/server/api/root";
-import type { inferProcedureInput } from "@trpc/server";
 import type { SignedInAuthObject } from "@clerk/nextjs/dist/api";
-import { faker } from "@faker-js/faker";
-import { League, LeagueMemberRole } from "@prisma/client";
-import slugify from "@sindresorhus/slugify";
-import { prisma } from "~/server/db";
-import { getByIdWhereMember } from "~/server/api/league/league.repository";
 import { TRPCError } from "@trpc/server";
+import { describe, expect, test } from "vitest";
+import { appRouter } from "~/server/api/root";
+import { createInnerTRPCContext } from "~/server/api/trpc";
+import { prisma } from "~/server/db";
 import { createLeague } from "~/test-helper/league.data-generator";
 import { createSeason } from "~/test-helper/season.data-generator";
-
-type CreateSeasonInput = inferProcedureInput<AppRouter["season"]["create"]>;
 
 describe("seasonRouter", () => {
   const ctx = createInnerTRPCContext({
@@ -27,12 +20,12 @@ describe("seasonRouter", () => {
       const season = await caller.season.create({
         leagueId: league.id,
         name: "Q2 2023",
-        startedAt: new Date("2023-04-19"),
+        startDate: new Date("2023-04-19"),
       });
 
       expect(season.id).toBeTruthy();
       expect(season.name).toEqual("Q2 2023");
-      expect(season.startedAt.toISOString()).toEqual(
+      expect(season.startDate.toISOString()).toEqual(
         "2023-04-19T00:00:00.000Z"
       );
       expect(season.createdAt).toBeTruthy();
@@ -47,9 +40,33 @@ describe("seasonRouter", () => {
         caller.season.create({
           leagueId: league.id,
           name: "Q2 2023",
-          startedAt: new Date("2023-04-19"),
+          startDate: new Date("2023-04-19"),
         })
       ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN" }));
+    });
+
+    test("should fail when season intersects another season", async () => {
+      const league = await createLeague();
+
+      await caller.season.create({
+        leagueId: league.id,
+        name: "first",
+        startDate: new Date("2023-04-01"),
+        endDate: new Date("2023-04-10"),
+      });
+
+      await expect(
+        caller.season.create({
+          leagueId: league.id,
+          name: "Second",
+          startDate: new Date("2023-04-05"),
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "CONFLICT",
+          message: "There's an ongoing season during this period",
+        })
+      );
     });
   });
 
@@ -65,32 +82,38 @@ describe("seasonRouter", () => {
         leagueId: league.id,
       });
 
-      const result = await caller.season.getAllSeasons({ leagueId: league.id });
+      const result = await caller.season.getAll({ leagueId: league.id });
       expect(result.nextCursor).toBeUndefined();
       expect(result.data.map((l) => l.name)).toEqual(["season2", "season1"]);
     });
   });
 
-  describe("updateEndsAt", () => {
-    test("should updateEndsAt", async () => {
+  describe("update", () => {
+    test("should update name only", async () => {
       const league = await createLeague({});
       const season = await createSeason({
         name: "season1",
         leagueId: league.id,
+        startDate: new Date("2023-04-01"),
+        endDate: new Date("2023-05-01"),
       });
 
-      const updatedSeason = await caller.season.updateEndsAt({
+      const updatedSeason = await caller.season.update({
         seasonId: season.id,
-        endsAt: new Date("2023-04-19"),
+        name: "season2",
       });
 
-      expect(updatedSeason.endsAt).toEqual(new Date("2023-04-19"));
+      expect(updatedSeason.name).toEqual("season2");
       expect(
         await prisma.season.findFirst({
           where: { id: season.id },
-          select: { endsAt: true },
+          select: { endDate: true, name: true, startDate: true },
         })
-      ).toEqual({ endsAt: new Date("2023-04-19") });
+      ).toEqual({
+        name: "season2",
+        startDate: new Date("2023-04-01"),
+        endDate: new Date("2023-05-01"),
+      });
     });
   });
 });

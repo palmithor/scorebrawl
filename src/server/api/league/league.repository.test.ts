@@ -13,7 +13,6 @@ describe("leagueRepository", () => {
       const name = faker.company.name();
       existingLeague = await prisma.league.create({
         data: {
-          initialElo: 1200,
           createdBy: "userId",
           updatedBy: "userId",
           name: name,

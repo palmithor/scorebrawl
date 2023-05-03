@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { UserButton } from "@clerk/nextjs";
@@ -32,16 +33,22 @@ export const Navbar = ({ currentTab }: { currentTab: NavbarTab }) => {
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <img
-                    className="block h-8 w-auto lg:hidden"
-                    src="/logo.png"
-                    alt="Point Up"
-                  />
-                  <img
-                    className="hidden h-8 w-auto lg:block"
-                    src="/logo.png"
-                    alt="Point Up"
-                  />
+                  <div className="relative">
+                    <Image
+                      className="block h-8 w-auto lg:hidden"
+                      fill
+                      src="/logo.png"
+                      alt="Point Up"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Image
+                      className="hidden h-8 w-auto lg:block"
+                      fill
+                      src="/logo.png"
+                      alt="Point Up"
+                    />
+                  </div>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">

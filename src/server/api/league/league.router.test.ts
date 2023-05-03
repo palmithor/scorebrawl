@@ -21,7 +21,6 @@ describe("leagueRouter", () => {
       const input: CreateLeagueInput = {
         logoUrl: imageUrl,
         name: "Rocket League",
-        initialElo: 1200,
       };
 
       const league = await caller.league.create(input);
@@ -43,7 +42,6 @@ describe("leagueRouter", () => {
       const input = {
         logoUrl: imageUrl,
         name: "Rocket League",
-        initialElo: 1200,
       };
 
       await caller.league.create(input);
@@ -56,7 +54,6 @@ describe("leagueRouter", () => {
       const input = {
         logoUrl: faker.image.imageUrl(),
         name: "Rocket League",
-        initialElo: 1200,
       };
       const league = await caller.league.create(input);
 
@@ -90,7 +87,7 @@ describe("leagueRouter", () => {
       });
       await createLeague({ name: "public", leagueOwner: "other" });
 
-      const result = await caller.league.getAllLeagues({});
+      const result = await caller.league.getAll({});
       expect(result.nextCursor).toBeUndefined();
       expect(result.data.map((l) => l.name)).toEqual([
         "public",

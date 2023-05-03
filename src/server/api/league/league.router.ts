@@ -3,10 +3,26 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getCursor, pageQuerySchema } from "~/server/api/common/pagination";
 import slugify from "@sindresorhus/slugify";
 import { TRPCError } from "@trpc/server";
-import type { League } from "@prisma/client";
+import type { League, PrismaClient } from "@prisma/client";
+import { getByIdWhereMember } from "./league.repository";
+
+const createSlug = async (prisma: PrismaClient, name: string) => {
+  const doesLeagueSlugExists = async (nameSlug: string) =>
+    prisma.league.findUnique({ where: { nameSlug } });
+  const rootNameSlug = slugify(name, { customReplacements: [['þ', 'th'], ['Þ', 'th'], ['ð', 'd'], ['Ð', 'd']] });
+  let nameSlug = rootNameSlug;
+  let leagueSlugExists = await doesLeagueSlugExists(nameSlug);
+  let counter = 1;
+  while (leagueSlugExists) {
+    nameSlug = `${rootNameSlug}-${counter}`;
+    counter++;
+    leagueSlugExists = await doesLeagueSlugExists(nameSlug);
+  }
+  return nameSlug;
+};
 
 export const leagueRouter = createTRPCRouter({
-  getAllLeagues: protectedProcedure
+  getAll: protectedProcedure
     .input(
       z.object({
         pageQuery: pageQuerySchema,
@@ -43,27 +59,15 @@ export const leagueRouter = createTRPCRouter({
         name: z.string().nonempty(),
         logoUrl: z.string().url(),
         isPrivate: z.boolean().default(false),
-        initialElo: z.number().int().min(100),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const doesLeagueSlugExists = async (nameSlug: string) =>
-        ctx.prisma.league.findUnique({ where: { nameSlug } });
-      const rootNameSlug = slugify(input.name);
-      let nameSlug = rootNameSlug;
-      let leagueSlugExists = await doesLeagueSlugExists(nameSlug);
-      let counter = 1;
-      while (leagueSlugExists) {
-        nameSlug = `${rootNameSlug}-${counter}`;
-        counter++;
-        leagueSlugExists = await doesLeagueSlugExists(nameSlug);
-      }
+      const nameSlug = await createSlug(ctx.prisma, input.name);
 
       const league = await ctx.prisma.league.create({
         data: {
           nameSlug,
           name: input.name,
-          initialElo: input.initialElo,
           logoUrl: input.logoUrl,
           isPrivate: input.isPrivate,
           updatedBy: ctx.auth.userId,
@@ -77,9 +81,66 @@ export const leagueRouter = createTRPCRouter({
           role: "owner",
         },
       });
+      console.log(league.nameSlug)
       return excludeCode(league);
     }),
-  joinLeague: protectedProcedure
+  update: protectedProcedure
+    .input(
+      z.object({
+        leagueId: z.string().nonempty(),
+        name: z.string().nonempty(),
+        logoUrl: z.string().url(),
+        isPrivate: z.boolean().default(false),
+        archived: z.boolean().default(false),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const season = await ctx.prisma.league.findUnique({
+        where: { id: input.leagueId },
+      });
+      if (!season) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      const league = await getByIdWhereMember({
+        leagueId: input.leagueId,
+        userId: ctx.auth.userId,
+        allowedRoles: ["owner", "editor"],
+      });
+      if (!league) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const nameSlug = input.name
+        ? await createSlug(ctx.prisma, input.name)
+        : undefined;
+      await ctx.prisma.league.update({
+        where: { id: input.leagueId },
+        data: {
+          archived: input.archived,
+          isPrivate: input.isPrivate,
+          name: input.name,
+          nameSlug: nameSlug,
+          logoUrl: input.logoUrl,
+        },
+      });
+    }),
+  getCode: protectedProcedure
+    .input(
+      z.object({
+        leagueId: z.string().nonempty()
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const league = await getByIdWhereMember({
+        leagueId: input.leagueId,
+        userId: ctx.auth.userId,
+        allowedRoles: ["owner", "editor"],
+      });
+      if (!league) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return { code: league.code }
+    }),
+  join: protectedProcedure
     .input(
       z.object({
         code: z.string().nonempty(),
@@ -102,12 +163,34 @@ export const leagueRouter = createTRPCRouter({
           role: "member",
         },
       });
-      await ctx.prisma.leaguePlayer.create({
+      const leaguePlayer = await ctx.prisma.leaguePlayer.create({
         data: {
           userId: ctx.auth.userId,
           leagueId: league.id,
         },
       });
+      const now = new Date();
+      const ongoingSeasons = await ctx.prisma.season.findMany({
+        select: { id: true, initialElo: true },
+        where: {
+          leagueId: league.id,
+          startDate: {
+            lte: now,
+          },
+          endDate: {
+            gte: now,
+          },
+        },
+      });
+      for (const season of ongoingSeasons) {
+        await ctx.prisma.seasonPlayer.create({
+          data: {
+            leaguePlayerId: leaguePlayer.id,
+            elo: season.initialElo,
+            seasonId: season.id,
+          },
+        });
+      }
     }),
 });
 

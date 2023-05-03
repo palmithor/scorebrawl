@@ -59,45 +59,46 @@ model LeaguePlayer {
 }
 
 model League {
-  id         String         @id @default(cuid())
-  logoUrl    String?
-  name       String
-  nameSlug   String
-  initialElo Int
-  code       String         @default(cuid())
-  archived   Boolean        @default(false)
-  isPrivate  Boolean        @default(false)
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  createdBy  String
-  updatedBy  String
-  members    LeagueMember[]
-  players    LeaguePlayer[]
-  seasons    Season[]
+  id        String         @id @default(cuid())
+  logoUrl   String?
+  name      String
+  nameSlug  String
+  code      String         @default(cuid())
+  archived  Boolean        @default(false)
+  isPrivate Boolean        @default(false)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  createdBy String
+  updatedBy String
+  members   LeagueMember[]
+  players   LeaguePlayer[]
+  seasons   Season[]
 
   @@unique([code], name: "leagueCode")
   @@unique([nameSlug], name: "leagueNameSlug")
 }
 
 model Season {
-  id        String         @id @default(cuid())
-  name      String
-  startedAt DateTime       @default(now())
-  endsAt    DateTime?
-  leagueId  String
-  league    League         @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  players   SeasonPlayer[]
-  matches   Match[]
-  createdBy String
-  updatedBy String
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id         String         @id @default(cuid())
+  name       String
+  initialElo Int
+  kFactor    Int
+  startDate  DateTime       @default(now())
+  endDate    DateTime?
+  leagueId   String
+  league     League         @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  players    SeasonPlayer[]
+  matches    Match[]
+  createdBy  String
+  updatedBy  String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 }
 
 model MatchPlayer {
   id             String       @id @default(cuid())
-  leaguePlayer   SeasonPlayer @relation(fields: [leaguePlayerId], references: [id], onDelete: Cascade)
-  leaguePlayerId String
+  seasonPlayer   SeasonPlayer @relation(fields: [seasonPlayerId], references: [id], onDelete: Cascade)
+  seasonPlayerId String
   elo            Int
   homeTeam       Boolean
   matchId        String
