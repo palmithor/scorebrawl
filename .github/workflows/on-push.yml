@@ -1,0 +1,50 @@
+name: on-push
+
+on: ['push']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  ci:
+    name: 🔁 ci
+    runs-on:
+      labels: ubuntu-latest
+
+    steps:
+      - name: 🔸 Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 📥 Download Dependencies
+        uses: bahmutov/npm-install@v1
+
+      - name: 🦄 Prettier
+        run: yarn prettier --check
+
+      - name: 🔬 Lint
+        run: yarn lint
+
+      - name: 📝 Test
+        run: yarn test
+
+      - name: 👷 Build
+        run: yarn build
+        env:
+          DATABASE_URL: postgresql://root:@127.0.0.1:26257/db
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZmFuY3ktY293LTc5LmNsZXJrLmFjY291bnRzLmRldiQ
+          CLERK_SECRET_KEY: not-needed
+
+      - name: Stop DB
+        if: always()
+        run: docker-compose -f ./docker/docker-compose-test.yml down

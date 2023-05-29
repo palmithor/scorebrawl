@@ -11,7 +11,7 @@ import { matchRouter } from "./match/match.router";
 export const appRouter = createTRPCRouter({
   league: leagueRouter,
   season: seasonRouter,
-  match: matchRouter
+  match: matchRouter,
 });
 
 // export type definition of API

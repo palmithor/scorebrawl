@@ -9,7 +9,14 @@ import { getByIdWhereMember } from "./league.repository";
 const createSlug = async (prisma: PrismaClient, name: string) => {
   const doesLeagueSlugExists = async (nameSlug: string) =>
     prisma.league.findUnique({ where: { nameSlug } });
-  const rootNameSlug = slugify(name, { customReplacements: [['þ', 'th'], ['Þ', 'th'], ['ð', 'd'], ['Ð', 'd']] });
+  const rootNameSlug = slugify(name, {
+    customReplacements: [
+      ["þ", "th"],
+      ["Þ", "th"],
+      ["ð", "d"],
+      ["Ð", "d"],
+    ],
+  });
   let nameSlug = rootNameSlug;
   let leagueSlugExists = await doesLeagueSlugExists(nameSlug);
   let counter = 1;
@@ -81,7 +88,6 @@ export const leagueRouter = createTRPCRouter({
           role: "owner",
         },
       });
-      console.log(league.nameSlug)
       return excludeCode(league);
     }),
   update: protectedProcedure
@@ -126,7 +132,7 @@ export const leagueRouter = createTRPCRouter({
   getCode: protectedProcedure
     .input(
       z.object({
-        leagueId: z.string().nonempty()
+        leagueId: z.string().nonempty(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -138,7 +144,7 @@ export const leagueRouter = createTRPCRouter({
       if (!league) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
-      return { code: league.code }
+      return { code: league.code };
     }),
   join: protectedProcedure
     .input(
