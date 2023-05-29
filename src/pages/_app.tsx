@@ -7,7 +7,7 @@ import {
   SignUp,
 } from "@clerk/nextjs";
 
-import { api } from "~/utils/api";
+import { api } from "~/lib/api";
 
 import "~/styles/globals.css";
 import { MainLayout } from "~/components/layout/layout";
