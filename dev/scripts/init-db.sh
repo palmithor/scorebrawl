@@ -3,7 +3,7 @@ set -e
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
-docker-compose -f ./docker/docker-compose-test.yml up -d
+docker-compose -f ./dev/docker/docker-compose-test.yml up -d
 
 echo '🟡 - Waiting for database to be ready...'
 
