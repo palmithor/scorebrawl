@@ -10,8 +10,8 @@
         "prettier": "prettier --write src",
         "start": "next start",
         "test": "yarn db:test && export $(cat .env.test | xargs) && vitest run",
-        "db:dev": "export $(cat .env.development | xargs) && ./scripts/init-db.sh",
-        "db:test": "export $(cat .env.test | xargs) && ./scripts/init-db.sh"
+        "db:dev": "export $(cat .env.development | xargs) && dev/scripts/init-db.sh",
+        "db:test": "export $(cat .env.test | xargs) && dev/scripts/init-db.sh"
     },
     "dependencies": {
         "@clerk/nextjs": "4.16.2",

@@ -47,4 +47,4 @@ jobs:
 
       - name: Stop DB
         if: always()
-        run: docker-compose -f ./docker/docker-compose-test.yml down
+        run: docker-compose -f ./dev/docker/docker-compose-test.yml down
