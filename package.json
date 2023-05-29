@@ -15,7 +15,7 @@
     },
     "dependencies": {
         "@clerk/nextjs": "4.16.2",
-        "@headlessui/react": "^1.7.13",
+        "@headlessui/react": "^1.7.14",
         "@heroicons/react": "^2.0.16",
         "@ihs7/ts-elo": "^0.2.4",
         "@prisma/client": "^4.14.1",
