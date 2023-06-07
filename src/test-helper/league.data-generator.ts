@@ -11,7 +11,7 @@ export const createLeague = async ({
   leagueOwner = "userId",
   logoUrl = faker.image.imageUrl(),
   name = faker.company.name(),
-  isPrivate = false,
+  visibility = "public",
   members = [],
 }: Partial<
   CreateLeagueInput & {
@@ -25,7 +25,7 @@ export const createLeague = async ({
       updatedBy: leagueOwner,
       logoUrl,
       name,
-      isPrivate,
+      visibility,
       nameSlug: slugify(name),
     },
   });

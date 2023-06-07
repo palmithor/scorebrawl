@@ -13,6 +13,7 @@ import "~/styles/globals.css";
 import { MainLayout } from "~/components/layout/layout";
 import { type NavbarTab } from "~/components/layout/navbar";
 import { useRouter } from "next/router";
+import { Toaster } from "~/components/ui/toaster";
 
 const clerkAppearance = {
   elements: {
@@ -58,6 +59,7 @@ const MyApp: AppType<{ currentTab: NavbarTab }> = ({
           </div>
         </div>
       </SignedOut>
+      <Toaster />
     </ClerkProvider>
   );
 };

@@ -49,14 +49,18 @@ export const leagueRouter = createTRPCRouter({
                 },
               },
             },
-            { isPrivate: false },
+            {
+              visibility: "public",
+            },
           ],
         },
         orderBy: { id: "desc" },
       });
 
       return {
-        data: result.map((l) => (l.isPrivate ? excludeCode(l) : l)),
+        data: result.map((l) =>
+          l.visibility == "private" ? excludeCode(l) : l
+        ),
         nextCursor: result[limit - 1]?.id,
       };
     }),
@@ -65,7 +69,7 @@ export const leagueRouter = createTRPCRouter({
       z.object({
         name: z.string().nonempty(),
         logoUrl: z.string().url(),
-        isPrivate: z.boolean().default(false),
+        visibility: z.enum(["public", "private"]).default("public"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -76,7 +80,7 @@ export const leagueRouter = createTRPCRouter({
           nameSlug,
           name: input.name,
           logoUrl: input.logoUrl,
-          isPrivate: input.isPrivate,
+          visibility: input.visibility,
           updatedBy: ctx.auth.userId,
           createdBy: ctx.auth.userId,
         },
@@ -96,7 +100,7 @@ export const leagueRouter = createTRPCRouter({
         leagueId: z.string().nonempty(),
         name: z.string().nonempty(),
         logoUrl: z.string().url(),
-        isPrivate: z.boolean().default(false),
+        visibility: z.enum(["public", "private"]),
         archived: z.boolean().default(false),
       })
     )
@@ -122,7 +126,7 @@ export const leagueRouter = createTRPCRouter({
         where: { id: input.leagueId },
         data: {
           archived: input.archived,
-          isPrivate: input.isPrivate,
+          visibility: input.visibility,
           name: input.name,
           nameSlug: nameSlug,
           logoUrl: input.logoUrl,

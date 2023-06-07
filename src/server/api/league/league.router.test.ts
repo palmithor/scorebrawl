@@ -32,7 +32,7 @@ describe("leagueRouter", () => {
       expect(league.id).toBeTruthy();
       expect(league.createdAt).toBeTruthy();
       expect(league.updatedAt).toBeTruthy();
-      expect(league.isPrivate).toBeFalsy();
+      expect(league.visibility).toEqual("public");
       expect(league.createdBy).toEqual("userId");
       expect(league.updatedBy).toEqual("userId");
     });
@@ -69,18 +69,18 @@ describe("leagueRouter", () => {
     test("should return all leagues where member and public", async () => {
       await createLeague({
         name: "privateOther",
-        isPrivate: true,
+        visibility: "private",
         leagueOwner: "other",
       });
       await createLeague({
         name: "privateMine",
-        isPrivate: true,
+        visibility: "private",
         leagueOwner: ctx.auth.userId as string,
       });
       await createLeague({
         name: "privateMember",
         leagueOwner: "other",
-        isPrivate: true,
+        visibility: "private",
         members: [
           { userId: ctx.auth.userId as string, role: LeagueMemberRole.member },
         ],
