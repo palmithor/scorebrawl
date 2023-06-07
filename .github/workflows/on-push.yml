@@ -19,7 +19,7 @@ jobs:
       - name: 🔸 Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
@@ -28,6 +28,8 @@ jobs:
 
       - name: 📥 Download Dependencies
         uses: bahmutov/npm-install@v1
+        with:
+          useRollingCache: true
 
       - name: 🦄 Prettier
         run: yarn prettier --check

@@ -24,7 +24,7 @@ export const matchRouter = createTRPCRouter({
             league: {
               OR: [
                 {
-                  isPrivate: false,
+                  visibility: "public",
                 },
                 {
                   members: {

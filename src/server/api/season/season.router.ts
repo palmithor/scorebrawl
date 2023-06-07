@@ -50,7 +50,7 @@ export const seasonRouter = createTRPCRouter({
           league: {
             OR: [
               {
-                isPrivate: false,
+                visibility: "public",
               },
               {
                 members: {
@@ -80,7 +80,7 @@ export const seasonRouter = createTRPCRouter({
           league: {
             OR: [
               {
-                isPrivate: false,
+                visibility: "public",
               },
               {
                 members: {
