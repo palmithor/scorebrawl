@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
-import { type Prisma } from "@prisma/client";
-import { prisma } from "~/server/db";
+import { db } from "~/server/db";
+import { createCuid, seasons } from "~/server/db/schema";
+import slugify from "@sindresorhus/slugify";
+import { type NewSeason, type Season } from "~/server/db/types";
 
 export const createSeason = async ({
   leagueId = "",
@@ -10,16 +12,24 @@ export const createSeason = async ({
   kFactor = 32,
   userId = "userId",
   endDate = undefined,
-}: Partial<Prisma.SeasonUncheckedCreateInput & { userId: string }> = {}) =>
-  prisma.season.create({
-    data: {
+}: Partial<NewSeason & { userId: string }> = {}): Promise<Season> => {
+  const now = new Date();
+  return db
+    .insert(seasons)
+    .values({
+      id: createCuid(),
       name,
+      nameSlug: slugify(name),
       leagueId,
       startDate,
       endDate,
       initialElo,
       kFactor,
+      createdAt: now,
+      updatedAt: now,
       createdBy: userId,
       updatedBy: userId,
-    },
-  });
+    })
+    .returning()
+    .get();
+};

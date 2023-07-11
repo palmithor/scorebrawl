@@ -1,17 +1,20 @@
-import type { SignedInAuthObject } from "@clerk/nextjs/dist/api";
 import { TRPCError } from "@trpc/server";
 import { describe, expect, test } from "vitest";
 import { appRouter } from "~/server/api/root";
 import { createInnerTRPCContext } from "~/server/api/trpc";
-import { prisma } from "~/server/db";
 import { createLeague } from "~/test-helper/league.data-generator";
 import { createSeason } from "~/test-helper/season.data-generator";
+import { type NextApiRequest } from "next";
+import { db } from "~/server/db";
+import { eq } from "drizzle-orm";
+import { seasons } from "~/server/db/schema";
+import { type SignedInAuthObject } from "@clerk/nextjs/server";
 
 describe("seasonRouter", () => {
   const ctx = createInnerTRPCContext({
     auth: { userId: "userId" } as SignedInAuthObject,
   });
-  const caller = appRouter.createCaller(ctx);
+  const caller = appRouter.createCaller({ ...ctx, req: {} as NextApiRequest });
 
   describe("createSeason", () => {
     test("should create season", async () => {
@@ -75,10 +78,13 @@ describe("seasonRouter", () => {
       const league = await createLeague({});
       await createSeason({
         name: "season1",
+        startDate: new Date("2023-04-01"),
+        endDate: new Date("2023-04-02"),
         leagueId: league.id,
       });
       await createSeason({
         name: "season2",
+        startDate: new Date("2023-04-03"),
         leagueId: league.id,
       });
 
@@ -105,9 +111,9 @@ describe("seasonRouter", () => {
 
       expect(updatedSeason.name).toEqual("season2");
       expect(
-        await prisma.season.findFirst({
-          where: { id: season.id },
-          select: { endDate: true, name: true, startDate: true },
+        await db.query.seasons.findFirst({
+          where: eq(seasons.id, season.id),
+          columns: { name: true, startDate: true, endDate: true },
         })
       ).toEqual({
         name: "season2",

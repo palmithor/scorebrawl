@@ -46,7 +46,7 @@ const MyApp: AppType<{ currentTab: NavbarTab }> = ({
         </MainLayout>
       </SignedIn>
       <SignedOut>
-        <div className="flex h-full min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="flex h-full min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
           <div className="w-full max-w-md space-y-8">
             {query.signup ? (
               <SignUp signInUrl={"/"} appearance={clerkAppearance} />

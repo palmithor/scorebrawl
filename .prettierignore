@@ -1,0 +1,8 @@
+.next
+node_modules
+.idea
+tests/db
+.github
+.vscode
+pnpm-lock.yaml
+dev

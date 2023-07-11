@@ -1,9 +1,18 @@
 import z from "zod";
 import { Player, TeamMatch } from "@ihs7/ts-elo";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { getCursor, pageQuerySchema } from "~/server/api/common/pagination";
+import { pageQuerySchema } from "~/server/api/common/pagination";
 import { TRPCError } from "@trpc/server";
 import { getByIdWhereMember } from "../league/league.repository";
+import {
+  createCuid,
+  matches,
+  matchPlayers,
+  seasonPlayers,
+  seasons,
+} from "~/server/db/schema";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import { getSeason } from "~/server/api/season/season.repository";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -14,32 +23,19 @@ export const matchRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const limit = input.pageQuery.limit;
-      const result = await ctx.prisma.match.findMany({
-        take: input.pageQuery.limit,
-        cursor: getCursor(input.pageQuery),
-        where: {
-          seasonId: input.seasonId,
-          season: {
-            league: {
-              OR: [
-                {
-                  visibility: "public",
-                },
-                {
-                  members: {
-                    some: { userId: ctx.auth.userId },
-                  },
-                },
-              ],
-            },
-          },
-        },
-        orderBy: { id: "desc" },
+      const season = await getSeason({
+        seasonId: input.seasonId,
+        userId: ctx.auth.userId,
       });
+      const result = await ctx.db
+        .select()
+        .from(matches)
+        .where(eq(seasons.id, season.id))
+        .orderBy(desc(matches.createdAt))
+        .all();
       return {
         data: result,
-        nextCursor: result[limit - 1]?.id,
+        nextCursor: undefined,
       };
     }),
   create: protectedProcedure
@@ -53,12 +49,10 @@ export const matchRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const season = await ctx.prisma.season.findUnique({
-        where: { id: input.seasonId },
+      const season = await getSeason({
+        seasonId: input.seasonId,
+        userId: ctx.auth.userId,
       });
-      if (!season) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
-      }
       const league = await getByIdWhereMember({
         leagueId: season.leagueId,
         userId: ctx.auth.userId,
@@ -77,11 +71,17 @@ export const matchRouter = createTRPCRouter({
         });
       }
 
-      const homeSeasonPlayers = await ctx.prisma.seasonPlayer.findMany({
-        where: { seasonId: season.id, id: { in: input.homePlayerIds } },
+      const homeSeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
+        where: and(
+          eq(seasonPlayers.seasonId, season.id),
+          inArray(seasonPlayers.id, input.homePlayerIds)
+        ),
       });
-      const awaySeasonPlayers = await ctx.prisma.seasonPlayer.findMany({
-        where: { seasonId: season.id, id: { in: input.awayPlayerIds } },
+      const awaySeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
+        where: and(
+          eq(seasonPlayers.seasonId, season.id),
+          inArray(seasonPlayers.id, input.awayPlayerIds)
+        ),
       });
       if (homeSeasonPlayers.length !== input.homePlayerIds.length) {
         throw new TRPCError({
@@ -106,55 +106,71 @@ export const matchRouter = createTRPCRouter({
         eloAwayTeam.addPlayer(new Player(p.id, p.elo));
       });
       const eloMatchResult = eloTeamMatch.calculate();
-
-      const match = await ctx.prisma.match.create({
-        data: {
+      const now = new Date();
+      const match = await ctx.db
+        .insert(matches)
+        .values({
+          id: createCuid(),
           homeScore: input.homeScore,
           awayScore: input.awayScore,
           homeExpectedElo: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
           awayExpectedElo: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
           seasonId: season.id,
           createdBy: ctx.auth.userId,
-        },
-      });
+          updatedBy: ctx.auth.userId,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .returning()
+        .get();
+
       for (const playerResult of eloMatchResult.results) {
-        await ctx.prisma.seasonPlayer.update({
-          where: { id: playerResult.identifier },
-          data: { elo: playerResult.rating },
-        });
+        await ctx.db
+          .update(seasonPlayers)
+          .set({ elo: playerResult.rating })
+          .where(eq(seasonPlayers.id, playerResult.identifier))
+          .run();
       }
 
       for (const player of homeSeasonPlayers) {
-        await ctx.prisma.matchPlayer.create({
-          data: {
+        await ctx.db
+          .insert(matchPlayers)
+          .values({
+            id: createCuid(),
             matchId: match.id,
             elo: player.elo,
             seasonPlayerId: player.id,
             homeTeam: true,
-          },
-        });
+            createdAt: now,
+            updatedAt: now,
+          })
+          .run();
       }
 
       for (const player of awaySeasonPlayers) {
-        await ctx.prisma.matchPlayer.create({
-          data: {
+        await ctx.db
+          .insert(matchPlayers)
+          .values({
+            id: createCuid(),
             matchId: match.id,
             elo: player.elo,
             seasonPlayerId: player.id,
             homeTeam: false,
-          },
-        });
+            createdAt: now,
+            updatedAt: now,
+          })
+          .run();
       }
       return match;
     }),
   /*undo: protectedProcedure
-    .input(
-      z.object({
-        matchId: z.string().nonempty(),
-      })
-    )
-    .mutation(({ ctx, input }) => {
-      throw new TRPCError({ code: "FORBIDDEN" });
-    }),
-    */
+  .input(
+    z.object({
+      matchId: z.string().nonempty(),
+    })
+  )
+  .mutation(({ ctx, input }) => {
+    throw new TRPCError({ code: "FORBIDDEN" });
+  }),
+  */
 });

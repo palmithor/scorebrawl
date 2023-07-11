@@ -2,10 +2,12 @@ import { expect, describe, test } from "vitest";
 import { createInnerTRPCContext } from "~/server/api/trpc";
 import { type AppRouter, appRouter } from "~/server/api/root";
 import type { inferProcedureInput } from "@trpc/server";
-import type { SignedInAuthObject } from "@clerk/nextjs/dist/api";
+import type { SignedInAuthObject } from "@clerk/nextjs/server";
 import { faker } from "@faker-js/faker";
-import { LeagueMemberRole } from "@prisma/client";
 import { createLeague } from "~/test-helper/league.data-generator";
+import { type NextApiRequest } from "next";
+import { and, eq } from "drizzle-orm";
+import { leagueMembers } from "~/server/db/schema";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
 
@@ -13,7 +15,7 @@ describe("leagueRouter", () => {
   const ctx = createInnerTRPCContext({
     auth: { userId: "userId" } as SignedInAuthObject,
   });
-  const caller = appRouter.createCaller(ctx);
+  const caller = appRouter.createCaller({ ...ctx, req: {} as NextApiRequest });
 
   describe("createLeague", () => {
     test("should create league", async () => {
@@ -57,8 +59,11 @@ describe("leagueRouter", () => {
       };
       const league = await caller.league.create(input);
 
-      const member = await ctx.prisma.leagueMember.findUnique({
-        where: { leagueMember: { leagueId: league?.id, userId: "userId" } },
+      const member = await ctx.db.query.leagueMembers.findFirst({
+        where: and(
+          eq(leagueMembers.leagueId, league?.id),
+          eq(leagueMembers.userId, "userId")
+        ),
       });
 
       expect(member?.role).toEqual("owner");
@@ -72,6 +77,7 @@ describe("leagueRouter", () => {
         visibility: "private",
         leagueOwner: "other",
       });
+
       await createLeague({
         name: "privateMine",
         visibility: "private",
@@ -81,18 +87,17 @@ describe("leagueRouter", () => {
         name: "privateMember",
         leagueOwner: "other",
         visibility: "private",
-        members: [
-          { userId: ctx.auth.userId as string, role: LeagueMemberRole.member },
-        ],
+        members: [{ userId: ctx.auth.userId as string, role: "member" }],
       });
       await createLeague({ name: "public", leagueOwner: "other" });
 
       const result = await caller.league.getAll({});
       expect(result.nextCursor).toBeUndefined();
+
       expect(result.data.map((l) => l.name)).toEqual([
-        "public",
         "privateMember",
         "privateMine",
+        "public",
       ]);
     });
   });

@@ -1,28 +1,36 @@
 import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { getCursor, pageQuerySchema } from "~/server/api/common/pagination";
-import { getByIdWhereMember } from "~/server/api/league/league.repository";
+import { pageQuerySchema } from "~/server/api/common/pagination";
+import {
+  canReadLeaguesCriteria,
+  getByIdWhereMember,
+} from "~/server/api/league/league.repository";
 import { TRPCError } from "@trpc/server";
-import { type PrismaClient } from "@prisma/client";
+import {
+  createCuid,
+  leaguePlayers,
+  leagues,
+  seasonPlayers,
+  seasons,
+} from "~/server/db/schema";
+import { type Db } from "~/server/db/types";
+import { and, eq, lte, gte, sql, desc } from "drizzle-orm";
+import { slugifyName } from "~/server/api/common/slug";
 
 const checkOngoing = async (
-  prisma: PrismaClient,
+  db: Db,
   input: {
     leagueId: string;
     startDate: Date;
     endDate?: Date;
   }
 ) => {
-  const ongoingSeason = await prisma.season.findFirst({
-    where: {
-      leagueId: input.leagueId,
-      startDate: {
-        lte: input.endDate,
-      },
-      endDate: {
-        gte: input.startDate,
-      },
-    },
+  const ongoingSeason = await db.query.seasons.findFirst({
+    where: and(
+      eq(seasons.leagueId, input.leagueId),
+      gte(seasons.endDate, input.startDate),
+      input?.endDate ? lte(seasons.startDate, input?.endDate) : sql`true`
+    ),
   });
   if (ongoingSeason) {
     throw new TRPCError({
@@ -41,30 +49,22 @@ export const seasonRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const limit = input.pageQuery.limit;
-      const result = await ctx.prisma.season.findMany({
-        take: input.pageQuery.limit,
-        cursor: getCursor(input.pageQuery),
-        where: {
-          leagueId: input.leagueId,
-          league: {
-            OR: [
-              {
-                visibility: "public",
-              },
-              {
-                members: {
-                  some: { userId: ctx.auth.userId },
-                },
-              },
-            ],
-          },
-        },
-        orderBy: { id: "desc" },
-      });
+      const result = await ctx.db
+        .select()
+        .from(seasons)
+        .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
+        .where(
+          and(
+            eq(seasons.leagueId, input.leagueId),
+            canReadLeaguesCriteria({ db: ctx.db, userId: ctx.auth.userId })
+          )
+        )
+        .orderBy(desc(seasons.startDate))
+        .all();
+
       return {
-        data: result,
-        nextCursor: result[limit - 1]?.id,
+        data: result.map((r) => r.season),
+        nextCursor: undefined,
       };
     }),
   table: protectedProcedure
@@ -74,31 +74,19 @@ export const seasonRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const season = await ctx.prisma.season.findFirst({
-        where: {
-          id: input.seasonId,
-          league: {
-            OR: [
-              {
-                visibility: "public",
-              },
-              {
-                members: {
-                  some: { userId: ctx.auth.userId },
-                },
-              },
-            ],
-          },
-        },
-        orderBy: { id: "desc" },
+      const season = await ctx.db.query.seasons.findFirst({
+        where: eq(seasons.id, input.seasonId),
       });
       if (!season) {
         throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
       }
 
-      return ctx.prisma.seasonPlayer.findMany({
-        where: { id: season.id },
-        orderBy: { elo: "desc" },
+      return ctx.db.query.seasonPlayers.findMany({
+        where: and(
+          eq(seasons.id, season.id),
+          canReadLeaguesCriteria({ db: ctx.db, userId: ctx.auth.userId })
+        ),
+        orderBy: desc(seasonPlayers.elo),
       });
     }),
   create: protectedProcedure
@@ -130,11 +118,16 @@ export const seasonRouter = createTRPCRouter({
       if (!league) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
-      await checkOngoing(ctx.prisma, input);
+      await checkOngoing(ctx.db, input);
 
-      const season = await ctx.prisma.season.create({
-        data: {
+      const nameSlug = await slugifyName({ table: seasons, name: input.name });
+      const now = new Date();
+      const season = await ctx.db
+        .insert(seasons)
+        .values({
+          id: createCuid(),
           name: input.name,
+          nameSlug,
           leagueId: input.leagueId,
           startDate: input.startDate,
           endDate: input.endDate,
@@ -142,20 +135,28 @@ export const seasonRouter = createTRPCRouter({
           kFactor: input.kFactor,
           updatedBy: ctx.auth.userId,
           createdBy: ctx.auth.userId,
-        },
-      });
-      const leaguePlayers = await ctx.prisma.leaguePlayer.findMany({
-        select: { id: true },
-        where: { leagueId: input.leagueId, disabled: false },
+          createdAt: now,
+          updatedAt: now,
+        })
+        .returning()
+        .get();
+      const players = await ctx.db.query.leaguePlayers.findMany({
+        columns: { id: true },
+        where: and(
+          eq(leaguePlayers.leagueId, input.leagueId),
+          eq(leaguePlayers.disabled, false)
+        ),
       });
       await Promise.all(
-        leaguePlayers.map((lp) =>
-          ctx.prisma.seasonPlayer.create({
-            data: {
-              elo: season.initialElo,
-              leaguePlayerId: lp.id,
-              seasonId: season.id,
-            },
+        players.map((lp) =>
+          ctx.db.insert(seasonPlayers).values({
+            id: createCuid(),
+            disabled: false,
+            elo: season.initialElo,
+            leaguePlayerId: lp.id,
+            seasonId: season.id,
+            createdAt: now,
+            updatedAt: now,
           })
         )
       );
@@ -172,8 +173,8 @@ export const seasonRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const season = await ctx.prisma.season.findUnique({
-        where: { id: input.seasonId },
+      const season = await ctx.db.query.seasons.findFirst({
+        where: eq(seasons.id, input.seasonId),
       });
       if (!season) {
         throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
@@ -193,14 +194,15 @@ export const seasonRouter = createTRPCRouter({
         throw new TRPCError({ code: "CONFLICT", message: "league archived" });
       }
 
-      await ctx.prisma.season.update({
-        where: { id: season.id },
-        data: {
+      return ctx.db
+        .update(seasons)
+        .set({
           name: input.name,
           startDate: input.startDate,
           endDate: input.endDate,
-        },
-      });
-      return { ...season, ...input };
+        })
+        .where(eq(seasons.id, input.seasonId))
+        .returning()
+        .get();
     }),
 });
