@@ -9,6 +9,11 @@ export default defineConfig({
     alias: {
       "~/": fileURLToPath(new URL("./src/", import.meta.url)),
     },
-    setupFiles: ["src/test-helper/reset-db.ts"],
+    globalSetup: ["./tests/setup/global-setup.ts"],
+    setupFiles: ["./tests/setup/setup-test-env.ts"],
+    coverage: {
+      include: ["app/**/*.{ts,tsx}"],
+      all: true,
+    },
   },
 });

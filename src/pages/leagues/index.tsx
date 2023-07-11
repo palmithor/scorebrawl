@@ -1,6 +1,6 @@
 import { type GetServerSidePropsResult, type NextPage } from "next";
 import { type NavbarTab } from "~/components/layout/navbar";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button";
 import { api } from "~/lib/api";
 import Link from "next/link";
 
@@ -8,7 +8,6 @@ const Leagues: NextPage = () => {
   const { data, isLoading, error } = api.league.getAll.useQuery({
     pageQuery: {},
   });
-  console.log("error", error);
   return (
     <>
       <Link

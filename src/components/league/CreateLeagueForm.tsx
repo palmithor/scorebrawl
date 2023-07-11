@@ -41,7 +41,7 @@ const defaultValues: Partial<LeagueFormValues> = {
 };
 
 export const CreateLeagueForm = () => {
-  const { isLoading, mutateAsync, isSuccess } = api.league.create.useMutation();
+  const { isLoading, mutateAsync } = api.league.create.useMutation();
   const router = useRouter();
 
   const form = useForm<LeagueFormValues>({

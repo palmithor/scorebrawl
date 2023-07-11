@@ -1,11 +1,13 @@
-/**
- * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
- * 1. You want to modify request context (see Part 1).
- * 2. You want to create a new middleware or type of procedure (see Part 3).
- *
- * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
- * need to use are documented accordingly near the end.
- */
+import { initTRPC, TRPCError } from "@trpc/server";
+import {
+  type SignedInAuthObject,
+  type SignedOutAuthObject,
+  getAuth,
+} from "@clerk/nextjs/server";
+import superjson from "superjson";
+import { ZodError } from "zod";
+import { db } from "~/server/db";
+import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 
 /**
  * 1. CONTEXT
@@ -14,24 +16,9 @@
  *
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
-import type {
-  SignedInAuthObject,
-  SignedOutAuthObject,
-} from "@clerk/nextjs/dist/api";
-import { getAuth } from "@clerk/nextjs/server";
+export type AuthContext = { auth: SignedInAuthObject | SignedOutAuthObject };
 
-import { prisma } from "~/server/db";
-
-type CreateContextOptions = {
-  auth: SignedInAuthObject | SignedOutAuthObject;
-};
-
-export type TrpcContext = {
-  auth: SignedInAuthObject | SignedOutAuthObject;
-  prisma: PrismaClient;
-};
-
+type CreateContextOptions = AuthContext;
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
  * it from here.
@@ -42,12 +29,12 @@ export type TrpcContext = {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-export const createInnerTRPCContext = (
-  _opts: CreateContextOptions
-): TrpcContext => ({
-  prisma,
-  auth: _opts.auth,
-});
+export const createInnerTRPCContext = ({ auth }: CreateContextOptions) => {
+  return {
+    auth,
+    db,
+  };
+};
 
 /**
  * This is the actual context you will use in your router. It will be used to process every request
@@ -55,10 +42,10 @@ export const createInnerTRPCContext = (
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  const auth = getAuth(_opts.req);
-  return createInnerTRPCContext({ auth });
-};
+export const createTRPCContext = ({ req }: CreateNextContextOptions) => ({
+  req,
+  ...createInnerTRPCContext({ auth: getAuth(req) }),
+});
 
 /**
  * 2. INITIALIZATION
@@ -67,10 +54,6 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
-import { initTRPC, TRPCError } from "@trpc/server";
-import superjson from "superjson";
-import { ZodError } from "zod";
-import type { PrismaClient } from "@prisma/client";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
@@ -88,7 +71,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 
 // check if the user is signed in, otherwise through a UNAUTHORIZED CODE
 const isAuthenticated = t.middleware(({ next, ctx }) => {
-  if (!ctx.auth.userId) {
+  if (!ctx.auth?.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({

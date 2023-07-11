@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
 
 export type NavbarTab = "Dashboard" | "Leagues";
 
@@ -74,13 +74,13 @@ export const Navbar = ({ currentTab }: { currentTab: NavbarTab }) => {
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                {/*<UserButton />*/}
+                {<UserButton />}
               </div>
             </div>
           </div>
 
           <Disclosure.Panel className="sm:hidden">
-            <div className="space-y-1 px-2 pt-2 pb-3">
+            <div className="space-y-1 px-2 pb-3 pt-2">
               {navigation.map((item) => {
                 const isCurrent = item.name === currentTab;
                 return (

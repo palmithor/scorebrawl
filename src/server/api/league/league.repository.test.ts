@@ -1,34 +1,50 @@
 import { faker } from "@faker-js/faker";
 import slugify from "@sindresorhus/slugify";
 import { beforeEach, expect, describe, test } from "vitest";
-import { prisma } from "~/server/db";
+import { db } from "~/server/db";
 import { getByIdWhereMember } from "./league.repository";
-import { type League, LeagueMemberRole } from "@prisma/client";
+import { createCuid, leagueMembers, leagues } from "~/server/db/schema";
+import { sql } from "drizzle-orm";
+import { type League } from "~/server/db/types";
 
 describe("leagueRepository", () => {
   describe("getByIdWhereMember", () => {
     let existingLeague: League;
+    const now = new Date();
 
     beforeEach(async () => {
       const name = faker.company.name();
-      existingLeague = await prisma.league.create({
-        data: {
+      existingLeague = await db
+        .insert(leagues)
+        .values({
+          id: createCuid(),
+          code: createCuid(),
+          archived: false,
+          createdAt: now,
+          updatedAt: now,
+          visibility: "public",
+          logoUrl: faker.image.imageUrl(),
           createdBy: "userId",
           updatedBy: "userId",
           name: name,
           nameSlug: slugify(name),
-        },
-      });
+        })
+        .returning()
+        .get();
     });
 
     test("should get by id with default roles", async () => {
-      await prisma.leagueMember.create({
-        data: {
-          role: LeagueMemberRole.member,
+      await db
+        .insert(leagueMembers)
+        .values({
+          id: createCuid(),
+          role: "member",
           userId: "userId",
           leagueId: existingLeague.id,
-        },
-      });
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run();
 
       const league = await getByIdWhereMember({
         leagueId: existingLeague.id,
@@ -44,22 +60,36 @@ describe("leagueRepository", () => {
           leagueId: "not-found",
           userId: "userId",
         })
-      ).toBeNull();
+      ).toBeUndefined();
     });
 
     test("should not get when not member", async () => {
+      await db
+        .select({
+          count: sql<number>`count(*)`.mapWith(Number),
+        })
+        .from(leagueMembers)
+        .get();
       expect(
         await getByIdWhereMember({
           leagueId: existingLeague.id,
           userId: "userId",
         })
-      ).toBeNull();
+      ).toBeUndefined();
     });
 
     test("should not get when role not allowed", async () => {
-      await prisma.leagueMember.create({
-        data: { role: "member", userId: "userId", leagueId: existingLeague.id },
-      });
+      await db
+        .insert(leagueMembers)
+        .values({
+          id: createCuid(),
+          role: "member",
+          userId: "userId",
+          leagueId: existingLeague.id,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run();
 
       expect(
         await getByIdWhereMember({

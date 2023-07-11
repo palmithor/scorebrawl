@@ -1,9 +1,14 @@
 import { faker } from "@faker-js/faker";
-import { LeagueMemberRole } from "@prisma/client";
 import slugify from "@sindresorhus/slugify";
 import { type inferProcedureInput } from "@trpc/server";
 import { type AppRouter } from "~/server/api/root";
-import { prisma } from "~/server/db";
+import { db } from "~/server/db";
+import {
+  createCuid,
+  type LeagueMemberRole,
+  leagueMembers,
+  leagues,
+} from "~/server/db/schema";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
 
@@ -19,27 +24,40 @@ export const createLeague = async ({
     members: { userId: string; role: LeagueMemberRole }[];
   }
 > = {}) => {
-  const league = await prisma.league.create({
-    data: {
+  const now = new Date();
+  const league = await db
+    .insert(leagues)
+    .values({
+      id: createCuid(),
+      code: createCuid(),
+      name,
+      nameSlug: slugify(name),
+      logoUrl,
       createdBy: leagueOwner,
       updatedBy: leagueOwner,
-      logoUrl,
-      name,
       visibility,
-      nameSlug: slugify(name),
-    },
-  });
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning()
+    .get();
 
   await Promise.all(
-    [{ userId: leagueOwner, role: LeagueMemberRole.owner }, ...members].map(
-      (m) =>
-        prisma.leagueMember.create({
-          data: {
-            userId: m.userId,
-            role: m.role,
-            leagueId: league.id,
-          },
+    [
+      { userId: leagueOwner, role: "owner" as LeagueMemberRole },
+      ...members,
+    ].map((m) =>
+      db
+        .insert(leagueMembers)
+        .values({
+          id: createCuid(),
+          userId: m.userId,
+          role: m.role,
+          leagueId: league.id,
+          createdAt: now,
+          updatedAt: now,
         })
+        .run()
     )
   );
   return league;

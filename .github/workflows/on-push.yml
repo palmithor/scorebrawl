@@ -12,6 +12,13 @@ concurrency:
 jobs:
   ci:
     name: 🔁 ci
+
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+
     runs-on:
       labels: ubuntu-latest
 
@@ -26,27 +33,38 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📥 Download Dependencies
-        uses: bahmutov/npm-install@v1
+      - uses: pnpm/action-setup@v2.2.4
+        name: Install pnpm
+        id: pnpm-install
         with:
-          useRollingCache: true
+          version: 8.6.5
+          run_install: false
 
-      - name: 🦄 Prettier
-        run: yarn prettier --check
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: 🦄 Format
+        run: pnpm format:check
 
       - name: 🔬 Lint
-        run: yarn lint
+        run: pnpm lint
 
       - name: 📝 Test
-        run: yarn test
+        run: pnpm test
 
       - name: 👷 Build
-        run: yarn build
-        env:
-          DATABASE_URL: postgresql://root:@127.0.0.1:26257/db
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZmFuY3ktY293LTc5LmNsZXJrLmFjY291bnRzLmRldiQ
-          CLERK_SECRET_KEY: not-needed
-
-      - name: Stop DB
-        if: always()
-        run: docker-compose -f ./dev/docker/docker-compose-test.yml down
+        run: pnpm build

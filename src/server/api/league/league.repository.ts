@@ -1,5 +1,11 @@
-import { prisma } from "~/server/db";
-import { type League, LeagueMemberRole } from "@prisma/client";
+import {
+  type LeagueMemberRole,
+  leagueMembers,
+  leagues,
+} from "~/server/db/schema";
+import { db } from "~/server/db";
+import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
+import { type Db } from "~/server/db/types";
 
 export const getByIdWhereMember = async ({
   userId,
@@ -9,22 +15,41 @@ export const getByIdWhereMember = async ({
   userId: string;
   leagueId: string;
   allowedRoles?: LeagueMemberRole[];
-}): Promise<League | null> =>
-  prisma.league.findFirst({
-    where: {
-      id: leagueId,
-      members: {
-        some: {
-          userId,
-          role: {
-            in: allowedRoles ?? [
-              LeagueMemberRole.editor,
-              LeagueMemberRole.member,
-              LeagueMemberRole.owner,
-              LeagueMemberRole.viewer,
-            ],
-          },
-        },
-      },
-    },
-  });
+}) => {
+  const joinCriteria = allowedRoles
+    ? and(
+        eq(leagueMembers.leagueId, leagues.id),
+        eq(leagueMembers.userId, userId),
+        inArray(leagueMembers.role, allowedRoles)
+      )
+    : and(
+        eq(leagueMembers.leagueId, leagues.id),
+        eq(leagueMembers.userId, userId)
+      );
+  const result = await db
+    .select()
+    .from(leagues)
+    .innerJoin(leagueMembers, joinCriteria)
+    .where(eq(leagues.id, leagueId))
+    .get();
+  return result?.league;
+};
+
+export const canReadLeaguesCriteria = ({
+  db,
+  userId,
+}: {
+  db: Db;
+  userId: string;
+}) =>
+  or(
+    eq(leagues.visibility, "public"),
+    inArray(
+      leagues.id,
+      db
+        .select({ data: leagues.id })
+        .from(leagues)
+        .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
+        .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id)))
+    )
+  );
