@@ -11,7 +11,6 @@ import { api } from "~/lib/api";
 
 import "~/styles/globals.css";
 import { MainLayout } from "~/components/layout/layout";
-import { type NavbarTab } from "~/components/layout/navbar";
 import { useRouter } from "next/router";
 import { Toaster } from "~/components/ui/toaster";
 
@@ -32,16 +31,13 @@ const clerkAppearance = {
   },
 };
 
-const MyApp: AppType<{ currentTab: NavbarTab }> = ({
-  Component,
-  pageProps,
-}) => {
+const MyApp: AppType = ({ Component, pageProps }) => {
   const { query } = useRouter();
 
   return (
     <ClerkProvider {...pageProps}>
       <SignedIn>
-        <MainLayout currentTab={pageProps.currentTab}>
+        <MainLayout>
           <Component {...pageProps} />
         </MainLayout>
       </SignedIn>

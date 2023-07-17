@@ -1,17 +1,17 @@
-import { type GetServerSidePropsResult, type NextPage } from "next";
-import { type NavbarTab } from "~/components/layout/navbar";
+import { type NextPage } from "next";
 import { buttonVariants } from "~/components/ui/button";
 import { api } from "~/lib/api";
 import Link from "next/link";
 
 const Leagues: NextPage = () => {
-  const { data, isLoading, error } = api.league.getAll.useQuery({
+  const { data, isLoading } = api.league.getAll.useQuery({
     pageQuery: {},
   });
+
   return (
-    <>
+    <div className={"pb-8"}>
       <Link
-        className={buttonVariants({ variant: "default" })}
+        className={buttonVariants({ variant: "ghost" })}
         href="/leagues/create"
       >
         Create League
@@ -21,15 +21,11 @@ const Leagues: NextPage = () => {
         <p>Is loading</p>
       ) : (
         <pre className="mt-2 rounded-md bg-slate-900 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+          <code className={"text-white"}>{JSON.stringify(data, null, 2)}</code>
         </pre>
       )}
-    </>
+    </div>
   );
 };
-
-export const getServerSideProps = (): GetServerSidePropsResult<{
-  currentTab: NavbarTab;
-}> => ({ props: { currentTab: "Leagues" } });
 
 export default Leagues;
