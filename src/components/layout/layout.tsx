@@ -1,17 +1,29 @@
-import { Navbar, type NavbarTab } from "~/components/layout/navbar";
-import { type ReactNode } from "react";
+import { ThemeProvider } from "~/components/layout/providers";
 
-export const MainLayout = ({
-  children,
-  currentTab,
-}: {
-  children: ReactNode;
-  currentTab: NavbarTab;
-}) => (
-  <>
-    <Navbar currentTab={currentTab} />
-    <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-      <main>{children}</main>
-    </div>
-  </>
+import { type ReactNode } from "react";
+import { cn } from "~/lib/utils";
+import { fontSans } from "~/lib/fonts";
+import { SiteHeader } from "~/components/layout/site-header";
+import { SiteFooter } from "~/components/layout/site-footer";
+import { TailwindIndicator } from "~/components/tailwind-indicator";
+import { Toaster } from "~/components/ui/toaster";
+
+export const MainLayout = ({ children }: { children: ReactNode }) => (
+  <body
+    className={cn(
+      "min-h-screen bg-background font-sans antialiased",
+      fontSans.variable
+    )}
+  >
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <div className="relative flex min-h-screen flex-col">
+        <SiteHeader />
+        <div className="container relative flex-1">{children}</div>
+        <SiteFooter />
+      </div>
+      <TailwindIndicator />
+    </ThemeProvider>
+    {/*<Analytics />*/}
+    <Toaster />
+  </body>
 );
