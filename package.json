@@ -50,7 +50,7 @@
     "@trpc/react-query": "10.33.0",
     "@trpc/server": "10.33.0",
     "class-variance-authority": "0.6.0",
-    "clsx": "1.2.1",
+    "clsx": "2.0.0",
     "cmdk": "0.2.0",
     "dayjs": "^1.11.9",
     "dotenv": "^16.3.1",
