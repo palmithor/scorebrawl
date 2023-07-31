@@ -114,8 +114,8 @@ dependencies:
     specifier: 0.27.0
     version: 0.27.0(@libsql/client@0.2.2)(better-sqlite3@8.4.0)
   lucide-react:
-    specifier: 0.257.0
-    version: 0.257.0(react@18.2.0)
+    specifier: 0.263.1
+    version: 0.263.1(react@18.2.0)
   next:
     specifier: 13.4.7
     version: 13.4.7(@babel/core@7.22.9)(react-dom@18.2.0)(react@18.2.0)
@@ -5197,8 +5197,8 @@ packages:
       es5-ext: 0.10.62
     dev: true
 
-  /lucide-react@0.257.0(react@18.2.0):
-    resolution: {integrity: sha512-iP/RIvOhB8hI+AeocKXBleP9NopM1MgQbwB8hCfNdxYqJrQreJCsEvBtmXb3SS92kxwEGWp6ikJ0XQ6hqaYsdA==}
+  /lucide-react@0.263.1(react@18.2.0):
+    resolution: {integrity: sha512-keqxAx97PlaEN89PXZ6ki1N8nRjGWtDa4021GFYLNj0RgruM5odbpl8GHTExj0hhPq3sF6Up0gnxt6TSHu+ovw==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
     dependencies:
