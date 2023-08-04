@@ -5,11 +5,11 @@ import { db } from "~/server/db";
 import { getByIdWhereMember } from "./league.repository";
 import { createCuid, leagueMembers, leagues } from "~/server/db/schema";
 import { sql } from "drizzle-orm";
-import { type League } from "~/server/db/types";
+import { type LeagueModel } from "~/server/db/types";
 
 describe("leagueRepository", () => {
   describe("getByIdWhereMember", () => {
-    let existingLeague: League;
+    let existingLeague: LeagueModel;
     const now = new Date();
 
     beforeEach(async () => {

@@ -1,4 +1,3 @@
-import { CommandMenu } from "~/components/command-menu";
 import { MainNav } from "~/components/layout/main-nav";
 import { MobileNav } from "~/components/layout/mobile-nav";
 import { ModeToggle } from "~/components/mode-toggle";

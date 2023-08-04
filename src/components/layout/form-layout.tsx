@@ -1,5 +1,4 @@
 import { Separator } from "~/components/ui/separator";
-import { CreateLeagueForm } from "~/components/league/CreateLeagueForm";
 import { type ReactNode } from "react";
 
 export const FormLayout = ({

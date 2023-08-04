@@ -9,7 +9,7 @@ import { TailwindIndicator } from "~/components/tailwind-indicator";
 import { Toaster } from "~/components/ui/toaster";
 
 export const MainLayout = ({ children }: { children: ReactNode }) => (
-  <body
+  <div
     className={cn(
       "min-h-screen bg-background font-sans antialiased",
       fontSans.variable
@@ -25,5 +25,5 @@ export const MainLayout = ({ children }: { children: ReactNode }) => (
     </ThemeProvider>
     {/*<Analytics />*/}
     <Toaster />
-  </body>
+  </div>
 );

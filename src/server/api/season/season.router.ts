@@ -16,6 +16,7 @@ import {
 import { type Db } from "~/server/db/types";
 import { and, eq, lte, gte, sql, desc } from "drizzle-orm";
 import { slugifyName } from "~/server/api/common/slug";
+import { create } from "./season.schema";
 
 const checkOngoing = async (
   db: Db,
@@ -90,16 +91,7 @@ export const seasonRouter = createTRPCRouter({
       });
     }),
   create: protectedProcedure
-    .input(
-      z.object({
-        leagueId: z.string().nonempty(),
-        name: z.string().nonempty(),
-        startDate: z.date().optional().default(new Date()),
-        endDate: z.date().optional(),
-        initialElo: z.number().int().min(100).default(1200),
-        kFactor: z.number().int().min(10).max(50).default(32),
-      })
-    )
+    .input(create)
     .mutation(async ({ ctx, input }) => {
       if (
         input.endDate &&

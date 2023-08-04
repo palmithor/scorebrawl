@@ -15,8 +15,9 @@ import {
   seasons,
 } from "~/server/db/schema";
 import { and, eq, asc, lte, gte } from "drizzle-orm";
-import { type League } from "~/server/db/types";
+import { type LeagueModel } from "~/server/db/types";
 import { slugifyName } from "~/server/api/common/slug";
+import { create } from "./league.schema";
 
 export const leagueRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -42,14 +43,25 @@ export const leagueRouter = createTRPCRouter({
         nextCursor: result[limit - 1]?.id,
       };
     }),
-  create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().nonempty(),
-        logoUrl: z.string().url(),
-        visibility: z.enum(["public", "private"]).default("public"),
+  getBySlug: protectedProcedure
+    .input(z.object({ slug: z.string().nonempty() }))
+    .query(async ({ input, ctx }) => {
+      const league = await ctx.db.query.leagues.findFirst({
+        where: eq(leagues.nameSlug, input.slug)
       })
-    )
+      if (!league) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      if (league.visibility === "private") {
+        const privateLeague = await getByIdWhereMember({ leagueId: league.id, userId: ctx.auth.userId })
+        if (!privateLeague) {
+          throw new TRPCError({ code: "NOT_FOUND" });
+        }
+      }
+      return league
+    }),
+  create: protectedProcedure
+    .input(create)
     .mutation(async ({ ctx, input }) => {
       const nameSlug = await slugifyName({ table: leagues, name: input.name });
       const now = new Date();
@@ -214,4 +226,4 @@ function exclude<League, Key extends keyof League>(
   return league;
 }
 
-const excludeCode = (l: League): Omit<League, "code"> => exclude(l, ["code"]);
+const excludeCode = (l: LeagueModel): Omit<LeagueModel, "code"> => exclude(l, ["code"]);
