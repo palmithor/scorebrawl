@@ -27,7 +27,7 @@ describe("leagueRepository", () => {
           createdBy: "userId",
           updatedBy: "userId",
           name: name,
-          nameSlug: slugify(name),
+          slug: slugify(name),
         })
         .returning()
         .get();

@@ -44,7 +44,7 @@ export const columns: ColumnDef<League>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div className="justify-end">
-        <Link href={`/leagues/${row.original.nameSlug}`}>
+        <Link href={`/leagues/${row.original.slug}`}>
           <EnterIcon />
         </Link>
       </div>
@@ -81,10 +81,6 @@ const Leagues: NextPage = () => {
     return <p>loading</p>;
   }
 
-  const navigateCreateLeague = () => {
-    router.push("/leagues/create").catch(console.error);
-  };
-
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -97,7 +93,9 @@ const Leagues: NextPage = () => {
           className="max-w-sm"
         />
         <div className="flex-grow" />
-        <Button onClick={navigateCreateLeague}>Create League</Button>
+        <Button onClick={() => void router.push("/leagues/create")}>
+          Create League
+        </Button>
       </div>
       <div className="rounded-md border">
         <Table>

@@ -21,7 +21,7 @@ describe("seasonRouter", () => {
       const league = await createLeague();
 
       const season = await caller.season.create({
-        leagueId: league.id,
+        leagueSlug: league.slug,
         name: "Q2 2023",
         startDate: new Date("2023-04-19"),
       });
@@ -41,7 +41,7 @@ describe("seasonRouter", () => {
       const league = await createLeague({ leagueOwner: "other" });
       await expect(
         caller.season.create({
-          leagueId: league.id,
+          leagueSlug: league.slug,
           name: "Q2 2023",
           startDate: new Date("2023-04-19"),
         })
@@ -52,7 +52,7 @@ describe("seasonRouter", () => {
       const league = await createLeague();
 
       await caller.season.create({
-        leagueId: league.id,
+        leagueSlug: league.slug,
         name: "first",
         startDate: new Date("2023-04-01"),
         endDate: new Date("2023-04-10"),
@@ -60,7 +60,7 @@ describe("seasonRouter", () => {
 
       await expect(
         caller.season.create({
-          leagueId: league.id,
+          leagueSlug: league.slug,
           name: "Second",
           startDate: new Date("2023-04-05"),
         })
@@ -88,7 +88,7 @@ describe("seasonRouter", () => {
         leagueId: league.id,
       });
 
-      const result = await caller.season.getAll({ leagueId: league.id });
+      const result = await caller.season.getAll({ leagueSlug: league.slug });
       expect(result.nextCursor).toBeUndefined();
       expect(result.data.map((l) => l.name)).toEqual(["season2", "season1"]);
     });

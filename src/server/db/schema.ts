@@ -17,7 +17,7 @@ export const leagues = sqliteTable(
   {
     id: text("id", cuidConfig).primaryKey(),
     name: text("name", defaultTextConfig).notNull(),
-    nameSlug: text("name_slug", defaultTextConfig).notNull(),
+    slug: text("name_slug", defaultTextConfig).notNull(),
     logoUrl: text("logo_url", defaultTextConfig),
     visibility: text("visibility", { enum: ["private", "public"] })
       .default("public")
@@ -30,7 +30,7 @@ export const leagues = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
   (league) => ({
-    nameSlugIdx: uniqueIndex("league_name_slug_uq_idx").on(league.nameSlug),
+    slugIdx: uniqueIndex("league_name_slug_uq_idx").on(league.slug),
     codeIdx: uniqueIndex("league_code_uq_idx").on(league.code),
   })
 );
@@ -80,7 +80,7 @@ export const seasons = sqliteTable(
   {
     id: text("id", cuidConfig).primaryKey(),
     name: text("name", defaultTextConfig).notNull(),
-    nameSlug: text("name_slug", defaultTextConfig).notNull(),
+    slug: text("name_slug", defaultTextConfig).notNull(),
     initialElo: integer("initial_elo").notNull(),
     kFactor: integer("k_factor").notNull(),
     startDate: integer("start_date", { mode: "timestamp" }).notNull(),
@@ -92,7 +92,7 @@ export const seasons = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
   (season) => ({
-    nameSlugIdx: uniqueIndex("season_name_slug_uq_idx").on(season.nameSlug),
+    slugIdx: uniqueIndex("season_name_slug_uq_idx").on(season.slug),
   })
 );
 

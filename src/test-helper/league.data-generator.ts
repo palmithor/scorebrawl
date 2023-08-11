@@ -31,7 +31,7 @@ export const createLeague = async ({
       id: createCuid(),
       code: createCuid(),
       name,
-      nameSlug: slugify(name),
+      slug: slugify(name),
       logoUrl,
       createdBy: leagueOwner,
       updatedBy: leagueOwner,

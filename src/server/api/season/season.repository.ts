@@ -15,15 +15,7 @@ export const getSeason = async ({
     .select()
     .from(seasons)
     .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
-    .where(
-      and(
-        eq(seasons.id, seasonId),
-        canReadLeaguesCriteria({
-          db,
-          userId: userId,
-        })
-      )
-    )
+    .where(and(eq(seasons.id, seasonId), canReadLeaguesCriteria({ userId })))
     .get();
   if (!result?.season) {
     throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
