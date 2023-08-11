@@ -14,9 +14,9 @@ import { useEffect } from "react";
 const League: NextPage = () => {
   const router = useRouter();
 
-  const { isLoading, error } = api.league.getBySlug.useQuery(
+  const { isLoading, error } = api.season.getAll.useQuery(
     {
-      slug: router.query.league as string,
+      leagueSlug: router.query.league as string,
     },
     {}
   );

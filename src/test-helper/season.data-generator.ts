@@ -19,7 +19,7 @@ export const createSeason = async ({
     .values({
       id: createCuid(),
       name,
-      nameSlug: slugify(name),
+      slug: slugify(name),
       leagueId,
       startDate,
       endDate,

@@ -1,16 +1,14 @@
+import type z from "zod";
 import { expect, describe, test } from "vitest";
 import { createInnerTRPCContext } from "~/server/api/trpc";
-import { type AppRouter, appRouter } from "~/server/api/root";
-import type { inferProcedureInput } from "@trpc/server";
+import { appRouter } from "~/server/api/root";
 import type { SignedInAuthObject } from "@clerk/nextjs/server";
 import { faker } from "@faker-js/faker";
 import { createLeague } from "~/test-helper/league.data-generator";
 import { type NextApiRequest } from "next";
 import { and, eq } from "drizzle-orm";
 import { leagueMembers } from "~/server/db/schema";
-
-type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
-
+import { type create } from "./league.schema";
 describe("leagueRouter", () => {
   const ctx = createInnerTRPCContext({
     auth: { userId: "userId" } as SignedInAuthObject,
@@ -20,15 +18,16 @@ describe("leagueRouter", () => {
   describe("createLeague", () => {
     test("should create league", async () => {
       const imageUrl = faker.image.imageUrl();
-      const input: CreateLeagueInput = {
+      const input: z.infer<typeof create> = {
         logoUrl: imageUrl,
         name: "Rocket League",
+        visibility: "public",
       };
 
       const league = await caller.league.create(input);
 
       expect(league.name).toEqual("Rocket League");
-      expect(league.nameSlug).toEqual("rocket-league");
+      expect(league.slug).toEqual("rocket-league");
       expect(league.logoUrl).toEqual(imageUrl);
       expect(league.archived).toBe(false);
       expect(league.id).toBeTruthy();
@@ -41,21 +40,23 @@ describe("leagueRouter", () => {
 
     test("should add counter to slug when exists", async () => {
       const imageUrl = faker.image.imageUrl();
-      const input = {
+      const input: z.infer<typeof create> = {
         logoUrl: imageUrl,
         name: "Rocket League",
+        visibility: "public",
       };
 
       await caller.league.create(input);
       const league = await caller.league.create(input);
 
-      expect(league.nameSlug).toEqual("rocket-league-1");
+      expect(league.slug).toEqual("rocket-league-1");
     });
 
     test("should set creator as owner", async () => {
-      const input = {
+      const input: z.infer<typeof create> = {
         logoUrl: faker.image.imageUrl(),
         name: "Rocket League",
+        visibility: "public",
       };
       const league = await caller.league.create(input);
 

@@ -14,7 +14,7 @@ const LeagueFormAuto = () => {
   const onSubmit = async (data: z.infer<typeof create>) => {
     const result = await mutateAsync(data);
     if (result) {
-      await router.push("/leagues");
+      await router.push(`/leagues/${result.slug}`);
     }
   };
 

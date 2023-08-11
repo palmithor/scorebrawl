@@ -14,7 +14,7 @@ export const slugifyName = async ({
     name: string;
     schema: string | undefined;
     columns: {
-      nameSlug: SQLiteText<{
+      slug: SQLiteText<{
         tableName: "league" | "season";
         enumValues: [string, ...string[]];
         name: "name_slug";
@@ -27,9 +27,9 @@ export const slugifyName = async ({
   }>;
   name: string;
 }) => {
-  const doesLeagueSlugExists = async (nameSlug: string) =>
-    db.select().from(table).where(eq(table.nameSlug, nameSlug)).limit(1).get();
-  const rootNameSlug = slugify(name, {
+  const doesLeagueSlugExists = async (slug: string) =>
+    db.select().from(table).where(eq(table.slug, slug)).limit(1).get();
+  const rootSlug = slugify(name, {
     customReplacements: [
       ["þ", "th"],
       ["Þ", "th"],
@@ -37,13 +37,13 @@ export const slugifyName = async ({
       ["Ð", "d"],
     ],
   });
-  let nameSlug = rootNameSlug;
-  let slugExists = await doesLeagueSlugExists(nameSlug);
+  let slug = rootSlug;
+  let slugExists = await doesLeagueSlugExists(slug);
   let counter = 1;
   while (slugExists) {
-    nameSlug = `${rootNameSlug}-${counter}`;
+    slug = `${rootSlug}-${counter}`;
     counter++;
-    slugExists = await doesLeagueSlugExists(nameSlug);
+    slugExists = await doesLeagueSlugExists(slug);
   }
-  return nameSlug;
+  return slug;
 };

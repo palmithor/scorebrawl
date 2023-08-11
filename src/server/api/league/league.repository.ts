@@ -5,7 +5,36 @@ import {
 } from "~/server/db/schema";
 import { db } from "~/server/db";
 import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
-import { type Db } from "~/server/db/types";
+import { TRPCError } from "@trpc/server";
+
+export const findLeagueIdBySlug = async ({
+  userId,
+  slug,
+}: {
+  userId: string;
+  slug: string;
+}) => {
+  const row = await db
+    .select({ leagueId: leagues.id })
+    .from(leagues)
+    .where(and(eq(leagues.slug, slug), canReadLeaguesCriteria({ userId })))
+    .get();
+  return row?.leagueId;
+};
+
+export const getLeagueIdBySlug = async (input: {
+  userId: string;
+  slug: string;
+}) => {
+  const leagueId = await findLeagueIdBySlug(input);
+  if (!leagueId) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "League not found",
+    });
+  }
+  return leagueId;
+};
 
 export const getByIdWhereMember = async ({
   userId,
@@ -35,13 +64,7 @@ export const getByIdWhereMember = async ({
   return result?.league;
 };
 
-export const canReadLeaguesCriteria = ({
-  db,
-  userId,
-}: {
-  db: Db;
-  userId: string;
-}) =>
+export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
   or(
     eq(leagues.visibility, "public"),
     inArray(

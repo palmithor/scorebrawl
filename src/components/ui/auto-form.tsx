@@ -694,6 +694,7 @@ function AutoForm<SchemaType extends ZodObjectOrWrapped>({
   return (
     <Form {...form}>
       <form
+        noValidate
         onSubmit={(e) => {
           form.handleSubmit(onSubmit)(e);
         }}
