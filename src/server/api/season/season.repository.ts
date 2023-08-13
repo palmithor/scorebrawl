@@ -1,10 +1,10 @@
 import { leagues, seasons } from "~/server/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, gte, isNull, lte, or } from "drizzle-orm";
 import { canReadLeaguesCriteria } from "~/server/api/league/league.repository";
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
 
-export const getSeason = async ({
+export const getSeasonById = async ({
   seasonId,
   userId,
 }: {
@@ -21,4 +21,22 @@ export const getSeason = async ({
     throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
   }
   return result.season;
+};
+
+export const getOngoingSeason = async ({ leagueId }: { leagueId: string }) => {
+  const now = new Date();
+  const season = await db.query.seasons.findFirst({
+    where: and(
+      eq(seasons.leagueId, leagueId),
+      lte(seasons.startDate, now),
+      or(isNull(seasons.endDate), gte(seasons.endDate, now))
+    ),
+  });
+  if (!season) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "There's no ongoing season",
+    });
+  }
+  return season;
 };

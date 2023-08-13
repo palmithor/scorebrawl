@@ -12,7 +12,7 @@ import {
   seasons,
 } from "~/server/db/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { getSeason } from "~/server/api/season/season.repository";
+import { getSeasonById } from "~/server/api/season/season.repository";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -23,7 +23,7 @@ export const matchRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const season = await getSeason({
+      const season = await getSeasonById({
         seasonId: input.seasonId,
         userId: ctx.auth.userId,
       });
@@ -49,7 +49,7 @@ export const matchRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const season = await getSeason({
+      const season = await getSeasonById({
         seasonId: input.seasonId,
         userId: ctx.auth.userId,
       });

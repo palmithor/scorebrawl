@@ -14,39 +14,44 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Label } from "@radix-ui/react-dropdown-menu";
-import { type Season } from "~/server/db/types";
+import { type SeasonPlayerUser } from "~/server/api/types";
+import { AvatarName } from "~/components/user/avatar-name";
 
-export const columns: ColumnDef<Season>[] = [
+export const columns: ColumnDef<SeasonPlayerUser>[] = [
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <div className="w-4/5 capitalize"> {row.getValue("name")}</div>
+      <AvatarName
+        name={row.getValue("name")}
+        avatarUrl={row.original.imageUrl}
+      />
     ),
+  },
+  {
+    accessorKey: "elo",
+    header: "Points",
+    cell: ({ row }) => <div> {row.getValue("elo")}</div>,
   },
 ];
 
 export const SeasonStanding = ({
   className,
-  leagueSlug,
+  seasonId,
 }: {
-  className: string | undefined;
-  leagueSlug: string;
+  className?: string;
+  seasonId: string;
 }) => {
-  const { data } = api.season.getAll.useQuery({ leagueSlug });
+  const { data } = api.season.getStanding.useQuery({ seasonId });
 
   const table = useReactTable({
-    data: data?.data || [],
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className={className}>
-      <div className="pb-3">
-        <Label className="text-sm font-medium">Existing seasons</Label>
-      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
