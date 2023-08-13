@@ -14,13 +14,13 @@ import {
   leaguePlayers,
   leagues,
   seasonPlayers,
-  seasons,
 } from "~/server/db/schema";
-import { and, eq, asc, lte, gte } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { type LeaguePlayer, type LeagueModel } from "~/server/db/types";
 import { slugifyName } from "~/server/api/common/slug";
 import { create } from "./league.schema";
 import clerk, { type User } from "@clerk/clerk-sdk-node";
+import { getOngoingSeason } from "~/server/api/season/season.repository";
 
 export const leagueRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -242,28 +242,19 @@ export const leagueRouter = createTRPCRouter({
         })
         .returning()
         .get();
-      const ongoingSeasons = await ctx.db.query.seasons.findMany({
-        columns: { id: true, initialElo: true },
-        where: and(
-          eq(seasons.leagueId, league.id),
-          gte(seasons.startDate, now),
-          lte(seasons.endDate, now)
-        ),
-      });
+      const ongoingSeason = await getOngoingSeason({ leagueId: league.id });
 
-      for (const season of ongoingSeasons) {
-        await ctx.db
-          .insert(seasonPlayers)
-          .values({
-            id: createCuid(),
-            leaguePlayerId: leaguePlayer.id,
-            elo: season.initialElo,
-            seasonId: season.id,
-            createdAt: now,
-            updatedAt: now,
-          })
-          .run();
-      }
+      await ctx.db
+        .insert(seasonPlayers)
+        .values({
+          id: createCuid(),
+          leaguePlayerId: leaguePlayer.id,
+          elo: ongoingSeason.initialElo,
+          seasonId: ongoingSeason.id,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run();
     }),
 });
 

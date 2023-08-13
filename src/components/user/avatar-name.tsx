@@ -24,7 +24,7 @@ export const AvatarName = ({
         </Avatar>
       </div>
       <div className="ml-4">
-        <h2 className="text-lg font-bold">{name}</h2>
+        <h2 className={"text-sm"}>{name}</h2>
         {children}
       </div>
     </div>

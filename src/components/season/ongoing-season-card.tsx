@@ -9,6 +9,7 @@ import { api } from "~/lib/api";
 import { Button } from "~/components/ui/button";
 import { useRouter } from "next/router";
 import { type Season } from "~/server/db/types";
+import { SeasonStanding } from "~/components/season/standing";
 
 export const OngoingSeasonCard = ({
   className,
@@ -33,7 +34,9 @@ export const OngoingSeasonCard = ({
       <CardContent>
         {hasEditorAccess && (
           <div className="items-center justify-center">
-            {ongoingSeason && (
+            {ongoingSeason ? (
+              <SeasonStanding seasonId={ongoingSeason.id}></SeasonStanding>
+            ) : (
               <Button
                 onClick={() =>
                   void router.push(`/leagues/${leagueSlug}/seasons/create`)

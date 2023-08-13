@@ -14,11 +14,13 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { type SeasonPlayer, type Db } from "~/server/db/types";
-import { and, desc, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
+import { type Db } from "~/server/db/types";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { slugifyName } from "~/server/api/common/slug";
 import { create } from "./season.schema";
-import clerk, { type User } from "@clerk/clerk-sdk-node";
+import clerk from "@clerk/clerk-sdk-node";
+import { getOngoingSeason } from "~/server/api/season/season.repository";
+import { type SeasonPlayerUser } from "~/server/api/types";
 
 const checkOngoing = async (
   db: Db,
@@ -55,22 +57,7 @@ export const seasonRouter = createTRPCRouter({
         userId: ctx.auth.userId,
         slug: input.leagueSlug,
       });
-      const now = new Date();
-      const ongoingSeason = await ctx.db.query.seasons.findFirst({
-        where: and(
-          eq(seasons.leagueId, leagueId),
-          lte(seasons.startDate, now),
-          or(isNull(seasons.endDate), gte(seasons.endDate, now))
-        ),
-      });
-
-      if (!ongoingSeason) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "There's no ongoing season",
-        });
-      }
-      return ongoingSeason;
+      return getOngoingSeason({ leagueId });
     }),
   getAll: protectedProcedure
     .input(
@@ -112,6 +99,7 @@ export const seasonRouter = createTRPCRouter({
       if (!season) {
         throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
       }
+
       const league = await ctx.db.query.leagues.findFirst({
         where: and(
           canReadLeaguesCriteria({ userId: ctx.auth.userId }),
@@ -123,7 +111,7 @@ export const seasonRouter = createTRPCRouter({
       }
 
       const seasonPlayerResult = await ctx.db.query.seasonPlayers.findMany({
-        where: and(eq(seasons.id, season.id)),
+        where: eq(seasonPlayers.seasonId, season.id),
         with: {
           leaguePlayer: {
             columns: { userId: true },
@@ -138,14 +126,21 @@ export const seasonRouter = createTRPCRouter({
 
       return seasonPlayerResult
         .map((seasonPlayer) => {
-          const userId = seasonPlayer.leaguePlayer.userId;
-          const user = clerkUsers.find((user) => user.id === userId);
-
+          const user = clerkUsers.find(
+            (user) => user.id === seasonPlayer.leaguePlayer.userId
+          );
           if (user) {
-            return { seasonPlayer, user };
+            return {
+              userId: user.id,
+              name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+              imageUrl: user.imageUrl,
+              elo: seasonPlayer.elo,
+              joinedAt: seasonPlayer.createdAt,
+              disabled: seasonPlayer.disabled,
+            };
           }
         })
-        .filter(Boolean) as { user: User; seasonPlayer: SeasonPlayer }[]; // remove undefined if any
+        .filter((item): item is SeasonPlayerUser => !!item);
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
     const leagueId = await getLeagueIdBySlug({
