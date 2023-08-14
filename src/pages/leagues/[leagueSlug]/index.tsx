@@ -4,10 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { OngoingSeasonCard } from "~/components/season/ongoing-season-card";
+import { OngoingSeasonCard } from "~/components/league/ongoing-season-card";
 import { useAuth } from "@clerk/nextjs";
 import { AvatarName } from "~/components/user/avatar-name";
 import { LoadingButton } from "~/components/ui/loading-button";
+import { LeaguePlayers } from "~/components/league/league-players";
 
 const League: NextPage = () => {
   const router = useRouter();
@@ -38,7 +39,7 @@ const League: NextPage = () => {
 
   const shouldShowJoin =
     !leaguePlayers ||
-    (!leaguePlayers?.find((u) => u?.user.id === userId) && code);
+    (!leaguePlayers?.find((u) => u?.userId === userId) && code);
 
   useEffect(() => {
     if (error) {
@@ -196,11 +197,7 @@ const League: NextPage = () => {
             ongoingSeason={ongoingSeason}
             leagueSlug={leagueSlug}
           />
-          <Card className="col-span-3">
-            <CardHeader>
-              <CardTitle>Players</CardTitle>
-            </CardHeader>
-          </Card>
+          <LeaguePlayers className="col-span-3" leagueSlug={leagueSlug} />
         </div>
       </TabsContent>
     </Tabs>

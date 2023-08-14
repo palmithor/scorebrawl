@@ -1,0 +1,125 @@
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { type LeaguePlayerUser } from "~/server/api/types";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { AvatarName } from "~/components/user/avatar-name";
+import React from "react";
+import { api } from "~/lib/api";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+
+export const columns: ColumnDef<LeaguePlayerUser>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => (
+      <AvatarName
+        name={row.getValue("name")}
+        avatarUrl={row.original.imageUrl}
+      />
+    ),
+  },
+  {
+    accessorKey: "joinedAt",
+    header: "Joined At",
+    cell: ({ row }) => (
+      <div className="w-4/5">
+        {row
+          .getValue<Date>("joinedAt")
+          ?.toLocaleDateString(window.navigator.language)}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "disabled",
+    header: "Status",
+    cell: ({ row }) => (
+      <div className="w-4/5">
+        {row.getValue("disabled") ? "Disabled" : "Active"}
+      </div>
+    ),
+  },
+];
+
+export const LeaguePlayers = ({
+  className,
+  leagueSlug,
+}: {
+  className?: string;
+  leagueSlug: string;
+}) => {
+  const { data } = api.league.getPlayers.useQuery({ leagueSlug });
+
+  const table = useReactTable({
+    data: data || [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle>League Players</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
