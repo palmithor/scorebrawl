@@ -16,11 +16,12 @@ import {
   seasonPlayers,
 } from "~/server/db/schema";
 import { eq, asc } from "drizzle-orm";
-import { type LeaguePlayer, type LeagueModel } from "~/server/db/types";
+import { type LeagueModel } from "~/server/db/types";
 import { slugifyName } from "~/server/api/common/slug";
 import { create } from "./league.schema";
-import clerk, { type User } from "@clerk/clerk-sdk-node";
+import clerk from "@clerk/clerk-sdk-node";
 import { getOngoingSeason } from "~/server/api/season/season.repository";
+import { type LeaguePlayerUser } from "~/server/api/types";
 
 export const leagueRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -84,14 +85,21 @@ export const leagueRouter = createTRPCRouter({
 
       return leaguePlayerResult
         .map((leaguePlayer) => {
-          const userId = leaguePlayer.userId;
-          const user = clerkUsers.find((user) => user.id === userId);
+          const user = clerkUsers.find(
+            (user) => user.id === leaguePlayer.userId
+          );
 
           if (user) {
-            return { leaguePlayer, user };
+            return {
+              userId: user.id,
+              name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+              imageUrl: user.imageUrl,
+              joinedAt: leaguePlayer.createdAt,
+              disabled: leaguePlayer.disabled,
+            };
           }
         })
-        .filter(Boolean) as { user: User; leaguePlayer: LeaguePlayer }[];
+        .filter((item): item is LeaguePlayerUser => !!item);
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
     const slug = await slugifyName({ table: leagues, name: input.name });

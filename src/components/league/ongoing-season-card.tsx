@@ -9,7 +9,7 @@ import { api } from "~/lib/api";
 import { Button } from "~/components/ui/button";
 import { useRouter } from "next/router";
 import { type Season } from "~/server/db/types";
-import { SeasonStanding } from "~/components/season/standing";
+import { SeasonStanding } from "~/components/league/standing";
 
 export const OngoingSeasonCard = ({
   className,
@@ -28,8 +28,8 @@ export const OngoingSeasonCard = ({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Ongoing Season</CardTitle>
-        {ongoingSeason && <CardDescription>No ongoing season</CardDescription>}
+        <CardTitle>Current season standings</CardTitle>
+        {!ongoingSeason && <CardDescription>No ongoing season</CardDescription>}
       </CardHeader>
       <CardContent>
         {hasEditorAccess && (

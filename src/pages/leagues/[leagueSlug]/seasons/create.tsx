@@ -6,7 +6,7 @@ import { LoadingButton } from "~/components/ui/loading-button";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/lib/api";
 import { create } from "~/server/api/season/season.schema";
-import { SeasonList } from "~/components/season/list";
+import { SeasonList } from "~/components/league/list";
 
 const SeasonForm = () => {
   const router = useRouter();
