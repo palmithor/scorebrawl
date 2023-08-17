@@ -13,6 +13,7 @@ import {
 } from "~/server/db/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getSeasonById } from "~/server/api/season/season.repository";
+import { create } from "~/server/api/match/match.schema";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -38,131 +39,121 @@ export const matchRouter = createTRPCRouter({
         nextCursor: undefined,
       };
     }),
-  create: protectedProcedure
-    .input(
-      z.object({
-        seasonId: z.string().nonempty(),
-        homePlayerIds: z.string().array().nonempty(),
-        awayPlayerIds: z.string().array().nonempty(),
-        homeScore: z.number().int(),
-        awayScore: z.number().int(),
+  create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
+    const season = await getSeasonById({
+      seasonId: input.seasonId,
+      userId: ctx.auth.userId,
+    });
+    const league = await getByIdWhereMember({
+      leagueId: season.leagueId,
+      userId: ctx.auth.userId,
+      allowedRoles: ["member", "owner", "editor"],
+    });
+    if (!league) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "league access denied",
+      });
+    }
+    if (league.archived) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "league is archived",
+      });
+    }
+
+    const homeSeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
+      where: and(
+        eq(seasonPlayers.seasonId, season.id),
+        inArray(seasonPlayers.id, input.homePlayerIds)
+      ),
+    });
+    const awaySeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
+      where: and(
+        eq(seasonPlayers.seasonId, season.id),
+        inArray(seasonPlayers.id, input.awayPlayerIds)
+      ),
+    });
+    if (homeSeasonPlayers.length !== input.homePlayerIds.length) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "some players in home team not part of season",
+      });
+    }
+    if (awaySeasonPlayers.length !== input.awayPlayerIds.length) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "some players in away team not part of season",
+      });
+    }
+
+    const eloTeamMatch = new TeamMatch({ kFactor: season.kFactor });
+    const eloHomeTeam = eloTeamMatch.addTeam("home", input.homeScore);
+    homeSeasonPlayers.forEach((p) => {
+      eloHomeTeam.addPlayer(new Player(p.id, p.elo));
+    });
+    const eloAwayTeam = eloTeamMatch.addTeam("away", input.awayScore);
+    awaySeasonPlayers.forEach((p) => {
+      eloAwayTeam.addPlayer(new Player(p.id, p.elo));
+    });
+    const eloMatchResult = eloTeamMatch.calculate();
+    const now = new Date();
+    const match = await ctx.db
+      .insert(matches)
+      .values({
+        id: createCuid(),
+        homeScore: input.homeScore,
+        awayScore: input.awayScore,
+        homeExpectedElo: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
+        awayExpectedElo: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
+        seasonId: season.id,
+        createdBy: ctx.auth.userId,
+        updatedBy: ctx.auth.userId,
+        createdAt: now,
+        updatedAt: now,
       })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const season = await getSeasonById({
-        seasonId: input.seasonId,
-        userId: ctx.auth.userId,
-      });
-      const league = await getByIdWhereMember({
-        leagueId: season.leagueId,
-        userId: ctx.auth.userId,
-        allowedRoles: ["member", "owner", "editor"],
-      });
-      if (!league) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "league access denied",
-        });
-      }
-      if (league.archived) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "league is archived",
-        });
-      }
+      .returning()
+      .get();
 
-      const homeSeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
-        where: and(
-          eq(seasonPlayers.seasonId, season.id),
-          inArray(seasonPlayers.id, input.homePlayerIds)
-        ),
-      });
-      const awaySeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
-        where: and(
-          eq(seasonPlayers.seasonId, season.id),
-          inArray(seasonPlayers.id, input.awayPlayerIds)
-        ),
-      });
-      if (homeSeasonPlayers.length !== input.homePlayerIds.length) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "some players in home team not part of season",
-        });
-      }
-      if (awaySeasonPlayers.length !== input.awayPlayerIds.length) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "some players in away team not part of season",
-        });
-      }
+    for (const playerResult of eloMatchResult.results) {
+      await ctx.db
+        .update(seasonPlayers)
+        .set({ elo: playerResult.rating })
+        .where(eq(seasonPlayers.id, playerResult.identifier))
+        .run();
+    }
 
-      const eloTeamMatch = new TeamMatch({ kFactor: season.kFactor });
-      const eloHomeTeam = eloTeamMatch.addTeam("home", input.homeScore);
-      homeSeasonPlayers.forEach((p) => {
-        eloHomeTeam.addPlayer(new Player(p.id, p.elo));
-      });
-      const eloAwayTeam = eloTeamMatch.addTeam("away", input.awayScore);
-      awaySeasonPlayers.forEach((p) => {
-        eloAwayTeam.addPlayer(new Player(p.id, p.elo));
-      });
-      const eloMatchResult = eloTeamMatch.calculate();
-      const now = new Date();
-      const match = await ctx.db
-        .insert(matches)
+    for (const player of homeSeasonPlayers) {
+      await ctx.db
+        .insert(matchPlayers)
         .values({
           id: createCuid(),
-          homeScore: input.homeScore,
-          awayScore: input.awayScore,
-          homeExpectedElo: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
-          awayExpectedElo: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
-          seasonId: season.id,
-          createdBy: ctx.auth.userId,
-          updatedBy: ctx.auth.userId,
+          matchId: match.id,
+          elo: player.elo,
+          seasonPlayerId: player.id,
+          homeTeam: true,
           createdAt: now,
           updatedAt: now,
         })
-        .returning()
-        .get();
+        .run();
+    }
 
-      for (const playerResult of eloMatchResult.results) {
-        await ctx.db
-          .update(seasonPlayers)
-          .set({ elo: playerResult.rating })
-          .where(eq(seasonPlayers.id, playerResult.identifier))
-          .run();
-      }
-
-      for (const player of homeSeasonPlayers) {
-        await ctx.db
-          .insert(matchPlayers)
-          .values({
-            id: createCuid(),
-            matchId: match.id,
-            elo: player.elo,
-            seasonPlayerId: player.id,
-            homeTeam: true,
-            createdAt: now,
-            updatedAt: now,
-          })
-          .run();
-      }
-
-      for (const player of awaySeasonPlayers) {
-        await ctx.db
-          .insert(matchPlayers)
-          .values({
-            id: createCuid(),
-            matchId: match.id,
-            elo: player.elo,
-            seasonPlayerId: player.id,
-            homeTeam: false,
-            createdAt: now,
-            updatedAt: now,
-          })
-          .run();
-      }
-      return match;
-    }),
+    for (const player of awaySeasonPlayers) {
+      await ctx.db
+        .insert(matchPlayers)
+        .values({
+          id: createCuid(),
+          matchId: match.id,
+          elo: player.elo,
+          seasonPlayerId: player.id,
+          homeTeam: false,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run();
+    }
+    return match;
+  }),
   /*undo: protectedProcedure
   .input(
     z.object({

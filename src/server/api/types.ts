@@ -1,4 +1,5 @@
 export type LeaguePlayerUser = {
+  id: string;
   userId: string;
   imageUrl: string;
   name: string;
@@ -7,6 +8,7 @@ export type LeaguePlayerUser = {
 };
 
 export type SeasonPlayerUser = {
+  id: string;
   userId: string;
   imageUrl: string;
   name: string;

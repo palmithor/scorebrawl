@@ -10,9 +10,9 @@ import { SeasonList } from "~/components/league/list";
 
 const SeasonForm = () => {
   const router = useRouter();
+  const leagueSlug = router.query.leagueSlug as string;
   const { toast } = useToast();
   const { isLoading, mutate } = api.season.create.useMutation();
-  const leagueSlug = router.query.leagueSlug as string;
   const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
 
   return (

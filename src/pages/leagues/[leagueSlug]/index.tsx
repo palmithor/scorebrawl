@@ -22,15 +22,11 @@ const League: NextPage = () => {
   } = api.league.getBySlug.useQuery({
     leagueSlug,
   });
-  const { data: ongoingSeason } = api.season.getOngoing.useQuery(
-    { leagueSlug: leagueSlug },
-    { retry: false }
-  );
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({
     leagueSlug,
   });
   const { data: code } = api.league.getCode.useQuery(
-    { leagueId: league?.id as string },
+    { leagueSlug },
     { enabled: !!league?.id }
   );
 
@@ -192,11 +188,7 @@ const League: NextPage = () => {
           </Card>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <OngoingSeasonCard
-            className="col-span-4"
-            ongoingSeason={ongoingSeason}
-            leagueSlug={leagueSlug}
-          />
+          <OngoingSeasonCard className="col-span-4" leagueSlug={leagueSlug} />
           <LeaguePlayers className="col-span-3" leagueSlug={leagueSlug} />
         </div>
       </TabsContent>
