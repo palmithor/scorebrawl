@@ -29,6 +29,7 @@ const League: NextPage = () => {
     { leagueSlug },
     { enabled: !!league?.id }
   );
+  const { league: leagueApi } = api.useContext();
 
   const { mutate: joinLeagueMutate, isLoading: joinLeagueIsLoading } =
     api.league.join.useMutation();
@@ -49,7 +50,9 @@ const League: NextPage = () => {
 
   const joinLeague = () => {
     if (code) {
-      joinLeagueMutate(code);
+      joinLeagueMutate(code, {
+        onSuccess: () => void leagueApi.getPlayers.refetch({ leagueSlug }),
+      });
     }
   };
 
