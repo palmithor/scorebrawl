@@ -14,6 +14,7 @@ const SeasonForm = () => {
   const { toast } = useToast();
   const { isLoading, mutate } = api.season.create.useMutation();
   const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
+  // todo check editor access and redirect
 
   return (
     <FormLayout
@@ -31,6 +32,7 @@ const SeasonForm = () => {
                 onSuccess: () => void router.push(`/leagues/${leagueSlug}`),
                 onError: (err) =>
                   toast({
+                    variant: "destructive",
                     title: "Error creating season",
                     description: err.message,
                   }),

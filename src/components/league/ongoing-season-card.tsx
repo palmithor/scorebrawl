@@ -46,7 +46,7 @@ export const OngoingSeasonCard = ({
   );
 
   const cardContent = () => {
-    if (isLoadingOngoingSeason || isLoadingPlayers) {
+    if (isLoadingOngoingSeason) {
       return <Spinner />;
     } else if (ongoingSeason) {
       return <SeasonStanding seasonId={ongoingSeason.id} />;
