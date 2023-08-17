@@ -16,7 +16,7 @@ const League: NextPage = () => {
 
   const { isLoading, error } = api.season.getAll.useQuery(
     {
-      leagueSlug: router.query.league as string,
+      leagueSlug: router.query.leagueSlug as string,
     },
     {}
   );

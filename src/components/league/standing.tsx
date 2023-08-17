@@ -42,7 +42,7 @@ export const SeasonStanding = ({
   className?: string;
   seasonId: string;
 }) => {
-  const { data } = api.season.getStanding.useQuery({ seasonId });
+  const { data } = api.season.getPlayers.useQuery({ seasonId });
 
   const table = useReactTable({
     data: data || [],

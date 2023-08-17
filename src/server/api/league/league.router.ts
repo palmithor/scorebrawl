@@ -91,6 +91,7 @@ export const leagueRouter = createTRPCRouter({
 
           if (user) {
             return {
+              id: leaguePlayer.id,
               userId: user.id,
               name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
               imageUrl: user.imageUrl,
@@ -177,17 +178,25 @@ export const leagueRouter = createTRPCRouter({
   getCode: protectedProcedure
     .input(
       z.object({
-        leagueId: z.string().nonempty(),
+        leagueSlug: z.string().nonempty(),
       })
     )
     .query(async ({ ctx, input }) => {
-      const league = await getByIdWhereMember({
-        leagueId: input.leagueId,
-        userId: ctx.auth.userId,
-        allowedRoles: ["owner", "editor"],
+      const league = await ctx.db.query.leagues.findFirst({
+        where: eq(leagues.slug, input.leagueSlug),
       });
       if (!league) {
-        throw new TRPCError({ code: "FORBIDDEN" });
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      if (league.visibility === "private") {
+        const leagueAsMember = await getByIdWhereMember({
+          leagueId: league.id,
+          userId: ctx.auth.userId,
+          allowedRoles: ["owner", "editor"],
+        });
+        if (!leagueAsMember) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
       }
       return { code: league.code };
     }),
@@ -202,13 +211,16 @@ export const leagueRouter = createTRPCRouter({
         slug: input.leagueSlug,
         userId: ctx.auth.userId,
       });
+
       const league = await getByIdWhereMember({
         leagueId,
         userId: ctx.auth.userId,
         allowedRoles: ["owner", "editor"],
       });
 
-      return league ? true : false;
+      console.log("league", league);
+
+      return !!league;
     }),
   join: protectedProcedure
     .input(
@@ -266,15 +278,15 @@ export const leagueRouter = createTRPCRouter({
     }),
 });
 
-function exclude<League, Key extends keyof League>(
+const exclude = <League, Key extends keyof League>(
   league: League,
   keys: Key[]
-): Omit<League, Key> {
+): Omit<League, Key> => {
   for (const key of keys) {
     delete league[key];
   }
   return league;
-}
+};
 
 const excludeCode = (l: LeagueModel): Omit<LeagueModel, "code"> =>
   exclude(l, ["code"]);

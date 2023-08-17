@@ -4,6 +4,7 @@ import { pageQuerySchema } from "~/server/api/common/pagination";
 import {
   canReadLeaguesCriteria,
   getByIdWhereMember,
+  getLeagueById,
   getLeagueIdBySlug,
 } from "~/server/api/league/league.repository";
 import { TRPCError } from "@trpc/server";
@@ -46,6 +47,21 @@ const checkOngoing = async (
 };
 
 export const seasonRouter = createTRPCRouter({
+  getById: protectedProcedure
+    .input(z.object({ seasonId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const season = await ctx.db.query.seasons.findFirst({
+        where: eq(seasons.id, input.seasonId),
+      });
+      if (!season) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
+      }
+      await getLeagueById({
+        userId: ctx.auth.userId,
+        id: season.leagueId,
+      });
+      return season;
+    }),
   getOngoing: protectedProcedure
     .input(
       z.object({
@@ -86,7 +102,7 @@ export const seasonRouter = createTRPCRouter({
         nextCursor: undefined,
       };
     }),
-  getStanding: protectedProcedure
+  getPlayers: protectedProcedure
     .input(
       z.object({
         seasonId: z.string(),
@@ -131,6 +147,7 @@ export const seasonRouter = createTRPCRouter({
           );
           if (user) {
             return {
+              id: seasonPlayer.id,
               userId: user.id,
               name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
               imageUrl: user.imageUrl,

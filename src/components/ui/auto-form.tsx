@@ -648,7 +648,7 @@ function AutoFormArray({
   );
 }
 
-export function AutoFormSubmit({ children }: { children?: React.ReactNode }) {
+function AutoFormSubmit({ children }: { children?: React.ReactNode }) {
   return <Button type="submit">{children ?? "Submit"}</Button>;
 }
 
