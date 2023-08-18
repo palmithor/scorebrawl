@@ -8,7 +8,6 @@ import { type LeaguePlayerUser } from "~/server/api/types";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { AvatarName } from "~/components/user/avatar-name";
 import React from "react";
-import { api } from "~/lib/api";
 import {
   Table,
   TableBody,
@@ -17,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { useLeague } from "~/hooks/league-details-hook";
 
 export const columns: ColumnDef<LeaguePlayerUser>[] = [
   {
@@ -51,17 +51,11 @@ export const columns: ColumnDef<LeaguePlayerUser>[] = [
   },
 ];
 
-export const LeaguePlayers = ({
-  className,
-  leagueSlug,
-}: {
-  className?: string;
-  leagueSlug: string;
-}) => {
-  const { data } = api.league.getPlayers.useQuery({ leagueSlug });
+export const LeaguePlayers = ({ className }: { className?: string }) => {
+  const { leaguePlayers } = useLeague();
 
   const table = useReactTable({
-    data: data || [],
+    data: leaguePlayers || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
