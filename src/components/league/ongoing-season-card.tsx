@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { api } from "~/lib/api";
 import { Button } from "~/components/ui/button";
 import { useRouter } from "next/router";
 import { SeasonStanding } from "~/components/league/standing";
@@ -17,33 +16,18 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Spinner } from "~/components/spinner";
+import { useLeague } from "~/hooks/league-details-hook";
 
-export const OngoingSeasonCard = ({
-  className,
-  leagueSlug,
-}: {
-  className?: string;
-  leagueSlug: string;
-}) => {
+export const OngoingSeasonCard = ({ className }: { className?: string }) => {
   const router = useRouter();
-  const { data: ongoingSeason, isLoading: isLoadingOngoingSeason } =
-    api.season.getOngoing.useQuery(
-      { leagueSlug: leagueSlug },
-      { retry: false }
-    );
-  const { data: players, isLoading: isLoadingPlayers } =
-    api.season.getPlayers.useQuery(
-      {
-        seasonId: ongoingSeason?.id as string,
-      },
-      { enabled: !!ongoingSeason }
-    );
-  const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
-    {
-      leagueSlug,
-    },
-    { retry: false }
-  );
+  const {
+    hasEditorAccess,
+    isLoadingOngoingSeason,
+    isLoadingOngoingSeasonPlayers,
+    league,
+    ongoingSeason,
+    ongoingSeasonPlayers,
+  } = useLeague();
 
   const cardContent = () => {
     if (isLoadingOngoingSeason) {
@@ -54,7 +38,9 @@ export const OngoingSeasonCard = ({
       return (
         <Button
           onClick={() =>
-            void router.push(`/leagues/${leagueSlug}/seasons/create`)
+            void router.push(
+              `/leagues/${league?.slug as string}/seasons/create`
+            )
           }
         >
           Create season
@@ -70,17 +56,21 @@ export const OngoingSeasonCard = ({
       <CardHeader>
         <div className="flex">
           <CardTitle className="grow">Current season standings</CardTitle>
-          {ongoingSeason && !isLoadingPlayers && (
+          {ongoingSeason && !isLoadingOngoingSeasonPlayers && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
                   <Button
                     size="sm"
                     variant="outline"
-                    disabled={players && players.length < 2}
+                    disabled={
+                      ongoingSeasonPlayers && ongoingSeasonPlayers.length < 2
+                    }
                     onClick={() =>
                       void router.push(
-                        `/leagues/${leagueSlug}/seasons/${ongoingSeason.id}/matches/create`
+                        `/leagues/${league?.slug as string}/seasons/${
+                          ongoingSeason.id
+                        }/matches/create`
                       )
                     }
                   >
@@ -89,8 +79,8 @@ export const OngoingSeasonCard = ({
                 </TooltipTrigger>
                 <TooltipContent>
                   Create Match
-                  {players &&
-                    players.length < 2 &&
+                  {ongoingSeasonPlayers &&
+                    ongoingSeasonPlayers.length < 2 &&
                     ": Season must have more than two players"}
                 </TooltipContent>
               </Tooltip>

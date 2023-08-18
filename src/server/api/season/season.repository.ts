@@ -25,18 +25,11 @@ export const getSeasonById = async ({
 
 export const getOngoingSeason = async ({ leagueId }: { leagueId: string }) => {
   const now = new Date();
-  const season = await db.query.seasons.findFirst({
+  return db.query.seasons.findFirst({
     where: and(
       eq(seasons.leagueId, leagueId),
       lte(seasons.startDate, now),
       or(isNull(seasons.endDate), gte(seasons.endDate, now))
     ),
   });
-  if (!season) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "There's no ongoing season",
-    });
-  }
-  return season;
 };
