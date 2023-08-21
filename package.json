@@ -19,7 +19,7 @@
     "@headlessui/react": "1.7.15",
     "@heroicons/react": "2.0.18",
     "@hookform/resolvers": "3.1.1",
-    "@ihs7/ts-elo": "0.2.4",
+    "@ihs7/ts-elo": "0.3.0",
     "@libsql/client": "0.2.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-accordion": "^1.1.2",
