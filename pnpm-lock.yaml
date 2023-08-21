@@ -21,8 +21,8 @@ dependencies:
     specifier: 3.1.1
     version: 3.1.1(react-hook-form@7.45.1)
   '@ihs7/ts-elo':
-    specifier: 0.2.4
-    version: 0.2.4
+    specifier: 0.3.0
+    version: 0.3.0
   '@libsql/client':
     specifier: 0.2.2
     version: 0.2.2
@@ -1155,8 +1155,8 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@ihs7/ts-elo@0.2.4:
-    resolution: {integrity: sha512-M8cLdcxv+EysZk94fa1eAteCwt8od6gKBu+EDxQPB6CpNVzWrwDbzNodKkNdatDGF8r8g7I0hAccoVK49Sf3UA==}
+  /@ihs7/ts-elo@0.3.0:
+    resolution: {integrity: sha512-VaKVWe9NOiOUQhuQoFq7iYMpfNVqfWCvqaMcW2c6VAjxrgGYHH1L6u9sJFVc7fXOO0MykFywdIDO6nhEwCYiWA==}
     dev: false
 
   /@jridgewell/gen-mapping@0.3.3:
