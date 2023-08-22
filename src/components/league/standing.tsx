@@ -46,24 +46,27 @@ export const SeasonStanding = ({
         )?.form;
         return form ? (
           <div className="flex gap-1">
-            {form.map((r) => {
+            {form.map((r, i) => {
               if (r === "W") {
                 return (
                   <div
-                    key=""
+                    key={`${row.original.id}-${r}-${i}`}
                     className="h-2 w-2 rounded-full bg-green-500"
                   ></div>
                 );
               } else if (r === "D") {
                 return (
                   <div
-                    key=""
+                    key={`${row.original.id}-${r}-${i}`}
                     className="h-2 w-2 rounded-full bg-yellow-400"
                   ></div>
                 );
               } else {
                 return (
-                  <div key="" className="h-2 w-2 rounded-full bg-red-400"></div>
+                  <div
+                    key={`${row.original.id}-${r}-${i}`}
+                    className="h-2 w-2 rounded-full bg-red-400"
+                  ></div>
                 );
               }
             })}
@@ -74,7 +77,7 @@ export const SeasonStanding = ({
     {
       accessorKey: "elo",
       header: "Points",
-      cell: ({ row }) => <div> {row.getValue("elo")}</div>,
+      cell: ({ row }) => <div> {row.original.elo}</div>,
     },
   ];
 
