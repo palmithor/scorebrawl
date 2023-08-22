@@ -1,4 +1,9 @@
 {
     "editor.formatOnSave": true,
-    "prettier.configPath": "prettier.config.cjs"
+    "prettier.configPath": "prettier.config.cjs",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": { 
+        "source.fixAll.eslint": true,
+        "source.organizeImports": true
+    }
 }
