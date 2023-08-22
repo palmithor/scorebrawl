@@ -1,7 +1,8 @@
 import { useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 import { Spinner } from "~/components/spinner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { LoadingButton } from "~/components/ui/loading-button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useLeague } from "~/hooks/league-details-hook";
 
 export type Tab = "overview" | "seasons" | "statistics" | "feed";
@@ -16,6 +17,7 @@ export const LeagueDetailsLayout = ({
   const { userId } = useAuth();
   const {
     isLoading,
+    league,
     leaguePlayers,
     joinLeagueMutate,
     joinLeagueIsLoading,
@@ -23,7 +25,7 @@ export const LeagueDetailsLayout = ({
     leagueCode,
   } = useLeague();
 
-  if (isLoading) {
+  if (isLoading || !league) {
     return (
       <div className="flex h-screen">
         <div className="m-auto">
@@ -48,13 +50,22 @@ export const LeagueDetailsLayout = ({
   };
 
   return (
-    <Tabs defaultValue="overview" className="space-y-4 p-3">
+    <Tabs defaultValue={activeTab} className="space-y-4 p-3">
       <div className="flex flex-grow">
         <div className="grow">
           <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="seasons" disabled>
-              Seasons
+            <TabsTrigger value="overview">
+              {" "}
+              <Link href={`/leagues/${encodeURIComponent(league.slug)}`}>
+                Overview
+              </Link>
+            </TabsTrigger>
+            <TabsTrigger value="seasons">
+              <Link
+                href={`/leagues/${encodeURIComponent(league.slug)}/seasons`}
+              >
+                Seasons
+              </Link>
             </TabsTrigger>
             <TabsTrigger value="statistics" disabled>
               Statistics
