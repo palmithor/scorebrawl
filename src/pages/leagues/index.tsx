@@ -1,15 +1,19 @@
 "use client";
 
-import * as React from "react";
 import {
-  type ColumnDef,
-  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
 } from "@tanstack/react-table";
+import { type inferRouterOutputs } from "@trpc/server";
+import { type NextPage } from "next";
+import { useRouter } from "next/router";
+import * as React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -20,32 +24,67 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { type NextPage } from "next";
 import { api } from "~/lib/api";
-import { type League } from "~/server/db/types";
-import { useRouter } from "next/router";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getInitialsFromString } from "~/lib/string-utils";
+import { type AppRouter } from "~/server/api/root";
 
 type CellMeta = {
   align: undefined | "left" | "center" | "right" | "justify" | "char";
 };
 
-export const columns: ColumnDef<League>[] = [
+export const columns: ColumnDef<
+  inferRouterOutputs<AppRouter>["league"]["getAll"]["data"][0]
+>[] = [
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <div className="flex w-4/5 items-center gap-2 truncate capitalize">
+      <div className="flex grow items-center gap-2 truncate capitalize">
         <Avatar>
           <AvatarImage src={row.original.logoUrl ?? ""} />
           <AvatarFallback>
             {getInitialsFromString(row.getValue("name")).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <span>{row.getValue("name")}</span>
+        <div className="text">{row.getValue("name")}</div>
       </div>
     ),
+  },
+  {
+    accessorKey: "players",
+    header: "Players",
+    cell: ({ row }) => {
+      const numberOfAvatarsToShow = 5;
+      const players = row.original.players;
+      if (players.length <= numberOfAvatarsToShow) {
+        return (
+          <div className="flex -space-x-4">
+            {players.map((p) => (
+              <Avatar key={p.id} className="h-8 w-8">
+                <AvatarImage src={p.imageUrl} />
+                <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
+              </Avatar>
+            ))}
+          </div>
+        );
+      } else {
+        const firstThree = players.slice(0, numberOfAvatarsToShow - 1);
+        const remainingCount = players.length - (numberOfAvatarsToShow - 1);
+        return (
+          <div className="flex -space-x-4">
+            {firstThree.map((p) => (
+              <Avatar key={p.id} className="h-8 w-8">
+                <AvatarImage src={p.imageUrl} />
+                <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
+              </Avatar>
+            ))}
+            <Avatar className="h-8 w-8 text-sm">
+              <AvatarFallback className="text-xs">{`+${remainingCount}`}</AvatarFallback>
+            </Avatar>
+          </div>
+        );
+      }
+    },
   },
 ];
 

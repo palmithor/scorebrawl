@@ -18,14 +18,8 @@ export const LeagueDetailsLayout = ({
 }) => {
   const { userId } = useAuth();
   const [isJoining, setIsJoining] = React.useState(false);
-  const {
-    isLoading,
-    league,
-    leaguePlayers,
-    joinLeagueMutate,
-    refetchPlayers,
-    leagueCode,
-  } = useLeague();
+  const { isLoading, league, joinLeagueMutate, refetchPlayers, leagueCode } =
+    useLeague();
 
   if (isLoading || !league) {
     return (
@@ -38,7 +32,7 @@ export const LeagueDetailsLayout = ({
   }
 
   const shouldShowJoin =
-    leagueCode && !leaguePlayers?.some((u) => u?.userId === userId);
+    leagueCode && !league.players?.some((u) => u?.userId === userId);
 
   const joinLeague = () => {
     setIsJoining(true);

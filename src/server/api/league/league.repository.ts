@@ -1,11 +1,11 @@
+import { TRPCError } from "@trpc/server";
+import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
+import { db } from "~/server/db";
 import {
-  type LeagueMemberRole,
   leagueMembers,
   leagues,
+  type LeagueMemberRole,
 } from "~/server/db/schema";
-import { db } from "~/server/db";
-import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
-import { TRPCError } from "@trpc/server";
 
 export const findLeagueIdBySlug = async ({
   userId,

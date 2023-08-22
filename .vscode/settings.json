@@ -5,5 +5,8 @@
     "editor.codeActionsOnSave": { 
         "source.fixAll.eslint": true,
         "source.organizeImports": true
+    },
+    "[sql]": {
+        "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
     }
 }

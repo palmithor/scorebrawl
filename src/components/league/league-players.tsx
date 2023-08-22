@@ -1,13 +1,10 @@
 import {
-  type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type ColumnDef,
 } from "@tanstack/react-table";
-import { type LeaguePlayerUser } from "~/server/api/types";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { AvatarName } from "~/components/user/avatar-name";
-import React from "react";
 import {
   Table,
   TableBody,
@@ -16,7 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { AvatarName } from "~/components/user/avatar-name";
 import { useLeague } from "~/hooks/league-details-hook";
+import { type LeaguePlayerUser } from "~/server/api/types";
 
 export const columns: ColumnDef<LeaguePlayerUser>[] = [
   {
@@ -52,10 +51,10 @@ export const columns: ColumnDef<LeaguePlayerUser>[] = [
 ];
 
 export const LeaguePlayers = ({ className }: { className?: string }) => {
-  const { leaguePlayers } = useLeague();
+  const { league } = useLeague();
 
   const table = useReactTable({
-    data: leaguePlayers || [],
+    data: league?.players || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });

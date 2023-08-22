@@ -1,13 +1,11 @@
-import z from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { pageQuerySchema } from "~/server/api/common/pagination";
+import clerk from "@clerk/clerk-sdk-node";
 import { TRPCError } from "@trpc/server";
-import {
-  canReadLeaguesCriteria,
-  findLeagueIdBySlug,
-  getByIdWhereMember,
-  getLeagueIdBySlug,
-} from "./league.repository";
+import { and, asc, eq, gte, isNull, or } from "drizzle-orm";
+import z from "zod";
+import { pageQuerySchema } from "~/server/api/common/pagination";
+import { slugifyLeagueName } from "~/server/api/common/slug";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { type LeaguePlayerUser } from "~/server/api/types";
 import {
   createCuid,
   leagueMembers,
@@ -16,12 +14,40 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { eq, asc, and, or, isNull, gte } from "drizzle-orm";
-import { type LeagueModel } from "~/server/db/types";
-import { slugifyName } from "~/server/api/common/slug";
+import { type LeagueModel, type LeaguePlayer } from "~/server/db/types";
+import {
+  canReadLeaguesCriteria,
+  getByIdWhereMember,
+  getLeagueIdBySlug,
+} from "./league.repository";
 import { create } from "./league.schema";
-import clerk from "@clerk/clerk-sdk-node";
-import { type LeaguePlayerUser } from "~/server/api/types";
+
+const populateLeagueUserPlayer = async ({
+  leaguePlayers,
+}: {
+  leaguePlayers: LeaguePlayer[];
+}) => {
+  const clerkUsers = await clerk.users.getUserList({
+    limit: leaguePlayers.length,
+    userId: leaguePlayers.map((p) => p.userId),
+  });
+  return leaguePlayers
+    .map((leaguePlayer) => {
+      const user = clerkUsers.find((user) => user.id === leaguePlayer.userId);
+
+      if (user) {
+        return {
+          id: leaguePlayer.id,
+          userId: user.id,
+          name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          imageUrl: user.imageUrl,
+          joinedAt: leaguePlayer.createdAt,
+          disabled: leaguePlayer.disabled,
+        };
+      }
+    })
+    .filter((item): item is LeaguePlayerUser => !!item);
+};
 
 export const leagueRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -30,42 +56,46 @@ export const leagueRouter = createTRPCRouter({
         pageQuery: pageQuerySchema,
       })
     )
-    .query(async ({ input, ctx }) => {
-      const limit = input.pageQuery.limit;
-      const result = await ctx.db
-        .select()
-        .from(leagues)
-        .where(canReadLeaguesCriteria({ userId: ctx.auth.userId }))
-        .limit(input.pageQuery.limit)
-        .orderBy(asc(leagues.slug))
-        .all();
-
-      return {
-        data: result.map((l) =>
-          l.visibility == "private" ? excludeCode(l) : l
-        ),
-        nextCursor: result[limit - 1]?.id,
-      };
+    .query(async ({ ctx }) => {
+      const dbResult = await ctx.db.query.leagues.findMany({
+        columns: { code: false },
+        where: canReadLeaguesCriteria({ userId: ctx.auth.userId }),
+        with: {
+          players: true,
+        },
+        orderBy: asc(leagues.slug),
+      });
+      const leaguePlayersPopulated = await Promise.all(
+        dbResult.map(async (l) => {
+          return {
+            ...l,
+            players: await populateLeagueUserPlayer({
+              leaguePlayers: l.players,
+            }),
+          };
+        })
+      );
+      return { data: leaguePlayersPopulated };
     }),
   getBySlug: protectedProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
     .query(async ({ input, ctx }) => {
       const league = await ctx.db.query.leagues.findFirst({
-        where: eq(leagues.slug, input.leagueSlug),
+        where: and(
+          eq(leagues.slug, input.leagueSlug),
+          canReadLeaguesCriteria({ userId: ctx.auth.userId })
+        ),
+        with: {
+          players: true,
+        },
       });
       if (!league) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
-      if (league.visibility === "private") {
-        const privateLeague = await getByIdWhereMember({
-          leagueId: league.id,
-          userId: ctx.auth.userId,
-        });
-        if (!privateLeague) {
-          throw new TRPCError({ code: "NOT_FOUND" });
-        }
-      }
-      return league;
+      const players = await populateLeagueUserPlayer({
+        leaguePlayers: league.players,
+      });
+      return { ...league, players };
     }),
   getPlayers: protectedProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
@@ -78,32 +108,10 @@ export const leagueRouter = createTRPCRouter({
         where: eq(leaguePlayers.leagueId, leagueId),
       });
 
-      const clerkUsers = await clerk.users.getUserList({
-        limit: leaguePlayerResult.length,
-        userId: leaguePlayerResult.map((p) => p.userId),
-      });
-
-      return leaguePlayerResult
-        .map((leaguePlayer) => {
-          const user = clerkUsers.find(
-            (user) => user.id === leaguePlayer.userId
-          );
-
-          if (user) {
-            return {
-              id: leaguePlayer.id,
-              userId: user.id,
-              name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-              imageUrl: user.imageUrl,
-              joinedAt: leaguePlayer.createdAt,
-              disabled: leaguePlayer.disabled,
-            };
-          }
-        })
-        .filter((item): item is LeaguePlayerUser => !!item);
+      return populateLeagueUserPlayer({ leaguePlayers: leaguePlayerResult });
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
-    const slug = await slugifyName({ table: leagues, name: input.name });
+    const slug = await slugifyLeagueName({ name: input.name });
     const now = new Date();
     const league = await ctx.db
       .insert(leagues)
@@ -160,7 +168,7 @@ export const leagueRouter = createTRPCRouter({
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       const slug = input.name
-        ? await slugifyName({ table: leagues, name: input.name })
+        ? await slugifyLeagueName({ name: input.name })
         : undefined;
       return ctx.db
         .update(leagues)
@@ -207,7 +215,7 @@ export const leagueRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const leagueId = await findLeagueIdBySlug({
+      const leagueId = await getLeagueIdBySlug({
         slug: input.leagueSlug,
         userId: ctx.auth.userId,
       });
@@ -283,15 +291,8 @@ export const leagueRouter = createTRPCRouter({
     }),
 });
 
-const exclude = <League, Key extends keyof League>(
-  league: League,
-  keys: Key[]
-): Omit<League, Key> => {
-  for (const key of keys) {
-    delete league[key];
-  }
-  return league;
-};
-
-const excludeCode = (l: LeagueModel): Omit<LeagueModel, "code"> =>
-  exclude(l, ["code"]);
+const excludeCode = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  code,
+  ...other
+}: Partial<LeagueModel>) => other;
