@@ -1,5 +1,7 @@
+import clerk from "@clerk/clerk-sdk-node";
+import { TRPCError } from "@trpc/server";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import z from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import {
   canReadLeaguesCriteria,
@@ -7,7 +9,10 @@ import {
   getLeagueById,
   getLeagueIdBySlug,
 } from "~/server/api/league/league.repository";
-import { TRPCError } from "@trpc/server";
+import { getOngoingSeason } from "~/server/api/season/season.repository";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { type SeasonPlayerUser } from "~/server/api/types";
+import { db } from "~/server/db";
 import {
   createCuid,
   leaguePlayers,
@@ -15,13 +20,64 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { type Db } from "~/server/db/types";
-import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
-import { slugifyName } from "~/server/api/common/slug";
+import { type Db, type SeasonPlayer } from "~/server/db/types";
+import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
-import clerk from "@clerk/clerk-sdk-node";
-import { getOngoingSeason } from "~/server/api/season/season.repository";
-import { type SeasonPlayerUser } from "~/server/api/types";
+
+const getSeason = async ({
+  seasonId,
+  userId,
+}: {
+  seasonId: string;
+  userId: string;
+}) => {
+  const season = await db.query.seasons.findFirst({
+    where: eq(seasons.id, seasonId),
+  });
+  if (!season) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
+  }
+
+  const league = await db.query.leagues.findFirst({
+    where: and(
+      canReadLeaguesCriteria({ userId }),
+      eq(leagues.id, season?.leagueId)
+    ),
+  });
+  if (!league) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
+  }
+  return season;
+};
+
+const populateSeasonUserPlayer = async ({
+  seasonPlayers,
+}: {
+  seasonPlayers: (SeasonPlayer & { leaguePlayer: { userId: string } })[];
+}) => {
+  const clerkUsers = await clerk.users.getUserList({
+    limit: seasonPlayers.length,
+    userId: seasonPlayers.map((p) => p.leaguePlayer.userId),
+  });
+  return seasonPlayers
+    .map((player) => {
+      const user = clerkUsers.find(
+        (user) => user.id === player.leaguePlayer.userId
+      );
+
+      if (user) {
+        return {
+          id: player.id,
+          userId: user.id,
+          name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          imageUrl: user.imageUrl,
+          joinedAt: player.createdAt,
+          disabled: player.disabled,
+        };
+      }
+    })
+    .filter((item): item is SeasonPlayerUser => !!item);
+};
 
 const checkOngoing = async (
   db: Db,
@@ -109,22 +165,10 @@ export const seasonRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const season = await ctx.db.query.seasons.findFirst({
-        where: eq(seasons.id, input.seasonId),
+      const season = await getSeason({
+        seasonId: input.seasonId,
+        userId: ctx.auth.userId,
       });
-      if (!season) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
-      }
-
-      const league = await ctx.db.query.leagues.findFirst({
-        where: and(
-          canReadLeaguesCriteria({ userId: ctx.auth.userId }),
-          eq(leagues.id, season?.leagueId)
-        ),
-      });
-      if (!league) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
-      }
 
       const seasonPlayerResult = await ctx.db.query.seasonPlayers.findMany({
         where: eq(seasonPlayers.seasonId, season.id),
@@ -135,29 +179,7 @@ export const seasonRouter = createTRPCRouter({
         },
         orderBy: desc(seasonPlayers.elo),
       });
-      const clerkUsers = await clerk.users.getUserList({
-        limit: seasonPlayerResult.length,
-        userId: seasonPlayerResult.map((sp) => sp.leaguePlayer.userId),
-      });
-
-      return seasonPlayerResult
-        .map((seasonPlayer) => {
-          const user = clerkUsers.find(
-            (user) => user.id === seasonPlayer.leaguePlayer.userId
-          );
-          if (user) {
-            return {
-              id: seasonPlayer.id,
-              userId: user.id,
-              name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-              imageUrl: user.imageUrl,
-              elo: seasonPlayer.elo,
-              joinedAt: seasonPlayer.createdAt,
-              disabled: seasonPlayer.disabled,
-            };
-          }
-        })
-        .filter((item): item is SeasonPlayerUser => !!item);
+      return populateSeasonUserPlayer({ seasonPlayers: seasonPlayerResult });
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
     const leagueId = await getLeagueIdBySlug({
@@ -185,7 +207,7 @@ export const seasonRouter = createTRPCRouter({
       endDate: input.endDate,
     });
 
-    const slug = await slugifyName({ table: seasons, name: input.name });
+    const slug = await slugifySeasonName({ name: input.name });
     const now = new Date();
     const season = await ctx.db
       .insert(seasons)
@@ -269,5 +291,45 @@ export const seasonRouter = createTRPCRouter({
         .where(eq(seasons.id, input.seasonId))
         .returning()
         .get();
+    }),
+  playerForm: protectedProcedure
+    .input(
+      z.object({
+        seasonId: z.string().nonempty(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const season = await getSeason({
+        seasonId: input.seasonId,
+        userId: ctx.auth.userId,
+      });
+
+      const playerMatches = await ctx.db.query.seasonPlayers.findMany({
+        columns: { id: true },
+        where: eq(seasonPlayers.seasonId, season.id),
+        with: {
+          matches: {
+            orderBy: (match, { asc }) => [asc(match.createdAt)],
+            limit: 5,
+            with: { match: true },
+          },
+        },
+      });
+
+      return playerMatches.map((pm) => {
+        const form = pm.matches.map((m) => {
+          if (m.match.homeScore === m.match.awayScore) {
+            return "D";
+          } else if (
+            (m.match.homeScore > m.match.awayScore && m.homeTeam) ||
+            (m.match.awayScore > m.match.homeScore && !m.homeTeam)
+          ) {
+            return "W";
+          } else {
+            return "L";
+          }
+        });
+        return { seasonPlayerId: pm.id, form };
+      });
     }),
 });

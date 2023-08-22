@@ -5,9 +5,9 @@ import { type AppRouter } from "~/server/api/root";
 import { db } from "~/server/db";
 import {
   createCuid,
-  type LeagueMemberRole,
   leagueMembers,
   leagues,
+  type LeagueMemberRole,
 } from "~/server/db/schema";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;

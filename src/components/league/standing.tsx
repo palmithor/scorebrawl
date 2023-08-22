@@ -1,4 +1,12 @@
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
+import { AvatarName } from "~/components/user/avatar-name";
 import { api } from "~/lib/api";
+import { type SeasonPlayerUser } from "~/server/api/types";
 import {
   Table,
   TableBody,
@@ -7,33 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import React from "react";
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { type SeasonPlayerUser } from "~/server/api/types";
-import { AvatarName } from "~/components/user/avatar-name";
-
-export const columns: ColumnDef<SeasonPlayerUser>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      <AvatarName
-        name={row.getValue("name")}
-        avatarUrl={row.original.imageUrl}
-      />
-    ),
-  },
-  {
-    accessorKey: "elo",
-    header: "Points",
-    cell: ({ row }) => <div> {row.getValue("elo")}</div>,
-  },
-];
 
 export const SeasonStanding = ({
   className,
@@ -43,6 +24,59 @@ export const SeasonStanding = ({
   seasonId: string;
 }) => {
   const { data } = api.season.getPlayers.useQuery({ seasonId });
+  const { data: playerForm } = api.season.playerForm.useQuery({ seasonId });
+
+  const columns: ColumnDef<SeasonPlayerUser>[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        <AvatarName
+          name={row.getValue("name")}
+          avatarUrl={row.original.imageUrl}
+        />
+      ),
+    },
+    {
+      accessorKey: "form",
+      header: "Form",
+      cell: ({ row }) => {
+        const form = playerForm?.find(
+          (pf) => pf.seasonPlayerId === row.original.id
+        )?.form;
+        return form ? (
+          <div className="flex gap-1">
+            {form.map((r) => {
+              if (r === "W") {
+                return (
+                  <div
+                    key=""
+                    className="h-2 w-2 rounded-full bg-green-500"
+                  ></div>
+                );
+              } else if (r === "D") {
+                return (
+                  <div
+                    key=""
+                    className="h-2 w-2 rounded-full bg-yellow-400"
+                  ></div>
+                );
+              } else {
+                return (
+                  <div key="" className="h-2 w-2 rounded-full bg-red-400"></div>
+                );
+              }
+            })}
+          </div>
+        ) : null;
+      },
+    },
+    {
+      accessorKey: "elo",
+      header: "Points",
+      cell: ({ row }) => <div> {row.getValue("elo")}</div>,
+    },
+  ];
 
   const table = useReactTable({
     data: data || [],

@@ -129,8 +129,8 @@ dependencies:
     specifier: 7.2.1
     version: 7.2.1
   drizzle-orm:
-    specifier: 0.27.0
-    version: 0.27.0(@libsql/client@0.2.2)(better-sqlite3@8.4.0)
+    specifier: 0.28.3
+    version: 0.28.3(@libsql/client@0.2.2)(better-sqlite3@8.4.0)
   lucide-react:
     specifier: 0.264.0
     version: 0.264.0(react@18.2.0)
@@ -200,8 +200,8 @@ devDependencies:
     specifier: ^8.4.0
     version: 8.4.0
   drizzle-kit:
-    specifier: ^0.19.3
-    version: 0.19.3
+    specifier: ^0.19.13
+    version: 0.19.13
   eslint:
     specifier: 8.43.0
     version: 8.43.0
@@ -621,8 +621,8 @@ packages:
       csstype: 3.1.1
     dev: false
 
-  /@drizzle-team/studio@0.0.1:
-    resolution: {integrity: sha512-cHgGezy2ojBFMaU6PZyBkksgFsg2CQ8IRN4mS7WdbA/Zv6xUK6fCNmpEWS/FftbxoA4B8Z0XGnuKsaTJEZsGgA==}
+  /@drizzle-team/studio@0.0.5:
+    resolution: {integrity: sha512-ps5qF0tMxWRVu+V5gvCRrQNqlY92aTnIKdq27gm9LZMSdaKYZt6AVvSK1dlUMzs6Rt0Jm80b+eWct6xShBKhIw==}
     dev: true
 
   /@esbuild-kit/core-utils@3.1.0:
@@ -3928,11 +3928,11 @@ packages:
       wordwrap: 1.0.0
     dev: true
 
-  /drizzle-kit@0.19.3:
-    resolution: {integrity: sha512-G3Es+gPbQcTka0eKdDyzhgyDAWP5nfZpRXtKEND8Cl1Ww0Tn71yV/CYNbYk+gxg5x5+jeBIN7kM/bZ/agGBxYw==}
+  /drizzle-kit@0.19.13:
+    resolution: {integrity: sha512-Rba5VW1O2JfJlwVBeZ8Zwt2E2us5oZ08PQBDiVSGlug53TOc8hzXjblZFuF+dnll9/RQEHrkzBmJFgqTvn5Rxg==}
     hasBin: true
     dependencies:
-      '@drizzle-team/studio': 0.0.1
+      '@drizzle-team/studio': 0.0.5
       '@esbuild-kit/esm-loader': 2.5.5
       camelcase: 7.0.1
       chalk: 5.3.0
@@ -3948,8 +3948,8 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.27.0(@libsql/client@0.2.2)(better-sqlite3@8.4.0):
-    resolution: {integrity: sha512-LGiJ0icB+wQwgbSCOvAjONY8Ec6G/EDzQQP5PmUaQYeI9OqgpVKHC2T1fFIbvk5dabWsbokJ5NOciVAxriStig==}
+  /drizzle-orm@0.28.3(@libsql/client@0.2.2)(better-sqlite3@8.4.0):
+    resolution: {integrity: sha512-7LwNEBJH5EFvkD0vm7RdKWDZsFP9CYR4AWN2fMwns/ezexoX3+UNoVOWGRPJf1qsj357SESldrNEueFvUDfZxA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
