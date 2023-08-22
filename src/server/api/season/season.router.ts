@@ -71,6 +71,7 @@ const populateSeasonUserPlayer = async ({
           userId: user.id,
           name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
           imageUrl: user.imageUrl,
+          elo: player.elo,
           joinedAt: player.createdAt,
           disabled: player.disabled,
         };
