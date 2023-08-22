@@ -38,7 +38,7 @@ export const useLeague = () => {
     { retry: false }
   );
 
-  const { mutate: joinLeagueMutate, isLoading: joinLeagueIsLoading } =
+  const { mutateAsync: joinLeagueMutate, isLoading: joinLeagueIsLoading } =
     api.league.join.useMutation();
 
   useEffect(() => {

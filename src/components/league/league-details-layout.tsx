@@ -1,3 +1,5 @@
+import * as React from "react";
+
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { Spinner } from "~/components/spinner";
@@ -15,12 +17,12 @@ export const LeagueDetailsLayout = ({
   children: React.ReactNode;
 }) => {
   const { userId } = useAuth();
+  const [isJoining, setIsJoining] = React.useState(false);
   const {
     isLoading,
     league,
     leaguePlayers,
     joinLeagueMutate,
-    joinLeagueIsLoading,
     refetchPlayers,
     leagueCode,
   } = useLeague();
@@ -36,16 +38,16 @@ export const LeagueDetailsLayout = ({
   }
 
   const shouldShowJoin =
-    !leaguePlayers ||
-    (!leaguePlayers?.find((u) => u?.userId === userId) && leagueCode);
+    leagueCode && !leaguePlayers?.some((u) => u?.userId === userId);
 
   const joinLeague = () => {
+    setIsJoining(true);
     if (leagueCode) {
       joinLeagueMutate(leagueCode, {
         onSuccess: () => {
           void refetchPlayers();
         },
-      });
+      }).catch(() => setIsJoining(false));
     }
   };
 
@@ -76,7 +78,7 @@ export const LeagueDetailsLayout = ({
           </TabsList>
         </div>
         {shouldShowJoin && (
-          <LoadingButton loading={joinLeagueIsLoading} onClick={joinLeague}>
+          <LoadingButton loading={isJoining} onClick={joinLeague}>
             Join League
           </LoadingButton>
         )}

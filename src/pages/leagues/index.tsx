@@ -10,7 +10,6 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -24,34 +23,29 @@ import {
 import { type NextPage } from "next";
 import { api } from "~/lib/api";
 import { type League } from "~/server/db/types";
-import Link from "next/link";
-import { EnterIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/router";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitialsFromString } from "~/lib/string-utils";
 
 type CellMeta = {
   align: undefined | "left" | "center" | "right" | "justify" | "char";
 };
+
 export const columns: ColumnDef<League>[] = [
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <div className="w-4/5 capitalize">{row.getValue("name")}</div>
-    ),
-  },
-  {
-    accessorKey: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <div className="justify-end">
-        <Link href={`/leagues/${row.original.slug}`}>
-          <EnterIcon />
-        </Link>
+      <div className="flex w-4/5 items-center gap-2 truncate capitalize">
+        <Avatar>
+          <AvatarImage src={row.original.logoUrl ?? ""} />
+          <AvatarFallback>
+            {getInitialsFromString(row.getValue("name")).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <span>{row.getValue("name")}</span>
       </div>
     ),
-    meta: {
-      align: "right",
-    },
   },
 ];
 
@@ -126,7 +120,13 @@ const Leagues: NextPage = () => {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    void router.push(`/leagues/${row.original.slug}`);
+                  }}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
