@@ -12,9 +12,11 @@ export type Tab = "overview" | "seasons" | "statistics" | "feed";
 export const LeagueDetailsLayout = ({
   activeTab,
   children,
+  hideJoinButton,
 }: {
   activeTab: Tab;
   children: React.ReactNode;
+  hideJoinButton?: boolean;
 }) => {
   const { userId } = useAuth();
   const [isJoining, setIsJoining] = React.useState(false);
@@ -32,7 +34,9 @@ export const LeagueDetailsLayout = ({
   }
 
   const shouldShowJoin =
-    leagueCode && !league.players?.some((u) => u?.userId === userId);
+    !hideJoinButton &&
+    leagueCode &&
+    !league.players?.some((u) => u?.userId === userId);
 
   const joinLeague = () => {
     setIsJoining(true);
@@ -47,11 +51,10 @@ export const LeagueDetailsLayout = ({
 
   return (
     <Tabs defaultValue={activeTab} className="space-y-4 p-3">
-      <div className="flex flex-grow">
+      <div className="flex flex-grow flex-row flex-wrap gap-4">
         <div className="grow">
           <TabsList>
             <TabsTrigger value="overview">
-              {" "}
               <Link href={`/leagues/${encodeURIComponent(league.slug)}`}>
                 Overview
               </Link>
@@ -72,9 +75,11 @@ export const LeagueDetailsLayout = ({
           </TabsList>
         </div>
         {shouldShowJoin && (
-          <LoadingButton loading={isJoining} onClick={joinLeague}>
-            Join League
-          </LoadingButton>
+          <div className="shrink-0">
+            <LoadingButton loading={isJoining} onClick={joinLeague}>
+              Join League
+            </LoadingButton>
+          </div>
         )}
       </div>
       <TabsContent value={activeTab} className="space-y-4">

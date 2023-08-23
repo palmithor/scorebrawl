@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { api } from "~/lib/api";
 
 export const useLeague = () => {
@@ -11,6 +11,9 @@ export const useLeague = () => {
     isLoading,
     error,
   } = api.league.getBySlug.useQuery({
+    leagueSlug,
+  });
+  const { data: leaguePlayers } = api.league.getPlayers.useQuery({
     leagueSlug,
   });
   const { data: ongoingSeason, isLoading: isLoadingOngoingSeason } =
