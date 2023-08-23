@@ -27,6 +27,7 @@ export const OngoingSeasonCard = ({ className }: { className?: string }) => {
     isLoadingOngoingSeason,
     isLoadingOngoingSeasonPlayers,
     league,
+    leaguePlayers,
     ongoingSeason,
     ongoingSeasonPlayers,
   } = useLeague();
@@ -59,8 +60,9 @@ export const OngoingSeasonCard = ({ className }: { className?: string }) => {
         <div className="flex">
           <CardTitle className="grow">Current season standings</CardTitle>
           {ongoingSeason &&
+            league &&
             !isLoadingOngoingSeasonPlayers &&
-            league?.players.some((p) => p.userId === user?.id) && (
+            leaguePlayers?.some((p) => p.userId === user?.id) && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
@@ -72,7 +74,7 @@ export const OngoingSeasonCard = ({ className }: { className?: string }) => {
                       }
                       onClick={() =>
                         void router.push(
-                          `/leagues/${league?.slug}/seasons/${ongoingSeason.id}/matches/create`
+                          `/leagues/${league.slug}/seasons/${ongoingSeason.id}/matches/create`
                         )
                       }
                     >

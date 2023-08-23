@@ -2,10 +2,12 @@ import * as React from "react";
 
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Spinner } from "~/components/spinner";
 import { LoadingButton } from "~/components/ui/loading-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useLeague } from "~/hooks/league-details-hook";
+import { api } from "~/lib/api";
 
 export type Tab = "overview" | "seasons" | "statistics" | "feed";
 
@@ -20,8 +22,14 @@ export const LeagueDetailsLayout = ({
 }) => {
   const { userId } = useAuth();
   const [isJoining, setIsJoining] = React.useState(false);
-  const { isLoading, league, joinLeagueMutate, refetchPlayers, leagueCode } =
-    useLeague();
+  const {
+    isLoading,
+    league,
+    joinLeagueMutate,
+    refetchPlayers,
+    leagueCode,
+    leaguePlayers,
+  } = useLeague();
 
   if (isLoading || !league) {
     return (
@@ -36,7 +44,7 @@ export const LeagueDetailsLayout = ({
   const shouldShowJoin =
     !hideJoinButton &&
     leagueCode &&
-    !league.players?.some((u) => u?.userId === userId);
+    !leaguePlayers?.some((u) => u?.userId === userId);
 
   const joinLeague = () => {
     setIsJoining(true);
