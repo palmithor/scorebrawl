@@ -3,6 +3,7 @@ import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
 import { LeaguePlayers } from "~/components/league/league-players";
 import { OngoingSeasonCard } from "~/components/league/ongoing-season-card";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { UploadButton, UploadDropzone } from "~/components/uploadthing";
 import { AvatarName } from "~/components/user/avatar-name";
 
 const LeagueDetails: NextPage = () => {
@@ -120,6 +121,31 @@ const LeagueDetails: NextPage = () => {
         <OngoingSeasonCard className="col-span-4" />
         <LeaguePlayers className="col-span-3" />
       </div>
+      <UploadButton
+        endpoint="leagueLogo"
+        onClientUploadComplete={(res) => {
+          // Do something with the response
+          console.log("Files: ", res);
+          alert("Upload Completed");
+        }}
+        onUploadError={(error: Error) => {
+          // Do something with the error.
+          alert(`ERROR! ${error.message}`);
+        }}
+      />
+      <UploadDropzone
+        className="h-60 w-60"
+        endpoint="leagueLogo"
+        onClientUploadComplete={(res) => {
+          // Do something with the response
+          console.log("Files: ", res);
+          alert("Upload Completed");
+        }}
+        onUploadError={(error: Error) => {
+          // Do something with the error.
+          alert(`ERROR! ${error.message}`);
+        }}
+      />
     </LeagueDetailsLayout>
   );
 };
