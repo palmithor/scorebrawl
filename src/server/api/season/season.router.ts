@@ -130,7 +130,11 @@ export const seasonRouter = createTRPCRouter({
         userId: ctx.auth.userId,
         slug: input.leagueSlug,
       });
-      return getOngoingSeason({ leagueId });
+      const ongoingSeason = await getOngoingSeason({ leagueId });
+      if (!ongoingSeason) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
+      }
+      return ongoingSeason;
     }),
   getAll: protectedProcedure
     .input(

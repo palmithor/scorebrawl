@@ -51,10 +51,10 @@ export const columns: ColumnDef<LeaguePlayerUser>[] = [
 ];
 
 export const LeaguePlayers = ({ className }: { className?: string }) => {
-  const { league } = useLeague();
+  const { leaguePlayers } = useLeague();
 
   const table = useReactTable({
-    data: league?.players || [],
+    data: leaguePlayers || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });

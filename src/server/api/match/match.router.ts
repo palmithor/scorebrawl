@@ -1,9 +1,10 @@
-import z from "zod";
 import { Player, TeamMatch } from "@ihs7/ts-elo";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
-import { TRPCError } from "@trpc/server";
-import { getByIdWhereMember } from "../league/league.repository";
+import { create } from "~/server/api/match/match.schema";
+import { getSeasonById } from "~/server/api/season/season.repository";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import {
   createCuid,
   matches,
@@ -11,9 +12,11 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { and, desc, eq, inArray } from "drizzle-orm";
-import { getSeasonById } from "~/server/api/season/season.repository";
-import { create } from "~/server/api/match/match.schema";
+import {
+  getByIdWhereMember,
+  getLeagueIdBySlug,
+} from "../league/league.repository";
+import { TRPCError } from "@trpc/server";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -38,6 +41,42 @@ export const matchRouter = createTRPCRouter({
         data: result,
         nextCursor: undefined,
       };
+    }),
+  getLatest: protectedProcedure
+    .input(
+      z.object({
+        leagueSlug: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      await getLeagueIdBySlug({
+        slug: input.leagueSlug,
+        userId: ctx.auth.userId,
+      });
+
+      const latestMatch = await ctx.db.query.matches.findFirst({
+        with: {
+          players: {
+            with: {
+              player: {
+                with: { leaguePlayer: true },
+              },
+            },
+          },
+          season: {
+            with: {
+              league: true,
+            },
+          },
+        },
+      });
+      if (!latestMatch) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "no matches played",
+        });
+      }
+      return latestMatch;
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
     const season = await getSeasonById({
@@ -154,14 +193,4 @@ export const matchRouter = createTRPCRouter({
     }
     return match;
   }),
-  /*undo: protectedProcedure
-  .input(
-    z.object({
-      matchId: z.string().nonempty(),
-    })
-  )
-  .mutation(({ ctx, input }) => {
-    throw new TRPCError({ code: "FORBIDDEN" });
-  }),
-  */
 });

@@ -60,22 +60,12 @@ export const leagueRouter = createTRPCRouter({
       const dbResult = await ctx.db.query.leagues.findMany({
         columns: { code: false },
         where: canReadLeaguesCriteria({ userId: ctx.auth.userId }),
-        with: {
-          players: true,
-        },
         orderBy: asc(leagues.slug),
       });
-      const leaguePlayersPopulated = await Promise.all(
-        dbResult.map(async (l) => {
-          return {
-            ...l,
-            players: await populateLeagueUserPlayer({
-              leaguePlayers: l.players,
-            }),
-          };
-        })
-      );
-      return { data: leaguePlayersPopulated };
+
+      return {
+        data: dbResult,
+      };
     }),
   getBySlug: protectedProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
@@ -85,17 +75,13 @@ export const leagueRouter = createTRPCRouter({
           eq(leagues.slug, input.leagueSlug),
           canReadLeaguesCriteria({ userId: ctx.auth.userId })
         ),
-        with: {
-          players: true,
-        },
       });
       if (!league) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
-      const players = await populateLeagueUserPlayer({
-        leaguePlayers: league.players,
-      });
-      return { ...league, players };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { code, ...publicLeagueProps } = league;
+      return publicLeagueProps;
     }),
   getPlayers: protectedProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
@@ -140,7 +126,10 @@ export const leagueRouter = createTRPCRouter({
         updatedAt: now,
       })
       .run();
-    return excludeCode(league);
+    return ctx.db.query.leagues.findFirst({
+      where: eq(leagues.id, league.id),
+      columns: { code: false },
+    });
   }),
   update: protectedProcedure
     .input(
@@ -290,9 +279,3 @@ export const leagueRouter = createTRPCRouter({
       }
     }),
 });
-
-const excludeCode = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  code,
-  ...other
-}: Partial<LeagueModel>) => other;

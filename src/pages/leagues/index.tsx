@@ -13,6 +13,7 @@ import { type inferRouterOutputs } from "@trpc/server";
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
 import * as React from "react";
+import { Spinner } from "~/components/spinner";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -24,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { useLeague } from "~/hooks/league-details-hook";
 import { api } from "~/lib/api";
 import { getInitialsFromString } from "~/lib/string-utils";
 import { type AppRouter } from "~/server/api/root";
@@ -32,61 +34,43 @@ type CellMeta = {
   align: undefined | "left" | "center" | "right" | "justify" | "char";
 };
 
-export const columns: ColumnDef<
-  inferRouterOutputs<AppRouter>["league"]["getAll"]["data"][0]
->[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      <div className="flex grow items-center gap-2 truncate capitalize">
-        <Avatar>
-          <AvatarImage src={row.original.logoUrl ?? ""} />
-          <AvatarFallback>
-            {getInitialsFromString(row.getValue("name")).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="text">{row.getValue("name")}</div>
+const PlayersCell = ({ leagueSlug }: { leagueSlug: string }) => {
+  const { data } = api.league.getPlayers.useQuery({ leagueSlug });
+
+  const numberOfAvatarsToShow = 5;
+  if (!data) {
+    return <Spinner />;
+  }
+
+  if (data.length <= numberOfAvatarsToShow) {
+    return (
+      <div className="flex -space-x-4">
+        {data.map((p) => (
+          <Avatar key={p.id} className="h-8 w-8">
+            <AvatarImage src={p.imageUrl} />
+            <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
+          </Avatar>
+        ))}
       </div>
-    ),
-  },
-  {
-    accessorKey: "players",
-    header: "Players",
-    cell: ({ row }) => {
-      const numberOfAvatarsToShow = 5;
-      const players = row.original.players;
-      if (players.length <= numberOfAvatarsToShow) {
-        return (
-          <div className="flex -space-x-4">
-            {players.map((p) => (
-              <Avatar key={p.id} className="h-8 w-8">
-                <AvatarImage src={p.imageUrl} />
-                <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
-              </Avatar>
-            ))}
-          </div>
-        );
-      } else {
-        const firstThree = players.slice(0, numberOfAvatarsToShow - 1);
-        const remainingCount = players.length - (numberOfAvatarsToShow - 1);
-        return (
-          <div className="flex -space-x-4">
-            {firstThree.map((p) => (
-              <Avatar key={p.id} className="h-8 w-8">
-                <AvatarImage src={p.imageUrl} />
-                <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
-              </Avatar>
-            ))}
-            <Avatar className="h-8 w-8 text-sm">
-              <AvatarFallback className="text-xs">{`+${remainingCount}`}</AvatarFallback>
-            </Avatar>
-          </div>
-        );
-      }
-    },
-  },
-];
+    );
+  } else {
+    const firstThree = data.slice(0, numberOfAvatarsToShow - 1);
+    const remainingCount = data.length - (numberOfAvatarsToShow - 1);
+    return (
+      <div className="flex -space-x-4">
+        {firstThree.map((p) => (
+          <Avatar key={p.id} className="h-8 w-8">
+            <AvatarImage src={p.imageUrl} />
+            <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
+          </Avatar>
+        ))}
+        <Avatar className="h-8 w-8 text-sm">
+          <AvatarFallback className="text-xs">{`+${remainingCount}`}</AvatarFallback>
+        </Avatar>
+      </div>
+    );
+  }
+};
 
 const Leagues: NextPage = () => {
   const router = useRouter();
@@ -97,6 +81,30 @@ const Leagues: NextPage = () => {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+
+  const columns: ColumnDef<
+    inferRouterOutputs<AppRouter>["league"]["getAll"]["data"][0]
+  >[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        <div className="flex grow items-center gap-2 truncate capitalize">
+          <Avatar>
+            <AvatarImage src={row.original.logoUrl ?? ""} />
+            <AvatarFallback>
+              {getInitialsFromString(row.getValue("name")).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="text">{row.getValue("name")}</div>
+        </div>
+      ),
+    },
+    {
+      header: "Players",
+      cell: ({ row }) => <PlayersCell leagueSlug={row.original.slug} />,
+    },
+  ];
 
   const table = useReactTable({
     data: data?.data || [],
