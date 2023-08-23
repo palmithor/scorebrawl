@@ -23,6 +23,22 @@ const config = {
   experimental: {
     esmExternals: false, // uploadthing - https://docs.uploadthing.com/nextjs/pagedir
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "uploadthing.com",
+        port: "",
+        pathname: "/f/**",
+      },
+      {
+        protocol: "https",
+        hostname: "utfs.io",
+        port: "",
+        pathname: "/f/**",
+      },
+    ],
+  },
   async redirects() {
     return [
       {
