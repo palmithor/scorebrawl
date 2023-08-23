@@ -20,6 +20,9 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  experimental: {
+    esmExternals: false, // uploadthing - https://docs.uploadthing.com/nextjs/pagedir
+  },
   async redirects() {
     return [
       {

@@ -1,9 +1,9 @@
 import { type NextPage } from "next";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { OngoingSeasonCard } from "~/components/league/ongoing-season-card";
-import { AvatarName } from "~/components/user/avatar-name";
-import { LeaguePlayers } from "~/components/league/league-players";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
+import { LeaguePlayers } from "~/components/league/league-players";
+import { OngoingSeasonCard } from "~/components/league/ongoing-season-card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { AvatarName } from "~/components/user/avatar-name";
 
 const LeagueDetails: NextPage = () => {
   return (
