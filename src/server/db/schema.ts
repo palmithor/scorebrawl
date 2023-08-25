@@ -140,7 +140,7 @@ export const matchPlayers = sqliteTable("match_player", {
 
 export const leaguesRelations = relations(leagues, ({ many }) => ({
   seasons: many(seasons),
-  players: many(leaguePlayers),
+  leaguePlayers: many(leaguePlayers),
   members: many(leagueMembers),
 }));
 
@@ -159,7 +159,7 @@ export const leagueMemberRelations = relations(leagueMembers, ({ one }) => ({
 }));
 
 export const seasonRelations = relations(seasons, ({ one, many }) => ({
-  players: many(seasonPlayers),
+  seasonPlayers: many(seasonPlayers),
   league: one(leagues, {
     fields: [seasons.leagueId],
     references: [leagues.id],
@@ -182,7 +182,7 @@ export const seasonPlayerRelations = relations(
 );
 
 export const matchRelations = relations(matches, ({ one, many }) => ({
-  players: many(matchPlayers),
+  matchPlayers: many(matchPlayers),
   season: one(seasons, {
     fields: [matches.seasonId],
     references: [seasons.id],
@@ -194,7 +194,7 @@ export const matchPlayerRelations = relations(matchPlayers, ({ one }) => ({
     fields: [matchPlayers.matchId],
     references: [matches.id],
   }),
-  player: one(seasonPlayers, {
+  seasonPlayer: one(seasonPlayers, {
     fields: [matchPlayers.seasonPlayerId],
     references: [seasonPlayers.id],
   }),

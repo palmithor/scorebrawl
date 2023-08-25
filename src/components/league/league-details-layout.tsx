@@ -2,12 +2,10 @@ import * as React from "react";
 
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { Spinner } from "~/components/spinner";
 import { LoadingButton } from "~/components/ui/loading-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useLeague } from "~/hooks/league-details-hook";
-import { api } from "~/lib/api";
 
 export type Tab = "overview" | "seasons" | "statistics" | "feed";
 
