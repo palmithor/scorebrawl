@@ -1,4 +1,3 @@
-import clerk from "@clerk/clerk-sdk-node";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import z from "zod";
@@ -10,8 +9,8 @@ import {
   getLeagueIdBySlug,
 } from "~/server/api/league/league.repository";
 import { getOngoingSeason } from "~/server/api/season/season.repository";
+import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { type SeasonPlayerUser } from "~/server/api/types";
 import { db } from "~/server/db";
 import {
   createCuid,
@@ -20,7 +19,7 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { type Db, type SeasonPlayer } from "~/server/db/types";
+import { type Db } from "~/server/db/types";
 import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
 
@@ -48,36 +47,6 @@ const getSeason = async ({
     throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
   }
   return season;
-};
-
-const populateSeasonUserPlayer = async ({
-  seasonPlayers,
-}: {
-  seasonPlayers: (SeasonPlayer & { leaguePlayer: { userId: string } })[];
-}) => {
-  const clerkUsers = await clerk.users.getUserList({
-    limit: seasonPlayers.length,
-    userId: seasonPlayers.map((p) => p.leaguePlayer.userId),
-  });
-  return seasonPlayers
-    .map((player) => {
-      const user = clerkUsers.find(
-        (user) => user.id === player.leaguePlayer.userId
-      );
-
-      if (user) {
-        return {
-          id: player.id,
-          userId: user.id,
-          name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-          imageUrl: user.imageUrl,
-          elo: player.elo,
-          joinedAt: player.createdAt,
-          disabled: player.disabled,
-        };
-      }
-    })
-    .filter((item): item is SeasonPlayerUser => !!item);
 };
 
 const checkOngoing = async (

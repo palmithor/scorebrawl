@@ -1,14 +1,16 @@
 import { Player, TeamMatch } from "@ihs7/ts-elo";
+import { TRPCError } from "@trpc/server";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import { create } from "~/server/api/match/match.schema";
 import { getSeasonById } from "~/server/api/season/season.repository";
+import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import {
   createCuid,
-  matches,
   matchPlayers,
+  matches,
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
@@ -16,7 +18,7 @@ import {
   getByIdWhereMember,
   getLeagueIdBySlug,
 } from "../league/league.repository";
-import { TRPCError } from "@trpc/server";
+import { type MatchInfo, type SeasonPlayerUser } from "../types";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -49,34 +51,73 @@ export const matchRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      await getLeagueIdBySlug({
+      const leagueId = await getLeagueIdBySlug({
         slug: input.leagueSlug,
         userId: ctx.auth.userId,
       });
 
-      const latestMatch = await ctx.db.query.matches.findFirst({
+      const latestMatch = (await ctx.db.query.matches.findFirst({
         with: {
-          players: {
+          matchPlayers: {
+            columns: { homeTeam: true },
             with: {
-              player: {
-                with: { leaguePlayer: true },
+              seasonPlayer: {
+                with: {
+                  leaguePlayer: {
+                    columns: { userId: true },
+                  },
+                },
               },
             },
           },
           season: {
-            with: {
-              league: true,
-            },
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+            where: (seasons, { eq }) => eq(seasons.leagueId, leagueId),
+            columns: { id: true, name: true },
           },
         },
-      });
+        orderBy: desc(matches.createdAt),
+      })) as undefined | MatchInfo;
+
       if (!latestMatch) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "no matches played",
         });
       }
-      return latestMatch;
+      const players = await populateSeasonUserPlayer({
+        seasonPlayers: latestMatch.matchPlayers.map((p) => p.seasonPlayer),
+      });
+
+      return {
+        id: latestMatch.id,
+        season: {
+          id: latestMatch.season.id,
+          name: latestMatch.season.name,
+        },
+        homeTeam: {
+          score: latestMatch.homeScore,
+          expectedElo: latestMatch.homeExpectedElo,
+          players: latestMatch.matchPlayers
+            .filter((p) => p.homeTeam)
+            .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
+            .filter((item): item is SeasonPlayerUser => !!item),
+        },
+        awayTeam: {
+          score: latestMatch.awayScore,
+          expectedElo: latestMatch.awayExpectedElo,
+          players: latestMatch.matchPlayers
+            .filter((p) => !p.homeTeam)
+            .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
+            .filter((item): item is SeasonPlayerUser => !!item),
+        },
+        createdBy: latestMatch.createdBy,
+        updatedBy: latestMatch.updatedBy,
+        createdAt: latestMatch.createdAt,
+        updatedAt: latestMatch.updatedAt,
+      };
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
     const season = await getSeasonById({

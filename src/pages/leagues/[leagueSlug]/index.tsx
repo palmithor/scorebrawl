@@ -1,11 +1,18 @@
 import { type NextPage } from "next";
+import { useRouter } from "next/router";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
 import { LeaguePlayers } from "~/components/league/league-players";
 import { OngoingSeasonCard } from "~/components/league/ongoing-season-card";
+import { MatchCard } from "~/components/match/match-card";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { AvatarName } from "~/components/user/avatar-name";
+import { api } from "~/lib/api";
 
 const LeagueDetails: NextPage = () => {
+  const router = useRouter();
+  const leagueSlug = router.query.leagueSlug as string;
+  const { data: latestMatch } = api.match.getLatest.useQuery({ leagueSlug });
+
   return (
     <LeagueDetailsLayout activeTab={"overview"}>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -97,24 +104,30 @@ const LeagueDetails: NextPage = () => {
             <p className="text-xs text-muted-foreground">Over 0 seasons</p>
           </CardContent>
         </Card>
-        <Card>
+        {latestMatch ? (
+          <MatchCard
+            match={latestMatch}
+            title="Latest match"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                className="h-4 w-4 text-muted-foreground"
+              >
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+              </svg>
+            }
+          />
+        ) : (
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Latest match</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
+            <CardTitle className="text-sm font-medium">No Matches</CardTitle>
           </CardHeader>
-          <CardContent></CardContent>
-        </Card>
+        )}
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <OngoingSeasonCard className="col-span-4" />

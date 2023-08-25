@@ -14,7 +14,7 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { type LeagueModel, type LeaguePlayer } from "~/server/db/types";
+import { type LeaguePlayer } from "~/server/db/types";
 import {
   canReadLeaguesCriteria,
   getByIdWhereMember,

@@ -6,6 +6,9 @@ export const useLeague = (input?: { leagueSlug?: string }) => {
   const router = useRouter();
   const { league: leagueApi, season: seasonApi } = api.useContext();
   const leagueSlug = input?.leagueSlug || (router.query.leagueSlug as string);
+
+  api.match.getLatest.useQuery({ leagueSlug });
+
   const {
     data: league,
     isLoading,
