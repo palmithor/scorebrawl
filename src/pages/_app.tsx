@@ -1,4 +1,3 @@
-import { type AppType } from "next/app";
 import {
   ClerkProvider,
   SignedIn,
@@ -6,13 +5,15 @@ import {
   SignIn,
   SignUp,
 } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/react";
+import { type AppType } from "next/app";
 
 import { api } from "~/lib/api";
 
-import "~/styles/globals.css";
-import { MainLayout } from "~/components/layout/layout";
 import { useRouter } from "next/router";
+import { MainLayout } from "~/components/layout/layout";
 import { Toaster } from "~/components/ui/toaster";
+import "~/styles/globals.css";
 
 const clerkAppearance = {
   elements: {
@@ -36,6 +37,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
   return (
     <ClerkProvider {...pageProps}>
+      <Analytics />
       <SignedIn>
         <MainLayout>
           <Component {...pageProps} />
