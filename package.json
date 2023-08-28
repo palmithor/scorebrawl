@@ -66,7 +66,7 @@
     "react-dom": "18.2.0",
     "react-dropzone": "14.2.3",
     "react-hook-form": "7.45.1",
-    "superjson": "1.12.4",
+    "superjson": "1.13.1",
     "tailwind-merge": "1.14.0",
     "tailwindcss-animate": "1.0.6",
     "uploadthing": "5.3.3",
