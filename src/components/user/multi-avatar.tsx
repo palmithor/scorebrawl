@@ -15,7 +15,7 @@ export const MultiAvatar = (
     return (
       <div className="flex -space-x-4">
         {users.map((p) => (
-          <Avatar key={p.id} className={"h-6 w-6"}>
+          <Avatar key={p.id} className={"h-8 w-8"}>
             <AvatarImage src={p.imageUrl} />
             <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
           </Avatar>
@@ -28,12 +28,12 @@ export const MultiAvatar = (
     return (
       <div className="flex -space-x-4">
         {firstThree.map((p) => (
-          <Avatar key={p.id} className={"h-6 w-6"}>
+          <Avatar key={p.id} className={"h-8 w-8"}>
             <AvatarImage src={p.imageUrl} />
             <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
           </Avatar>
         ))}
-        <Avatar className={cn("h-6 w-6 text-sm")}>
+        <Avatar className={cn("h-8 w-8 text-sm")}>
           <AvatarFallback className="text-xs">{`+${remainingCount}`}</AvatarFallback>
         </Avatar>
       </div>

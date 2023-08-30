@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { FormDots } from "./form-dots";
 
 export const SeasonStanding = ({
   className,
@@ -44,34 +45,7 @@ export const SeasonStanding = ({
         const form = playerForm?.find(
           (pf) => pf.seasonPlayerId === row.original.id
         )?.form;
-        return form ? (
-          <div className="flex gap-1">
-            {form.map((r, i) => {
-              if (r === "W") {
-                return (
-                  <div
-                    key={`${row.original.id}-${r}-${i}`}
-                    className="h-2 w-2 rounded-full bg-green-500"
-                  ></div>
-                );
-              } else if (r === "D") {
-                return (
-                  <div
-                    key={`${row.original.id}-${r}-${i}`}
-                    className="h-2 w-2 rounded-full bg-yellow-400"
-                  ></div>
-                );
-              } else {
-                return (
-                  <div
-                    key={`${row.original.id}-${r}-${i}`}
-                    className="h-2 w-2 rounded-full bg-red-400"
-                  ></div>
-                );
-              }
-            })}
-          </div>
-        ) : null;
+        return form ? <FormDots form={form} /> : null;
       },
     },
     {
