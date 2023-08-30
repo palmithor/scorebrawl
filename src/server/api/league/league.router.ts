@@ -5,7 +5,7 @@ import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import { slugifyLeagueName } from "~/server/api/common/slug";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { type LeaguePlayerUser } from "~/server/api/types";
+import { type LeaguePlayerUser, type PlayerForm } from "~/server/api/types";
 import {
   createCuid,
   leagueMembers,
@@ -216,6 +216,120 @@ export const leagueRouter = createTRPCRouter({
       });
 
       return !!league;
+    }),
+  getBestForm: protectedProcedure
+    .input(
+      z.object({
+        leagueSlug: z.string().nonempty(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const leagueId = await getLeagueIdBySlug({
+        slug: input.leagueSlug,
+        userId: ctx.auth.userId,
+      });
+
+      const data = await ctx.db.query.leagues.findFirst({
+        where: (league, { eq }) => eq(league.id, leagueId),
+        with: {
+          seasons: {
+            orderBy: (season, { desc }) => [desc(season.startDate)],
+            columns: { startDate: true },
+            with: {
+              seasonPlayers: {
+                with: {
+                  leaguePlayer: { columns: { userId: true } },
+                  matches: {
+                    columns: { homeTeam: true, createdAt: true },
+                    orderBy: (match, { asc }) => [asc(match.createdAt)],
+                    limit: 5,
+                    with: {
+                      match: {
+                        columns: { homeScore: true, awayScore: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (data) {
+        type FormAndPoints = { points: number; form: PlayerForm };
+        const userFormAndPoints = data.seasons
+          .flatMap((season) =>
+            season.seasonPlayers.map((player) => ({
+              userId: player.leaguePlayer.userId,
+              matches: player.matches,
+            }))
+          )
+          .reduce<Record<string, FormAndPoints>>((acc, player) => {
+            const { userId, matches } = player;
+            const currentPointsAndForm = matches.reduce<FormAndPoints>(
+              (pointsAndForm, match) => {
+                if (match.match.awayScore === match.match.homeScore) {
+                  return {
+                    points: pointsAndForm.points + 1,
+                    form: [...(pointsAndForm.form ?? []), "D"],
+                  };
+                } else if (
+                  (match.match.awayScore < match.match.homeScore &&
+                    match.homeTeam) ||
+                  (match.match.awayScore > match.match.homeScore &&
+                    !match.homeTeam)
+                ) {
+                  return {
+                    points: pointsAndForm.points + 3,
+                    form: [...(pointsAndForm.form ?? []), "W"],
+                  };
+                } else {
+                  return {
+                    points: pointsAndForm.points,
+                    form: [...(pointsAndForm.form ?? []), "L"],
+                  };
+                }
+              },
+              { points: 0, form: [] }
+            );
+            const accPoints = acc[userId];
+            if (accPoints) {
+              acc[userId] = {
+                points: accPoints.points + currentPointsAndForm.points,
+                form: [...accPoints.form, ...currentPointsAndForm.form],
+              };
+            } else {
+              acc[userId] = currentPointsAndForm;
+            }
+            return acc;
+          }, {});
+
+        let bestForm: {
+          userId: string;
+          form: PlayerForm;
+          points: number;
+        } = { userId: "", points: -1, form: [] };
+        for (const userId of Object.keys(userFormAndPoints)) {
+          const user = userFormAndPoints[userId];
+          if (user && user.points > bestForm.points) {
+            bestForm = { userId, points: user.points, form: user.form };
+          }
+        }
+        const clerkUser = await clerk.users.getUser(bestForm.userId);
+        return {
+          name: `${clerkUser.firstName || ""} ${
+            clerkUser.lastName || ""
+          }`.trim(),
+          imageUrl: clerkUser.imageUrl,
+          points: bestForm.points,
+          form: bestForm.form,
+        };
+      }
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Should not happen as the league id has been found already",
+      });
     }),
   join: protectedProcedure
     .input(

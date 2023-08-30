@@ -50,6 +50,7 @@ export const useLeague = (input?: { leagueSlug?: string }) => {
 
   const refetchPlayers = async () => {
     await leagueApi.getPlayers.refetch({ leagueSlug });
+    await leagueApi.getBestForm.refetch({ leagueSlug });
     if (ongoingSeason) {
       await seasonApi.getPlayers.refetch({ seasonId: ongoingSeason.id });
     }

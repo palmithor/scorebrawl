@@ -43,3 +43,5 @@ export type MatchInfo = {
   }[];
   season: { id: string; name: string };
 };
+
+export type PlayerForm = ("W" | "D" | "L")[];
