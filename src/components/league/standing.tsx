@@ -4,6 +4,7 @@ import { api } from "~/lib/api";
 import { type SeasonPlayerUser } from "~/server/api/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { FormDots } from "./form-dots";
+import * as React from "react";
 
 export const SeasonStanding = ({
   className,
@@ -15,72 +16,31 @@ export const SeasonStanding = ({
   const { data } = api.season.getPlayers.useQuery({ seasonId });
   const { data: playerForm } = api.season.playerForm.useQuery({ seasonId });
 
-  const columns: ColumnDef<SeasonPlayerUser>[] = [
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => (
-        <AvatarName name={row.getValue("name")} avatarUrl={row.original.imageUrl} />
-      ),
-    },
-    {
-      accessorKey: "form",
-      header: "Form",
-      cell: ({ row }) => {
-        const form = playerForm?.find((pf) => pf.seasonPlayerId === row.original.id)?.form;
-        return form ? <FormDots form={form} /> : null;
-      },
-    },
-    {
-      accessorKey: "elo",
-      header: "Points",
-      cell: ({ row }) => <div> {row.original.elo}</div>,
-    },
-  ];
-
-  const table = useReactTable({
-    data: data || [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   return (
     <div className={className}>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
+            <TableHead>Name</TableHead>
+            <TableHead>Form</TableHead>
+            <TableHead>Points</TableHead>
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+            {data?.map((player) => (
+              <TableRow key={player.id}>
+                <TableCell>
+                  <AvatarName name={player.name} avatarUrl={player.imageUrl} />
+                </TableCell>
+                <TableCell>
+                  <FormDots
+                    form={playerForm?.find((pf) => pf.seasonPlayerId === player.id)?.form ?? []}
+                  />
+                </TableCell>
+                <TableCell>
+                  <div className="font-bold">{player.elo}</div>
                 </TableCell>
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>
