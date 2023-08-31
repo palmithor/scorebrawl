@@ -1,10 +1,7 @@
-import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { AvatarName } from "~/components/user/avatar-name";
 import { api } from "~/lib/api";
-import { type SeasonPlayerUser } from "~/server/api/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { FormDots } from "./form-dots";
-import * as React from "react";
 
 export const SeasonStanding = ({
   className,
