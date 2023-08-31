@@ -46,7 +46,9 @@ export const InFormCard = ({ leagueSlug }: { leagueSlug: string }) => {
             </div>
           </div>
         )}
-        {error && <div className="text-sm">No in form player available</div>}
+        {error && !data && (
+          <div className="text-sm">No in form player available</div>
+        )}
         {data && (
           <div className="flex items-center ">
             <AvatarName name={data.name} avatarUrl={data.imageUrl}>
