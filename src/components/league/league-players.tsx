@@ -1,4 +1,3 @@
-import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
   Table,
@@ -9,41 +8,16 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { AvatarName } from "~/components/user/avatar-name";
-import { useLeague } from "~/hooks/league-details-hook";
-import { type LeaguePlayerUser } from "~/server/api/types";
+import { api } from "~/lib/api";
 
-export const columns: ColumnDef<LeaguePlayerUser>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <AvatarName name={row.getValue("name")} avatarUrl={row.original.imageUrl} />,
-  },
-  {
-    accessorKey: "joinedAt",
-    header: "Joined At",
-    cell: ({ row }) => (
-      <div className="w-4/5">
-        {row.getValue<Date>("joinedAt")?.toLocaleDateString(window.navigator.language)}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "disabled",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="w-4/5">{row.getValue("disabled") ? "Disabled" : "Active"}</div>
-    ),
-  },
-];
-
-export const LeaguePlayers = ({ className }: { className?: string }) => {
-  const { leaguePlayers } = useLeague();
-
-  const table = useReactTable({
-    data: leaguePlayers || [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+export const LeaguePlayers = ({
+  leagueSlug,
+  className,
+}: {
+  leagueSlug: string;
+  className?: string;
+}) => {
+  const { data } = api.league.getPlayers.useQuery({ leagueSlug });
 
   return (
     <Card className={className}>
@@ -54,38 +28,26 @@ export const LeaguePlayers = ({ className }: { className?: string }) => {
         <div className="rounded-md border">
           <Table>
             <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Joined</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
+              {data?.map((player) => (
+                <TableRow key={player.id}>
+                  <TableCell>
+                    <AvatarName name={player.name} avatarUrl={player.imageUrl} />{" "}
+                  </TableCell>
+                  <TableCell>
+                    <div>{player.joinedAt.toLocaleDateString(window.navigator.language)}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div>{player.disabled ? "Disabled" : "Active"}</div>
                   </TableCell>
                 </TableRow>
-              )}
+              ))}
             </TableBody>
           </Table>
         </div>

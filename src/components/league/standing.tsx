@@ -18,9 +18,11 @@ export const SeasonStanding = ({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableHead>Name</TableHead>
-            <TableHead>Form</TableHead>
-            <TableHead>Points</TableHead>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Form</TableHead>
+              <TableHead>Points</TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
             {data?.map((player) => (
