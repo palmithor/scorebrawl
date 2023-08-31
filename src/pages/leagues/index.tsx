@@ -2,10 +2,11 @@
 
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
-import * as React from "react";
+import { useState } from "react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { Skeleton } from "~/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -14,11 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { api } from "~/lib/api";
 import { AvatarName } from "~/components/user/avatar-name";
 import { MultiAvatar } from "~/components/user/multi-avatar";
-import { Skeleton } from "~/components/ui/skeleton";
-import { useState } from "react";
+import { api } from "~/lib/api";
 
 const PlayersCell = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.league.getPlayers.useQuery({ leagueSlug });
@@ -65,8 +64,10 @@ const Leagues: NextPage = () => {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableHead>Name</TableHead>
-            <TableHead>Players</TableHead>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Players</TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData?.map((league) => (

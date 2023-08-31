@@ -9,16 +9,8 @@ export const useLeague = (input?: { leagueSlug?: string }) => {
 
   api.match.getLatest.useQuery({ leagueSlug });
 
-  const {
-    data: league,
-    isLoading,
-    error,
-  } = api.league.getBySlug.useQuery({
-    leagueSlug,
-  });
-  const { data: leaguePlayers } = api.league.getPlayers.useQuery({
-    leagueSlug,
-  });
+  const { data: league, isLoading, error } = api.league.getBySlug.useQuery({ leagueSlug });
+  const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
   const { data: ongoingSeason, isLoading: isLoadingOngoingSeason } = api.season.getOngoing.useQuery(
     { leagueSlug },
     { retry: false }
@@ -33,9 +25,7 @@ export const useLeague = (input?: { leagueSlug?: string }) => {
     { enabled: !!league?.id }
   );
   const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
-    {
-      leagueSlug,
-    },
+    { leagueSlug },
     { retry: false }
   );
 

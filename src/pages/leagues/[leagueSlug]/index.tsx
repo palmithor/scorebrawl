@@ -66,7 +66,7 @@ const LeagueDetails: NextPage = () => {
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <OngoingSeasonCard className="col-span-4" />
-        <LeaguePlayers className="col-span-3" />
+        <LeaguePlayers leagueSlug={leagueSlug} className="col-span-3" />
       </div>
     </LeagueDetailsLayout>
   );
