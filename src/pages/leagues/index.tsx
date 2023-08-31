@@ -90,7 +90,11 @@ const Leagues: NextPage = () => {
   });
 
   if (isLoading) {
-    return <p>loading</p>;
+    return (
+      <div className="grid h-screen place-items-center bg-background">
+        <Spinner size="40" />
+      </div>
+    );
   }
 
   return (
