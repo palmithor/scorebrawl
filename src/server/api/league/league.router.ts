@@ -1,6 +1,6 @@
 import clerk from "@clerk/clerk-sdk-node";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, gte, isNull, or } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, or, sql } from "drizzle-orm";
 import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import { slugifyLeagueName } from "~/server/api/common/slug";
@@ -11,6 +11,7 @@ import {
   leagueMembers,
   leaguePlayers,
   leagues,
+  matches,
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
@@ -391,5 +392,38 @@ export const leagueRouter = createTRPCRouter({
           })
           .run();
       }
+    }),
+  getMatchesPlayedStats: protectedProcedure
+    .input(
+      z.object({
+        leagueSlug: z.string().nonempty(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const leagueId = await getLeagueIdBySlug({
+        slug: input.leagueSlug,
+        userId: ctx.auth.userId,
+      });
+
+      const matchCount = await ctx.db
+        .select({
+          count: sql<number>`count(*)`,
+          seasonCount: sql<number>`count( distinct (${matches.seasonId}))`,
+        })
+        .from(matches)
+        .where(
+          and(
+            inArray(
+              matches.seasonId,
+              ctx.db
+                .select({ id: seasons.id })
+                .from(seasons)
+                .where(eq(seasons.leagueId, leagueId))
+            )
+          )
+        )
+        .get();
+      console.log("matchCount", matchCount);
+      return matchCount;
     }),
 });

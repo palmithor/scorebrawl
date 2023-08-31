@@ -58,8 +58,3 @@ export const InFormCard = ({ leagueSlug }: { leagueSlug: string }) => {
     </Card>
   );
 };
-
-/*
-      
-        )}
-        */
