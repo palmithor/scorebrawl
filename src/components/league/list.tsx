@@ -1,19 +1,7 @@
 import { api } from "~/lib/api";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import React from "react";
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { type Season } from "~/server/db/types";
 import { Label } from "@radix-ui/react-dropdown-menu";
 
@@ -21,18 +9,14 @@ export const columns: ColumnDef<Season>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => (
-      <div className="w-4/5 capitalize"> {row.getValue("name")}</div>
-    ),
+    cell: ({ row }) => <div className="w-4/5 capitalize"> {row.getValue("name")}</div>,
   },
   {
     accessorKey: "startDate",
     header: "Starts",
     cell: ({ row }) => (
       <div className="w-4/5">
-        {row
-          .getValue<Date>("startDate")
-          .toLocaleDateString(window.navigator.language)}
+        {row.getValue<Date>("startDate").toLocaleDateString(window.navigator.language)}
       </div>
     ),
   },
@@ -40,9 +24,9 @@ export const columns: ColumnDef<Season>[] = [
     accessorKey: "endDate",
     header: "Ends",
     cell: ({ row }) => {
-      const dateStr = (
-        row.getValue<Date>("endDate") as Date | undefined
-      )?.toLocaleDateString(window.navigator.language);
+      const dateStr = (row.getValue<Date>("endDate") as Date | undefined)?.toLocaleDateString(
+        window.navigator.language
+      );
       return <div className="w-4/5"> {dateStr ? dateStr : "-"}</div>;
     },
   },
@@ -78,10 +62,7 @@ export const SeasonList = ({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -94,20 +75,14 @@ export const SeasonList = ({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

@@ -28,8 +28,7 @@ const client = z.object({
 const processEnv = {
   NODE_ENV: process.env.NODE_ENV,
   CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   DATABASE_URL: process.env.DATABASE_URL,
   DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
 };
@@ -55,10 +54,7 @@ if (!!process.env.SKIP_ENV_VALIDATION === false) {
   );
 
   if (parsed.success === false) {
-    console.error(
-      "❌ Invalid environment variables:",
-      parsed.error.flatten().fieldErrors
-    );
+    console.error("❌ Invalid environment variables:", parsed.error.flatten().fieldErrors);
     throw new Error("Invalid environment variables");
   }
 

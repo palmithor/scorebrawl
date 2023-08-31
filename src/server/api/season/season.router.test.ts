@@ -28,9 +28,7 @@ describe("seasonRouter", () => {
 
       expect(season.id).toBeTruthy();
       expect(season.name).toEqual("Q2 2023");
-      expect(season.startDate.toISOString()).toEqual(
-        "2023-04-19T00:00:00.000Z"
-      );
+      expect(season.startDate.toISOString()).toEqual("2023-04-19T00:00:00.000Z");
       expect(season.createdAt).toBeTruthy();
       expect(season.updatedAt).toBeTruthy();
       expect(season.createdBy).toEqual("userId");

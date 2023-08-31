@@ -5,10 +5,7 @@ import { FormLayout } from "~/components/layout/form-layout";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/lib/api";
-import {
-  FancyMultiSelect,
-  type Item,
-} from "~/components/ui/fancy-multi-select";
+import { FancyMultiSelect, type Item } from "~/components/ui/fancy-multi-select";
 import { Spinner } from "~/components/spinner";
 import {
   Form,
@@ -19,22 +16,12 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  type FieldPathValue,
-  type FieldValues,
-  useForm,
-} from "react-hook-form";
+import { type FieldPathValue, type FieldValues, useForm } from "react-hook-form";
 import { Input } from "~/components/ui/input";
 
 const schema = z.object({
-  awayPlayerIds: z
-    .string()
-    .array()
-    .nonempty({ message: "Must have at least one player" }),
-  homePlayerIds: z
-    .string()
-    .array()
-    .nonempty({ message: "Must have at least one player" }),
+  awayPlayerIds: z.string().array().nonempty({ message: "Must have at least one player" }),
+  homePlayerIds: z.string().array().nonempty({ message: "Must have at least one player" }),
   homeScore: z.coerce.number().min(0),
   awayScore: z.coerce.number().min(0),
 });
@@ -52,10 +39,9 @@ const CreateMatch = () => {
   } = api.season.getById.useQuery({
     seasonId: router.query.seasonId as string,
   });
-  const { data: players = [], isLoading: isLoadingPlayers } =
-    api.season.getPlayers.useQuery({
-      seasonId: router.query.seasonId as string,
-    });
+  const { data: players = [], isLoading: isLoadingPlayers } = api.season.getPlayers.useQuery({
+    seasonId: router.query.seasonId as string,
+  });
   const { isLoading: isSubmitting, mutate } = api.match.create.useMutation();
   const [homeTeam, setHomeTeam] = React.useState<Item[]>([]);
   const [awayTeam, setAwayTeam] = React.useState<Item[]>([]);
@@ -70,10 +56,7 @@ const CreateMatch = () => {
     },
   });
 
-  const items = useMemo(
-    () => players.map((p) => ({ value: p.id, label: p.name })),
-    [players]
-  );
+  const items = useMemo(() => players.map((p) => ({ value: p.id, label: p.name })), [players]);
 
   useEffect(() => {
     if (error) {
@@ -102,23 +85,15 @@ const CreateMatch = () => {
   const onTeamChange = (
     items: Item[],
     setTeam: React.Dispatch<React.SetStateAction<Item[]>>,
-    onFieldChange: (
-      event: React.ChangeEvent | FieldPathValue<FieldValues, string>
-    ) => void
+    onFieldChange: (event: React.ChangeEvent | FieldPathValue<FieldValues, string>) => void
   ) => {
-    const ids: [string, ...string[]] = items.map((i) => i.value) as [
-      string,
-      ...string[]
-    ];
+    const ids: [string, ...string[]] = items.map((i) => i.value) as [string, ...string[]];
     onFieldChange(ids);
     setTeam(items);
   };
 
   return (
-    <FormLayout
-      title={"Create Match"}
-      subtitle={season && `In season "${season.name}"`}
-    >
+    <FormLayout title={"Create Match"} subtitle={season && `In season "${season.name}"`}>
       <Form {...form}>
         <form
           noValidate

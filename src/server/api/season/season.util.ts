@@ -13,9 +13,7 @@ export const populateSeasonUserPlayer = async ({
   });
   return seasonPlayers
     .map((player) => {
-      const user = clerkUsers.find(
-        (user) => user.id === player.leaguePlayer.userId
-      );
+      const user = clerkUsers.find((user) => user.id === player.leaguePlayer.userId);
 
       if (user) {
         return {

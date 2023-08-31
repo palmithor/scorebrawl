@@ -16,18 +16,10 @@ import {
   seasons,
 } from "~/server/db/schema";
 import { type LeaguePlayer } from "~/server/db/types";
-import {
-  canReadLeaguesCriteria,
-  getByIdWhereMember,
-  getLeagueIdBySlug,
-} from "./league.repository";
+import { canReadLeaguesCriteria, getByIdWhereMember, getLeagueIdBySlug } from "./league.repository";
 import { create } from "./league.schema";
 
-const populateLeagueUserPlayer = async ({
-  leaguePlayers,
-}: {
-  leaguePlayers: LeaguePlayer[];
-}) => {
+const populateLeagueUserPlayer = async ({ leaguePlayers }: { leaguePlayers: LeaguePlayer[] }) => {
   const clerkUsers = await clerk.users.getUserList({
     limit: leaguePlayers.length,
     userId: leaguePlayers.map((p) => p.userId),
@@ -157,9 +149,7 @@ export const leagueRouter = createTRPCRouter({
       if (!league) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
-      const slug = input.name
-        ? await slugifyLeagueName({ name: input.name })
-        : undefined;
+      const slug = input.name ? await slugifyLeagueName({ name: input.name }) : undefined;
       return ctx.db
         .update(leagues)
         .set({
@@ -276,10 +266,8 @@ export const leagueRouter = createTRPCRouter({
                     form: [...(pointsAndForm.form ?? []), "D"],
                   };
                 } else if (
-                  (match.match.awayScore < match.match.homeScore &&
-                    match.homeTeam) ||
-                  (match.match.awayScore > match.match.homeScore &&
-                    !match.homeTeam)
+                  (match.match.awayScore < match.match.homeScore && match.homeTeam) ||
+                  (match.match.awayScore > match.match.homeScore && !match.homeTeam)
                 ) {
                   return {
                     points: pointsAndForm.points + 3,
@@ -319,9 +307,7 @@ export const leagueRouter = createTRPCRouter({
         }
         const clerkUser = await clerk.users.getUser(bestForm.userId);
         return {
-          name: `${clerkUser.firstName || ""} ${
-            clerkUser.lastName || ""
-          }`.trim(),
+          name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
           imageUrl: clerkUser.imageUrl,
           points: bestForm.points,
           form: bestForm.form,
@@ -415,10 +401,7 @@ export const leagueRouter = createTRPCRouter({
           and(
             inArray(
               matches.seasonId,
-              ctx.db
-                .select({ id: seasons.id })
-                .from(seasons)
-                .where(eq(seasons.leagueId, leagueId))
+              ctx.db.select({ id: seasons.id }).from(seasons).where(eq(seasons.leagueId, leagueId))
             )
           )
         )

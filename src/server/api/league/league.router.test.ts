@@ -61,10 +61,7 @@ describe("leagueRouter", () => {
       const league = await caller.league.create(input);
 
       const member = await ctx.db.query.leagueMembers.findFirst({
-        where: and(
-          eq(leagueMembers.leagueId, league?.id),
-          eq(leagueMembers.userId, "userId")
-        ),
+        where: and(eq(leagueMembers.leagueId, league?.id), eq(leagueMembers.userId, "userId")),
       });
 
       expect(member?.role).toEqual("owner");
@@ -95,11 +92,7 @@ describe("leagueRouter", () => {
       const result = await caller.league.getAll({});
       expect(result.nextCursor).toBeUndefined();
 
-      expect(result.data.map((l) => l.name)).toEqual([
-        "privateMember",
-        "privateMine",
-        "public",
-      ]);
+      expect(result.data.map((l) => l.name)).toEqual(["privateMember", "privateMine", "public"]);
     });
   });
 });

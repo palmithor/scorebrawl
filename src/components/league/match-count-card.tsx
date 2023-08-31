@@ -31,10 +31,7 @@ export const MatchesPlayedCard = ({ leagueSlug }: { leagueSlug: string }) => {
       <CardContent>
         <div className="text-2xl font-bold">{data && data.count}</div>
         <p className="text-xs text-muted-foreground">
-          {data &&
-            `Over ${data.seasonCount} ${
-              data.seasonCount == 1 ? "season" : "seasons"
-            }`}
+          {data && `Over ${data.seasonCount} ${data.seasonCount == 1 ? "season" : "seasons"}`}
         </p>
       </CardContent>
     </Card>

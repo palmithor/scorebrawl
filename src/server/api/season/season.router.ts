@@ -12,24 +12,12 @@ import { getOngoingSeason } from "~/server/api/season/season.repository";
 import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import {
-  createCuid,
-  leaguePlayers,
-  leagues,
-  seasonPlayers,
-  seasons,
-} from "~/server/db/schema";
+import { createCuid, leaguePlayers, leagues, seasonPlayers, seasons } from "~/server/db/schema";
 import { type Db } from "~/server/db/types";
 import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
 
-const getSeason = async ({
-  seasonId,
-  userId,
-}: {
-  seasonId: string;
-  userId: string;
-}) => {
+const getSeason = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const season = await db.query.seasons.findFirst({
     where: eq(seasons.id, seasonId),
   });
@@ -38,10 +26,7 @@ const getSeason = async ({
   }
 
   const league = await db.query.leagues.findFirst({
-    where: and(
-      canReadLeaguesCriteria({ userId }),
-      eq(leagues.id, season?.leagueId)
-    ),
+    where: and(canReadLeaguesCriteria({ userId }), eq(leagues.id, season?.leagueId)),
   });
   if (!league) {
     throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
@@ -203,10 +188,7 @@ export const seasonRouter = createTRPCRouter({
       .get();
     const players = await ctx.db.query.leaguePlayers.findMany({
       columns: { id: true },
-      where: and(
-        eq(leaguePlayers.leagueId, leagueId),
-        eq(leaguePlayers.disabled, false)
-      ),
+      where: and(eq(leaguePlayers.leagueId, leagueId), eq(leaguePlayers.disabled, false)),
     });
     await Promise.all(
       players.map((lp) =>

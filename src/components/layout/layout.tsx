@@ -9,12 +9,7 @@ import { fontSans } from "~/lib/fonts";
 import { cn } from "~/lib/utils";
 
 export const MainLayout = ({ children }: { children: ReactNode }) => (
-  <div
-    className={cn(
-      "min-h-screen bg-background font-sans antialiased",
-      fontSans.variable
-    )}
-  >
+  <div className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="relative flex min-h-screen flex-col">
         <SiteHeader />

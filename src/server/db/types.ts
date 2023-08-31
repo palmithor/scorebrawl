@@ -1,9 +1,5 @@
 import { type InferModel } from "drizzle-orm";
-import {
-  type leagues,
-  type seasons,
-  type seasonPlayers,
-} from "~/server/db/schema";
+import { type leagues, type seasons, type seasonPlayers } from "~/server/db/schema";
 import { type LibSQLDatabase } from "drizzle-orm/libsql";
 import type * as schema from "./schema";
 
