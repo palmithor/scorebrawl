@@ -41,6 +41,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
   return (
     <ClerkProvider {...pageProps}>
+      <Analytics />
       <ClerkLoading>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="grid h-screen place-items-center bg-background">
@@ -49,7 +50,6 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         </ThemeProvider>
       </ClerkLoading>
       <ClerkLoaded>
-        <Analytics />
         <SignedIn>
           <MainLayout>
             <Component {...pageProps} />
