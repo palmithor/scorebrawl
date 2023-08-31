@@ -3,12 +3,7 @@ import slugify from "@sindresorhus/slugify";
 import { type inferProcedureInput } from "@trpc/server";
 import { type AppRouter } from "~/server/api/root";
 import { db } from "~/server/db";
-import {
-  createCuid,
-  leagueMembers,
-  leagues,
-  type LeagueMemberRole,
-} from "~/server/db/schema";
+import { createCuid, leagueMembers, leagues, type LeagueMemberRole } from "~/server/db/schema";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
 
@@ -43,10 +38,7 @@ export const createLeague = async ({
     .get();
 
   await Promise.all(
-    [
-      { userId: leagueOwner, role: "owner" as LeagueMemberRole },
-      ...members,
-    ].map((m) =>
+    [{ userId: leagueOwner, role: "owner" as LeagueMemberRole }, ...members].map((m) =>
       db
         .insert(leagueMembers)
         .values({

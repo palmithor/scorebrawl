@@ -1,19 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { db } from "~/server/db";
-import {
-  leagueMembers,
-  leagues,
-  type LeagueMemberRole,
-} from "~/server/db/schema";
+import { leagueMembers, leagues, type LeagueMemberRole } from "~/server/db/schema";
 
-export const findLeagueIdBySlug = async ({
-  userId,
-  slug,
-}: {
-  userId: string;
-  slug: string;
-}) => {
+export const findLeagueIdBySlug = async ({ userId, slug }: { userId: string; slug: string }) => {
   const row = await db
     .select({ leagueId: leagues.id })
     .from(leagues)
@@ -22,10 +12,7 @@ export const findLeagueIdBySlug = async ({
   return row?.leagueId;
 };
 
-export const getLeagueIdBySlug = async (input: {
-  userId: string;
-  slug: string;
-}) => {
+export const getLeagueIdBySlug = async (input: { userId: string; slug: string }) => {
   const leagueId = await findLeagueIdBySlug(input);
   if (!leagueId) {
     throw new TRPCError({
@@ -36,13 +23,7 @@ export const getLeagueIdBySlug = async (input: {
   return leagueId;
 };
 
-export const getLeagueById = async ({
-  userId,
-  id,
-}: {
-  userId: string;
-  id: string;
-}) => {
+export const getLeagueById = async ({ userId, id }: { userId: string; id: string }) => {
   const league = await db
     .select()
     .from(leagues)
@@ -72,10 +53,7 @@ export const getByIdWhereMember = async ({
         eq(leagueMembers.userId, userId),
         inArray(leagueMembers.role, allowedRoles)
       )
-    : and(
-        eq(leagueMembers.leagueId, leagues.id),
-        eq(leagueMembers.userId, userId)
-      );
+    : and(eq(leagueMembers.leagueId, leagues.id), eq(leagueMembers.userId, userId));
   const result = await db
     .select()
     .from(leagues)

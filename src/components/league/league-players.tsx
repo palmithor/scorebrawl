@@ -1,9 +1,4 @@
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  type ColumnDef,
-} from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
   Table,
@@ -21,21 +16,14 @@ export const columns: ColumnDef<LeaguePlayerUser>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => (
-      <AvatarName
-        name={row.getValue("name")}
-        avatarUrl={row.original.imageUrl}
-      />
-    ),
+    cell: ({ row }) => <AvatarName name={row.getValue("name")} avatarUrl={row.original.imageUrl} />,
   },
   {
     accessorKey: "joinedAt",
     header: "Joined At",
     cell: ({ row }) => (
       <div className="w-4/5">
-        {row
-          .getValue<Date>("joinedAt")
-          ?.toLocaleDateString(window.navigator.language)}
+        {row.getValue<Date>("joinedAt")?.toLocaleDateString(window.navigator.language)}
       </div>
     ),
   },
@@ -43,9 +31,7 @@ export const columns: ColumnDef<LeaguePlayerUser>[] = [
     accessorKey: "disabled",
     header: "Status",
     cell: ({ row }) => (
-      <div className="w-4/5">
-        {row.getValue("disabled") ? "Disabled" : "Active"}
-      </div>
+      <div className="w-4/5">{row.getValue("disabled") ? "Disabled" : "Active"}</div>
     ),
   },
 ];
@@ -75,10 +61,7 @@ export const LeaguePlayers = ({ className }: { className?: string }) => {
                       <TableHead key={header.id}>
                         {header.isPlaceholder
                           ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                          : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     );
                   })}
@@ -91,20 +74,14 @@ export const LeaguePlayers = ({ className }: { className?: string }) => {
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
                     No results.
                   </TableCell>
                 </TableRow>

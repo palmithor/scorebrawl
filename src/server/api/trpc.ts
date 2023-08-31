@@ -1,9 +1,5 @@
 import { initTRPC, TRPCError } from "@trpc/server";
-import {
-  type SignedInAuthObject,
-  type SignedOutAuthObject,
-  getAuth,
-} from "@clerk/nextjs/server";
+import { type SignedInAuthObject, type SignedOutAuthObject, getAuth } from "@clerk/nextjs/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { db } from "~/server/db";
@@ -62,8 +58,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
     };
   },

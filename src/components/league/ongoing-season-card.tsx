@@ -4,19 +4,8 @@ import { useRouter } from "next/router";
 import { SeasonStanding } from "~/components/league/standing";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import { useLeague } from "~/hooks/league-details-hook";
 
 export const OngoingSeasonCard = ({ className }: { className?: string }) => {
@@ -40,11 +29,7 @@ export const OngoingSeasonCard = ({ className }: { className?: string }) => {
     } else if (hasEditorAccess) {
       return (
         <Button
-          onClick={() =>
-            void router.push(
-              `/leagues/${league?.slug as string}/seasons/create`
-            )
-          }
+          onClick={() => void router.push(`/leagues/${league?.slug as string}/seasons/create`)}
         >
           Create season
         </Button>
@@ -69,9 +54,7 @@ export const OngoingSeasonCard = ({ className }: { className?: string }) => {
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={
-                        ongoingSeasonPlayers && ongoingSeasonPlayers.length < 2
-                      }
+                      disabled={ongoingSeasonPlayers && ongoingSeasonPlayers.length < 2}
                       onClick={() =>
                         void router.push(
                           `/leagues/${league.slug}/seasons/${ongoingSeason.id}/matches/create`

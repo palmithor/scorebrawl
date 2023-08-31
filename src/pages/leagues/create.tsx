@@ -10,8 +10,7 @@ import { create } from "~/server/api/league/league.schema";
 import { UploadButton } from "~/components/uploadthing";
 import Image from "next/image";
 
-const DEFAULT_LOGO =
-  "https://utfs.io/f/c5562abd-47aa-46de-b6a9-936b4cef1875_mascot.png";
+const DEFAULT_LOGO = "https://utfs.io/f/c5562abd-47aa-46de-b6a9-936b4cef1875_mascot.png";
 
 const LeagueForm = () => {
   const router = useRouter();
@@ -29,8 +28,7 @@ const LeagueForm = () => {
             mutate(
               { ...val, logoUrl: logo },
               {
-                onSuccess: (result) =>
-                  void router.push(`/leagues/${result?.slug || ""}`),
+                onSuccess: (result) => void router.push(`/leagues/${result?.slug || ""}`),
                 onError: (err) =>
                   toast({
                     title: "Error creating season",

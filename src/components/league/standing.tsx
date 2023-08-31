@@ -1,20 +1,8 @@
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  type ColumnDef,
-} from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { AvatarName } from "~/components/user/avatar-name";
 import { api } from "~/lib/api";
 import { type SeasonPlayerUser } from "~/server/api/types";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { FormDots } from "./form-dots";
 
 export const SeasonStanding = ({
@@ -32,19 +20,14 @@ export const SeasonStanding = ({
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
-        <AvatarName
-          name={row.getValue("name")}
-          avatarUrl={row.original.imageUrl}
-        />
+        <AvatarName name={row.getValue("name")} avatarUrl={row.original.imageUrl} />
       ),
     },
     {
       accessorKey: "form",
       header: "Form",
       cell: ({ row }) => {
-        const form = playerForm?.find(
-          (pf) => pf.seasonPlayerId === row.original.id
-        )?.form;
+        const form = playerForm?.find((pf) => pf.seasonPlayerId === row.original.id)?.form;
         return form ? <FormDots form={form} /> : null;
       },
     },
@@ -73,10 +56,7 @@ export const SeasonStanding = ({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -89,20 +69,14 @@ export const SeasonStanding = ({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

@@ -61,10 +61,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
               {query.signup ? (
                 <SignUp signInUrl={"/"} appearance={clerkAppearance} />
               ) : (
-                <SignIn
-                  signUpUrl={"/?signup=true"}
-                  appearance={clerkAppearance}
-                />
+                <SignIn signUpUrl={"/?signup=true"} appearance={clerkAppearance} />
               )}
             </div>
           </div>

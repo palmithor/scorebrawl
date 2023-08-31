@@ -7,17 +7,8 @@ import { create } from "~/server/api/match/match.schema";
 import { getSeasonById } from "~/server/api/season/season.repository";
 import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import {
-  createCuid,
-  matchPlayers,
-  matches,
-  seasonPlayers,
-  seasons,
-} from "~/server/db/schema";
-import {
-  getByIdWhereMember,
-  getLeagueIdBySlug,
-} from "../league/league.repository";
+import { createCuid, matchPlayers, matches, seasonPlayers, seasons } from "~/server/db/schema";
+import { getByIdWhereMember, getLeagueIdBySlug } from "../league/league.repository";
 import { type MatchInfo, type SeasonPlayerUser } from "../types";
 
 export const matchRouter = createTRPCRouter({

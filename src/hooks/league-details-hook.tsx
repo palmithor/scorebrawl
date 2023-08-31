@@ -19,15 +19,15 @@ export const useLeague = (input?: { leagueSlug?: string }) => {
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({
     leagueSlug,
   });
-  const { data: ongoingSeason, isLoading: isLoadingOngoingSeason } =
-    api.season.getOngoing.useQuery({ leagueSlug }, { retry: false });
-  const {
-    data: ongoingSeasonPlayers,
-    isLoading: isLoadingOngoingSeasonPlayers,
-  } = api.season.getPlayers.useQuery(
-    { seasonId: ongoingSeason?.id as string },
-    { enabled: !!ongoingSeason }
+  const { data: ongoingSeason, isLoading: isLoadingOngoingSeason } = api.season.getOngoing.useQuery(
+    { leagueSlug },
+    { retry: false }
   );
+  const { data: ongoingSeasonPlayers, isLoading: isLoadingOngoingSeasonPlayers } =
+    api.season.getPlayers.useQuery(
+      { seasonId: ongoingSeason?.id as string },
+      { enabled: !!ongoingSeason }
+    );
   const { data: leagueCode } = api.league.getCode.useQuery(
     { leagueSlug },
     { enabled: !!league?.id }

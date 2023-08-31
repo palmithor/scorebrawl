@@ -3,13 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { type DialogProps } from "@radix-ui/react-alert-dialog";
-import {
-  CircleIcon,
-  FileIcon,
-  LaptopIcon,
-  MoonIcon,
-  SunIcon,
-} from "@radix-ui/react-icons";
+import { CircleIcon, FileIcon, LaptopIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 
 import { mobileNavConfig } from "~/config/mobile-nav";

@@ -49,13 +49,9 @@ const Leagues: NextPage = () => {
     pageQuery: {},
   });
 
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
-  const columns: ColumnDef<
-    inferRouterOutputs<AppRouter>["league"]["getAll"]["data"][0]
-  >[] = [
+  const columns: ColumnDef<inferRouterOutputs<AppRouter>["league"]["getAll"]["data"][0]>[] = [
     {
       accessorKey: "name",
       header: "Name",
@@ -103,15 +99,11 @@ const Leagues: NextPage = () => {
         <Input
           placeholder="Filter leagues..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
         <div className="flex-grow" />
-        <Button onClick={() => void router.push("/leagues/create")}>
-          Create League
-        </Button>
+        <Button onClick={() => void router.push("/leagues/create")}>Create League</Button>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -119,8 +111,7 @@ const Leagues: NextPage = () => {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = (header.column.columnDef.meta as CellMeta)
-                    ?.align;
+                  const align = (header.column.columnDef.meta as CellMeta)?.align;
                   return (
                     <TableHead
                       key={header.id}
@@ -129,10 +120,7 @@ const Leagues: NextPage = () => {
                     >
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -154,20 +142,14 @@ const Leagues: NextPage = () => {
                       key={cell.id}
                       align={(cell.column.columnDef.meta as CellMeta)?.align}
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

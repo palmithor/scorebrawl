@@ -20,14 +20,8 @@ export const LeagueDetailsLayout = ({
 }) => {
   const { userId } = useAuth();
   const [isJoining, setIsJoining] = React.useState(false);
-  const {
-    isLoading,
-    league,
-    joinLeagueMutate,
-    refetchPlayers,
-    leagueCode,
-    leaguePlayers,
-  } = useLeague();
+  const { isLoading, league, joinLeagueMutate, refetchPlayers, leagueCode, leaguePlayers } =
+    useLeague();
 
   if (isLoading || !league) {
     return (
@@ -40,9 +34,7 @@ export const LeagueDetailsLayout = ({
   }
 
   const shouldShowJoin =
-    !hideJoinButton &&
-    leagueCode &&
-    !leaguePlayers?.some((u) => u?.userId === userId);
+    !hideJoinButton && leagueCode && !leaguePlayers?.some((u) => u?.userId === userId);
 
   const joinLeague = () => {
     setIsJoining(true);
@@ -61,16 +53,10 @@ export const LeagueDetailsLayout = ({
         <div className="grow">
           <TabsList>
             <TabsTrigger value="overview">
-              <Link href={`/leagues/${encodeURIComponent(league.slug)}`}>
-                Overview
-              </Link>
+              <Link href={`/leagues/${encodeURIComponent(league.slug)}`}>Overview</Link>
             </TabsTrigger>
             <TabsTrigger value="seasons">
-              <Link
-                href={`/leagues/${encodeURIComponent(league.slug)}/seasons`}
-              >
-                Seasons
-              </Link>
+              <Link href={`/leagues/${encodeURIComponent(league.slug)}/seasons`}>Seasons</Link>
             </TabsTrigger>
             <TabsTrigger value="statistics" disabled>
               Statistics

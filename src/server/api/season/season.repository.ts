@@ -4,13 +4,7 @@ import { canReadLeaguesCriteria } from "~/server/api/league/league.repository";
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
 
-export const getSeasonById = async ({
-  seasonId,
-  userId,
-}: {
-  seasonId: string;
-  userId: string;
-}) => {
+export const getSeasonById = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const result = await db
     .select()
     .from(seasons)

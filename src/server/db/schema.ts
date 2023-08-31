@@ -1,11 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-  integer,
-  sqliteTable,
-  real,
-  text,
-  uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, real, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { init } from "@paralleldrive/cuid2";
 
 const cuidConfig = { length: 32 };
@@ -46,10 +40,7 @@ export const leaguePlayers = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
   (player) => ({
-    leaguePlayerIdx: uniqueIndex("league_player_uq_idx").on(
-      player.leagueId,
-      player.userId
-    ),
+    leaguePlayerIdx: uniqueIndex("league_player_uq_idx").on(player.leagueId, player.userId),
   })
 );
 
@@ -68,10 +59,7 @@ export const leagueMembers = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
   (player) => ({
-    leaguePlayerIdx: uniqueIndex("league_member_uq_idx").on(
-      player.leagueId,
-      player.userId
-    ),
+    leaguePlayerIdx: uniqueIndex("league_member_uq_idx").on(player.leagueId, player.userId),
   })
 );
 
@@ -108,10 +96,7 @@ export const seasonPlayers = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
   (season) => ({
-    seasonPlayerIdx: uniqueIndex("season_player_uq_idx").on(
-      season.seasonId,
-      season.leaguePlayerId
-    ),
+    seasonPlayerIdx: uniqueIndex("season_player_uq_idx").on(season.seasonId, season.leaguePlayerId),
   })
 );
 
@@ -166,20 +151,17 @@ export const seasonRelations = relations(seasons, ({ one, many }) => ({
   }),
 }));
 
-export const seasonPlayerRelations = relations(
-  seasonPlayers,
-  ({ one, many }) => ({
-    season: one(seasons, {
-      fields: [seasonPlayers.seasonId],
-      references: [seasons.id],
-    }),
-    leaguePlayer: one(leaguePlayers, {
-      fields: [seasonPlayers.leaguePlayerId],
-      references: [leaguePlayers.id],
-    }),
-    matches: many(matchPlayers),
-  })
-);
+export const seasonPlayerRelations = relations(seasonPlayers, ({ one, many }) => ({
+  season: one(seasons, {
+    fields: [seasonPlayers.seasonId],
+    references: [seasons.id],
+  }),
+  leaguePlayer: one(leaguePlayers, {
+    fields: [seasonPlayers.leaguePlayerId],
+    references: [leaguePlayers.id],
+  }),
+  matches: many(matchPlayers),
+}));
 
 export const matchRelations = relations(matches, ({ one, many }) => ({
   matchPlayers: many(matchPlayers),
