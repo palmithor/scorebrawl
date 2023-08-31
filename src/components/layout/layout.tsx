@@ -1,12 +1,12 @@
 import { ThemeProvider } from "~/components/layout/providers";
 
 import { type ReactNode } from "react";
-import { cn } from "~/lib/utils";
-import { fontSans } from "~/lib/fonts";
-import { SiteHeader } from "~/components/layout/site-header";
 import { SiteFooter } from "~/components/layout/site-footer";
+import { SiteHeader } from "~/components/layout/site-header";
 import { TailwindIndicator } from "~/components/tailwind-indicator";
 import { Toaster } from "~/components/ui/toaster";
+import { fontSans } from "~/lib/fonts";
+import { cn } from "~/lib/utils";
 
 export const MainLayout = ({ children }: { children: ReactNode }) => (
   <div
@@ -23,7 +23,6 @@ export const MainLayout = ({ children }: { children: ReactNode }) => (
       </div>
       <TailwindIndicator />
     </ThemeProvider>
-    {/*<Analytics />*/}
     <Toaster />
   </div>
 );

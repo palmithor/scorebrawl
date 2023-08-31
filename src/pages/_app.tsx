@@ -1,4 +1,6 @@
 import {
+  ClerkLoaded,
+  ClerkLoading,
   ClerkProvider,
   SignedIn,
   SignedOut,
@@ -12,6 +14,8 @@ import { api } from "~/lib/api";
 
 import { useRouter } from "next/router";
 import { MainLayout } from "~/components/layout/layout";
+import { ThemeProvider } from "~/components/layout/providers";
+import { Spinner } from "~/components/spinner";
 import { Toaster } from "~/components/ui/toaster";
 import "~/styles/globals.css";
 
@@ -37,26 +41,35 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
   return (
     <ClerkProvider {...pageProps}>
-      <Analytics />
-      <SignedIn>
-        <MainLayout>
-          <Component {...pageProps} />
-        </MainLayout>
-      </SignedIn>
-      <SignedOut>
-        <div className="flex h-full min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-          <div className="w-full max-w-md space-y-8">
-            {query.signup ? (
-              <SignUp signInUrl={"/"} appearance={clerkAppearance} />
-            ) : (
-              <SignIn
-                signUpUrl={"/?signup=true"}
-                appearance={clerkAppearance}
-              />
-            )}
+      <ClerkLoading>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="grid h-screen place-items-center bg-background">
+            <Spinner size="40" />
           </div>
-        </div>
-      </SignedOut>
+        </ThemeProvider>
+      </ClerkLoading>
+      <ClerkLoaded>
+        <Analytics />
+        <SignedIn>
+          <MainLayout>
+            <Component {...pageProps} />
+          </MainLayout>
+        </SignedIn>
+        <SignedOut>
+          <div className="flex h-full min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+            <div className="w-full max-w-md space-y-8">
+              {query.signup ? (
+                <SignUp signInUrl={"/"} appearance={clerkAppearance} />
+              ) : (
+                <SignIn
+                  signUpUrl={"/?signup=true"}
+                  appearance={clerkAppearance}
+                />
+              )}
+            </div>
+          </div>
+        </SignedOut>
+      </ClerkLoaded>
       <Toaster />
     </ClerkProvider>
   );
