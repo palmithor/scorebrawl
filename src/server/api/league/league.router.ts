@@ -406,7 +406,7 @@ export const leagueRouter = createTRPCRouter({
           )
         )
         .get();
-      console.log("matchCount", matchCount);
+
       return matchCount;
     }),
 });

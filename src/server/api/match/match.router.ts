@@ -7,9 +7,9 @@ import { create } from "~/server/api/match/match.schema";
 import { getSeasonById } from "~/server/api/season/season.repository";
 import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { createCuid, matchPlayers, matches, seasonPlayers, seasons } from "~/server/db/schema";
-import { getByIdWhereMember, getLeagueIdBySlug } from "../league/league.repository";
-import { type MatchInfo, type SeasonPlayerUser } from "../types";
+import { createCuid, matches, matchPlayers, seasonPlayers } from "~/server/db/schema";
+import { getByIdWhereMember, getLeagueById, getLeagueIdBySlug } from "../league/league.repository";
+import { type SeasonPlayerUser } from "../types";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -27,7 +27,7 @@ export const matchRouter = createTRPCRouter({
       const result = await ctx.db
         .select()
         .from(matches)
-        .where(eq(seasons.id, season.id))
+        .where(eq(matches.seasonId, season.id))
         .orderBy(desc(matches.createdAt))
         .all();
       return {
@@ -47,67 +47,78 @@ export const matchRouter = createTRPCRouter({
         userId: ctx.auth.userId,
       });
 
-      const latestMatch = (await ctx.db.query.matches.findFirst({
+      const leagueMatches = await ctx.db.query.leagues.findFirst({
+        where: (league, { eq }) => eq(league.id, leagueId),
         with: {
-          matchPlayers: {
-            columns: { homeTeam: true },
+          seasons: {
+            columns: { id: true, name: true },
             with: {
-              seasonPlayer: {
+              matches: {
+                limit: 1,
+                orderBy: (match, { desc }) => [desc(match.createdAt)],
                 with: {
-                  leaguePlayer: {
-                    columns: { userId: true },
+                  matchPlayers: {
+                    with: {
+                      seasonPlayer: { with: { leaguePlayer: { columns: { userId: true } } } },
+                    },
                   },
                 },
               },
             },
           },
-          season: {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-            where: (seasons, { eq }) => eq(seasons.leagueId, leagueId),
-            columns: { id: true, name: true },
-          },
         },
-        orderBy: desc(matches.createdAt),
-      })) as undefined | MatchInfo;
-
-      if (!latestMatch) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "no matches played",
-        });
-      }
-      const players = await populateSeasonUserPlayer({
-        seasonPlayers: latestMatch.matchPlayers.map((p) => p.seasonPlayer),
       });
 
+      const allMatches = leagueMatches?.seasons.flatMap((s) => s.matches) ?? [];
+      if (!leagueMatches || allMatches.length < 1) {
+        return null;
+      }
+      const latestMatchAcrossSeasons = allMatches.reduce((currentNewest, currentItem) => {
+        if (currentNewest?.createdAt && currentItem.createdAt > currentNewest.createdAt) {
+          return currentItem;
+        }
+        return currentNewest;
+      }, allMatches[0]);
+
+      if (!latestMatchAcrossSeasons) {
+        // can not happen
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
+
+      const players = await populateSeasonUserPlayer({
+        seasonPlayers: latestMatchAcrossSeasons.matchPlayers.map((p) => p.seasonPlayer),
+      });
+
+      const season = leagueMatches.seasons.find(
+        (s) => s.id === latestMatchAcrossSeasons.seasonId
+      ) as { id: string; name: string };
+
       return {
-        id: latestMatch.id,
+        id: latestMatchAcrossSeasons.id,
         season: {
-          id: latestMatch.season.id,
-          name: latestMatch.season.name,
+          id: season.id,
+          name: season.name,
         },
         homeTeam: {
-          score: latestMatch.homeScore,
-          expectedElo: latestMatch.homeExpectedElo,
-          players: latestMatch.matchPlayers
+          score: latestMatchAcrossSeasons.homeScore,
+          expectedElo: latestMatchAcrossSeasons.homeExpectedElo,
+          players: latestMatchAcrossSeasons.matchPlayers
             .filter((p) => p.homeTeam)
             .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
             .filter((item): item is SeasonPlayerUser => !!item),
         },
         awayTeam: {
-          score: latestMatch.awayScore,
-          expectedElo: latestMatch.awayExpectedElo,
-          players: latestMatch.matchPlayers
+          score: latestMatchAcrossSeasons.awayScore,
+          expectedElo: latestMatchAcrossSeasons.awayExpectedElo,
+          players: latestMatchAcrossSeasons.matchPlayers
             .filter((p) => !p.homeTeam)
             .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
             .filter((item): item is SeasonPlayerUser => !!item),
         },
-        createdBy: latestMatch.createdBy,
-        updatedBy: latestMatch.updatedBy,
-        createdAt: latestMatch.createdAt,
-        updatedAt: latestMatch.updatedAt,
+        createdBy: latestMatchAcrossSeasons.createdBy,
+        updatedBy: latestMatchAcrossSeasons.updatedBy,
+        createdAt: latestMatchAcrossSeasons.createdAt,
+        updatedAt: latestMatchAcrossSeasons.updatedAt,
       };
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
@@ -169,50 +180,34 @@ export const matchRouter = createTRPCRouter({
     });
     const eloMatchResult = eloTeamMatch.calculate();
     const now = new Date();
-    const match = await ctx.db
-      .insert(matches)
-      .values({
-        id: createCuid(),
-        homeScore: input.homeScore,
-        awayScore: input.awayScore,
-        homeExpectedElo: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
-        awayExpectedElo: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
-        seasonId: season.id,
-        createdBy: ctx.auth.userId,
-        updatedBy: ctx.auth.userId,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .returning()
-      .get();
-
-    for (const playerResult of eloMatchResult.results) {
-      await ctx.db
-        .update(seasonPlayers)
-        .set({ elo: playerResult.rating })
-        .where(eq(seasonPlayers.id, playerResult.identifier))
-        .run();
-    }
-
-    for (const player of homeSeasonPlayers) {
-      await ctx.db
-        .insert(matchPlayers)
+    return ctx.db.transaction(async (tx) => {
+      const match = await tx
+        .insert(matches)
         .values({
           id: createCuid(),
-          matchId: match.id,
-          elo: player.elo,
-          seasonPlayerId: player.id,
-          homeTeam: true,
+          homeScore: input.homeScore,
+          awayScore: input.awayScore,
+          homeExpectedElo: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
+          awayExpectedElo: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
+          seasonId: season.id,
+          createdBy: ctx.auth.userId,
+          updatedBy: ctx.auth.userId,
           createdAt: now,
           updatedAt: now,
         })
-        .run();
-    }
+        .returning()
+        .get();
 
-    for (const player of awaySeasonPlayers) {
-      await ctx.db
-        .insert(matchPlayers)
-        .values({
+      for (const playerResult of eloMatchResult.results) {
+        await tx
+          .update(seasonPlayers)
+          .set({ elo: playerResult.rating })
+          .where(eq(seasonPlayers.id, playerResult.identifier))
+          .run();
+      }
+
+      const matchPlayerValues = [
+        ...awaySeasonPlayers.map((player) => ({
           id: createCuid(),
           matchId: match.id,
           elo: player.elo,
@@ -220,9 +215,72 @@ export const matchRouter = createTRPCRouter({
           homeTeam: false,
           createdAt: now,
           updatedAt: now,
-        })
-        .run();
-    }
-    return match;
+        })),
+        ...homeSeasonPlayers.map((player) => ({
+          id: createCuid(),
+          matchId: match.id,
+          elo: player.elo,
+          seasonPlayerId: player.id,
+          homeTeam: true,
+          createdAt: now,
+          updatedAt: now,
+        })),
+      ];
+      await tx.insert(matchPlayers).values(matchPlayerValues).run();
+
+      return match;
+    });
   }),
+  undoLatest: protectedProcedure
+    .input(
+      z.object({
+        matchId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const match = await ctx.db.query.matches.findFirst({
+        where: (match, { eq }) => eq(match.id, input.matchId),
+        with: {
+          matchPlayers: {
+            columns: { id: true, elo: true },
+            with: { seasonPlayer: { columns: { id: true, elo: true } } },
+          },
+          season: { columns: { leagueId: true } },
+        },
+      });
+      if (!match) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Match not found" });
+      }
+      // check read access
+      await getLeagueById({ userId: ctx.auth.userId, id: match.season.leagueId });
+
+      const lastMatch = await ctx.db.query.matches.findFirst({
+        where: (m, { eq }) => eq(m.seasonId, match.seasonId),
+        orderBy: desc(matches.createdAt),
+      });
+
+      if (lastMatch?.id !== match.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Only the last match can be deleted" });
+      }
+
+      await ctx.db.transaction(async (tx) => {
+        for (const matchPlayer of match.matchPlayers) {
+          await tx
+            .update(seasonPlayers)
+            .set({ elo: matchPlayer.elo })
+            .where(eq(seasonPlayers.id, matchPlayer.seasonPlayer.id))
+            .run();
+        }
+        await tx
+          .delete(matchPlayers)
+          .where(
+            inArray(
+              matchPlayers.id,
+              match.matchPlayers.map((mp) => mp.id)
+            )
+          )
+          .run();
+        await tx.delete(matches).where(eq(matches.id, match.id)).run();
+      });
+    }),
 });

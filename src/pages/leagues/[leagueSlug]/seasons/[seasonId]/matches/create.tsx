@@ -85,7 +85,7 @@ const CreateMatch = () => {
   const onTeamChange = (
     items: Item[],
     setTeam: React.Dispatch<React.SetStateAction<Item[]>>,
-    onFieldChange: (event: React.ChangeEvent | FieldPathValue<FieldValues, string>) => void
+    onFieldChange: (event: FieldPathValue<FieldValues, string>) => void
   ) => {
     const ids: [string, ...string[]] = items.map((i) => i.value) as [string, ...string[]];
     onFieldChange(ids);

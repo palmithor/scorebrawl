@@ -1,13 +1,5 @@
 import { api } from "~/lib/api";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import React from "react";
 import { Label } from "~/components/ui/label";
 
