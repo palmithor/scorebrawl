@@ -85,7 +85,7 @@ function MobileLink({ href, onOpenChange, className, children, ...props }: Mobil
     <Link
       href={href}
       onClick={() => {
-        router.push(href.toString());
+        router.push(href as string);
         onOpenChange?.(false);
       }}
       className={cn(className)}

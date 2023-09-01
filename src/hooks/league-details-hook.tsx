@@ -4,10 +4,8 @@ import { api } from "~/lib/api";
 
 export const useLeague = (input?: { leagueSlug?: string }) => {
   const router = useRouter();
-  const { league: leagueApi, season: seasonApi } = api.useContext();
   const leagueSlug = input?.leagueSlug || (router.query.leagueSlug as string);
-
-  api.match.getLatest.useQuery({ leagueSlug });
+  const { league: leagueApi, season: seasonApi } = api.useContext();
 
   const { data: league, isLoading, error } = api.league.getBySlug.useQuery({ leagueSlug });
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });

@@ -5,15 +5,13 @@ import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
 import { LeaguePlayers } from "~/components/league/league-players";
 import { MatchesPlayedCard } from "~/components/league/match-count-card";
 import { OngoingSeasonCard } from "~/components/league/ongoing-season-card";
-import { MatchCard } from "~/components/match/match-card";
+import { LatestMatchCard } from "~/components/match/latest-match-card";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { AvatarName } from "~/components/user/avatar-name";
-import { api } from "~/lib/api";
 
 const LeagueDetails: NextPage = () => {
   const router = useRouter();
   const leagueSlug = router.query.leagueSlug as string;
-  const { data: latestMatch } = api.match.getLatest.useQuery({ leagueSlug });
 
   return (
     <LeagueDetailsLayout activeTab={"overview"}>
@@ -44,25 +42,7 @@ const LeagueDetails: NextPage = () => {
         </Card>
         <InFormCard leagueSlug={leagueSlug} />
         <MatchesPlayedCard leagueSlug={leagueSlug} />
-        <MatchCard
-          match={latestMatch}
-          title="Latest match"
-          matchNotFoundMessage="No matches played"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-          }
-        />
+        <LatestMatchCard leagueSlug={leagueSlug} />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <OngoingSeasonCard className="col-span-4" />

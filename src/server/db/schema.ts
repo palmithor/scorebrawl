@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { integer, sqliteTable, real, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { init } from "@paralleldrive/cuid2";
 
 const cuidConfig = { length: 32 };
@@ -118,7 +118,7 @@ export const matchPlayers = sqliteTable("match_player", {
   seasonPlayerId: text("season_player_id", cuidConfig).notNull(),
   homeTeam: integer("home_team", { mode: "boolean" }).notNull(),
   matchId: text("match_id", cuidConfig).notNull(),
-  elo: integer("elo"),
+  elo: integer("elo").notNull().default(1200),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
@@ -145,6 +145,7 @@ export const leagueMemberRelations = relations(leagueMembers, ({ one }) => ({
 
 export const seasonRelations = relations(seasons, ({ one, many }) => ({
   seasonPlayers: many(seasonPlayers),
+  matches: many(matches),
   league: one(leagues, {
     fields: [seasons.leagueId],
     references: [leagues.id],
