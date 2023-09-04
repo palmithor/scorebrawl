@@ -70,7 +70,7 @@
     "tailwind-merge": "1.14.0",
     "tailwindcss-animate": "1.0.6",
     "uploadthing": "5.3.3",
-    "zod": "3.22.1"
+    "zod": "3.22.2"
   },
   "devDependencies": {
     "@faker-js/faker": "8.0.2",
