@@ -2,11 +2,9 @@ import React, { useEffect, useMemo } from "react";
 import z from "zod";
 import { LoadingButton } from "~/components/ui/loading-button";
 import { FormLayout } from "~/components/layout/form-layout";
-import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/lib/api";
 import { FancyMultiSelect, type Item } from "~/components/ui/fancy-multi-select";
-import { Spinner } from "~/components/spinner";
 import {
   Form,
   FormControl,
@@ -18,6 +16,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type FieldPathValue, type FieldValues, useForm } from "react-hook-form";
 import { Input } from "~/components/ui/input";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { useRouter } from "next/router";
+import { FullPageSpinner } from "~/components/full-page-spinner";
 
 const schema = z.object({
   awayPlayerIds: z.string().array().nonempty({ message: "Must have at least one player" }),
@@ -29,9 +30,9 @@ const schema = z.object({
 type MatchFormValues = z.infer<typeof schema>;
 
 const CreateMatch = () => {
+  const leagueSlug = useLeagueSlug();
   const router = useRouter();
   const { toast } = useToast();
-  const leagueSlug = router.query.leagueSlug as string;
   const {
     data: season,
     error,
@@ -65,7 +66,7 @@ const CreateMatch = () => {
   }, [router, players, error, leagueSlug, toast]);
 
   if (isLoading || isLoadingPlayers) {
-    return <Spinner />;
+    return <FullPageSpinner className="h-[calc(100vh-180px)]" />;
   }
 
   const onSubmit = (val: MatchFormValues) => {

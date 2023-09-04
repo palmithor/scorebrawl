@@ -2,12 +2,13 @@ import * as React from "react";
 
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
-import { Spinner } from "~/components/spinner";
 import { LoadingButton } from "~/components/ui/loading-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { useLeague } from "~/hooks/league-details-hook";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
+import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 
-export type Tab = "overview" | "seasons" | "statistics" | "feed";
+export type Tab = "overview" | "seasons" | "players" | "statistics" | "feed";
 
 export const LeagueDetailsLayout = ({
   activeTab,
@@ -20,18 +21,15 @@ export const LeagueDetailsLayout = ({
 }) => {
   const { userId } = useAuth();
   const [isJoining, setIsJoining] = React.useState(false);
-  const { isLoading, league, joinLeagueMutate, refetchPlayers, leagueCode, leaguePlayers } =
-    useLeague();
-
-  if (isLoading || !league) {
-    return (
-      <div className="flex h-screen">
-        <div className="m-auto">
-          <Spinner />
-        </div>
-      </div>
-    );
-  }
+  const leagueSlug = useLeagueSlug();
+  const invalidate = useLeagueInvalidation();
+  const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
+  const { mutateAsync: joinLeagueMutate } = api.league.join.useMutation();
+  const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
+  const { data: leagueCode } = api.league.getCode.useQuery(
+    { leagueSlug },
+    { enabled: !!league?.id }
+  );
 
   const shouldShowJoin =
     !hideJoinButton && leagueCode && !leaguePlayers?.some((u) => u?.userId === userId);
@@ -41,11 +39,15 @@ export const LeagueDetailsLayout = ({
     if (leagueCode) {
       joinLeagueMutate(leagueCode, {
         onSuccess: () => {
-          void refetchPlayers();
+          void invalidate();
         },
       }).catch(() => setIsJoining(false));
     }
   };
+
+  if (!league) {
+    return null;
+  }
 
   return (
     <Tabs defaultValue={activeTab} className="space-y-4 p-3">
@@ -57,6 +59,9 @@ export const LeagueDetailsLayout = ({
             </TabsTrigger>
             <TabsTrigger value="seasons">
               <Link href={`/leagues/${encodeURIComponent(league.slug)}/seasons`}>Seasons</Link>
+            </TabsTrigger>
+            <TabsTrigger value="players">
+              <Link href={`/leagues/${encodeURIComponent(league.slug)}/players`}>Players</Link>
             </TabsTrigger>
             <TabsTrigger value="statistics" disabled>
               Statistics

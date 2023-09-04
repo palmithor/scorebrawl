@@ -10,6 +10,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createCuid, matches, matchPlayers, seasonPlayers } from "~/server/db/schema";
 import { getByIdWhereMember, getLeagueById, getLeagueIdBySlug } from "../league/league.repository";
 import { type SeasonPlayerUser } from "../types";
+import { type SeasonPlayer } from "~/server/db/types";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -24,14 +25,59 @@ export const matchRouter = createTRPCRouter({
         seasonId: input.seasonId,
         userId: ctx.auth.userId,
       });
-      const result = await ctx.db
-        .select()
-        .from(matches)
-        .where(eq(matches.seasonId, season.id))
-        .orderBy(desc(matches.createdAt))
-        .all();
+      // verify league access
+      await getLeagueById({ id: season.leagueId, userId: ctx.auth.userId });
+      const seasonMatches = await ctx.db.query.matches.findMany({
+        where: (match, { eq }) => eq(match.seasonId, input.seasonId),
+        orderBy: (match, { desc }) => [desc(match.createdAt)],
+        limit: input.pageQuery.limit,
+        with: {
+          matchPlayers: {
+            with: {
+              seasonPlayer: { with: { leaguePlayer: { columns: { userId: true } } } },
+            },
+          },
+        },
+      });
+
+      const players = await populateSeasonUserPlayer({
+        seasonPlayers: seasonMatches
+          .flatMap((m) => m.matchPlayers.flatMap((mp) => mp.seasonPlayer))
+          .reduce<(SeasonPlayer & { leaguePlayer: { userId: string } })[]>(
+            (accumulator, currentValue) => {
+              if (!accumulator.some((sp) => sp.id === currentValue.id)) {
+                accumulator.push(currentValue);
+              }
+              return accumulator;
+            },
+            []
+          ),
+      });
+
       return {
-        data: result,
+        data: seasonMatches.map((match) => ({
+          id: match.id,
+          homeTeam: {
+            score: match.homeScore,
+            expectedElo: match.homeExpectedElo,
+            players: match.matchPlayers
+              .filter((p) => p.homeTeam)
+              .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
+              .filter((item): item is SeasonPlayerUser => !!item),
+          },
+          awayTeam: {
+            score: match.awayScore,
+            expectedElo: match.awayExpectedElo,
+            players: match.matchPlayers
+              .filter((p) => !p.homeTeam)
+              .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
+              .filter((item): item is SeasonPlayerUser => !!item),
+          },
+          createdBy: match.createdBy,
+          updatedBy: match.updatedBy,
+          createdAt: match.createdAt,
+          updatedAt: match.updatedAt,
+        })),
         nextCursor: undefined,
       };
     }),

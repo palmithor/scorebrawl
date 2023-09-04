@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/router";
 import { FormLayout } from "~/components/layout/form-layout";
 import AutoForm from "~/components/ui/auto-form";
 import { LoadingButton } from "~/components/ui/loading-button";
@@ -9,10 +8,12 @@ import { create } from "~/server/api/season/season.schema";
 import { SeasonList } from "~/components/league/list";
 import React from "react";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { useRouter } from "next/router";
 
 export const SeasonForm = () => {
+  const leagueSlug = useLeagueSlug();
   const router = useRouter();
-  const leagueSlug = router.query.leagueSlug as string;
   const { toast } = useToast();
   const { isLoading, mutate } = api.season.create.useMutation();
   const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
