@@ -3,12 +3,13 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { api } from "~/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { MultiAvatar } from "../user/multi-avatar";
+import { MatchResult } from "~/components/match/matchResult";
+import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 
 export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
   const { mutate } = api.match.undoLatest.useMutation();
   const { data } = api.match.getLatest.useQuery({ leagueSlug });
-  const { league: leagueApi, season: seasonApi, match: matchApi } = api.useContext();
+  const invalidate = useLeagueInvalidation();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
@@ -32,11 +33,7 @@ export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
         {data ? (
           <>
             <div className="flex items-center gap-2">
-              <MultiAvatar users={data.homeTeam.players} visibleCount={3} />
-              <div className="whitespace-nowrap text-2xl font-bold">
-                {data.homeTeam.score} - {data.awayTeam.score}
-              </div>
-              <MultiAvatar users={data.awayTeam.players} visibleCount={3} />
+              <MatchResult match={data} />
               {!confirmDelete ? (
                 <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
                   <Undo2Icon size={20} />
@@ -59,12 +56,7 @@ export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
                         { matchId: data.id },
                         {
                           onSuccess: () => {
-                            void seasonApi.getPlayers.invalidate({ seasonId: data.season.id });
-                            void seasonApi.playerForm.invalidate({ seasonId: data.season.id });
-                            void seasonApi.getOngoing.invalidate({ leagueSlug });
-                            void matchApi.getLatest.invalidate({ leagueSlug });
-                            void leagueApi.getBestForm.invalidate({ leagueSlug });
-                            void leagueApi.getMatchesPlayedStats.invalidate({ leagueSlug });
+                            void invalidate();
                           },
                         }
                       );

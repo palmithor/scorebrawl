@@ -1,19 +1,16 @@
 import { type NextPage } from "next";
 import { api } from "~/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { useRouter } from "next/router";
 
 const League: NextPage = () => {
+  const leagueSlug = useLeagueSlug();
   const router = useRouter();
 
-  const { isLoading, error } = api.season.getAll.useQuery(
-    {
-      leagueSlug: router.query.leagueSlug as string,
-    },
-    {}
-  );
+  const { isLoading, error } = api.season.getAll.useQuery({ leagueSlug });
 
   useEffect(() => {
     if (error) {

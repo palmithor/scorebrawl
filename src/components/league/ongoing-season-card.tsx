@@ -1,25 +1,27 @@
-import { useUser } from "@clerk/nextjs";
-import { PlusIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/router";
 import { SeasonStanding } from "~/components/league/standing";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
-import { useLeague } from "~/hooks/league-details-hook";
+import { useRouter } from "next/router";
+import { api } from "~/lib/api";
 
-export const OngoingSeasonCard = ({ className }: { className?: string }) => {
+export const OngoingSeasonCard = ({
+  className,
+  leagueSlug,
+}: {
+  className?: string;
+  leagueSlug: string;
+}) => {
   const router = useRouter();
-  const { user } = useUser();
-  const {
-    hasEditorAccess,
-    isLoadingOngoingSeason,
-    isLoadingOngoingSeasonPlayers,
-    league,
-    leaguePlayers,
-    ongoingSeason,
-    ongoingSeasonPlayers,
-  } = useLeague();
+  const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
+    { leagueSlug },
+    { retry: false }
+  );
+  const { data: ongoingSeason, isLoading: isLoadingOngoingSeason } = api.season.getOngoing.useQuery(
+    { leagueSlug },
+    { retry: false }
+  );
+  const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
 
   const cardContent = () => {
     if (isLoadingOngoingSeason) {
@@ -43,43 +45,21 @@ export const OngoingSeasonCard = ({ className }: { className?: string }) => {
     <Card className={className}>
       <CardHeader>
         <div className="flex">
-          <CardTitle className="grow">Current season standings</CardTitle>
-          {ongoingSeason &&
-            league &&
-            !isLoadingOngoingSeasonPlayers &&
-            leaguePlayers?.some((p) => p.userId === user?.id) && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={ongoingSeasonPlayers && ongoingSeasonPlayers.length < 2}
-                      onClick={() =>
-                        void router.push(
-                          `/leagues/${league.slug}/seasons/${ongoingSeason.id}/matches/create`
-                        )
-                      }
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Create Match
-                    {ongoingSeasonPlayers &&
-                      ongoingSeasonPlayers.length < 2 &&
-                      ": Season must have more than two players"}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+          <div className="grow">
+            <CardTitle>Standing</CardTitle>
+            <p className="pt-1 text-xs text-muted-foreground">
+              In season <span className="font-bold">{ongoingSeason?.name}</span>{" "}
+              {ongoingSeason?.endDate &&
+                ` ending at ${ongoingSeason.endDate.toLocaleDateString(window.navigator.language)}`}
+            </p>
+          </div>
         </div>
         {!ongoingSeason && !isLoadingOngoingSeason && (
           <CardDescription>No ongoing season</CardDescription>
         )}
       </CardHeader>
       <CardContent>
-        <div className="items-center justify-center">{cardContent()}</div>
+        <div className="grid">{cardContent()}</div>
       </CardContent>
     </Card>
   );

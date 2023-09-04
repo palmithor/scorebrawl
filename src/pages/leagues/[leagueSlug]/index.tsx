@@ -1,17 +1,16 @@
 import { type NextPage } from "next";
-import { useRouter } from "next/router";
 import { InFormCard } from "~/components/league/in-form-card";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
-import { LeaguePlayers } from "~/components/league/league-players";
 import { MatchesPlayedCard } from "~/components/league/match-count-card";
 import { OngoingSeasonCard } from "~/components/league/ongoing-season-card";
 import { LatestMatchCard } from "~/components/match/latest-match-card";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { AvatarName } from "~/components/user/avatar-name";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { LatestMatchesCard } from "~/components/league/latest-matches-card";
 
 const LeagueDetails: NextPage = () => {
-  const router = useRouter();
-  const leagueSlug = router.query.leagueSlug as string;
+  const leagueSlug = useLeagueSlug();
 
   return (
     <LeagueDetailsLayout activeTab={"overview"}>
@@ -44,9 +43,9 @@ const LeagueDetails: NextPage = () => {
         <MatchesPlayedCard leagueSlug={leagueSlug} />
         <LatestMatchCard leagueSlug={leagueSlug} />
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <OngoingSeasonCard className="col-span-4" />
-        <LeaguePlayers leagueSlug={leagueSlug} className="col-span-3" />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+        <OngoingSeasonCard leagueSlug={leagueSlug} className="col-span-4" />
+        <LatestMatchesCard leagueSlug={leagueSlug} className="col-span-4" />
       </div>
     </LeagueDetailsLayout>
   );
