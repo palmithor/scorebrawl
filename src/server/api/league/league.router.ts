@@ -4,7 +4,7 @@ import { and, asc, eq, gte, inArray, isNull, or, sql } from "drizzle-orm";
 import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import { slugifyLeagueName } from "~/server/api/common/slug";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, leagueProcedure, protectedProcedure } from "~/server/api/trpc";
 import { type LeaguePlayerUser, type PlayerForm } from "~/server/api/types";
 import {
   createCuid,
@@ -16,7 +16,7 @@ import {
   seasons,
 } from "~/server/db/schema";
 import { type LeaguePlayer } from "~/server/db/types";
-import { canReadLeaguesCriteria, getByIdWhereMember, getLeagueIdBySlug } from "./league.repository";
+import { canReadLeaguesCriteria, getByIdWhereMember } from "./league.repository";
 import { create } from "./league.schema";
 
 const populateLeagueUserPlayer = async ({ leaguePlayers }: { leaguePlayers: LeaguePlayer[] }) => {
@@ -60,31 +60,14 @@ export const leagueRouter = createTRPCRouter({
         data: dbResult,
       };
     }),
-  getBySlug: protectedProcedure
+  getBySlug: leagueProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
-    .query(async ({ input, ctx }) => {
-      const league = await ctx.db.query.leagues.findFirst({
-        where: and(
-          eq(leagues.slug, input.leagueSlug),
-          canReadLeaguesCriteria({ userId: ctx.auth.userId })
-        ),
-      });
-      if (!league) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { code, ...publicLeagueProps } = league;
-      return publicLeagueProps;
-    }),
-  getPlayers: protectedProcedure
+    .query(({ ctx }) => (({ ["code"]: _, ...rest }) => rest)(ctx.league)),
+  getPlayers: leagueProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
-    .query(async ({ ctx, input }) => {
-      const leagueId = await getLeagueIdBySlug({
-        userId: ctx.auth.userId,
-        slug: input.leagueSlug,
-      });
+    .query(async ({ ctx }) => {
       const leaguePlayerResult = await ctx.db.query.leaguePlayers.findMany({
-        where: eq(leaguePlayers.leagueId, leagueId),
+        where: eq(leaguePlayers.leagueId, ctx.league.id),
       });
 
       return populateLeagueUserPlayer({ leaguePlayers: leaguePlayerResult });
@@ -124,10 +107,29 @@ export const leagueRouter = createTRPCRouter({
       columns: { code: false },
     });
   }),
-  update: protectedProcedure
+  getCode: leagueProcedure
     .input(
       z.object({
-        leagueId: z.string().nonempty(),
+        leagueSlug: z.string().nonempty(),
+      })
+    )
+    .query(async ({ ctx }) => {
+      if (ctx.league.visibility === "private") {
+        const leagueAsMember = await getByIdWhereMember({
+          leagueId: ctx.league.id,
+          userId: ctx.auth.userId,
+          allowedRoles: ["owner", "editor"],
+        });
+        if (!leagueAsMember) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+      }
+      return { code: ctx.league.code };
+    }),
+  update: leagueProcedure
+    .input(
+      z.object({
+        leagueSlug: z.string().nonempty(),
         name: z.string().nonempty(),
         logoUrl: z.string().url(),
         visibility: z.enum(["public", "private"]),
@@ -135,14 +137,8 @@ export const leagueRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const season = await ctx.db.query.leagues.findFirst({
-        where: eq(leagues.id, input.leagueId),
-      });
-      if (!season) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
       const league = await getByIdWhereMember({
-        leagueId: input.leagueId,
+        leagueId: ctx.league.id,
         userId: ctx.auth.userId,
         allowedRoles: ["owner", "editor"],
       });
@@ -159,69 +155,34 @@ export const leagueRouter = createTRPCRouter({
           slug,
           logoUrl: input.logoUrl,
         })
-        .where(eq(leagues.id, input.leagueId))
+        .where(eq(leagues.id, ctx.league.id))
         .returning()
         .get();
     }),
-  getCode: protectedProcedure
+  hasEditorAccess: leagueProcedure
     .input(
       z.object({
         leagueSlug: z.string().nonempty(),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const league = await ctx.db.query.leagues.findFirst({
-        where: eq(leagues.slug, input.leagueSlug),
-      });
-      if (!league) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      if (league.visibility === "private") {
-        const leagueAsMember = await getByIdWhereMember({
-          leagueId: league.id,
-          userId: ctx.auth.userId,
-          allowedRoles: ["owner", "editor"],
-        });
-        if (!leagueAsMember) {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-      }
-      return { code: league.code };
-    }),
-  hasEditorAccess: protectedProcedure
-    .input(
-      z.object({
-        leagueSlug: z.string().nonempty(),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const leagueId = await getLeagueIdBySlug({
-        slug: input.leagueSlug,
-        userId: ctx.auth.userId,
-      });
-
+    .query(async ({ ctx }) => {
       const league = await getByIdWhereMember({
-        leagueId,
+        leagueId: ctx.league.id,
         userId: ctx.auth.userId,
         allowedRoles: ["owner", "editor"],
       });
 
       return !!league;
     }),
-  getBestForm: protectedProcedure
+  getBestForm: leagueProcedure
     .input(
       z.object({
         leagueSlug: z.string().nonempty(),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const leagueId = await getLeagueIdBySlug({
-        slug: input.leagueSlug,
-        userId: ctx.auth.userId,
-      });
-
+    .query(async ({ ctx }) => {
       const data = await ctx.db.query.leagues.findFirst({
-        where: (league, { eq }) => eq(league.id, leagueId),
+        where: (league, { eq }) => eq(league.id, ctx.league.id),
         with: {
           seasons: {
             orderBy: (season, { desc }) => [desc(season.startDate)],
@@ -379,19 +340,14 @@ export const leagueRouter = createTRPCRouter({
           .run();
       }
     }),
-  getMatchesPlayedStats: protectedProcedure
+  getMatchesPlayedStats: leagueProcedure
     .input(
       z.object({
         leagueSlug: z.string().nonempty(),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const leagueId = await getLeagueIdBySlug({
-        slug: input.leagueSlug,
-        userId: ctx.auth.userId,
-      });
-
-      const matchCount = await ctx.db
+    .query(async ({ ctx }) => {
+      return ctx.db
         .select({
           count: sql<number>`count(*)`,
           seasonCount: sql<number>`count( distinct (${matches.seasonId}))`,
@@ -401,12 +357,13 @@ export const leagueRouter = createTRPCRouter({
           and(
             inArray(
               matches.seasonId,
-              ctx.db.select({ id: seasons.id }).from(seasons).where(eq(seasons.leagueId, leagueId))
+              ctx.db
+                .select({ id: seasons.id })
+                .from(seasons)
+                .where(eq(seasons.leagueId, ctx.league.id))
             )
           )
         )
         .get();
-
-      return matchCount;
     }),
 });

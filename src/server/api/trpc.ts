@@ -1,9 +1,13 @@
-import { initTRPC, TRPCError } from "@trpc/server";
-import { type SignedInAuthObject, type SignedOutAuthObject, getAuth } from "@clerk/nextjs/server";
+import z, { ZodError } from "zod";
+import { experimental_standaloneMiddleware, initTRPC, TRPCError } from "@trpc/server";
+import { getAuth, type SignedInAuthObject, type SignedOutAuthObject } from "@clerk/nextjs/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
 import { db } from "~/server/db";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { leagues } from "~/server/db/schema";
+import { and, eq } from "drizzle-orm";
+import { canReadLeaguesCriteria } from "~/server/api/league/league.repository";
+import { type Db } from "~/server/db/types";
 
 /**
  * 1. CONTEXT
@@ -76,6 +80,37 @@ const isAuthenticated = t.middleware(({ next, ctx }) => {
   });
 });
 
+const leagueAccessMiddleware = experimental_standaloneMiddleware<{
+  ctx: { auth: SignedInAuthObject | SignedOutAuthObject; db: Db };
+  input: { leagueSlug: string };
+}>().create(async ({ ctx, input, next }) => {
+  if (!ctx.auth?.userId) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  const league = await ctx.db
+    .select()
+    .from(leagues)
+    .where(
+      and(eq(leagues.slug, input.leagueSlug), canReadLeaguesCriteria({ userId: ctx.auth.userId }))
+    )
+    .get();
+
+  if (!league) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "League not found",
+    });
+  }
+
+  return next({
+    ctx: {
+      auth: ctx.auth,
+      league: league,
+    },
+  });
+});
+
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
  *
@@ -99,3 +134,6 @@ export const createTRPCRouter = t.router;
  */
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(isAuthenticated);
+export const leagueProcedure = t.procedure
+  .input(z.object({ leagueSlug: z.string().nonempty() }))
+  .use(leagueAccessMiddleware);

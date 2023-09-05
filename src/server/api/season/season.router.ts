@@ -6,11 +6,10 @@ import {
   canReadLeaguesCriteria,
   getByIdWhereMember,
   getLeagueById,
-  getLeagueIdBySlug,
 } from "~/server/api/league/league.repository";
 import { getOngoingSeason } from "~/server/api/season/season.repository";
 import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, leagueProcedure, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { createCuid, leaguePlayers, leagues, seasonPlayers, seasons } from "~/server/db/schema";
 import { type Db } from "~/server/db/types";
@@ -59,7 +58,7 @@ const checkOngoing = async (
 
 export const seasonRouter = createTRPCRouter({
   getById: protectedProcedure
-    .input(z.object({ seasonId: z.string() }))
+    .input(z.object({ leagueSlug: z.string().nonempty(), seasonId: z.string() }))
     .query(async ({ input, ctx }) => {
       const season = await ctx.db.query.seasons.findFirst({
         where: eq(seasons.id, input.seasonId),
@@ -73,24 +72,16 @@ export const seasonRouter = createTRPCRouter({
       });
       return season;
     }),
-  getOngoing: protectedProcedure
-    .input(
-      z.object({
-        leagueSlug: z.string(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      const leagueId = await getLeagueIdBySlug({
-        userId: ctx.auth.userId,
-        slug: input.leagueSlug,
-      });
-      const ongoingSeason = await getOngoingSeason({ leagueId });
+  getOngoing: leagueProcedure
+    .input(z.object({ leagueSlug: z.string().nonempty() }))
+    .query(async ({ ctx }) => {
+      const ongoingSeason = await getOngoingSeason({ leagueId: ctx.league.id });
       if (!ongoingSeason) {
         throw new TRPCError({ code: "NOT_FOUND", message: "season not found" });
       }
       return ongoingSeason;
     }),
-  getAll: protectedProcedure
+  getAll: leagueProcedure
     .input(
       z.object({
         leagueSlug: z.string(),
@@ -140,11 +131,7 @@ export const seasonRouter = createTRPCRouter({
       });
       return populateSeasonUserPlayer({ seasonPlayers: seasonPlayerResult });
     }),
-  create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
-    const leagueId = await getLeagueIdBySlug({
-      userId: ctx.auth.userId,
-      slug: input.leagueSlug,
-    });
+  create: leagueProcedure.input(create).mutation(async ({ ctx, input }) => {
     if (input.endDate && input.startDate.getTime() >= input.endDate.getTime()) {
       throw new TRPCError({
         code: "BAD_REQUEST",
@@ -152,7 +139,7 @@ export const seasonRouter = createTRPCRouter({
       });
     }
     const league = await getByIdWhereMember({
-      leagueId,
+      leagueId: ctx.league.id,
       userId: ctx.auth.userId,
       allowedRoles: ["owner", "editor"],
     });
@@ -161,7 +148,7 @@ export const seasonRouter = createTRPCRouter({
       throw new TRPCError({ code: "FORBIDDEN" });
     }
     await checkOngoing(ctx.db, {
-      leagueId,
+      leagueId: ctx.league.id,
       startDate: input.startDate,
       endDate: input.endDate,
     });
@@ -174,7 +161,7 @@ export const seasonRouter = createTRPCRouter({
         id: createCuid(),
         name: input.name,
         slug,
-        leagueId,
+        leagueId: ctx.league.id,
         startDate: input.startDate,
         endDate: input.endDate,
         initialElo: input.initialElo,
@@ -188,7 +175,7 @@ export const seasonRouter = createTRPCRouter({
       .get();
     const players = await ctx.db.query.leaguePlayers.findMany({
       columns: { id: true },
-      where: and(eq(leaguePlayers.leagueId, leagueId), eq(leaguePlayers.disabled, false)),
+      where: and(eq(leaguePlayers.leagueId, ctx.league.id), eq(leaguePlayers.disabled, false)),
     });
     await Promise.all(
       players.map((lp) =>
