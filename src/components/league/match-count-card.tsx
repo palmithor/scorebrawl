@@ -6,7 +6,7 @@ export const MatchesPlayedCard = ({ leagueSlug }: { leagueSlug: string }) => {
     {
       leagueSlug,
     },
-    { retry: false }
+    { retry: false },
   );
 
   return (

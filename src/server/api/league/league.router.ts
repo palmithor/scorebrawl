@@ -47,7 +47,7 @@ export const leagueRouter = createTRPCRouter({
     .input(
       z.object({
         pageQuery: pageQuerySchema,
-      })
+      }),
     )
     .query(async ({ ctx }) => {
       const dbResult = await ctx.db.query.leagues.findMany({
@@ -111,7 +111,7 @@ export const leagueRouter = createTRPCRouter({
     .input(
       z.object({
         leagueSlug: z.string().nonempty(),
-      })
+      }),
     )
     .query(async ({ ctx }) => {
       if (ctx.league.visibility === "private") {
@@ -134,7 +134,7 @@ export const leagueRouter = createTRPCRouter({
         logoUrl: z.string().url(),
         visibility: z.enum(["public", "private"]),
         archived: z.boolean().default(false),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const league = await getByIdWhereMember({
@@ -163,7 +163,7 @@ export const leagueRouter = createTRPCRouter({
     .input(
       z.object({
         leagueSlug: z.string().nonempty(),
-      })
+      }),
     )
     .query(async ({ ctx }) => {
       const league = await getByIdWhereMember({
@@ -178,7 +178,7 @@ export const leagueRouter = createTRPCRouter({
     .input(
       z.object({
         leagueSlug: z.string().nonempty(),
-      })
+      }),
     )
     .query(async ({ ctx }) => {
       const data = await ctx.db.query.leagues.findFirst({
@@ -215,7 +215,7 @@ export const leagueRouter = createTRPCRouter({
             season.seasonPlayers.map((player) => ({
               userId: player.leaguePlayer.userId,
               matches: player.matches,
-            }))
+            })),
           )
           .reduce<Record<string, FormAndPoints>>((acc, player) => {
             const { userId, matches } = player;
@@ -241,7 +241,7 @@ export const leagueRouter = createTRPCRouter({
                   };
                 }
               },
-              { points: 0, form: [] }
+              { points: 0, form: [] },
             );
             const accPoints = acc[userId];
             if (accPoints) {
@@ -283,7 +283,7 @@ export const leagueRouter = createTRPCRouter({
     .input(
       z.object({
         code: z.string().nonempty(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const league = await ctx.db.query.leagues.findFirst({
@@ -322,7 +322,7 @@ export const leagueRouter = createTRPCRouter({
       const ongoingAndFutureSeasons = await ctx.db.query.seasons.findMany({
         where: and(
           eq(seasons.leagueId, league.id),
-          or(isNull(seasons.endDate), gte(seasons.endDate, now))
+          or(isNull(seasons.endDate), gte(seasons.endDate, now)),
         ),
       });
 
@@ -344,7 +344,7 @@ export const leagueRouter = createTRPCRouter({
     .input(
       z.object({
         leagueSlug: z.string().nonempty(),
-      })
+      }),
     )
     .query(async ({ ctx }) => {
       return ctx.db
@@ -360,9 +360,9 @@ export const leagueRouter = createTRPCRouter({
               ctx.db
                 .select({ id: seasons.id })
                 .from(seasons)
-                .where(eq(seasons.leagueId, ctx.league.id))
-            )
-          )
+                .where(eq(seasons.leagueId, ctx.league.id)),
+            ),
+          ),
         )
         .get();
     }),

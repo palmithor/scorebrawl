@@ -42,7 +42,7 @@ describe("seasonRouter", () => {
           leagueSlug: league.slug,
           name: "Q2 2023",
           startDate: new Date("2023-04-19"),
-        })
+        }),
       ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN" }));
     });
 
@@ -61,12 +61,12 @@ describe("seasonRouter", () => {
           leagueSlug: league.slug,
           name: "Second",
           startDate: new Date("2023-04-05"),
-        })
+        }),
       ).rejects.toThrow(
         new TRPCError({
           code: "CONFLICT",
           message: "There's an ongoing season during this period",
-        })
+        }),
       );
     });
   });
@@ -112,7 +112,7 @@ describe("seasonRouter", () => {
         await db.query.seasons.findFirst({
           where: eq(seasons.id, season.id),
           columns: { name: true, startDate: true, endDate: true },
-        })
+        }),
       ).toEqual({
         name: "season2",
         startDate: new Date("2023-04-01"),

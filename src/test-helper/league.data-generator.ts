@@ -49,8 +49,8 @@ export const createLeague = async ({
           createdAt: now,
           updatedAt: now,
         })
-        .run()
-    )
+        .run(),
+    ),
   );
   return league;
 };

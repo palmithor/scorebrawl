@@ -129,7 +129,7 @@ function getObjectFormSchema(schema: ZodObjectOrWrapped): z.ZodObject<any, any> 
  * Once submitted, the schema will be validated completely.
  */
 function zodToHtmlInputProps(
-  schema: z.ZodNumber | z.ZodString | z.ZodOptional<z.ZodNumber | z.ZodString> | any
+  schema: z.ZodNumber | z.ZodString | z.ZodOptional<z.ZodNumber | z.ZodString> | any,
 ): React.InputHTMLAttributes<HTMLInputElement> {
   if (["ZodOptional", "ZodNullable"].includes(schema._def.typeName)) {
     const typedSchema = schema as z.ZodOptional<z.ZodNumber | z.ZodString>;

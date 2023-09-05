@@ -59,7 +59,7 @@ describe("leagueRepository", () => {
         await getByIdWhereMember({
           leagueId: "not-found",
           userId: "userId",
-        })
+        }),
       ).toBeUndefined();
     });
 
@@ -74,7 +74,7 @@ describe("leagueRepository", () => {
         await getByIdWhereMember({
           leagueId: existingLeague.id,
           userId: "userId",
-        })
+        }),
       ).toBeUndefined();
     });
 
@@ -96,7 +96,7 @@ describe("leagueRepository", () => {
           leagueId: existingLeague.id,
           userId: "userId",
           allowedRoles: ["owner"],
-        })
+        }),
       );
     });
   });

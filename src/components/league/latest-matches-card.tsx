@@ -28,11 +28,11 @@ export const LatestMatchesCard = ({
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
   const { data: seasonPlayers } = api.season.getPlayers.useQuery(
     { seasonId: ongoingSeason?.id as string },
-    { enabled: !!ongoingSeason }
+    { enabled: !!ongoingSeason },
   );
   const { data } = api.match.getAll.useQuery(
     { seasonId: ongoingSeason?.id as string },
-    { enabled: !!ongoingSeason }
+    { enabled: !!ongoingSeason },
   );
 
   const hasLessThanTwoPlayers = seasonPlayers && seasonPlayers.length < 2;
@@ -51,7 +51,7 @@ export const LatestMatchesCard = ({
                   disabled={hasLessThanTwoPlayers}
                   onClick={() =>
                     void router.push(
-                      `/leagues/${leagueSlug}/seasons/${ongoingSeason.id}/matches/create`
+                      `/leagues/${leagueSlug}/seasons/${ongoingSeason.id}/matches/create`,
                     )
                   }
                 >

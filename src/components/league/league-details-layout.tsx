@@ -28,7 +28,7 @@ export const LeagueDetailsLayout = ({
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
   const { data: leagueCode } = api.league.getCode.useQuery(
     { leagueSlug },
-    { enabled: !!league?.id }
+    { enabled: !!league?.id },
   );
 
   const shouldShowJoin =

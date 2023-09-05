@@ -46,7 +46,7 @@ const Leagues: NextPage = () => {
     );
   }
   const filteredData = data?.data.filter((item) =>
-    item.name.toLowerCase().includes(filterText.toLowerCase())
+    item.name.toLowerCase().includes(filterText.toLowerCase()),
   );
 
   return (

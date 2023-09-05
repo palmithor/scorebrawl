@@ -40,7 +40,7 @@ export const SeasonForm = () => {
                       title: "Error creating season",
                       description: err.message,
                     }),
-                }
+                },
               )
             }
           >
