@@ -37,9 +37,7 @@ const CreateMatch = () => {
     data: season,
     error,
     isLoading,
-  } = api.season.getById.useQuery({
-    seasonId: router.query.seasonId as string,
-  });
+  } = api.season.getById.useQuery({ leagueSlug, seasonId: router.query.seasonId as string });
   const { data: players = [], isLoading: isLoadingPlayers } = api.season.getPlayers.useQuery({
     seasonId: router.query.seasonId as string,
   });
