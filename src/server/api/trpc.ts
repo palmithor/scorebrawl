@@ -92,7 +92,7 @@ const leagueAccessMiddleware = experimental_standaloneMiddleware<{
     .select()
     .from(leagues)
     .where(
-      and(eq(leagues.slug, input.leagueSlug), canReadLeaguesCriteria({ userId: ctx.auth.userId }))
+      and(eq(leagues.slug, input.leagueSlug), canReadLeaguesCriteria({ userId: ctx.auth.userId })),
     )
     .get();
 

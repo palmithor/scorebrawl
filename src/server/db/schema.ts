@@ -26,7 +26,7 @@ export const leagues = sqliteTable(
   (league) => ({
     slugIdx: uniqueIndex("league_name_slug_uq_idx").on(league.slug),
     codeIdx: uniqueIndex("league_code_uq_idx").on(league.code),
-  })
+  }),
 );
 
 export const leaguePlayers = sqliteTable(
@@ -41,7 +41,7 @@ export const leaguePlayers = sqliteTable(
   },
   (player) => ({
     leaguePlayerIdx: uniqueIndex("league_player_uq_idx").on(player.leagueId, player.userId),
-  })
+  }),
 );
 
 const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
@@ -60,7 +60,7 @@ export const leagueMembers = sqliteTable(
   },
   (player) => ({
     leaguePlayerIdx: uniqueIndex("league_member_uq_idx").on(player.leagueId, player.userId),
-  })
+  }),
 );
 
 export const seasons = sqliteTable(
@@ -81,7 +81,7 @@ export const seasons = sqliteTable(
   },
   (season) => ({
     slugIdx: uniqueIndex("season_name_slug_uq_idx").on(season.slug),
-  })
+  }),
 );
 
 export const seasonPlayers = sqliteTable(
@@ -97,7 +97,7 @@ export const seasonPlayers = sqliteTable(
   },
   (season) => ({
     seasonPlayerIdx: uniqueIndex("season_player_uq_idx").on(season.seasonId, season.leaguePlayerId),
-  })
+  }),
 );
 
 export const matches = sqliteTable("match", {

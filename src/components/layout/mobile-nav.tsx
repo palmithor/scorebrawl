@@ -40,7 +40,7 @@ export function MobileNav() {
                   <MobileLink key={item.href} href={item.href} onOpenChange={setOpen}>
                     {item.title}
                   </MobileLink>
-                )
+                ),
             )}
           </div>
           <div className="flex flex-col space-y-2">

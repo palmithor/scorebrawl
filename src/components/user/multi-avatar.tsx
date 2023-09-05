@@ -11,7 +11,7 @@ export const MultiAvatar = (
   }: {
     visibleCount: number;
     users: AvatarProps[];
-  } = { users: [], visibleCount: 5 }
+  } = { users: [], visibleCount: 5 },
 ) => {
   const avatarAndName = ({ id, name, imageUrl }: AvatarProps) => (
     <Tooltip>

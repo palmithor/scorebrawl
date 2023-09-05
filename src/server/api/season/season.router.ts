@@ -39,13 +39,13 @@ const checkOngoing = async (
     leagueId: string;
     startDate: Date;
     endDate?: Date;
-  }
+  },
 ) => {
   const ongoingSeason = await db.query.seasons.findFirst({
     where: and(
       eq(seasons.leagueId, input.leagueId),
       gte(seasons.endDate, input.startDate),
-      input?.endDate ? lte(seasons.startDate, input?.endDate) : sql`true`
+      input?.endDate ? lte(seasons.startDate, input?.endDate) : sql`true`,
     ),
   });
   if (ongoingSeason) {
@@ -86,7 +86,7 @@ export const seasonRouter = createTRPCRouter({
       z.object({
         leagueSlug: z.string(),
         pageQuery: pageQuerySchema,
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const result = await ctx.db
@@ -97,8 +97,8 @@ export const seasonRouter = createTRPCRouter({
           and(
             eq(seasons.leagueId, leagues.id),
             eq(leagues.slug, input.leagueSlug),
-            canReadLeaguesCriteria({ userId: ctx.auth.userId })
-          )
+            canReadLeaguesCriteria({ userId: ctx.auth.userId }),
+          ),
         )
         .orderBy(desc(seasons.startDate))
         .all();
@@ -112,7 +112,7 @@ export const seasonRouter = createTRPCRouter({
     .input(
       z.object({
         seasonId: z.string(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const season = await getSeason({
@@ -187,8 +187,8 @@ export const seasonRouter = createTRPCRouter({
           seasonId: season.id,
           createdAt: now,
           updatedAt: now,
-        })
-      )
+        }),
+      ),
     );
 
     return season;
@@ -200,7 +200,7 @@ export const seasonRouter = createTRPCRouter({
         name: z.string().optional(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const season = await ctx.db.query.seasons.findFirst({
@@ -239,7 +239,7 @@ export const seasonRouter = createTRPCRouter({
     .input(
       z.object({
         seasonId: z.string().nonempty(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const season = await getSeason({

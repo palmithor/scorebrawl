@@ -18,7 +18,7 @@ export const matchRouter = createTRPCRouter({
       z.object({
         seasonId: z.string(),
         pageQuery: pageQuerySchema,
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const season = await getSeasonById({
@@ -50,7 +50,7 @@ export const matchRouter = createTRPCRouter({
               }
               return accumulator;
             },
-            []
+            [],
           ),
       });
 
@@ -85,7 +85,7 @@ export const matchRouter = createTRPCRouter({
     .input(
       z.object({
         leagueSlug: z.string(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const leagueId = await getLeagueIdBySlug({
@@ -136,7 +136,7 @@ export const matchRouter = createTRPCRouter({
       });
 
       const season = leagueMatches.seasons.find(
-        (s) => s.id === latestMatchAcrossSeasons.seasonId
+        (s) => s.id === latestMatchAcrossSeasons.seasonId,
       ) as { id: string; name: string };
 
       return {
@@ -193,13 +193,13 @@ export const matchRouter = createTRPCRouter({
     const homeSeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
       where: and(
         eq(seasonPlayers.seasonId, season.id),
-        inArray(seasonPlayers.id, input.homePlayerIds)
+        inArray(seasonPlayers.id, input.homePlayerIds),
       ),
     });
     const awaySeasonPlayers = await ctx.db.query.seasonPlayers.findMany({
       where: and(
         eq(seasonPlayers.seasonId, season.id),
-        inArray(seasonPlayers.id, input.awayPlayerIds)
+        inArray(seasonPlayers.id, input.awayPlayerIds),
       ),
     });
     if (homeSeasonPlayers.length !== input.homePlayerIds.length) {
@@ -281,7 +281,7 @@ export const matchRouter = createTRPCRouter({
     .input(
       z.object({
         matchId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const match = await ctx.db.query.matches.findFirst({
@@ -322,8 +322,8 @@ export const matchRouter = createTRPCRouter({
           .where(
             inArray(
               matchPlayers.id,
-              match.matchPlayers.map((mp) => mp.id)
-            )
+              match.matchPlayers.map((mp) => mp.id),
+            ),
           )
           .run();
         await tx.delete(matches).where(eq(matches.id, match.id)).run();

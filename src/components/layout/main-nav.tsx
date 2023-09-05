@@ -22,7 +22,7 @@ export function MainNav() {
           href="/dashboard"
           className={cn(
             "transition-colors hover:text-foreground/80",
-            pathname === "/dashboard" ? "text-foreground" : "text-foreground/60"
+            pathname === "/dashboard" ? "text-foreground" : "text-foreground/60",
           )}
         >
           Dashboard
@@ -31,7 +31,7 @@ export function MainNav() {
           href="/leagues"
           className={cn(
             "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/leagues") ? "text-foreground" : "text-foreground/60"
+            pathname?.startsWith("/leagues") ? "text-foreground" : "text-foreground/60",
           )}
         >
           Leagues

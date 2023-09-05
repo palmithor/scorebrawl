@@ -58,7 +58,7 @@ export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
                           onSuccess: () => {
                             void invalidate();
                           },
-                        }
+                        },
                       );
                     }}
                   >

@@ -23,7 +23,7 @@ export const getOngoingSeason = async ({ leagueId }: { leagueId: string }) => {
     where: and(
       eq(seasons.leagueId, leagueId),
       lte(seasons.startDate, now),
-      or(isNull(seasons.endDate), gte(seasons.endDate, now))
+      or(isNull(seasons.endDate), gte(seasons.endDate, now)),
     ),
   });
 };

@@ -51,7 +51,7 @@ export const getByIdWhereMember = async ({
     ? and(
         eq(leagueMembers.leagueId, leagues.id),
         eq(leagueMembers.userId, userId),
-        inArray(leagueMembers.role, allowedRoles)
+        inArray(leagueMembers.role, allowedRoles),
       )
     : and(eq(leagueMembers.leagueId, leagues.id), eq(leagueMembers.userId, userId));
   const result = await db
@@ -72,6 +72,6 @@ export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
         .select({ data: leagues.id })
         .from(leagues)
         .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
-        .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id)))
-    )
+        .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id))),
+    ),
   );

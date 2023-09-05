@@ -34,7 +34,7 @@ const LeagueForm = () => {
                     title: "Error creating season",
                     description: err.message,
                   }),
-              }
+              },
             )
           }
         >

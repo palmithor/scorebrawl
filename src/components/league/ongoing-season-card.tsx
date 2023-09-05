@@ -15,11 +15,11 @@ export const OngoingSeasonCard = ({
   const router = useRouter();
   const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
     { leagueSlug },
-    { retry: false }
+    { retry: false },
   );
   const { data: ongoingSeason, isLoading: isLoadingOngoingSeason } = api.season.getOngoing.useQuery(
     { leagueSlug },
-    { retry: false }
+    { retry: false },
   );
   const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
 
