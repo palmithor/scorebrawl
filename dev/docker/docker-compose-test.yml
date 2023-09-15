@@ -1,0 +1,20 @@
+# docker-compose.yml
+version: '3.8'
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:v22.2.7
+    restart: always
+    environment:
+      - COCKROACH_DATABASE=cockroach_local
+      - COCKROACH_USER=cockroach
+      - COCKROACH_PASSWORD=cockroach
+    ports:
+     - "26257:26257"
+     - "8001:8080"
+    command: start-single-node --insecure
+    volumes:
+      - "db:/cockroach/cockroach-data"
+volumes:
+  db:
+    driver: local
+

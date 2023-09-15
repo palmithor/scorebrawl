@@ -1,0 +1,56 @@
+name: on-push
+
+on: ['push']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  ci:
+    name: 🔁 ci
+
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+
+    runs-on:
+      labels: ubuntu-latest
+
+    steps:
+      - name: 🔸 Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install turso
+        run: ./setup/install-turso.sh
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: 🦄 Format
+        run: bun run format:check
+
+      - name: 🔬 Lint
+        run: bun run lint
+
+      - name: 📝 Test
+        run: export PATH="/home/runner/.turso:$PATH" && bun test
+
+      - name: 👷 Build
+        run: bun run build
