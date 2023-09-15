@@ -1,4 +1,4 @@
-import { type NextPage } from "next";
+import { type GetServerSidePropsContext, type NextPage } from "next";
 import { InFormCard } from "~/components/league/in-form-card";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
 import { MatchesPlayedCard } from "~/components/league/match-count-card";
@@ -8,6 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { AvatarName } from "~/components/user/avatar-name";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { LatestMatchesCard } from "~/components/league/latest-matches-card";
+import { setCookie } from "cookies-next";
+import { getAuth } from "@clerk/nextjs/server";
+
+export const getServerSideProps = ({ req, res, params }: GetServerSidePropsContext) => {
+  const auth = getAuth(req);
+  setCookie(`${auth.userId}:league`, params?.leagueSlug, { req: req, res: res });
+  return { props: {} };
+};
 
 const LeagueDetails: NextPage = () => {
   const leagueSlug = useLeagueSlug();
