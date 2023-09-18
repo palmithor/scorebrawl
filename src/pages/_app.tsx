@@ -8,7 +8,7 @@ import {
   SignUp,
 } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/react";
-import { type AppType } from "next/app";
+import { type AppProps } from "next/app";
 
 import { api } from "~/lib/api";
 
@@ -36,7 +36,7 @@ const clerkAppearance = {
   },
 };
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+const MyApp = ({ Component, pageProps }: AppProps) => {
   const { query } = useRouter();
 
   return (
