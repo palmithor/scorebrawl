@@ -52,5 +52,5 @@ jobs:
       - name: 📝 Test
         run: export PATH="/home/runner/.turso:$PATH" && bun test
 
-#      - name: 👷 Build
-#        run: bun run build
+      - name: 👷 Build
+        run: bun run build
