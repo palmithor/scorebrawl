@@ -1,6 +1,4 @@
 import { ThemeProvider } from "~/components/layout/providers";
-
-import { type ReactNode } from "react";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
 import { TailwindIndicator } from "~/components/tailwind-indicator";
@@ -9,7 +7,7 @@ import { fontSans } from "~/lib/fonts";
 import { cn } from "~/lib/utils";
 import { TooltipProvider } from "~/components/ui/tooltip";
 
-export const MainLayout = ({ children }: { children: ReactNode }) => (
+export const MainLayout = ({ children }: { children: React.JSX.Element }) => (
   <div className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <TooltipProvider>
@@ -20,7 +18,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => (
         </div>
       </TooltipProvider>
       <TailwindIndicator />
+      <Toaster />
     </ThemeProvider>
-    <Toaster />
   </div>
 );

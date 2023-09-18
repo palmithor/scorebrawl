@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link, { type LinkProps } from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { ViewVerticalIcon } from "@radix-ui/react-icons";
 
 import { mobileNavConfig } from "~/config/mobile-nav";
@@ -85,7 +85,7 @@ function MobileLink({ href, onOpenChange, className, children, ...props }: Mobil
     <Link
       href={href}
       onClick={() => {
-        router.push(href as string);
+        void router.push(href as string);
         onOpenChange?.(false);
       }}
       className={cn(className)}

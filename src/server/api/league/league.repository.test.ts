@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import slugify from "@sindresorhus/slugify";
-import { beforeEach, expect, describe, test } from "vitest";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { db } from "~/server/db";
 import { getByIdWhereMember } from "./league.repository";
 import { createCuid, leagueMembers, leagues } from "~/server/db/schema";
@@ -23,7 +23,7 @@ describe("leagueRepository", () => {
           createdAt: now,
           updatedAt: now,
           visibility: "public",
-          logoUrl: faker.image.imageUrl(),
+          logoUrl: faker.image.url(),
           createdBy: "userId",
           updatedBy: "userId",
           name: name,

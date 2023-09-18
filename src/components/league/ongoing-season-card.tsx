@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
 import { SeasonStanding } from "~/components/league/standing";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";

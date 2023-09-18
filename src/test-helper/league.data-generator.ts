@@ -3,13 +3,13 @@ import slugify from "@sindresorhus/slugify";
 import { type inferProcedureInput } from "@trpc/server";
 import { type AppRouter } from "~/server/api/root";
 import { db } from "~/server/db";
-import { createCuid, leagueMembers, leagues, type LeagueMemberRole } from "~/server/db/schema";
+import { createCuid, type LeagueMemberRole, leagueMembers, leagues } from "~/server/db/schema";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
 
 export const createLeague = async ({
   leagueOwner = "userId",
-  logoUrl = faker.image.imageUrl(),
+  logoUrl = faker.image.url(),
   name = faker.company.name(),
   visibility = "public",
   members = [],

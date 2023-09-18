@@ -9,6 +9,8 @@ import { TooltipProvider } from "~/components/ui/tooltip";
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore */}
       <TooltipProvider>{children} </TooltipProvider>
     </NextThemesProvider>
   );

@@ -2,7 +2,7 @@
 
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { type ChangeEvent, useState } from "react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -56,7 +56,7 @@ const Leagues: NextPage = () => {
           placeholder="Filter leagues..."
           className="max-w-sm"
           value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterText(e.target.value)}
         />
         <div className="flex-grow" />
         <Button onClick={() => void router.push("/leagues/create")}>Create League</Button>

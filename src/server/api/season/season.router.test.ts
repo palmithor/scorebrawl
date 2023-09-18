@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 import { appRouter } from "~/server/api/root";
 import { createInnerTRPCContext } from "~/server/api/trpc";
 import { createLeague } from "~/test-helper/league.data-generator";
@@ -37,13 +37,14 @@ describe("seasonRouter", () => {
 
     test("should fail when user is not editor or owner of league", async () => {
       const league = await createLeague({ leagueOwner: "other" });
-      await expect(
-        caller.season.create({
-          leagueSlug: league.slug,
-          name: "Q2 2023",
-          startDate: new Date("2023-04-19"),
-        }),
-      ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN" }));
+      expect(
+        async () =>
+          await caller.season.create({
+            leagueSlug: league.slug,
+            name: "Q2 2023",
+            startDate: new Date("2023-04-19"),
+          }),
+      ).toThrow(new TRPCError({ code: "FORBIDDEN" }));
     });
 
     test("should fail when season intersects another season", async () => {
@@ -56,13 +57,14 @@ describe("seasonRouter", () => {
         endDate: new Date("2023-04-10"),
       });
 
-      await expect(
-        caller.season.create({
-          leagueSlug: league.slug,
-          name: "Second",
-          startDate: new Date("2023-04-05"),
-        }),
-      ).rejects.toThrow(
+      expect(
+        async () =>
+          await caller.season.create({
+            leagueSlug: league.slug,
+            name: "Second",
+            startDate: new Date("2023-04-05"),
+          }),
+      ).toThrow(
         new TRPCError({
           code: "CONFLICT",
           message: "There's an ongoing season during this period",
