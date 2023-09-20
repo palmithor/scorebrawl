@@ -1,34 +1,69 @@
-Running integration tests on mac:
+# Scorebrawl
+
+Scorebrawl is the ultimate score-tracking solution for gaming, sports, and competitions, bringing your victories to life in real-time
+
+# Getting started
+
+## Dev environment
+
+Developing in Scorebrawl requires [bun](https://bun.sh/) and [turso](https://turso.tech/) along with [Clerk](https://clerk.com) and [uploadthing](https://uploadthing.com) credentials.
+
+The development server and database can be run completely locally.
+In addition to the tools listed above `sqld` is needed.
+
+To install these tools on Mac OS do the following
 
 ```
-alias timeout=gtimeout
+brew install tursodatabase/tap/turso
+curl -fsSL https://bun.sh/install | bash
+
+brew tap libsql/sqld
+brew install sqld-beta
 ```
 
-# Create T3 App
+## Development environment
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+### Local DB
 
-## What's next? How do I make an app with this?
+In order to start a local database, both `turso` and `sqld` need to be installed.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+To start and run migrations for on a local database execute:
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+`./dev/bin/start-db.sh`
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+This creates a database file in `./dev/.local`.
 
-## Learn More
+To stop the database run
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+`./dev/bin/stop-db.sh`.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+Before running the development environment some environment variables have to be set up. Replace the secret keys and run the following in the source root.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```
+# Scorebrawl dev public key
+echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZmFuY3ktY293LTc5LmNsZXJrLmFjY291bnRzLmRldiQ" >> .env.development
+echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=<secretKey>" >> .env.development
+# Port 8002 is hard coded in start-db script
+echo "DATABASE_URL=http://localhost:8002" >> .env.development
+echo "UPLOADTHING_APP_ID=cjmox8rnt4" >> .env.development
+echo "UPLOADTHING_SECRET=<secretKey>" >> .env.development
+```
 
-## How do I deploy this?
+Start the development server by executing `bun run dev`
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## Testing
+
+Tests require `turso` to be installed as tests are run against in-memory database. The in-memory database is started and teared down as part of teh test script `./setup/setup-tests`. Tests are executed by running
+
+`bun test`
+
+# Stack
+
+- Bun
+- NextJS
+- TRPC
+- Clerk Authentication
+- Uploadthing
+- Shadcn
+- Tailwind
+- Turso
