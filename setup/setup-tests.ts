@@ -1,7 +1,15 @@
 import { afterAll, afterEach, beforeAll } from "bun:test";
-import { leagueMembers, leaguePlayers, leagues, seasonPlayers, seasons } from "~/server/db/schema";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { db } from "~/server/db";
+import {
+  leagueMembers,
+  leaguePlayers,
+  leagues,
+  matchPlayers,
+  matches,
+  seasonPlayers,
+  seasons,
+} from "~/server/db/schema";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let pid = "";
@@ -19,9 +27,11 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
+  await db.delete(matchPlayers).run();
+  await db.delete(matches).run();
   await db.delete(leagueMembers).run();
-  await db.delete(leaguePlayers).run();
   await db.delete(seasonPlayers).run();
+  await db.delete(leaguePlayers).run();
   await db.delete(seasons).run();
   await db.delete(leagues).run();
 });

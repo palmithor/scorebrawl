@@ -5,12 +5,12 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "SKIP_ENV_VALIDATION=true next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "start": "next start",
-    "db:generate": "pnpm drizzle-kit generate:sqlite",
-    "db:push": "pnpm drizzle-kit push:sqlite"
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "4.12.5",
