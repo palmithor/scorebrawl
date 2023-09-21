@@ -5,17 +5,21 @@ import {
   leagueMembers,
   leaguePlayers,
   leagues,
-  matchPlayers,
   matches,
+  matchPlayers,
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
 
+const isCI = process.env.CI;
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let pid = "";
 beforeAll(async () => {
-  const proc = Bun.spawn(["turso", "dev", "--port", "8003"]);
-  pid = proc.pid.toString();
+  if (!isCI) {
+    const proc = Bun.spawn(["turso", "dev", "--port", "8003"]);
+    pid = proc.pid.toString();
+  }
   for (let i = 0; i < 5; i++) {
     try {
       await migrate(db, { migrationsFolder: "./migrations" });
@@ -35,6 +39,9 @@ afterEach(async () => {
   await db.delete(seasons).run();
   await db.delete(leagues).run();
 });
+
 afterAll(() => {
-  Bun.spawn(["kill", pid]);
+  if (!isCI) {
+    Bun.spawn(["kill", pid]);
+  }
 });
