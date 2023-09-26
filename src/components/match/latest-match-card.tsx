@@ -5,12 +5,15 @@ import { api } from "~/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { MatchResult } from "~/components/match/matchResult";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
+import { useIsLeaguePlayer } from "~/hooks/useIsLeaguePlayer";
 
 export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
   const { mutate } = api.match.undoLatest.useMutation();
   const { data } = api.match.getLatest.useQuery({ leagueSlug });
   const invalidate = useLeagueInvalidation();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug });
+  const isLeaguePlayer = useIsLeaguePlayer();
 
   return (
     <Card>
@@ -34,36 +37,44 @@ export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
           <>
             <div className="flex items-center gap-2">
               <MatchResult match={data} />
-              {!confirmDelete ? (
-                <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
-                  <Undo2Icon size={20} />
-                </Button>
-              ) : (
+              {data.season.id === ongoingSeason?.id && isLeaguePlayer && (
                 <>
-                  <Button
-                    variant={"outline"}
-                    className={"px-2"}
-                    onClick={() => setConfirmDelete(false)}
-                  >
-                    <XIcon size={20} className={"text-red-500"} />
-                  </Button>
-                  <Button
-                    variant={"outline"}
-                    className={"px-2"}
-                    onClick={() => {
-                      setConfirmDelete(false);
-                      mutate(
-                        { matchId: data.id },
-                        {
-                          onSuccess: () => {
-                            void invalidate();
-                          },
-                        },
-                      );
-                    }}
-                  >
-                    <CheckIcon size={20} className={"text-green-500"} />
-                  </Button>
+                  {!confirmDelete ? (
+                    <Button
+                      variant={"ghost"}
+                      className={"px-2"}
+                      onClick={() => setConfirmDelete(true)}
+                    >
+                      <Undo2Icon size={20} />
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant={"outline"}
+                        className={"px-2"}
+                        onClick={() => setConfirmDelete(false)}
+                      >
+                        <XIcon size={20} className={"text-red-500"} />
+                      </Button>
+                      <Button
+                        variant={"outline"}
+                        className={"px-2"}
+                        onClick={() => {
+                          setConfirmDelete(false);
+                          mutate(
+                            { matchId: data.id },
+                            {
+                              onSuccess: () => {
+                                void invalidate();
+                              },
+                            },
+                          );
+                        }}
+                      >
+                        <CheckIcon size={20} className={"text-green-500"} />
+                      </Button>
+                    </>
+                  )}
                 </>
               )}
             </div>

@@ -41,7 +41,12 @@ export const LatestMatchesCard = ({
     <Card className={className}>
       <CardHeader>
         <div className={"flex items-center"}>
-          <CardTitle className={"grow"}>Latest Matches</CardTitle>
+          <CardTitle className={"grow"}>
+            Latest Matches
+            <p className="text-xs text-muted-foreground">
+              In season <b>{ongoingSeason?.name}</b>
+            </p>
+          </CardTitle>
           {ongoingSeason && leaguePlayers?.some((p) => p.userId === user?.id) && (
             <Tooltip>
               <TooltipTrigger>
