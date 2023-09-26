@@ -256,7 +256,8 @@ export const matchRouter = createTRPCRouter({
         ...awaySeasonPlayers.map((player) => ({
           id: createCuid(),
           matchId: match.id,
-          elo: player.elo,
+          eloBefore: player.elo,
+          eloAfter: eloMatchResult.results.find((r) => r.identifier === player.id)?.rating,
           seasonPlayerId: player.id,
           homeTeam: false,
           createdAt: now,
@@ -265,7 +266,8 @@ export const matchRouter = createTRPCRouter({
         ...homeSeasonPlayers.map((player) => ({
           id: createCuid(),
           matchId: match.id,
-          elo: player.elo,
+          eloBefore: player.elo,
+          eloAfter: eloMatchResult.results.find((r) => r.identifier === player.id)?.rating,
           seasonPlayerId: player.id,
           homeTeam: true,
           createdAt: now,
@@ -288,7 +290,7 @@ export const matchRouter = createTRPCRouter({
         where: (match, { eq }) => eq(match.id, input.matchId),
         with: {
           matchPlayers: {
-            columns: { id: true, elo: true },
+            columns: { id: true, eloBefore: true },
             with: { seasonPlayer: { columns: { id: true, elo: true } } },
           },
           season: { columns: { leagueId: true } },
@@ -299,6 +301,19 @@ export const matchRouter = createTRPCRouter({
       }
       // check read access
       await getLeagueById({ userId: ctx.auth.userId, id: match.season.leagueId });
+
+      const isLeaguePlayer = await ctx.db.query.leaguePlayers.findFirst({
+        where: (lp, { and, eq }) =>
+          and(
+            eq(lp.leagueId, match.season.leagueId),
+            eq(lp.userId, ctx.auth.userId),
+            eq(lp.disabled, false),
+          ),
+      });
+
+      if (!isLeaguePlayer) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "User not part of league" });
+      }
 
       const lastMatch = await ctx.db.query.matches.findFirst({
         where: (m, { eq }) => eq(m.seasonId, match.seasonId),
@@ -313,7 +328,7 @@ export const matchRouter = createTRPCRouter({
         for (const matchPlayer of match.matchPlayers) {
           await tx
             .update(seasonPlayers)
-            .set({ elo: matchPlayer.elo })
+            .set({ elo: matchPlayer.eloBefore })
             .where(eq(seasonPlayers.id, matchPlayer.seasonPlayer.id))
             .run();
         }

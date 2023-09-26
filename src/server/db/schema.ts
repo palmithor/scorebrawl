@@ -118,7 +118,8 @@ export const matchPlayers = sqliteTable("match_player", {
   seasonPlayerId: text("season_player_id", cuidConfig).notNull(),
   homeTeam: integer("home_team", { mode: "boolean" }).notNull(),
   matchId: text("match_id", cuidConfig).notNull(),
-  elo: integer("elo").notNull().default(1200),
+  eloBefore: integer("elo_before").notNull().default(-1),
+  eloAfter: integer("elo_after").notNull().default(-1),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });

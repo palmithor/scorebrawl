@@ -3,7 +3,7 @@ import { type Config } from "drizzle-kit";
 export default {
   out: "./migrations",
   schema: "./src/server/db/schema.ts",
-  breakpoints: true,
+  breakpoints: false,
   driver: "turso",
   dbCredentials: {
     url: process.env.DATABASE_URL ?? "",
