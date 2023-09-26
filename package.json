@@ -42,7 +42,7 @@
     "@radix-ui/react-toggle": "1.0.3",
     "@radix-ui/react-tooltip": "1.0.6",
     "@sindresorhus/slugify": "2.2.1",
-    "@tanstack/react-query": "4.29.19",
+    "@tanstack/react-query": "4.35.3",
     "@tanstack/react-table": "8.9.3",
     "@trpc/client": "10.38.4",
     "@trpc/next": "10.38.4",
