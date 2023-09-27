@@ -9,6 +9,7 @@ const server = z.object({
   CLERK_SECRET_KEY: z.string().min(1),
   DATABASE_URL: z.string().min(1),
   DATABASE_AUTH_TOKEN: z.string().min(1).optional(),
+  DEBUG: z.string().optional(),
 });
 
 /**
@@ -31,6 +32,7 @@ const processEnv = {
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   DATABASE_URL: process.env.DATABASE_URL,
   DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
+  DEBUG: process.env.DEBUG,
 };
 
 // Don't touch the part below
