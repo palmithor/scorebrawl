@@ -44,7 +44,7 @@ Before running the development environment some environment variables have to be
 echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZmFuY3ktY293LTc5LmNsZXJrLmFjY291bnRzLmRldiQ" >> .env.development
 echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=<secretKey>" >> .env.development
 # Port 8002 is hard coded in start-db script
-echo "DATABASE_URL=http://localhost:8002" >> .env.development
+echo "DATABASE_URL=http://127.0.0.1:8002" >> .env.development
 echo "UPLOADTHING_APP_ID=cjmox8rnt4" >> .env.development
 echo "UPLOADTHING_SECRET=<secretKey>" >> .env.development
 ```
