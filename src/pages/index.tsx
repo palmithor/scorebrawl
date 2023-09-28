@@ -1,6 +1,6 @@
 import { getCookie } from "cookies-next";
 import { type GetServerSidePropsContext } from "next";
-import { getAuth } from "@clerk/nextjs/server";
+import { latestOpenLeagueCookie } from "~/pages/leagues/[leagueSlug]";
 
 const Page = () => {
   // Your UI Here or just return it as null
@@ -8,11 +8,7 @@ const Page = () => {
 };
 
 export const getServerSideProps = ({ req, res }: GetServerSidePropsContext) => {
-  let latestLeagueSlug;
-  try {
-    const auth = getAuth(req);
-    latestLeagueSlug = getCookie(`${auth.userId}:league`, { req, res });
-  } catch (e) {}
+  const latestLeagueSlug = getCookie(latestOpenLeagueCookie, { req, res });
 
   return {
     redirect: {
