@@ -1,5 +1,5 @@
 "use client";
-import { FormLayout } from "~/components/layout/form-layout";
+import { TitleLayout } from "~/components/layout/title-layout";
 import AutoForm from "~/components/ui/auto-form";
 import { LoadingButton } from "~/components/ui/loading-button";
 import { useToast } from "~/components/ui/use-toast";
@@ -21,7 +21,7 @@ export const SeasonForm = () => {
 
   return (
     <LeagueDetailsLayout activeTab={"seasons"} hideJoinButton>
-      <FormLayout
+      <TitleLayout
         title="Create a season"
         subtitle={league ? `In league "${league.name}"` : undefined}
       >
@@ -50,7 +50,7 @@ export const SeasonForm = () => {
           </AutoForm>
           <SeasonList className="flex-1" leagueSlug={leagueSlug} />
         </div>
-      </FormLayout>
+      </TitleLayout>
     </LeagueDetailsLayout>
   );
 };

@@ -75,33 +75,47 @@ export const leagueRouter = createTRPCRouter({
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
     const slug = await slugifyLeagueName({ name: input.name });
     const now = new Date();
-    const league = await ctx.db
-      .insert(leagues)
-      .values({
-        id: createCuid(),
-        slug,
-        name: input.name,
-        logoUrl: input.logoUrl,
-        visibility: input.visibility,
-        code: createCuid(),
-        updatedBy: ctx.auth.userId,
-        createdBy: ctx.auth.userId,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .returning()
-      .get();
-    await ctx.db
-      .insert(leagueMembers)
-      .values({
-        id: createCuid(),
-        leagueId: league.id,
-        userId: ctx.auth.userId,
-        role: "owner",
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
+    const league = await ctx.db.transaction(async (tx) => {
+      const league = await tx
+        .insert(leagues)
+        .values({
+          id: createCuid(),
+          slug,
+          name: input.name,
+          logoUrl: input.logoUrl,
+          visibility: input.visibility,
+          code: createCuid(),
+          updatedBy: ctx.auth.userId,
+          createdBy: ctx.auth.userId,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .returning()
+        .get();
+      await tx
+        .insert(leagueMembers)
+        .values({
+          id: createCuid(),
+          leagueId: league.id,
+          userId: ctx.auth.userId,
+          role: "owner",
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run();
+
+      await tx
+        .insert(leaguePlayers)
+        .values({
+          id: createCuid(),
+          leagueId: league.id,
+          userId: ctx.auth.userId,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run();
+      return league;
+    });
     return ctx.db.query.leagues.findFirst({
       where: eq(leagues.id, league.id),
       columns: { code: false },
@@ -124,7 +138,7 @@ export const leagueRouter = createTRPCRouter({
           throw new TRPCError({ code: "FORBIDDEN" });
         }
       }
-      return { code: ctx.league.code };
+      return ctx.league.code;
     }),
   update: leagueProcedure
     .input(
@@ -296,49 +310,55 @@ export const leagueRouter = createTRPCRouter({
         });
       }
       const now = new Date();
-      await ctx.db
-        .insert(leagueMembers)
-        .values({
-          id: createCuid(),
-          userId: ctx.auth.userId,
-          leagueId: league.id,
-          role: "member",
-          createdAt: now,
-          updatedAt: now,
-        })
-        .onConflictDoNothing()
-        .run();
-      const leaguePlayer = await ctx.db
-        .insert(leaguePlayers)
-        .values({
-          id: createCuid(),
-          userId: ctx.auth.userId,
-          leagueId: league.id,
-          createdAt: now,
-          updatedAt: now,
-        })
-        .returning()
-        .get();
-      const ongoingAndFutureSeasons = await ctx.db.query.seasons.findMany({
-        where: and(
-          eq(seasons.leagueId, league.id),
-          or(isNull(seasons.endDate), gte(seasons.endDate, now)),
-        ),
-      });
-
-      for (const season of ongoingAndFutureSeasons) {
-        await ctx.db
-          .insert(seasonPlayers)
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .insert(leagueMembers)
           .values({
             id: createCuid(),
-            leaguePlayerId: leaguePlayer.id,
-            elo: season.initialElo,
-            seasonId: season.id,
+            userId: ctx.auth.userId,
+            leagueId: league.id,
+            role: "member",
             createdAt: now,
             updatedAt: now,
           })
+          .onConflictDoNothing()
           .run();
-      }
+
+        const leaguePlayer = await tx
+          .insert(leaguePlayers)
+          .values({
+            id: createCuid(),
+            userId: ctx.auth.userId,
+            leagueId: league.id,
+            createdAt: now,
+            updatedAt: now,
+          })
+          .onConflictDoNothing()
+          .returning()
+          .get();
+
+        const ongoingAndFutureSeasons = await tx.query.seasons.findMany({
+          where: and(
+            eq(seasons.leagueId, league.id),
+            or(isNull(seasons.endDate), gte(seasons.endDate, now)),
+          ),
+        });
+        for (const season of ongoingAndFutureSeasons) {
+          await tx
+            .insert(seasonPlayers)
+            .values({
+              id: createCuid(),
+              leaguePlayerId: leaguePlayer.id,
+              elo: season.initialElo,
+              seasonId: season.id,
+              createdAt: now,
+              updatedAt: now,
+            })
+            .onConflictDoNothing()
+            .run();
+        }
+      });
+      return league;
     }),
   getMatchesPlayedStats: leagueProcedure
     .input(

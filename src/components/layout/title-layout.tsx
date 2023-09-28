@@ -2,7 +2,7 @@ import { Separator } from "~/components/ui/separator";
 import { type ReactNode } from "react";
 import { Title } from "../title";
 
-export const FormLayout = ({
+export const TitleLayout = ({
   title,
   subtitle,
   children,

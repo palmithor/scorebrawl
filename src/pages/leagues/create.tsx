@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/router";
-import { FormLayout } from "~/components/layout/form-layout";
+import { TitleLayout } from "~/components/layout/title-layout";
 import AutoForm from "~/components/ui/auto-form";
 import { LoadingButton } from "~/components/ui/loading-button";
 import { useToast } from "~/components/ui/use-toast";
@@ -19,7 +19,7 @@ const LeagueForm = () => {
   const { isLoading, mutate } = api.league.create.useMutation();
   const { toast } = useToast();
   return (
-    <FormLayout title={"Create League"}>
+    <TitleLayout title={"Create League"}>
       <div className="grid grid-rows-2 gap-8 sm:grid-cols-2">
         <AutoForm
           formSchema={create.omit({ logoUrl: true })}
@@ -74,7 +74,7 @@ const LeagueForm = () => {
           />
         </div>
       </div>
-    </FormLayout>
+    </TitleLayout>
   );
 };
 

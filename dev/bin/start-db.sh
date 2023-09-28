@@ -15,7 +15,7 @@ else
     echo "DB file already exists"
 fi
 
-nohup turso dev --port 8002 --db-file "$db_file" > turso.out 2>&1 &
+nohup turso dev --port 8002 --db-file "$db_file" > /dev/null 2>&1 &
 
 cd $(git rev-parse --show-toplevel)
 

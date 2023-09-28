@@ -18,6 +18,8 @@ import {
 import { AvatarName } from "~/components/user/avatar-name";
 import { MultiAvatar } from "~/components/user/multi-avatar";
 import { api } from "~/lib/api";
+import { useToast } from "~/components/ui/use-toast";
+import { TOAST_ERROR_PARAM } from "~/lib/url";
 
 const PlayersCell = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.league.getPlayers.useQuery({ leagueSlug });
@@ -37,6 +39,8 @@ const Leagues: NextPage = () => {
   const router = useRouter();
   const { data, isLoading } = api.league.getAll.useQuery({ pageQuery: {} });
   const [filterText, setFilterText] = useState("");
+  const { toast } = useToast();
+  const [hasShownError, setHasShownError] = useState(false);
 
   if (isLoading) {
     return (
@@ -45,9 +49,20 @@ const Leagues: NextPage = () => {
       </div>
     );
   }
+
   const filteredData = data?.data.filter((item) =>
     item.name.toLowerCase().includes(filterText.toLowerCase()),
   );
+
+  if (!hasShownError && router.query[TOAST_ERROR_PARAM]) {
+    toast({
+      title: "An error occurred",
+      description: router.query[TOAST_ERROR_PARAM],
+      variant: "destructive",
+      duration: 2000,
+    });
+    setHasShownError(true);
+  }
 
   return (
     <div className="w-full">
