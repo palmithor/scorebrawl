@@ -17,7 +17,7 @@ const Page = () => {
         onError: () => void router.push(`/leagues?${TOAST_ERROR_PARAM}=Unable to join league`),
       },
     );
-  }, [mutate]);
+  }, [mutate, router, code]);
 
   return <FullPageSpinner />;
 };
