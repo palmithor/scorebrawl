@@ -47,6 +47,7 @@ echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=<secretKey>" >> .env.development
 echo "DATABASE_URL=http://127.0.0.1:8002" >> .env.development
 echo "UPLOADTHING_APP_ID=cjmox8rnt4" >> .env.development
 echo "UPLOADTHING_SECRET=<secretKey>" >> .env.development
+echo "UPLOADTHING_URL=http://localhost:3000" >> .env.development
 ```
 
 Start the development server by executing `bun run dev`

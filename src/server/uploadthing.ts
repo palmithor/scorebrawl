@@ -6,7 +6,7 @@ const f = createUploadthing();
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
-  leagueLogo: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
+  leagueLogo: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     // Set permissions and file types for this FileRoute
     .middleware(({ req }) => {
       // This code runs on your server before upload

@@ -15,6 +15,7 @@ const DEFAULT_LOGO = "https://utfs.io/f/c5562abd-47aa-46de-b6a9-936b4cef1875_mas
 const LeagueForm = () => {
   const router = useRouter();
   const [uploadError, setUploadError] = React.useState<string | undefined>();
+  const [uploadInProgress, setUploadInProgress] = React.useState(false);
   const [logo, setLogo] = React.useState<string>(DEFAULT_LOGO);
   const { isLoading, mutate } = api.league.create.useMutation();
   const { toast } = useToast();
@@ -38,7 +39,7 @@ const LeagueForm = () => {
             )
           }
         >
-          <LoadingButton loading={isLoading} type="submit">
+          <LoadingButton loading={isLoading} type="submit" disabled={uploadInProgress}>
             Create League
           </LoadingButton>
         </AutoForm>
@@ -47,28 +48,37 @@ const LeagueForm = () => {
           <UploadButton
             className="ut-button:h-10 ut-button:items-center ut-button:justify-center ut-button:rounded-md ut-button:bg-primary ut-button:px-4 ut-button:py-2 ut-button:text-sm ut-button:font-medium ut-button:text-primary-foreground ut-button:ring-offset-background ut-button:transition-colors ut-button:hover:bg-primary/90 ut-button:focus-visible:outline-none ut-button:focus-visible:ring-2 ut-button:focus-visible:ring-ring ut-button:focus-visible:ring-offset-2 ut-button:disabled:pointer-events-none ut-button:disabled:opacity-50"
             endpoint="leagueLogo"
+            onUploadBegin={() => setUploadInProgress(true)}
             onUploadProgress={() => {
               setUploadError(undefined);
             }}
             content={{
-              allowedContent: ({ isUploading, uploadProgress }) => {
+              allowedContent: ({
+                isUploading,
+                uploadProgress,
+              }: {
+                isUploading: boolean;
+                uploadProgress: number;
+              }) => {
                 if (uploadError) {
                   return <p className="text-destructive">{uploadError}</p>;
                 }
                 return isUploading ? (
                   <p>{`Uploading ${uploadProgress}%...`}</p>
                 ) : (
-                  <p>Square images recommended (Max 2MB)</p>
+                  <p>Square images recommended (Max 4MB)</p>
                 );
               },
             }}
             onClientUploadComplete={(res) => {
+              setUploadInProgress(false);
               const fileUrl = res?.[0]?.fileUrl;
               if (fileUrl) {
                 setLogo(fileUrl);
               }
             }}
             onUploadError={(error: Error) => {
+              setUploadInProgress(false);
               setUploadError(error.message);
             }}
           />
