@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { api } from "~/lib/api";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
+import { Button } from "~/components/ui/button";
+import { useToast } from "~/components/ui/use-toast";
 
 export type Tab = "overview" | "seasons" | "players" | "statistics" | "feed";
 
@@ -20,28 +22,33 @@ export const LeagueDetailsLayout = ({
   hideJoinButton?: boolean;
 }) => {
   const { userId } = useAuth();
+  const { toast } = useToast();
   const [isJoining, setIsJoining] = React.useState(false);
   const leagueSlug = useLeagueSlug();
   const invalidate = useLeagueInvalidation();
   const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
   const { mutateAsync: joinLeagueMutate } = api.league.join.useMutation();
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
-  const { data: leagueCode } = api.league.getCode.useQuery(
+  const { data: code } = api.league.getCode.useQuery(
     { leagueSlug },
-    { enabled: !!league?.id },
+    { enabled: !!league?.id, retry: false },
   );
 
   const shouldShowJoin =
-    !hideJoinButton && leagueCode && !leaguePlayers?.some((u) => u?.userId === userId);
+    !hideJoinButton && code && !leaguePlayers?.some((u) => u?.userId === userId);
+  const shouldShowInviteButton = league?.visibility === "private" && code;
 
   const joinLeague = () => {
     setIsJoining(true);
-    if (leagueCode) {
-      joinLeagueMutate(leagueCode, {
-        onSuccess: () => {
-          void invalidate();
+    if (code) {
+      joinLeagueMutate(
+        { code },
+        {
+          onSuccess: () => {
+            void invalidate();
+          },
         },
-      }).catch(() => setIsJoining(false));
+      ).catch(() => setIsJoining(false));
     }
   };
 
@@ -77,6 +84,21 @@ export const LeagueDetailsLayout = ({
               Join League
             </LoadingButton>
           </div>
+        )}
+        {shouldShowInviteButton && (
+          <Button
+            onClick={() =>
+              void navigator.clipboard
+                .writeText(`${window.location.origin.toString()}/leagues/auto-join/${code}`)
+                .then(() =>
+                  toast({
+                    description: "Auto join link copied",
+                  }),
+                )
+            }
+          >
+            Copy invite link
+          </Button>
         )}
       </div>
       <TabsContent value={activeTab} className="space-y-4">

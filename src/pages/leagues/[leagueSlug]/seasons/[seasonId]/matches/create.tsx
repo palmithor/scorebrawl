@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import z from "zod";
 import { LoadingButton } from "~/components/ui/loading-button";
-import { FormLayout } from "~/components/layout/form-layout";
+import { TitleLayout } from "~/components/layout/title-layout";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/lib/api";
 import { FancyMultiSelect, type Item } from "~/components/ui/fancy-multi-select";
@@ -92,7 +92,7 @@ const CreateMatch = () => {
   };
 
   return (
-    <FormLayout title={"Create Match"} subtitle={season && `In season "${season.name}"`}>
+    <TitleLayout title={"Create Match"} subtitle={season && `In season "${season.name}"`}>
       <Form {...form}>
         <form
           noValidate
@@ -190,7 +190,7 @@ const CreateMatch = () => {
           </LoadingButton>
         </form>
       </Form>
-    </FormLayout>
+    </TitleLayout>
   );
 };
 
