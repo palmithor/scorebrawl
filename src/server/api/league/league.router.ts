@@ -43,6 +43,26 @@ const populateLeagueUserPlayer = async ({ leaguePlayers }: { leaguePlayers: Leag
 };
 
 export const leagueRouter = createTRPCRouter({
+  getMine: protectedProcedure
+    .input(
+      z.object({
+        pageQuery: pageQuerySchema,
+      }),
+    )
+    .query(async ({ ctx }) => {
+      const results = await ctx.db.query.leaguePlayers.findMany({
+        where: (player, { eq }) => eq(player.userId, ctx.auth.userId),
+        columns: { id: true },
+        with: {
+          league: {
+            columns: { code: false },
+          },
+        },
+      });
+      return {
+        data: results.map((lp) => lp.league),
+      };
+    }),
   getAll: protectedProcedure
     .input(
       z.object({
