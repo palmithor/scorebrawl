@@ -60,7 +60,7 @@ export const leagueRouter = createTRPCRouter({
         },
       });
       return {
-        data: results.map((lp) => lp.league),
+        data: results.filter((lp) => lp.league).map((lp) => lp.league),
       };
     }),
   getAll: protectedProcedure
