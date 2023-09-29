@@ -20,6 +20,14 @@ import { MultiAvatar } from "~/components/user/multi-avatar";
 import { api } from "~/lib/api";
 import { useToast } from "~/components/ui/use-toast";
 import { TOAST_ERROR_PARAM } from "~/lib/url";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+} from "~/components/ui/select";
+import { SelectValue } from "@radix-ui/react-select";
 
 const PlayersCell = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.league.getPlayers.useQuery({ leagueSlug });
@@ -37,12 +45,18 @@ const PlayersCell = ({ leagueSlug }: { leagueSlug: string }) => {
 
 const Leagues: NextPage = () => {
   const router = useRouter();
-  const { data, isLoading } = api.league.getAll.useQuery({ pageQuery: {} });
+  const { data: allLeagues, isLoading: isLoadingAll } = api.league.getAll.useQuery({
+    pageQuery: {},
+  });
+  const [selectedFilter, setSelectedFilter] = useState<"mine" | "all">("mine");
+  const { data: myLeagues, isLoading: isLoadingMine } = api.league.getMine.useQuery({
+    pageQuery: {},
+  });
   const [filterText, setFilterText] = useState("");
   const { toast } = useToast();
   const [hasShownError, setHasShownError] = useState(false);
 
-  if (isLoading) {
+  if (isLoadingAll || isLoadingMine) {
     return (
       <div className="grid h-screen place-items-center bg-background">
         <Spinner size="40" />
@@ -50,7 +64,7 @@ const Leagues: NextPage = () => {
     );
   }
 
-  const filteredData = data?.data.filter((item) =>
+  const filteredData = (selectedFilter === "mine" ? myLeagues : allLeagues)?.data.filter((item) =>
     item.name.toLowerCase().includes(filterText.toLowerCase()),
   );
 
@@ -73,8 +87,22 @@ const Leagues: NextPage = () => {
           value={filterText}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterText(e.target.value)}
         />
-        <div className="flex-grow" />
-        <Button onClick={() => void router.push("/leagues/create")}>Create League</Button>
+        <div className="grow">
+          <Select onValueChange={(value: "mine" | "all") => setSelectedFilter(value)}>
+            <SelectTrigger defaultValue="mine" className="w-[180px]">
+              <SelectValue placeholder="My leagues" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="mine">My leagues</SelectItem>
+                <SelectItem value="all">All Leagues</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button className=" text-clip" onClick={() => void router.push("/leagues/create")}>
+          Create League
+        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
