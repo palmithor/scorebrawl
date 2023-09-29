@@ -9,6 +9,7 @@ import { api } from "~/lib/api";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 
 export type Tab = "overview" | "seasons" | "players" | "statistics" | "feed";
 
@@ -70,12 +71,17 @@ export const LeagueDetailsLayout = ({
             <TabsTrigger value="players">
               <Link href={`/leagues/${encodeURIComponent(league.slug)}/players`}>Players</Link>
             </TabsTrigger>
-            <TabsTrigger value="statistics" disabled>
-              Statistics
+            <TabsTrigger value="feed">
+              <Link href={`/leagues/${encodeURIComponent(league.slug)}/feed`}>Feed</Link>
             </TabsTrigger>
-            <TabsTrigger value="feed" disabled>
-              Feed
-            </TabsTrigger>
+            <Tooltip>
+              <TooltipTrigger>
+                <TabsTrigger value="statistics" disabled>
+                  Statistics
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Coming Soon</TooltipContent>
+            </Tooltip>
           </TabsList>
         </div>
         {shouldShowJoin && (

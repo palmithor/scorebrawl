@@ -7,10 +7,14 @@ import { create } from "~/server/api/match/match.schema";
 import { getSeasonById } from "~/server/api/season/season.repository";
 import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { createCuid, matches, matchPlayers, seasonPlayers } from "~/server/db/schema";
+import { createCuid, leagueEvents, matches, matchPlayers, seasonPlayers } from "~/server/db/schema";
 import { getByIdWhereMember, getLeagueById, getLeagueIdBySlug } from "../league/league.repository";
 import { type SeasonPlayerUser } from "../types";
-import { type SeasonPlayer } from "~/server/db/types";
+import {
+  type MatchCreatedEventData,
+  type MatchUndoEventData,
+  type SeasonPlayer,
+} from "~/server/db/types";
 
 export const matchRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -276,6 +280,30 @@ export const matchRouter = createTRPCRouter({
       ];
       await tx.insert(matchPlayers).values(matchPlayerValues).run();
 
+      await tx
+        .insert(leagueEvents)
+        .values({
+          id: createCuid(),
+          leagueId: league.id,
+          type: "match_created_v1",
+          data: {
+            seasonId: season.id,
+            homeTeam: {
+              score: match.homeScore,
+              expectedElo: match.homeExpectedElo,
+              leaguePlayerIds: homeSeasonPlayers.map((sp) => sp.leaguePlayerId),
+            },
+            awayTeam: {
+              score: match.awayScore,
+              expectedElo: match.awayExpectedElo,
+              leaguePlayerIds: awaySeasonPlayers.map((sp) => sp.leaguePlayerId),
+            },
+          } as MatchCreatedEventData,
+          createdBy: ctx.auth.userId,
+          createdAt: now,
+        })
+        .run();
+
       return match;
     });
   }),
@@ -290,10 +318,10 @@ export const matchRouter = createTRPCRouter({
         where: (match, { eq }) => eq(match.id, input.matchId),
         with: {
           matchPlayers: {
-            columns: { id: true, eloBefore: true },
-            with: { seasonPlayer: { columns: { id: true, elo: true } } },
+            columns: { id: true, eloBefore: true, homeTeam: true },
+            with: { seasonPlayer: { columns: { id: true, elo: true, leaguePlayerId: true } } },
           },
-          season: { columns: { leagueId: true } },
+          season: { columns: { id: true, leagueId: true } },
         },
       });
       if (!match) {
@@ -341,7 +369,35 @@ export const matchRouter = createTRPCRouter({
             ),
           )
           .run();
+
         await tx.delete(matches).where(eq(matches.id, match.id)).run();
+
+        await ctx.db
+          .insert(leagueEvents)
+          .values({
+            id: createCuid(),
+            leagueId: match.season.leagueId,
+            type: "match_undo_v1",
+            data: {
+              seasonId: match.season.id,
+              homeTeam: {
+                score: match.homeScore,
+                leaguePlayerIds: match.matchPlayers
+                  .filter((mp) => mp.homeTeam)
+                  .map((mp) => mp.seasonPlayer.leaguePlayerId),
+              },
+              awayTeam: {
+                score: match.awayScore,
+                leaguePlayerIds: match.matchPlayers
+                  .filter((mp) => !mp.homeTeam)
+                  .map((mp) => mp.seasonPlayer.leaguePlayerId),
+              },
+              createdBy: match.createdBy,
+            } as MatchUndoEventData,
+            createdBy: ctx.auth.userId,
+            createdAt: new Date(),
+          })
+          .run();
       });
     }),
 });
