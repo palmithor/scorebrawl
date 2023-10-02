@@ -298,7 +298,7 @@ export const leagueRouter = createTRPCRouter({
         for (const userId of Object.keys(userFormAndPoints)) {
           const user = userFormAndPoints[userId];
           if (user && user.points > bestForm.points) {
-            bestForm = { userId, points: user.points, form: user.form };
+            bestForm = { userId, points: user.points, form: user.form.reverse() };
           }
         }
         const clerkUser = await clerk.users.getUser(bestForm.userId);
