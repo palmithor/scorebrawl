@@ -36,6 +36,7 @@ export const LeagueDetailsLayout = ({
 
   const shouldShowJoin =
     !hideJoinButton && code && !leaguePlayers?.some((u) => u?.userId === userId);
+
   const shouldShowInviteButton = league?.visibility === "private" && code;
 
   const joinLeague = () => {
@@ -64,17 +65,8 @@ export const LeagueDetailsLayout = ({
             <TabsTrigger value="overview">
               <Link href={`/leagues/${encodeURIComponent(league.slug)}`}>Overview</Link>
             </TabsTrigger>
-            <TabsTrigger value="seasons">
-              <Link href={`/leagues/${encodeURIComponent(league.slug)}/seasons`}>Seasons</Link>
-            </TabsTrigger>
             <TabsTrigger value="players">
               <Link href={`/leagues/${encodeURIComponent(league.slug)}/players`}>Players</Link>
-            </TabsTrigger>
-            <TabsTrigger value="statistics" disabled>
-              Statistics
-            </TabsTrigger>
-            <TabsTrigger value="feed" disabled>
-              Feed
             </TabsTrigger>
           </TabsList>
         </div>

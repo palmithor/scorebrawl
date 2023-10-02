@@ -1,11 +1,18 @@
-import { type SeasonPlayer } from "~/server/db/types";
 import clerk from "@clerk/clerk-sdk-node";
 import { type SeasonPlayerUser } from "~/server/api/types";
 
-export const populateSeasonUserPlayer = async ({
+export type SeasonPlayerWithUserId = {
+  id: string;
+  elo: number;
+  createdAt: Date;
+  disabled: boolean;
+  leaguePlayer: { userId: string };
+};
+
+export const populateSeasonPlayerUser = async ({
   seasonPlayers,
 }: {
-  seasonPlayers: (SeasonPlayer & { leaguePlayer: { userId: string } })[];
+  seasonPlayers: SeasonPlayerWithUserId[];
 }) => {
   const clerkUsers = await clerk.users.getUserList({
     limit: seasonPlayers.length,
