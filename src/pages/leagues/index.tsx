@@ -1,8 +1,8 @@
 "use client";
 
 import { type NextPage } from "next";
-import { useRouter } from "next/router";
-import { type ChangeEvent, useState } from "react";
+import Router, { useRouter } from "next/router";
+import { type ChangeEvent, useState, useEffect } from "react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -49,7 +49,15 @@ const Leagues: NextPage = () => {
   const { data: allLeagues, isLoading: isLoadingAll } = api.league.getAll.useQuery({
     pageQuery: {},
   });
-  const [selectedFilter, setSelectedFilter] = useState<"mine" | "all">("mine");
+  useEffect(() => {
+    if (!["mine", "all"].includes(router.query.filter as string)) {
+      void Router.push({ query: { ...router.query, filter: "mine" } }, undefined, {
+        shallow: true,
+      });
+    }
+  }, [router.query]);
+
+  const selectedFilter = (router.query.filter as "mine" | "all" | undefined) ?? "mine";
   const { data: myLeagues, isLoading: isLoadingMine } = api.league.getMine.useQuery({
     pageQuery: {},
   });
@@ -84,15 +92,22 @@ const Leagues: NextPage = () => {
       <Head>
         <title>Scorebrawl - Leagues</title>
       </Head>
-      <div className="flex items-center gap-2 py-4">
+      <div className="grid grid-flow-row-dense grid-cols-2 grid-rows-2 items-center gap-2 py-4 sm:grid-cols-3 sm:grid-rows-1">
         <Input
           placeholder="Filter leagues..."
-          className="max-w-sm"
+          className="order-2 col-span-2 w-auto sm:order-1 sm:col-span-1"
           value={filterText}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterText(e.target.value)}
         />
-        <div className="grow">
-          <Select onValueChange={(value: "mine" | "all") => setSelectedFilter(value)}>
+        <div className="order-1 grow">
+          <Select
+            value={selectedFilter}
+            onValueChange={(value: "mine" | "all") =>
+              void router.push({ query: { ...router.query, filter: value } }, undefined, {
+                shallow: true,
+              })
+            }
+          >
             <SelectTrigger defaultValue="mine" className="w-[180px]">
               <SelectValue placeholder="My leagues" />
             </SelectTrigger>
@@ -104,9 +119,15 @@ const Leagues: NextPage = () => {
             </SelectContent>
           </Select>
         </div>
-        <Button className=" text-clip" onClick={() => void router.push("/leagues/create")}>
-          Create League
-        </Button>
+        <div className="order-1 flex justify-end">
+          <Button
+            size="sm"
+            className="text-clip"
+            onClick={() => void router.push("/leagues/create")}
+          >
+            Create League
+          </Button>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
