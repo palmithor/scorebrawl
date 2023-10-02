@@ -12,7 +12,12 @@ const PointsDiff = ({ playerId }: { playerId: string }) => {
   if (!data) {
     return null;
   }
-  const colorClass = data.diff > 0 ? "text-green-500" : data.diff < 0 ? "text-red-400" : "";
+  const colorClass =
+    data.diff > 0
+      ? "dark:text-green-500 text-green-700"
+      : data.diff < 0
+      ? "text-red-600 dark:text-red-400"
+      : "";
   return <div className={cn(colorClass)}>{Math.abs(data.diff)}</div>;
 };
 
