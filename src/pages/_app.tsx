@@ -18,6 +18,7 @@ import { ThemeProvider } from "~/components/layout/providers";
 import { Spinner } from "~/components/spinner";
 import { Toaster } from "~/components/ui/toaster";
 import "~/styles/globals.css";
+import Head from "next/head";
 
 const clerkAppearance = {
   elements: {
@@ -41,6 +42,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
   return (
     <ClerkProvider {...pageProps}>
+      <Head>
+        <title>Scorebrawl</title>
+      </Head>
       <Analytics />
       <ClerkLoading>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
