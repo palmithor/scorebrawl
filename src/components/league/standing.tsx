@@ -2,6 +2,19 @@ import { AvatarName } from "~/components/user/avatar-name";
 import { api } from "~/lib/api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { FormDots } from "./form-dots";
+import { cn } from "~/lib/utils";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent } from "~/components/ui/tooltip";
+
+const PointsDiff = ({ playerId }: { playerId: string }) => {
+  const { data } = api.season.pointsDiff.useQuery({ seasonPlayerId: playerId });
+
+  if (!data) {
+    return null;
+  }
+  const colorClass = data.diff > 0 ? "text-green-500" : data.diff < 0 ? "text-red-400" : "";
+  return <div className={cn(colorClass)}>{Math.abs(data.diff)}</div>;
+};
 
 export const SeasonStanding = ({
   className,
@@ -21,6 +34,14 @@ export const SeasonStanding = ({
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Form</TableHead>
+              <TableHead>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div>+/-</div>
+                  </TooltipTrigger>
+                  <TooltipContent>+/- points today</TooltipContent>
+                </Tooltip>
+              </TableHead>
               <TableHead>Points</TableHead>
             </TableRow>
           </TableHeader>
@@ -34,6 +55,9 @@ export const SeasonStanding = ({
                   <FormDots
                     form={playerForm?.find((pf) => pf.seasonPlayerId === player.id)?.form ?? []}
                   />
+                </TableCell>
+                <TableCell>
+                  <PointsDiff playerId={player.id} />
                 </TableCell>
                 <TableCell>
                   <div className="font-bold">{player.elo}</div>

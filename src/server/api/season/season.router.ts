@@ -22,6 +22,7 @@ import {
 import { type Db, type SeasonCreatedEventData } from "~/server/db/types";
 import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
+import { endOfDay, startOfDay } from "date-fns";
 
 const getSeason = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const season = await db.query.seasons.findFirst({
@@ -293,5 +294,34 @@ export const seasonRouter = createTRPCRouter({
         });
         return { seasonPlayerId: pm.id, form };
       });
+    }),
+  pointsDiff: protectedProcedure
+    .input(
+      z.object({
+        seasonPlayerId: z.string().nonempty(),
+        from: z.date().default(startOfDay(new Date())),
+        to: z.date().default(endOfDay(new Date())),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const matchPlayers = await ctx.db.query.matchPlayers.findMany({
+        where: (matchPlayer, { eq, and }) =>
+          and(
+            eq(matchPlayer.seasonPlayerId, input.seasonPlayerId),
+            gte(matchPlayer.createdAt, input.from),
+            lte(matchPlayer.createdAt, input.to),
+          ),
+        orderBy: (matchPlayer, { asc }) => [asc(matchPlayer.createdAt)],
+      });
+
+      if (matchPlayers.length > 0) {
+        return {
+          diff:
+            (matchPlayers[matchPlayers.length - 1]?.eloAfter ?? 0) -
+            (matchPlayers[0]?.eloAfter ?? 0),
+        };
+      } else {
+        return { diff: 0 };
+      }
     }),
 });
