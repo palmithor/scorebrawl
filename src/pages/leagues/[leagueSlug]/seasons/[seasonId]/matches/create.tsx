@@ -135,7 +135,7 @@ const CreateMatch = () => {
                     <FormItem>
                       <FormLabel>Score</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field}></Input>
+                        <Input onFocus={(e) => e.target.select()} type="number" {...field}></Input>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,7 +178,7 @@ const CreateMatch = () => {
                     <FormItem>
                       <FormLabel>Score</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field}></Input>
+                        <Input onFocus={(e) => e.target.select()} type="number" {...field}></Input>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
