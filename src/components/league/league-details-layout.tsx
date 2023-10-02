@@ -9,6 +9,7 @@ import { api } from "~/lib/api";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
+import Head from "next/head";
 
 export type Tab = "overview" | "seasons" | "players" | "statistics" | "feed";
 
@@ -59,6 +60,9 @@ export const LeagueDetailsLayout = ({
 
   return (
     <Tabs defaultValue={activeTab} className="space-y-4 p-3">
+      <Head>
+        <title>Scorebrawl - {league.name}</title>
+      </Head>
       <div className="flex flex-grow flex-row flex-wrap gap-4">
         <div className="grow">
           <TabsList>

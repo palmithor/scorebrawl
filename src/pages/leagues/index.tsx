@@ -28,6 +28,7 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { SelectValue } from "@radix-ui/react-select";
+import Head from "next/head";
 
 const PlayersCell = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.league.getPlayers.useQuery({ leagueSlug });
@@ -80,6 +81,9 @@ const Leagues: NextPage = () => {
 
   return (
     <div className="w-full">
+      <Head>
+        <title>Scorebrawl - Leagues</title>
+      </Head>
       <div className="flex items-center gap-2 py-4">
         <Input
           placeholder="Filter leagues..."

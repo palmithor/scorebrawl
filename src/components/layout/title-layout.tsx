@@ -1,5 +1,6 @@
 import { Separator } from "~/components/ui/separator";
 import { type ReactNode } from "react";
+import Head from "next/head";
 import { Title } from "../title";
 
 export const TitleLayout = ({
@@ -12,6 +13,9 @@ export const TitleLayout = ({
   children: ReactNode;
 }) => (
   <div className="space-y-6 p-10 pb-16 md:block">
+    <Head>
+      <title>Scorebrawl - {title}</title>
+    </Head>
     <div className="space-y-0.5">
       <Title title={title} subtitle={subtitle} />
     </div>
