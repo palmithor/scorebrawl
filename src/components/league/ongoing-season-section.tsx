@@ -3,11 +3,11 @@
 import { SeasonStanding } from "~/components/league/standing";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { useRouter } from "next/router";
 import { api } from "~/lib/api";
 
-export const OngoingSeasonCard = ({
+export const OngoingSeasonSection = ({
   className,
   leagueSlug,
 }: {
@@ -44,7 +44,7 @@ export const OngoingSeasonCard = ({
   };
 
   return (
-    <Card className={className}>
+    <div className={className}>
       <CardHeader>
         <div className="flex">
           <div className="grow">
@@ -63,6 +63,6 @@ export const OngoingSeasonCard = ({
       <CardContent>
         <div className="grid">{cardContent()}</div>
       </CardContent>
-    </Card>
+    </div>
   );
 };

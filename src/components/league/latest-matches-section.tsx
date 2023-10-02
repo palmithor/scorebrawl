@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { Button } from "~/components/ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-export const LatestMatchesCard = ({
+export const LatestMatchesSection = ({
   leagueSlug,
   className,
 }: {
@@ -38,7 +38,7 @@ export const LatestMatchesCard = ({
   const hasLessThanTwoPlayers = seasonPlayers && seasonPlayers.length < 2;
 
   return (
-    <Card className={className}>
+    <div className={className}>
       <CardHeader>
         <div className={"flex items-center"}>
           <CardTitle className={"grow"}>
@@ -102,6 +102,6 @@ export const LatestMatchesCard = ({
           </Table>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 };
