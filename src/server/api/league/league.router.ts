@@ -228,7 +228,7 @@ export const leagueRouter = createTRPCRouter({
                   leaguePlayer: { columns: { userId: true } },
                   matches: {
                     columns: { homeTeam: true, createdAt: true },
-                    orderBy: (match, { asc }) => [asc(match.createdAt)],
+                    orderBy: (match, { desc }) => [desc(match.createdAt)],
                     limit: 5,
                     with: {
                       match: {
