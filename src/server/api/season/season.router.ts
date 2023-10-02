@@ -279,7 +279,7 @@ export const seasonRouter = createTRPCRouter({
       });
 
       return playerMatches.map((pm) => {
-        const form = pm.matches.map((m) => {
+        const form = pm.matches.reverse().map((m) => {
           if (m.match.homeScore === m.match.awayScore) {
             return "D";
           } else if (
