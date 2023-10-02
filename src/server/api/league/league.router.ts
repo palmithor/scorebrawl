@@ -1,6 +1,6 @@
 import clerk from "@clerk/clerk-sdk-node";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, gte, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, or, sql } from "drizzle-orm";
 import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import { slugifyLeagueName } from "~/server/api/common/slug";
@@ -8,6 +8,7 @@ import { createTRPCRouter, leagueProcedure, protectedProcedure } from "~/server/
 import { type LeaguePlayerUser, type PlayerForm } from "~/server/api/types";
 import {
   createCuid,
+  leagueEvents,
   leagueMembers,
   leaguePlayers,
   leagues,
@@ -15,7 +16,7 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { type LeaguePlayer } from "~/server/db/types";
+import { type LeaguePlayer, type PlayerJoinedEventData } from "~/server/db/types";
 import { canReadLeaguesCriteria, getByIdWhereMember } from "./league.repository";
 import { create } from "./league.schema";
 
@@ -377,6 +378,20 @@ export const leagueRouter = createTRPCRouter({
             .onConflictDoNothing()
             .run();
         }
+
+        await tx
+          .insert(leagueEvents)
+          .values({
+            id: createCuid(),
+            leagueId: league.id,
+            type: "player_joined_v1",
+            data: {
+              leaguePlayerId: leaguePlayer.id,
+            } as PlayerJoinedEventData,
+            createdBy: ctx.auth.userId,
+            createdAt: now,
+          })
+          .run();
       });
       return league;
     }),
@@ -405,5 +420,21 @@ export const leagueRouter = createTRPCRouter({
           ),
         )
         .get();
+    }),
+  getEvents: leagueProcedure
+    .input(
+      z.object({
+        leagueSlug: z.string().nonempty(),
+      }),
+    )
+    .query(async ({ ctx }) => {
+      const events = await ctx.db.query.leagueEvents.findMany({
+        where: (event, { eq }) => eq(event.leagueId, ctx.league.id),
+        orderBy: desc(matches.createdAt),
+      });
+
+      return {
+        data: events,
+      };
     }),
 });

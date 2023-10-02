@@ -23,6 +23,20 @@ export const getLeagueIdBySlug = async (input: { userId: string; slug: string })
   return leagueId;
 };
 
+export const getLeagueBySlug = async ({ userId, slug }: { userId: string; slug: string }) => {
+  const league = await db.query.leagues.findFirst({
+    where: (league, { eq }) => and(eq(league.slug, slug), canReadLeaguesCriteria({ userId })),
+  });
+
+  if (!league) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "League not found",
+    });
+  }
+  return league;
+};
+
 export const getLeagueById = async ({ userId, id }: { userId: string; id: string }) => {
   const league = await db
     .select()

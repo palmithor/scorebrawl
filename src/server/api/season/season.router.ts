@@ -8,11 +8,18 @@ import {
   getLeagueById,
 } from "~/server/api/league/league.repository";
 import { getOngoingSeason } from "~/server/api/season/season.repository";
-import { populateSeasonUserPlayer } from "~/server/api/season/season.util";
+import { populateSeasonPlayerUser } from "~/server/api/season/season.util";
 import { createTRPCRouter, leagueProcedure, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { createCuid, leaguePlayers, leagues, seasonPlayers, seasons } from "~/server/db/schema";
-import { type Db } from "~/server/db/types";
+import {
+  createCuid,
+  leagueEvents,
+  leaguePlayers,
+  leagues,
+  seasonPlayers,
+  seasons,
+} from "~/server/db/schema";
+import { type Db, type SeasonCreatedEventData } from "~/server/db/types";
 import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
 
@@ -129,7 +136,7 @@ export const seasonRouter = createTRPCRouter({
         },
         orderBy: desc(seasonPlayers.elo),
       });
-      return populateSeasonUserPlayer({ seasonPlayers: seasonPlayerResult });
+      return populateSeasonPlayerUser({ seasonPlayers: seasonPlayerResult });
     }),
   create: leagueProcedure.input(create).mutation(async ({ ctx, input }) => {
     if (input.endDate && input.startDate.getTime() >= input.endDate.getTime()) {
@@ -190,6 +197,18 @@ export const seasonRouter = createTRPCRouter({
         }),
       ),
     );
+
+    await ctx.db
+      .insert(leagueEvents)
+      .values({
+        id: createCuid(),
+        leagueId: league.id,
+        type: "season_created_v1",
+        data: { seasonId: season.id } as SeasonCreatedEventData,
+        createdBy: ctx.auth.userId,
+        createdAt: now,
+      })
+      .run();
 
     return season;
   }),

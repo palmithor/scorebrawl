@@ -15,6 +15,13 @@
       "when": 1694698456204,
       "tag": "0001_cuddly_sage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1695981788069,
+      "tag": "0002_odd_wonder_man",
+      "breakpoints": false
     }
   ]
 }

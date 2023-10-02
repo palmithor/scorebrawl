@@ -4,9 +4,7 @@ import { getAuth, type SignedInAuthObject, type SignedOutAuthObject } from "@cle
 import superjson from "superjson";
 import { db } from "~/server/db";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { leagues } from "~/server/db/schema";
-import { and, eq } from "drizzle-orm";
-import { canReadLeaguesCriteria } from "~/server/api/league/league.repository";
+import { getLeagueBySlug } from "~/server/api/league/league.repository";
 import { type Db } from "~/server/db/types";
 
 /**
@@ -87,21 +85,7 @@ const leagueAccessMiddleware = experimental_standaloneMiddleware<{
   if (!ctx.auth?.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-
-  const league = await ctx.db
-    .select()
-    .from(leagues)
-    .where(
-      and(eq(leagues.slug, input.leagueSlug), canReadLeaguesCriteria({ userId: ctx.auth.userId })),
-    )
-    .get();
-
-  if (!league) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "League not found",
-    });
-  }
+  const league = await getLeagueBySlug({ userId: ctx.auth.userId, slug: input.leagueSlug });
 
   return next({
     ctx: {

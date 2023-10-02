@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
-import { integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { blob, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { init } from "@paralleldrive/cuid2";
+import { type LeagueEventData } from "~/server/db/types";
 
 const cuidConfig = { length: 32 };
 const defaultTextConfig = { length: 100 };
@@ -29,6 +30,24 @@ export const leagues = sqliteTable(
   }),
 );
 
+const leagueEventType = [
+  "match_created_v1",
+  "player_joined_v1",
+  "season_created_v1",
+  "match_undo_v1",
+] as const;
+
+export const leagueEvents = sqliteTable("league_event", {
+  id: text("id", cuidConfig).primaryKey(),
+  leagueId: text("league_id", cuidConfig).notNull(),
+  type: text("type", {
+    enum: leagueEventType,
+  }).notNull(),
+  data: blob("data", { mode: "json" }).$type<LeagueEventData>(),
+  createdBy: text("created_by").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
 export const leaguePlayers = sqliteTable(
   "league_player",
   {
@@ -45,6 +64,7 @@ export const leaguePlayers = sqliteTable(
 );
 
 const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
+
 export type LeagueMemberRole = (typeof leagueMemberRoles)[number];
 export const leagueMembers = sqliteTable(
   "league_member",
@@ -128,6 +148,7 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
   seasons: many(seasons),
   leaguePlayers: many(leaguePlayers),
   members: many(leagueMembers),
+  events: many(leagueEvents),
 }));
 
 export const leaguePlayerRelations = relations(leaguePlayers, ({ one }) => ({
@@ -149,6 +170,13 @@ export const seasonRelations = relations(seasons, ({ one, many }) => ({
   matches: many(matches),
   league: one(leagues, {
     fields: [seasons.leagueId],
+    references: [leagues.id],
+  }),
+}));
+
+export const leagueEventRelations = relations(leagueEvents, ({ one }) => ({
+  league: one(leagues, {
+    fields: [leagueEvents.leagueId],
     references: [leagues.id],
   }),
 }));
