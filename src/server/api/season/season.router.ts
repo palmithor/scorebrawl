@@ -271,7 +271,7 @@ export const seasonRouter = createTRPCRouter({
         where: eq(seasonPlayers.seasonId, season.id),
         with: {
           matches: {
-            orderBy: (match, { asc }) => [asc(match.createdAt)],
+            orderBy: (match, { desc }) => [desc(match.createdAt)],
             limit: 5,
             with: { match: true },
           },
