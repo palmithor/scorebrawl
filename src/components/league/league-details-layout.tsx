@@ -10,6 +10,7 @@ import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 export type Tab = "overview" | "seasons" | "players" | "statistics" | "feed";
 
@@ -24,12 +25,19 @@ export const LeagueDetailsLayout = ({
 }) => {
   const { userId } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const [isJoining, setIsJoining] = React.useState(false);
   const leagueSlug = useLeagueSlug();
   const invalidate = useLeagueInvalidation();
   const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
   const { mutateAsync: joinLeagueMutate } = api.league.join.useMutation();
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
+  const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug }, { retry: false });
+  const { data: seasonPlayers } = api.season.getPlayers.useQuery(
+    { seasonId: ongoingSeason?.id as string },
+    { enabled: !!ongoingSeason },
+  );
+  const hasLessThanTwoPlayers = seasonPlayers && seasonPlayers.length < 2;
   const { data: code } = api.league.getCode.useQuery(
     { leagueSlug },
     { enabled: !!league?.id, retry: false },
@@ -63,7 +71,7 @@ export const LeagueDetailsLayout = ({
       <Head>
         <title>Scorebrawl - {league.name}</title>
       </Head>
-      <div className="flex flex-grow flex-row flex-wrap gap-4">
+      <div className="flex flex-grow flex-row flex-wrap items-center gap-4">
         <div className="grow">
           <TabsList>
             <TabsTrigger value="overview">
@@ -79,6 +87,21 @@ export const LeagueDetailsLayout = ({
             <LoadingButton loading={isJoining} onClick={joinLeague}>
               Join League
             </LoadingButton>
+          </div>
+        )}
+        {!shouldShowJoin && ongoingSeason && (
+          <div className="shrink-0">
+            <Button
+              size="sm"
+              disabled={hasLessThanTwoPlayers}
+              onClick={() =>
+                void router.push(
+                  `/leagues/${leagueSlug}/seasons/${ongoingSeason.id}/matches/create`,
+                )
+              }
+            >
+              Add Match
+            </Button>
           </div>
         )}
         {shouldShowInviteButton && (
