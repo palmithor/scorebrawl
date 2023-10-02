@@ -113,6 +113,7 @@ const CreateMatch = () => {
                       <FormControl className="items-center">
                         <FancyMultiSelect
                           items={items}
+                          closeOnSelect
                           excludeItems={awayTeam}
                           onValueChange={(items: Item[]) =>
                             onTeamChange(items, setHomeTeam, field.onChange)
@@ -156,6 +157,7 @@ const CreateMatch = () => {
                         <FancyMultiSelect
                           items={items}
                           excludeItems={homeTeam}
+                          closeOnSelect
                           onValueChange={(items: Item[]) =>
                             onTeamChange(items, setAwayTeam, field.onChange)
                           }

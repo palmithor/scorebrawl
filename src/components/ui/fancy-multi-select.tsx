@@ -14,11 +14,13 @@ export const FancyMultiSelect = ({
   excludeItems = [],
   inputPlaceholder,
   onValueChange,
+  closeOnSelect,
 }: {
   items: Item[];
   excludeItems: Item[];
   inputPlaceholder?: string;
   onValueChange: (items: Item[]) => void;
+  closeOnSelect?: boolean;
 }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
@@ -117,6 +119,9 @@ export const FancyMultiSelect = ({
                         onValueChange(selected);
                         return selected;
                       });
+                      if (closeOnSelect) {
+                        inputRef?.current?.blur();
+                      }
                     }}
                     className={"cursor-pointer"}
                   >
