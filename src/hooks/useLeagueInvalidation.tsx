@@ -12,6 +12,7 @@ export const useLeagueInvalidation = () => {
       league.getBestForm.invalidate({ leagueSlug }),
       league.getMatchesPlayedStats.invalidate({ leagueSlug }),
       season.getOngoing.invalidate({ leagueSlug }),
+      season.pointsDiff.invalidate(),
     ]);
     if (props?.seasonId) {
       await season.getPlayers.invalidate({ seasonId: props.seasonId });
