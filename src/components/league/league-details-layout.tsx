@@ -89,35 +89,38 @@ export const LeagueDetailsLayout = ({
             </LoadingButton>
           </div>
         )}
-        {!shouldShowJoin && ongoingSeason && (
+        {!shouldShowJoin && (
           <div className="shrink-0">
-            <Button
-              size="sm"
-              disabled={hasLessThanTwoPlayers}
-              onClick={() =>
-                void router.push(
-                  `/leagues/${leagueSlug}/seasons/${ongoingSeason.id}/matches/create`,
-                )
-              }
-            >
-              Add Match
-            </Button>
+            {shouldShowInviteButton && activeTab === "players" && (
+              <Button
+                size="sm"
+                onClick={() =>
+                  void navigator.clipboard
+                    .writeText(`${window.location.origin.toString()}/leagues/auto-join/${code}`)
+                    .then(() =>
+                      toast({
+                        description: "Auto join link copied",
+                      }),
+                    )
+                }
+              >
+                Invite link
+              </Button>
+            )}
+            {ongoingSeason && activeTab === "overview" && (
+              <Button
+                size="sm"
+                disabled={hasLessThanTwoPlayers}
+                onClick={() =>
+                  void router.push(
+                    `/leagues/${leagueSlug}/seasons/${ongoingSeason.id}/matches/create`,
+                  )
+                }
+              >
+                Add Match
+              </Button>
+            )}
           </div>
-        )}
-        {shouldShowInviteButton && (
-          <Button
-            onClick={() =>
-              void navigator.clipboard
-                .writeText(`${window.location.origin.toString()}/leagues/auto-join/${code}`)
-                .then(() =>
-                  toast({
-                    description: "Auto join link copied",
-                  }),
-                )
-            }
-          >
-            Copy invite link
-          </Button>
         )}
       </div>
       <TabsContent value={activeTab} className="space-y-4">
