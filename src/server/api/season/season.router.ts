@@ -318,7 +318,7 @@ export const seasonRouter = createTRPCRouter({
         return {
           diff:
             (matchPlayers[matchPlayers.length - 1]?.eloAfter ?? 0) -
-            (matchPlayers[0]?.eloAfter ?? 0),
+            (matchPlayers[0]?.eloBefore ?? 0),
         };
       } else {
         return { diff: 0 };
