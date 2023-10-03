@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import { Badge } from "~/components/ui/badge";
-import { Command, CommandEmpty, CommandGroup, CommandItem } from "~/components/ui/command";
+import { Command, CommandGroup, CommandItem } from "~/components/ui/command";
 import { Command as CommandPrimitive } from "cmdk";
-import { useEffect } from "react";
+import slugify from "@sindresorhus/slugify";
 
 export type Item = Record<"value" | "label", string>;
 export const FancyMultiSelect = ({
@@ -59,7 +60,16 @@ export const FancyMultiSelect = ({
     .filter((item) => !excludeItems.includes(item));
 
   return (
-    <Command onKeyDown={handleKeyDown} className="overflow-visible bg-transparent">
+    <Command
+      onKeyDown={handleKeyDown}
+      className="overflow-visible bg-transparent"
+      filter={(value, search) => {
+        if (slugify(value).includes(slugify(search))) {
+          return 1;
+        }
+        return 0;
+      }}
+    >
       <div className="group rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
         <div className="flex flex-wrap gap-1">
           {selected.map((item) => {
@@ -104,31 +114,29 @@ export const FancyMultiSelect = ({
         {open && selectables.length > 0 ? (
           <div className="absolute top-0 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
             <CommandGroup className="h-full overflow-auto">
-              {selectables.map((item) => {
-                return (
-                  <CommandItem
-                    key={item.value}
-                    onMouseDown={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                    }}
-                    onSelect={() => {
-                      setFilter("");
-                      setSelected((prev) => {
-                        const selected = [...prev, item];
-                        onValueChange(selected);
-                        return selected;
-                      });
-                      if (closeOnSelect) {
-                        inputRef?.current?.blur();
-                      }
-                    }}
-                    className={"cursor-pointer"}
-                  >
-                    {item.label}
-                  </CommandItem>
-                );
-              })}
+              {selectables.map((item) => (
+                <CommandItem
+                  key={item.value}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }}
+                  onSelect={() => {
+                    setFilter("");
+                    setSelected((prev) => {
+                      const selected = [...prev, item];
+                      onValueChange(selected);
+                      return selected;
+                    });
+                    if (closeOnSelect) {
+                      inputRef?.current?.blur();
+                    }
+                  }}
+                  className={"cursor-pointer"}
+                >
+                  {item.label}
+                </CommandItem>
+              ))}
             </CommandGroup>
           </div>
         ) : null}
