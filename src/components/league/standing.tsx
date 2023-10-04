@@ -1,10 +1,10 @@
-import { AvatarName } from "~/components/user/avatar-name";
-import { api } from "~/lib/api";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { FormDots } from "./form-dots";
-import { cn } from "~/lib/utils";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { Tooltip, TooltipContent } from "~/components/ui/tooltip";
+import { AvatarName } from "~/components/user/avatar-name";
+import { api } from "~/lib/api";
+import { cn } from "~/lib/utils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { FormDots } from "./form-dots";
 
 const PointsDiff = ({ playerId }: { playerId: string }) => {
   const { data } = api.season.pointsDiff.useQuery({ seasonPlayerId: playerId });
@@ -12,12 +12,7 @@ const PointsDiff = ({ playerId }: { playerId: string }) => {
   if (!data) {
     return null;
   }
-  const colorClass =
-    data.diff > 0
-      ? "dark:text-green-500 text-green-700"
-      : data.diff < 0
-      ? "text-red-600 dark:text-red-400"
-      : "";
+  const colorClass = data.diff > 0 ? "text-green-400" : data.diff < 0 ? "text-rose-900" : "";
   return <div className={cn(colorClass)}>{Math.abs(data.diff)}</div>;
 };
 
