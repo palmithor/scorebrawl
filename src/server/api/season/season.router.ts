@@ -23,6 +23,7 @@ import { type Db, type SeasonCreatedEventData } from "~/server/db/types";
 import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
 import { endOfDay, startOfDay } from "date-fns";
+import { getTeamScoresBySeasonId } from "~/server/api/season/seasonteam.repository";
 
 const getSeason = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const season = await db.query.seasons.findFirst({
@@ -138,6 +139,20 @@ export const seasonRouter = createTRPCRouter({
         orderBy: desc(seasonPlayers.elo),
       });
       return populateSeasonPlayerUser({ seasonPlayers: seasonPlayerResult });
+    }),
+  getTeamScores: protectedProcedure
+    .input(
+      z.object({
+        seasonId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const season = await getSeason({
+        seasonId: input.seasonId,
+        userId: ctx.auth.userId,
+      });
+
+      return getTeamScoresBySeasonId({ seasonId: season.id });
     }),
   create: leagueProcedure.input(create).mutation(async ({ ctx, input }) => {
     if (input.endDate && input.startDate.getTime() >= input.endDate.getTime()) {
