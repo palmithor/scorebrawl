@@ -19,6 +19,7 @@ import {
 import { type LeaguePlayer, type PlayerJoinedEventData } from "~/server/db/types";
 import { canReadLeaguesCriteria, getByIdWhereMember } from "./league.repository";
 import { create } from "./league.schema";
+import { fullName } from "~/lib/string-utils";
 
 const populateLeagueUserPlayer = async ({ leaguePlayers }: { leaguePlayers: LeaguePlayer[] }) => {
   const clerkUsers = await clerk.users.getUserList({
@@ -33,7 +34,7 @@ const populateLeagueUserPlayer = async ({ leaguePlayers }: { leaguePlayers: Leag
         return {
           id: leaguePlayer.id,
           userId: user.id,
-          name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          name: fullName(user),
           imageUrl: user.imageUrl,
           joinedAt: leaguePlayer.createdAt,
           disabled: leaguePlayer.disabled,
@@ -301,10 +302,10 @@ export const leagueRouter = createTRPCRouter({
             bestForm = { userId, points: user.points, form: user.form.reverse() };
           }
         }
-        const clerkUser = await clerk.users.getUser(bestForm.userId);
+        const user = await clerk.users.getUser(bestForm.userId);
         return {
-          name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
-          imageUrl: clerkUser.imageUrl,
+          name: fullName(user),
+          imageUrl: user.imageUrl,
           points: bestForm.points,
           form: bestForm.form,
         };

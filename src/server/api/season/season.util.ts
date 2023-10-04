@@ -1,5 +1,6 @@
 import clerk from "@clerk/clerk-sdk-node";
 import { type SeasonPlayerUser } from "~/server/api/types";
+import { fullName } from "~/lib/string-utils";
 
 export type SeasonPlayerWithUserId = {
   id: string;
@@ -26,7 +27,7 @@ export const populateSeasonPlayerUser = async ({
         return {
           id: player.id,
           userId: user.id,
-          name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          name: fullName(user),
           imageUrl: user.imageUrl,
           elo: player.elo,
           joinedAt: player.createdAt,

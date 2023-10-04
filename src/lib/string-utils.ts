@@ -1,4 +1,4 @@
-export function getInitialsFromString(value: string) {
+export const getInitialsFromString = (value: string) => {
   if (!value) {
     return "";
   }
@@ -13,4 +13,12 @@ export function getInitialsFromString(value: string) {
     }
   }
   return output;
-}
+};
+
+export const fullName = ({
+  firstName,
+  lastName,
+}: {
+  firstName: string | null;
+  lastName: string | null;
+}) => `${firstName || ""} ${lastName || ""}`.trim();
