@@ -144,6 +144,14 @@ export const matchPlayers = sqliteTable("match_player", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+export const users = sqliteTable("user", {
+  id: text("id", { length: 100 }).primaryKey(),
+  imageUrl: text("image_url", { length: 255 }),
+  name: text("name"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
 export const leaguesRelations = relations(leagues, ({ many }) => ({
   seasons: many(seasons),
   leaguePlayers: many(leaguePlayers),
@@ -152,6 +160,10 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
 }));
 
 export const leaguePlayerRelations = relations(leaguePlayers, ({ one }) => ({
+  user: one(users, {
+    fields: [leaguePlayers.userId],
+    references: [users.id],
+  }),
   league: one(leagues, {
     fields: [leaguePlayers.leagueId],
     references: [leagues.id],

@@ -9,6 +9,7 @@ const server = z.object({
   CLERK_SECRET_KEY: z.string().min(1),
   DATABASE_URL: z.string().min(1),
   DATABASE_AUTH_TOKEN: z.string().min(1).optional(),
+  CLERK_WEBHOOK_SECRET: z.string().optional(),
   DEBUG: z.string().optional(),
 });
 
@@ -30,6 +31,7 @@ const processEnv = {
   NODE_ENV: process.env.NODE_ENV,
   CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
   DATABASE_URL: process.env.DATABASE_URL,
   DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
   DEBUG: process.env.DEBUG,
