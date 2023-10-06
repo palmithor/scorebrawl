@@ -1,20 +1,16 @@
 import type z from "zod";
 import { describe, expect, test } from "bun:test";
-import { createInnerTRPCContext } from "~/server/api/trpc";
 import { appRouter } from "~/server/api/root";
-import type { SignedInAuthObject } from "@clerk/nextjs/server";
 import { faker } from "@faker-js/faker";
 import { createLeague } from "~/test-helper/league.data-generator";
 import { type NextApiRequest } from "next";
 import { and, eq } from "drizzle-orm";
 import { leagueMembers } from "~/server/db/schema";
 import { type create } from "./league.schema";
+import { testCtx } from "../../../../tests/util";
 
 describe("leagueRouter", () => {
-  const ctx = createInnerTRPCContext({
-    auth: { userId: "userId" } as SignedInAuthObject,
-  });
-  const caller = appRouter.createCaller({ ...ctx, req: {} as NextApiRequest });
+  const caller = appRouter.createCaller({ ...testCtx, req: {} as NextApiRequest });
 
   describe("createLeague", () => {
     test("should create league", async () => {
@@ -61,7 +57,7 @@ describe("leagueRouter", () => {
       };
       const league = await caller.league.create(input);
 
-      const member = await ctx.db.query.leagueMembers.findFirst({
+      const member = await testCtx.db.query.leagueMembers.findFirst({
         where: and(
           eq(leagueMembers.leagueId, league?.id || ""),
           eq(leagueMembers.userId, "userId"),
@@ -83,13 +79,13 @@ describe("leagueRouter", () => {
       await createLeague({
         name: "privateMine",
         visibility: "private",
-        leagueOwner: ctx.auth.userId as string,
+        leagueOwner: testCtx.auth.userId as string,
       });
       await createLeague({
         name: "privateMember",
         leagueOwner: "other",
         visibility: "private",
-        members: [{ userId: ctx.auth.userId as string, role: "member" }],
+        members: [{ userId: testCtx.auth.userId as string, role: "member" }],
       });
       await createLeague({ name: "public", leagueOwner: "other" });
 

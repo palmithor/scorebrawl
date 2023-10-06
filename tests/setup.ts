@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll } from "bun:test";
+import { afterEach, beforeAll } from "bun:test";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { db } from "~/server/db";
 import {
@@ -10,24 +10,30 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-
-const isCI = process.env.CI;
+import { insertAuthUser } from "./util";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-let pid = "";
+
 beforeAll(async () => {
-  if (!isCI) {
-    const proc = Bun.spawn(["turso", "dev", "--port", "8003"]);
-    pid = proc.pid.toString();
-  }
+  let success = false;
   for (let i = 0; i < 5; i++) {
     try {
       await migrate(db, { migrationsFolder: "./migrations" });
+      success = true;
       break;
     } catch (e) {
+      console.log("failed applying migration", e);
       await delay(500);
     }
   }
+  if (!success) {
+    console.error("Unable to apply migration, exiting...");
+    process.exit(1);
+  }
+});
+
+beforeAll(async () => {
+  await insertAuthUser();
 });
 
 afterEach(async () => {
@@ -38,10 +44,4 @@ afterEach(async () => {
   await db.delete(leaguePlayers).run();
   await db.delete(seasons).run();
   await db.delete(leagues).run();
-});
-
-afterAll(() => {
-  if (!isCI) {
-    Bun.spawn(["kill", pid]);
-  }
 });

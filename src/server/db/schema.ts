@@ -146,8 +146,8 @@ export const matchPlayers = sqliteTable("match_player", {
 
 export const users = sqliteTable("user", {
   id: text("id", { length: 100 }).primaryKey(),
-  imageUrl: text("image_url", { length: 255 }),
-  name: text("name"),
+  imageUrl: text("image_url", { length: 255 }).notNull(),
+  name: text("name").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
@@ -157,6 +157,10 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
   leaguePlayers: many(leaguePlayers),
   members: many(leagueMembers),
   events: many(leagueEvents),
+}));
+
+export const userRelations = relations(users, ({ many }) => ({
+  leaguePlayers: many(leaguePlayers),
 }));
 
 export const leaguePlayerRelations = relations(leaguePlayers, ({ one }) => ({

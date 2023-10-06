@@ -3,6 +3,7 @@ import { db } from "~/server/db";
 import { createCuid, seasons } from "~/server/db/schema";
 import slugify from "@sindresorhus/slugify";
 import { type NewSeason, type Season } from "~/server/db/types";
+import { testCtx } from "../../tests/util";
 
 export const createSeason = async ({
   leagueId = "",
@@ -10,7 +11,7 @@ export const createSeason = async ({
   startDate = new Date(),
   initialElo = 1200,
   kFactor = 32,
-  userId = "userId",
+  userId = testCtx.auth.userId as string,
   endDate = undefined,
 }: Partial<NewSeason & { userId: string }> = {}): Promise<Season> => {
   const now = new Date();

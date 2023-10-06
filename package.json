@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "./dev/bin/db-migrate.sh && next dev",
     "lint": "SKIP_ENV_VALIDATION=true next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -60,6 +60,7 @@
     "lucide-react": "0.264.0",
     "next": "13.5.3",
     "next-themes": "0.2.1",
+    "pino": "^8.15.6",
     "react": "18.2.0",
     "react-day-picker": "8.7.1",
     "react-dom": "18.2.0",
