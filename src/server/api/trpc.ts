@@ -6,6 +6,10 @@ import { db } from "~/server/db";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { getLeagueBySlug } from "~/server/api/league/league.repository";
 import { type Db } from "~/server/db/types";
+import clerk from "@clerk/clerk-sdk-node";
+import { users } from "~/server/db/schema";
+import { fullName } from "~/lib/string-utils";
+import { logger } from "~/lib/logger";
 
 /**
  * 1. CONTEXT
@@ -67,10 +71,37 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 });
 
 // check if the user is signed in, otherwise through a UNAUTHORIZED CODE
-const isAuthenticated = t.middleware(({ next, ctx }) => {
+const isAuthenticated = t.middleware(async ({ next, ctx }) => {
   if (!ctx.auth?.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+  console.log();
+  const user = await db.query.users.findFirst({
+    where: (user, { eq }) => eq(user.id, ctx.auth.userId as string),
+    columns: { id: true },
+  });
+  if (!user) {
+    logger.info("User doesn't exist in database, fetching to clerk.");
+    const clerkUser = await clerk.users.getUser(ctx.auth.userId);
+    await db
+      .insert(users)
+      .values({
+        id: clerkUser.id,
+        name: fullName({ firstName: clerkUser.firstName, lastName: clerkUser.lastName }),
+        imageUrl: clerkUser.imageUrl,
+        createdAt: new Date(clerkUser.createdAt),
+        updatedAt: new Date(clerkUser.updatedAt),
+      })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          name: fullName({ firstName: clerkUser.firstName, lastName: clerkUser.lastName }),
+          imageUrl: clerkUser.imageUrl,
+          updatedAt: new Date(clerkUser.updatedAt),
+        },
+      });
+  }
+
   return next({
     ctx: {
       auth: ctx.auth,

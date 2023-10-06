@@ -15,12 +15,4 @@ else
     echo "DB file already exists"
 fi
 
-nohup turso dev --port 8002 --db-file "$db_file" > /dev/null 2>&1 &
-
-cd $(git rev-parse --show-toplevel)
-
-export DATABASE_URL="http://127.0.0.1:8002"
-
-bun run ./src/migrate-db.ts
-
-echo "turso dev db started and migrations have run"
+turso dev --port 8002 --db-file "$db_file"

@@ -5,7 +5,7 @@ import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import { slugifyLeagueName } from "~/server/api/common/slug";
 import { createTRPCRouter, leagueProcedure, protectedProcedure } from "~/server/api/trpc";
-import { type LeaguePlayerUser, type PlayerForm } from "~/server/api/types";
+import { type PlayerForm } from "~/server/api/types";
 import {
   createCuid,
   leagueEvents,
@@ -16,33 +16,10 @@ import {
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
-import { type LeaguePlayer, type PlayerJoinedEventData } from "~/server/db/types";
+import { type PlayerJoinedEventData } from "~/server/db/types";
 import { canReadLeaguesCriteria, getByIdWhereMember } from "./league.repository";
 import { create } from "./league.schema";
 import { fullName } from "~/lib/string-utils";
-
-const populateLeagueUserPlayer = async ({ leaguePlayers }: { leaguePlayers: LeaguePlayer[] }) => {
-  const clerkUsers = await clerk.users.getUserList({
-    limit: leaguePlayers.length,
-    userId: leaguePlayers.map((p) => p.userId),
-  });
-  return leaguePlayers
-    .map((leaguePlayer) => {
-      const user = clerkUsers.find((user) => user.id === leaguePlayer.userId);
-
-      if (user) {
-        return {
-          id: leaguePlayer.id,
-          userId: user.id,
-          name: fullName(user),
-          imageUrl: user.imageUrl,
-          joinedAt: leaguePlayer.createdAt,
-          disabled: leaguePlayer.disabled,
-        };
-      }
-    })
-    .filter((item): item is LeaguePlayerUser => !!item);
-};
 
 export const leagueRouter = createTRPCRouter({
   getMine: protectedProcedure
@@ -89,10 +66,23 @@ export const leagueRouter = createTRPCRouter({
     .input(z.object({ leagueSlug: z.string().nonempty() }))
     .query(async ({ ctx }) => {
       const leaguePlayerResult = await ctx.db.query.leaguePlayers.findMany({
+        columns: { id: true, createdAt: true, disabled: true, userId: true },
         where: eq(leaguePlayers.leagueId, ctx.league.id),
+        with: {
+          user: {
+            columns: { name: true, imageUrl: true },
+          },
+        },
       });
 
-      return populateLeagueUserPlayer({ leaguePlayers: leaguePlayerResult });
+      return leaguePlayerResult.map((lp) => ({
+        id: lp.id,
+        userId: lp.userId,
+        name: lp.user.name,
+        imageUrl: lp.user.imageUrl,
+        joinedAt: lp.createdAt,
+        disabled: lp.disabled,
+      }));
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {
     const slug = await slugifyLeagueName({ name: input.name });

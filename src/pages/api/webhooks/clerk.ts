@@ -43,6 +43,14 @@ const handler = async (req: NextApiRequestWithSvixRequiredHeaders, res: NextApiR
         createdAt: new Date(evt.data.created_at),
         updatedAt: new Date(evt.data.updated_at),
       })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          name: fullName({ firstName: evt.data.first_name, lastName: evt.data.last_name }),
+          imageUrl: evt.data.image_url,
+          updatedAt: new Date(evt.data.updated_at),
+        },
+      })
       .run();
     return res.status(200).json({});
   }

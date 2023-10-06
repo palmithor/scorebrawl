@@ -8,7 +8,6 @@ import {
   getLeagueById,
 } from "~/server/api/league/league.repository";
 import { getOngoingSeason } from "~/server/api/season/season.repository";
-import { populateSeasonPlayerUser } from "~/server/api/season/season.util";
 import { createTRPCRouter, leagueProcedure, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import {
@@ -134,11 +133,24 @@ export const seasonRouter = createTRPCRouter({
         with: {
           leaguePlayer: {
             columns: { userId: true },
+            with: {
+              user: {
+                columns: { imageUrl: true, name: true },
+              },
+            },
           },
         },
         orderBy: desc(seasonPlayers.elo),
       });
-      return populateSeasonPlayerUser({ seasonPlayers: seasonPlayerResult });
+      return seasonPlayerResult.map((sp) => ({
+        id: sp.id,
+        userId: sp.leaguePlayer.userId,
+        name: sp.leaguePlayer.user.name,
+        imageUrl: sp.leaguePlayer.user.imageUrl,
+        elo: sp.elo,
+        joinedAt: sp.createdAt,
+        disabled: sp.disabled,
+      }));
     }),
   getTeamScores: protectedProcedure
     .input(

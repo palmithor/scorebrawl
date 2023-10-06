@@ -5,10 +5,6 @@ import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
 import { create } from "~/server/api/match/match.schema";
 import { getSeasonById } from "~/server/api/season/season.repository";
-import {
-  populateSeasonPlayerUser,
-  type SeasonPlayerWithUserId,
-} from "~/server/api/season/season.util";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createCuid, matches, matchPlayers, seasonPlayers } from "~/server/db/schema";
 import {
@@ -17,44 +13,58 @@ import {
   getLeagueBySlug,
   getLeagueIdBySlug,
 } from "../league/league.repository";
-import { type SeasonPlayerUser } from "../types";
-import { type MatchInfo } from "~/server/db/types";
 
-export const populateMatchPlayers = (
-  matches: {
-    matchPlayers: {
-      seasonPlayer: SeasonPlayerWithUserId;
-    }[];
-  }[],
-) =>
-  populateSeasonPlayerUser({
-    seasonPlayers: matches
-      .flatMap((m) => m.matchPlayers.flatMap((mp) => mp.seasonPlayer))
-      .reduce<SeasonPlayerWithUserId[]>((accumulator, currentValue) => {
-        if (!accumulator.some((sp) => sp.id === currentValue.id)) {
-          accumulator.push(currentValue);
-        }
-        return accumulator;
-      }, []),
-  });
-
-const toResponse = (match: MatchInfo, players: SeasonPlayerUser[]) => ({
+const toResponse = (match: {
+  id: string;
+  homeScore: number;
+  awayScore: number;
+  homeExpectedElo: number;
+  awayExpectedElo: number;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  matchPlayers: {
+    homeTeam: boolean;
+    seasonPlayer: {
+      id: string;
+      elo: number;
+      createdAt: Date;
+      disabled: boolean;
+      leaguePlayer: { userId: string; user: { name: string | null; imageUrl: string | null } };
+    };
+  }[];
+}) => ({
   id: match.id,
   homeTeam: {
     score: match.homeScore,
     expectedElo: match.homeExpectedElo,
     players: match.matchPlayers
       .filter((p) => p.homeTeam)
-      .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
-      .filter((item): item is SeasonPlayerUser => !!item),
+      .map((p) => ({
+        id: p.seasonPlayer.id,
+        userId: p.seasonPlayer.leaguePlayer.userId,
+        elo: p.seasonPlayer.elo,
+        joinedAt: p.seasonPlayer.createdAt,
+        disabled: p.seasonPlayer.disabled,
+        name: p.seasonPlayer.leaguePlayer.user?.name ?? "",
+        imageUrl: p.seasonPlayer.leaguePlayer.user?.imageUrl ?? "",
+      })),
   },
   awayTeam: {
     score: match.awayScore,
     expectedElo: match.awayExpectedElo,
     players: match.matchPlayers
       .filter((p) => !p.homeTeam)
-      .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
-      .filter((item): item is SeasonPlayerUser => !!item),
+      .map((p) => ({
+        id: p.seasonPlayer.id,
+        userId: p.seasonPlayer.leaguePlayer.userId,
+        elo: p.seasonPlayer.elo,
+        joinedAt: p.seasonPlayer.createdAt,
+        disabled: p.seasonPlayer.disabled,
+        name: p.seasonPlayer.leaguePlayer.user?.name ?? "",
+        imageUrl: p.seasonPlayer.leaguePlayer.user?.imageUrl ?? "",
+      })),
   },
   createdBy: match.createdBy,
   updatedBy: match.updatedBy,
@@ -84,16 +94,20 @@ export const matchRouter = createTRPCRouter({
         with: {
           matchPlayers: {
             with: {
-              seasonPlayer: { with: { leaguePlayer: { columns: { userId: true } } } },
+              seasonPlayer: {
+                with: {
+                  leaguePlayer: {
+                    columns: { userId: true },
+                    with: { user: { columns: { name: true, imageUrl: true } } },
+                  },
+                },
+              },
             },
           },
         },
       });
-
-      const players = await populateMatchPlayers(seasonMatches);
-
       return {
-        data: seasonMatches.map((match) => toResponse(match, players)),
+        data: seasonMatches.map(toResponse),
         nextCursor: undefined,
       };
     }),
@@ -117,7 +131,14 @@ export const matchRouter = createTRPCRouter({
           },
           matchPlayers: {
             with: {
-              seasonPlayer: { with: { leaguePlayer: { columns: { userId: true } } } },
+              seasonPlayer: {
+                with: {
+                  leaguePlayer: {
+                    columns: { userId: true },
+                    with: { user: { columns: { name: true, imageUrl: true } } },
+                  },
+                },
+              },
             },
           },
         },
@@ -129,9 +150,43 @@ export const matchRouter = createTRPCRouter({
       // check access
       await getLeagueBySlug({ userId: ctx.auth.userId, slug: match.season.league.slug });
 
-      const players = await populateMatchPlayers([match]);
-
-      return toResponse(match, players);
+      return {
+        id: match.id,
+        homeTeam: {
+          score: match.homeScore,
+          expectedElo: match.homeExpectedElo,
+          players: match.matchPlayers
+            .filter((p) => p.homeTeam)
+            .map((p) => ({
+              id: p.seasonPlayer.id,
+              userId: p.seasonPlayer.leaguePlayer.userId,
+              elo: p.seasonPlayer.elo,
+              joinedAt: p.seasonPlayer.createdAt,
+              disabled: p.seasonPlayer.disabled,
+              name: p.seasonPlayer.leaguePlayer.user.name,
+              imageUrl: p.seasonPlayer.leaguePlayer.user.imageUrl,
+            })),
+        },
+        awayTeam: {
+          score: match.awayScore,
+          expectedElo: match.awayExpectedElo,
+          players: match.matchPlayers
+            .filter((p) => !p.homeTeam)
+            .map((p) => ({
+              id: p.seasonPlayer.id,
+              userId: p.seasonPlayer.leaguePlayer.userId,
+              elo: p.seasonPlayer.elo,
+              joinedAt: p.seasonPlayer.createdAt,
+              disabled: p.seasonPlayer.disabled,
+              name: p.seasonPlayer.leaguePlayer.user.name,
+              imageUrl: p.seasonPlayer.leaguePlayer.user.imageUrl,
+            })),
+        },
+        createdBy: match.createdBy,
+        updatedBy: match.updatedBy,
+        createdAt: match.createdAt,
+        updatedAt: match.updatedAt,
+      };
     }),
   getLatest: protectedProcedure
     .input(
@@ -157,7 +212,14 @@ export const matchRouter = createTRPCRouter({
                 with: {
                   matchPlayers: {
                     with: {
-                      seasonPlayer: { with: { leaguePlayer: { columns: { userId: true } } } },
+                      seasonPlayer: {
+                        with: {
+                          leaguePlayer: {
+                            columns: { userId: true },
+                            with: { user: { columns: { name: true, imageUrl: true } } },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -183,40 +245,13 @@ export const matchRouter = createTRPCRouter({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
 
-      const players = await populateSeasonPlayerUser({
-        seasonPlayers: latestMatchAcrossSeasons.matchPlayers.map((p) => p.seasonPlayer),
-      });
-
       const season = leagueMatches.seasons.find(
         (s) => s.id === latestMatchAcrossSeasons.seasonId,
       ) as { id: string; name: string };
 
       return {
-        id: latestMatchAcrossSeasons.id,
-        season: {
-          id: season.id,
-          name: season.name,
-        },
-        homeTeam: {
-          score: latestMatchAcrossSeasons.homeScore,
-          expectedElo: latestMatchAcrossSeasons.homeExpectedElo,
-          players: latestMatchAcrossSeasons.matchPlayers
-            .filter((p) => p.homeTeam)
-            .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
-            .filter((item): item is SeasonPlayerUser => !!item),
-        },
-        awayTeam: {
-          score: latestMatchAcrossSeasons.awayScore,
-          expectedElo: latestMatchAcrossSeasons.awayExpectedElo,
-          players: latestMatchAcrossSeasons.matchPlayers
-            .filter((p) => !p.homeTeam)
-            .map((mp) => players.find((p) => p.id == mp.seasonPlayer.id))
-            .filter((item): item is SeasonPlayerUser => !!item),
-        },
-        createdBy: latestMatchAcrossSeasons.createdBy,
-        updatedBy: latestMatchAcrossSeasons.updatedBy,
-        createdAt: latestMatchAcrossSeasons.createdAt,
-        updatedAt: latestMatchAcrossSeasons.updatedAt,
+        ...toResponse(latestMatchAcrossSeasons),
+        season: { id: season.id, name: season.name },
       };
     }),
   create: protectedProcedure.input(create).mutation(async ({ ctx, input }) => {

@@ -1,20 +1,16 @@
 import { TRPCError } from "@trpc/server";
 import { describe, expect, test } from "bun:test";
-import { appRouter } from "~/server/api/root";
-import { createInnerTRPCContext } from "~/server/api/trpc";
 import { createLeague } from "~/test-helper/league.data-generator";
 import { createSeason } from "~/test-helper/season.data-generator";
-import { type NextApiRequest } from "next";
 import { db } from "~/server/db";
 import { eq } from "drizzle-orm";
 import { seasons } from "~/server/db/schema";
-import { type SignedInAuthObject } from "@clerk/nextjs/server";
+import { testCtx } from "../../../../tests/util";
+import { appRouter } from "~/server/api/root";
+import { type NextApiRequest } from "next";
 
 describe("seasonRouter", () => {
-  const ctx = createInnerTRPCContext({
-    auth: { userId: "userId" } as SignedInAuthObject,
-  });
-  const caller = appRouter.createCaller({ ...ctx, req: {} as NextApiRequest });
+  const caller = appRouter.createCaller({ ...testCtx, req: {} as NextApiRequest });
 
   describe("createSeason", () => {
     test("should create season", async () => {
@@ -31,8 +27,8 @@ describe("seasonRouter", () => {
       expect(season.startDate.toISOString()).toEqual("2023-04-19T00:00:00.000Z");
       expect(season.createdAt).toBeTruthy();
       expect(season.updatedAt).toBeTruthy();
-      expect(season.createdBy).toEqual("userId");
-      expect(season.updatedBy).toEqual("userId");
+      expect(season.createdBy).toEqual(testCtx.auth.userId);
+      expect(season.updatedBy).toEqual(testCtx.auth.userId);
     });
 
     test("should fail when user is not editor or owner of league", async () => {
