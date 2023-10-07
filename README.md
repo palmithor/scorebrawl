@@ -27,11 +27,15 @@ brew install sqld-beta
 
 In order to start a local database, both `turso` and `sqld` need to be installed.
 
-To start local database:
+To start a local database:
 
 `./dev/bin/start-db.sh`
 
-This creates a database file in `./dev/.local`.
+This creates a database file and stores the parent pid in `./dev/.local`.
+
+To stop the database run
+
+`./dev/bin/stop-db.sh`
 
 Before running the development environment some environment variables have to be set up. Replace the secret keys and run the following in the source root.
 
@@ -52,7 +56,8 @@ Run db migrations and start the development server by executing `bun run dev`.
 ## Testing
 
 Tests require `turso` to be installed as tests are run against in-memory database.
-The in-memory database is started by running `turso dev --port 8003`.
+The in-memory database is started and shut down as part of the test execution.
+
 Tests are executed by running
 
 `bun test`
