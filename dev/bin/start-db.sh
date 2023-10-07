@@ -1,18 +1,36 @@
 #!/bin/bash
 
+env="${1:-"dev"}"
+
+allowed_env=('dev' 'test')
+
+if [[ ! "${allowed_env[*]}" =~ $env ]]; then
+  echo "Unsupported env. Supported are (${allowed_env[*]})"
+  exit 1
+fi
+
 script_dir="$(dirname "$0")"
 repository_root="$(git rev-parse --show-toplevel)"
-db_name="scorebrawl.db"
-db_file="${repository_root}/dev/.local/${db_name}"
 
-if [ ! -f $db_file ]
-then
+if [ "$env" == "dev" ]; then
+  db_name="scorebrawl.db"
+  db_file="${repository_root}/dev/.local/${db_name}"
+
+  if [ ! -f $db_file ]; then
     echo "Creating db file"
     cd "${repository_root}/dev/.local"
     sqlite3 ${db_name} "VACUUM"
     sqlite3 ${db_name} 'PRAGMA journal_mode=WAL;'
-else
+  else
     echo "DB file already exists"
-fi
+  fi
 
-turso dev --port 8002 --db-file "$db_file"
+  nohup turso dev --port 8002 --db-file "$db_file" >/dev/null 2>&1 &
+
+  echo $! >$repository_root/dev/.local/turso-dev-pid.nohup
+
+  echo "turso dev db started"
+else
+    nohup turso dev --port 8003 >/dev/null 2>&1 &
+    echo $! >$repository_root/dev/.local/turso-test-pid.nohup
+fi

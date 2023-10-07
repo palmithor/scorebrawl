@@ -1,4 +1,4 @@
-import { afterEach, beforeAll } from "bun:test";
+import { afterAll, afterEach, beforeAll } from "bun:test";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { db } from "~/server/db";
 import {
@@ -12,9 +12,14 @@ import {
 } from "~/server/db/schema";
 import { insertAuthUser } from "./util";
 
+const isCI = process.env.CI;
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 beforeAll(async () => {
+  if (!isCI) {
+    Bun.spawn([`${import.meta.dir}/../dev/bin/start-db.sh`, "test"]);
+  }
   let success = false;
   for (let i = 0; i < 5; i++) {
     try {
@@ -22,7 +27,6 @@ beforeAll(async () => {
       success = true;
       break;
     } catch (e) {
-      console.log("failed applying migration", e);
       await delay(500);
     }
   }
@@ -44,4 +48,10 @@ afterEach(async () => {
   await db.delete(leaguePlayers).run();
   await db.delete(seasons).run();
   await db.delete(leagues).run();
+});
+
+afterAll(() => {
+  if (!isCI) {
+    Bun.spawn([`${import.meta.dir}/../dev/bin/stop-db.sh`, "test"]);
+  }
 });
