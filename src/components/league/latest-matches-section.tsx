@@ -24,7 +24,7 @@ export const LatestMatchesSection = ({
 }) => {
   const { user } = useUser();
   const router = useRouter();
-  const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug });
+  const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug }, { retry: false });
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
   const { data: seasonPlayers } = api.season.getPlayers.useQuery(
     { seasonId: ongoingSeason?.id as string },
