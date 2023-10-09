@@ -13,8 +13,8 @@
     "db:push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "4.12.5",
-    "@clerk/nextjs": "4.23.5",
+    "@clerk/clerk-sdk-node": "4.12.12",
+    "@clerk/nextjs": "4.25.3",
     "@headlessui/react": "1.7.15",
     "@heroicons/react": "2.0.18",
     "@hookform/resolvers": "3.3.1",
