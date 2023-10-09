@@ -12,7 +12,7 @@ export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.match.getLatest.useQuery({ leagueSlug });
   const invalidate = useLeagueInvalidation();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug });
+  const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug }, { retry: false });
   const isLeaguePlayer = useIsLeaguePlayer();
 
   return (
