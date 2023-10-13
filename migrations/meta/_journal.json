@@ -50,6 +50,13 @@
       "when": 1697193926092,
       "tag": "0006_fearless_crystal",
       "breakpoints": false
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1697194406162,
+      "tag": "0007_bizarre_living_tribunal",
+      "breakpoints": false
     }
   ]
 }
