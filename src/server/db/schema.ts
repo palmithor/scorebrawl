@@ -71,6 +71,14 @@ export const leagueTeams = sqliteTable("league_team", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+export const leagueTeamPlayers = sqliteTable("league_team_player", {
+  id: text("id", cuidConfig).primaryKey(),
+  leaguePlayerId: text("league_player_id", cuidConfig).notNull(),
+  teamId: text("team_id", cuidConfig).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
 const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
 export type LeagueMemberRole = (typeof leagueMemberRoles)[number];
@@ -172,7 +180,7 @@ export const userRelations = relations(users, ({ many }) => ({
   leaguePlayers: many(leaguePlayers),
 }));
 
-export const leaguePlayerRelations = relations(leaguePlayers, ({ one }) => ({
+export const leaguePlayerRelations = relations(leaguePlayers, ({ one, many }) => ({
   user: one(users, {
     fields: [leaguePlayers.userId],
     references: [users.id],
@@ -181,6 +189,7 @@ export const leaguePlayerRelations = relations(leaguePlayers, ({ one }) => ({
     fields: [leaguePlayers.leagueId],
     references: [leagues.id],
   }),
+  teamPlayer: many(leagueTeamPlayers),
 }));
 
 export const leagueTeamRelations = relations(leagueTeams, ({ one, many }) => ({
@@ -189,6 +198,17 @@ export const leagueTeamRelations = relations(leagueTeams, ({ one, many }) => ({
     references: [leagues.id],
   }),
   teamPlayers: many(leaguePlayers),
+}));
+
+export const leagueTeamPlayerRelations = relations(leagueTeamPlayers, ({ one }) => ({
+  team: one(leagueTeams, {
+    fields: [leagueTeamPlayers.teamId],
+    references: [leagueTeams.id],
+  }),
+  leaguePlayer: one(leaguePlayers, {
+    fields: [leagueTeamPlayers.leaguePlayerId],
+    references: [leaguePlayers.id],
+  }),
 }));
 
 export const leagueMemberRelations = relations(leagueMembers, ({ one }) => ({
