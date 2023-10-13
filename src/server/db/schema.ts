@@ -1,6 +1,6 @@
+import { init } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import { blob, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
-import { init } from "@paralleldrive/cuid2";
 import { type LeagueEventData } from "~/server/db/types";
 
 const cuidConfig = { length: 32 };
@@ -62,6 +62,14 @@ export const leaguePlayers = sqliteTable(
     leaguePlayerIdx: uniqueIndex("league_player_uq_idx").on(player.leagueId, player.userId),
   }),
 );
+
+export const leagueTeams = sqliteTable("league_team", {
+  id: text("id", cuidConfig).primaryKey(),
+  name: text("name", defaultTextConfig).notNull(),
+  leagueId: text("league_id", cuidConfig).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
 
 const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
@@ -155,6 +163,7 @@ export const users = sqliteTable("user", {
 export const leaguesRelations = relations(leagues, ({ many }) => ({
   seasons: many(seasons),
   leaguePlayers: many(leaguePlayers),
+  leagueTeams: many(leagueTeams),
   members: many(leagueMembers),
   events: many(leagueEvents),
 }));
@@ -172,6 +181,14 @@ export const leaguePlayerRelations = relations(leaguePlayers, ({ one }) => ({
     fields: [leaguePlayers.leagueId],
     references: [leagues.id],
   }),
+}));
+
+export const leagueTeamRelations = relations(leagueTeams, ({ one, many }) => ({
+  league: one(leagues, {
+    fields: [leagueTeams.leagueId],
+    references: [leagues.id],
+  }),
+  teamPlayers: many(leaguePlayers),
 }));
 
 export const leagueMemberRelations = relations(leagueMembers, ({ one }) => ({

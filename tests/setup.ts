@@ -5,8 +5,8 @@ import {
   leagueMembers,
   leaguePlayers,
   leagues,
-  matches,
   matchPlayers,
+  matches,
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
@@ -21,23 +21,30 @@ beforeAll(async () => {
     Bun.spawn([`${import.meta.dir}/../dev/bin/start-db.sh`, "test"]);
   }
   let success = false;
+  let e;
   for (let i = 0; i < 5; i++) {
     try {
       await migrate(db, { migrationsFolder: "./migrations" });
       success = true;
       break;
-    } catch (e) {
+    } catch (err) {
+      e = err;
       await delay(500);
     }
   }
   if (!success) {
-    console.error("Unable to apply migration, exiting...");
+    console.error("Unable to apply migration, exiting...", e);
+    Bun.spawn([`${import.meta.dir}/../dev/bin/stop-db.sh`, "test"]);
     process.exit(1);
   }
 });
 
 beforeAll(async () => {
-  await insertAuthUser();
+  try {
+    await insertAuthUser();
+  } catch {
+    //ignore
+  }
 });
 
 afterEach(async () => {
