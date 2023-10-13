@@ -71,13 +71,22 @@ export const leagueTeams = sqliteTable("league_team", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const leagueTeamPlayers = sqliteTable("league_team_player", {
-  id: text("id", cuidConfig).primaryKey(),
-  leaguePlayerId: text("league_player_id", cuidConfig).notNull(),
-  teamId: text("team_id", cuidConfig).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
+export const leagueTeamPlayers = sqliteTable(
+  "league_team_player",
+  {
+    id: text("id", cuidConfig).primaryKey(),
+    leaguePlayerId: text("league_player_id", cuidConfig).notNull(),
+    teamId: text("team_id", cuidConfig).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (leagueTeamPlayer) => ({
+    leagueTeamPlayerIdx: uniqueIndex("league_team_player_uq_idx").on(
+      leagueTeamPlayer.teamId,
+      leagueTeamPlayer.leaguePlayerId,
+    ),
+  }),
+);
 
 const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
@@ -120,14 +129,20 @@ export const seasons = sqliteTable(
   }),
 );
 
-export const seasonTeams = sqliteTable("season_team", {
-  id: text("id", cuidConfig).primaryKey(),
-  seasonId: text("season_id", cuidConfig).notNull(),
-  teamId: text("team_id", cuidConfig).notNull(),
-  elo: integer("elo").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
+export const seasonTeams = sqliteTable(
+  "season_team",
+  {
+    id: text("id", cuidConfig).primaryKey(),
+    seasonId: text("season_id", cuidConfig).notNull(),
+    teamId: text("team_id", cuidConfig).notNull(),
+    elo: integer("elo").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (seasonTeam) => ({
+    seasonTeamIdx: uniqueIndex("season_team_uq_idx").on(seasonTeam.seasonId, seasonTeam.teamId),
+  }),
+);
 
 export const seasonTeamMatches = sqliteTable("season_team_match", {
   id: text("id", cuidConfig).primaryKey(),
@@ -222,12 +237,11 @@ export const leaguePlayerRelations = relations(leaguePlayers, ({ one, many }) =>
   teamPlayer: many(leagueTeamPlayers),
 }));
 
-export const leagueTeamRelations = relations(leagueTeams, ({ one, many }) => ({
+export const leagueTeamRelations = relations(leagueTeams, ({ one }) => ({
   league: one(leagues, {
     fields: [leagueTeams.leagueId],
     references: [leagues.id],
   }),
-  teamPlayers: many(leaguePlayers),
 }));
 
 export const leagueTeamPlayerRelations = relations(leagueTeamPlayers, ({ one }) => ({
