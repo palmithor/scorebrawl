@@ -43,6 +43,13 @@
       "when": 1697189849939,
       "tag": "0005_crazy_iron_monger",
       "breakpoints": false
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1697193926092,
+      "tag": "0006_fearless_crystal",
+      "breakpoints": false
     }
   ]
 }

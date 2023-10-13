@@ -79,6 +79,15 @@ export const leagueTeamPlayers = sqliteTable("league_team_player", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+export const seasonTeams = sqliteTable("season_team", {
+  id: text("id", cuidConfig).primaryKey(),
+  seasonId: text("season_id", cuidConfig).notNull(),
+  teamId: text("team_id", cuidConfig).notNull(),
+  elo: integer("elo").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
 const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
 export type LeagueMemberRole = (typeof leagueMemberRoles)[number];
@@ -135,6 +144,17 @@ export const seasonPlayers = sqliteTable(
     seasonPlayerIdx: uniqueIndex("season_player_uq_idx").on(season.seasonId, season.leaguePlayerId),
   }),
 );
+
+export const seasonTeamRelations = relations(seasonTeams, ({ one }) => ({
+  leagueTeam: one(leagueTeams, {
+    fields: [seasonTeams.teamId],
+    references: [leagueTeams.id],
+  }),
+  season: one(seasons, {
+    fields: [seasonTeams.seasonId],
+    references: [seasons.id],
+  }),
+}));
 
 export const matches = sqliteTable("match", {
   id: text("id", cuidConfig).primaryKey(),
@@ -221,6 +241,7 @@ export const leagueMemberRelations = relations(leagueMembers, ({ one }) => ({
 export const seasonRelations = relations(seasons, ({ one, many }) => ({
   seasonPlayers: many(seasonPlayers),
   matches: many(matches),
+  seasonTeams: many(seasonTeams),
   league: one(leagues, {
     fields: [seasons.leagueId],
     references: [leagues.id],
