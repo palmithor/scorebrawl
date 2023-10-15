@@ -144,12 +144,15 @@ export const seasonTeams = sqliteTable(
   }),
 );
 
+const matchResult = ["W", "L", "D"] as const;
+
 export const seasonTeamMatches = sqliteTable("season_team_match", {
   id: text("id", cuidConfig).primaryKey(),
   seasonTeamId: text("season_team_id", cuidConfig).notNull(),
   matchId: text("match_id", cuidConfig).notNull(),
   eloBefore: integer("elo_before").notNull().default(-1),
   eloAfter: integer("elo_after").notNull().default(-1),
+  result: text("result", { enum: matchResult }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
@@ -190,6 +193,7 @@ export const matchPlayers = sqliteTable("match_player", {
   matchId: text("match_id", cuidConfig).notNull(),
   eloBefore: integer("elo_before").notNull().default(-1),
   eloAfter: integer("elo_after").notNull().default(-1),
+  result: text("result", { enum: matchResult }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });

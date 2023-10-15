@@ -339,6 +339,16 @@ export const matchRouter = createTRPCRouter({
           .run();
       }
 
+      let homeTeamResult: "W" | "L" | "D" = "D";
+      let awayTeamResult: "W" | "L" | "D" = "D";
+      if (input.homeScore > input.awayScore) {
+        homeTeamResult = "W";
+        awayTeamResult = "L";
+      } else if (input.homeScore < input.awayScore) {
+        homeTeamResult = "L";
+        awayTeamResult = "W";
+      }
+
       const matchPlayerValues = [
         ...awaySeasonPlayers.map((player) => ({
           id: createCuid(),
@@ -347,6 +357,7 @@ export const matchRouter = createTRPCRouter({
           eloAfter: eloMatchResult.results.find((r) => r.identifier === player.id)?.rating,
           seasonPlayerId: player.id,
           homeTeam: false,
+          result: awayTeamResult,
           createdAt: now,
           updatedAt: now,
         })),
@@ -357,6 +368,7 @@ export const matchRouter = createTRPCRouter({
           eloAfter: eloMatchResult.results.find((r) => r.identifier === player.id)?.rating,
           seasonPlayerId: player.id,
           homeTeam: true,
+          result: homeTeamResult,
           createdAt: now,
           updatedAt: now,
         })),
