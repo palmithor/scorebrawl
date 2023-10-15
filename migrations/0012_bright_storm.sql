@@ -1,0 +1,1 @@
+ALTER TABLE season_team_match ADD `result` text;
