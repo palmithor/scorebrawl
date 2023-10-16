@@ -12,7 +12,7 @@ import { useToast } from "~/components/ui/use-toast";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
-export type Tab = "overview" | "seasons" | "players" | "statistics" | "feed";
+export type Tab = "overview" | "seasons" | "teams" | "players" | "statistics" | "feed";
 
 export const LeagueDetailsLayout = ({
   activeTab,
@@ -33,6 +33,10 @@ export const LeagueDetailsLayout = ({
   const { mutateAsync: joinLeagueMutate } = api.league.join.useMutation();
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
   const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug }, { retry: false });
+  const { data: teamStanding } = api.season.getTeams.useQuery(
+    { seasonId: ongoingSeason?.id as string },
+    { enabled: !!ongoingSeason?.id },
+  );
   const { data: seasonPlayers } = api.season.getPlayers.useQuery(
     { seasonId: ongoingSeason?.id as string },
     { enabled: !!ongoingSeason },
@@ -46,7 +50,7 @@ export const LeagueDetailsLayout = ({
   const shouldShowJoin =
     !hideJoinButton && code && !leaguePlayers?.some((u) => u?.userId === userId);
 
-  const shouldShowInviteButton = league?.visibility === "private" && code;
+  const shouldShowInviteButton = !!code;
 
   const joinLeague = () => {
     setIsJoining(true);
@@ -80,6 +84,11 @@ export const LeagueDetailsLayout = ({
             <TabsTrigger value="players">
               <Link href={`/leagues/${encodeURIComponent(league.slug)}/players`}>Players</Link>
             </TabsTrigger>
+            {teamStanding && teamStanding.length > 0 && (
+              <TabsTrigger value="teams">
+                <Link href={`/leagues/${encodeURIComponent(league.slug)}/teams`}>Team Table</Link>
+              </TabsTrigger>
+            )}
           </TabsList>
         </div>
         {shouldShowJoin && (

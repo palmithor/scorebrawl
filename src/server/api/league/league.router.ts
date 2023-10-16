@@ -1,4 +1,3 @@
-import clerk from "@clerk/clerk-sdk-node";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, gte, inArray, isNull, or, sql } from "drizzle-orm";
 import z from "zod";
@@ -19,7 +18,6 @@ import {
 import { type PlayerJoinedEventData } from "~/server/db/types";
 import { canReadLeaguesCriteria, getByIdWhereMember } from "./league.repository";
 import { create } from "./league.schema";
-import { fullName } from "~/lib/string-utils";
 
 export const leagueRouter = createTRPCRouter({
   getMine: protectedProcedure
@@ -216,7 +214,10 @@ export const leagueRouter = createTRPCRouter({
             with: {
               seasonPlayers: {
                 with: {
-                  leaguePlayer: { columns: { userId: true } },
+                  leaguePlayer: {
+                    columns: { userId: true },
+                    with: { user: { columns: { name: true, imageUrl: true } } },
+                  },
                   matches: {
                     columns: { homeTeam: true, createdAt: true },
                     orderBy: (match, { desc }) => [desc(match.createdAt)],
@@ -236,15 +237,18 @@ export const leagueRouter = createTRPCRouter({
 
       if (data) {
         type FormAndPoints = { points: number; form: PlayerForm };
+        type DisplayUser = { name: string; imageUrl: string };
         const userFormAndPoints = data.seasons
           .flatMap((season) =>
             season.seasonPlayers.map((player) => ({
               userId: player.leaguePlayer.userId,
+              name: player.leaguePlayer.user.name,
+              imageUrl: player.leaguePlayer.user.imageUrl,
               matches: player.matches,
             })),
           )
-          .reduce<Record<string, FormAndPoints>>((acc, player) => {
-            const { userId, matches } = player;
+          .reduce<Record<string, FormAndPoints & DisplayUser>>((acc, player) => {
+            const { userId, name, imageUrl, matches } = player;
             const currentPointsAndForm = matches.reduce<FormAndPoints>(
               (pointsAndForm, match) => {
                 if (match.match.awayScore === match.match.homeScore) {
@@ -272,30 +276,40 @@ export const leagueRouter = createTRPCRouter({
             const accPoints = acc[userId];
             if (accPoints) {
               acc[userId] = {
+                name,
+                imageUrl,
                 points: accPoints.points + currentPointsAndForm.points,
                 form: [...accPoints.form, ...currentPointsAndForm.form],
               };
             } else {
-              acc[userId] = currentPointsAndForm;
+              acc[userId] = { name, imageUrl, ...currentPointsAndForm };
             }
             return acc;
           }, {});
 
         let bestForm: {
           userId: string;
+          name: string;
+          imageUrl: string;
           form: PlayerForm;
           points: number;
-        } = { userId: "", points: -1, form: [] };
+        } = { userId: "", name: "", imageUrl: "", points: -1, form: [] };
         for (const userId of Object.keys(userFormAndPoints)) {
           const user = userFormAndPoints[userId];
           if (user && user.points > bestForm.points) {
-            bestForm = { userId, points: user.points, form: user.form.reverse() };
+            bestForm = {
+              userId,
+              name: user.name,
+              imageUrl: user.imageUrl,
+              points: user.points,
+              form: user.form.reverse(),
+            };
           }
         }
-        const user = await clerk.users.getUser(bestForm.userId);
+
         return {
-          name: fullName(user),
-          imageUrl: user.imageUrl,
+          name: bestForm.name,
+          imageUrl: bestForm.imageUrl,
           points: bestForm.points,
           form: bestForm.form,
         };

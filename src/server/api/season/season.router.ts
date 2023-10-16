@@ -17,12 +17,13 @@ import {
   leagues,
   seasonPlayers,
   seasons,
+  seasonTeams,
 } from "~/server/db/schema";
 import { type Db, type SeasonCreatedEventData } from "~/server/db/types";
 import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
 import { endOfDay, startOfDay } from "date-fns";
-import { getTeamScoresBySeasonId } from "~/server/api/season/seasonteam.repository";
+import { type MatchResult } from "~/server/api/types";
 
 const getSeason = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const season = await db.query.seasons.findFirst({
@@ -152,7 +153,8 @@ export const seasonRouter = createTRPCRouter({
         disabled: sp.disabled,
       }));
     }),
-  getTeamScores: protectedProcedure
+
+  getTeams: protectedProcedure
     .input(
       z.object({
         seasonId: z.string(),
@@ -163,8 +165,40 @@ export const seasonRouter = createTRPCRouter({
         seasonId: input.seasonId,
         userId: ctx.auth.userId,
       });
-
-      return getTeamScoresBySeasonId({ seasonId: season.id });
+      const teams = await ctx.db.query.seasonTeams.findMany({
+        where: eq(seasonTeams.seasonId, season.id),
+        columns: { id: true, elo: true, createdAt: true, updatedAt: true },
+        orderBy: desc(seasonTeams.elo),
+        with: {
+          leagueTeam: {
+            columns: { id: true, name: true },
+            with: {
+              players: {
+                columns: { id: true },
+                with: {
+                  leaguePlayer: {
+                    columns: { id: true },
+                    with: { user: { columns: { name: true, imageUrl: true } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      return teams.map((team) => ({
+        id: team.id,
+        leagueTeamId: team.leagueTeam.id,
+        name: team.leagueTeam.name,
+        elo: team.elo,
+        players: team.leagueTeam.players.map((p) => ({
+          id: p.leaguePlayer.id,
+          name: p.leaguePlayer.user.name,
+          imageUrl: p.leaguePlayer.user.imageUrl,
+        })),
+        createdAt: team.createdAt,
+        updatedAt: team.updatedAt,
+      }));
     }),
   create: leagueProcedure.input(create).mutation(async ({ ctx, input }) => {
     if (input.endDate && input.startDate.getTime() >= input.endDate.getTime()) {
@@ -285,44 +319,47 @@ export const seasonRouter = createTRPCRouter({
   playerForm: protectedProcedure
     .input(
       z.object({
-        seasonId: z.string().nonempty(),
+        seasonPlayerId: z.string().nonempty(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const season = await getSeason({
-        seasonId: input.seasonId,
-        userId: ctx.auth.userId,
-      });
-
-      const playerMatches = await ctx.db.query.seasonPlayers.findMany({
+      const playerMatches = await ctx.db.query.seasonPlayers.findFirst({
         columns: { id: true },
-        where: eq(seasonPlayers.seasonId, season.id),
+        where: eq(seasonPlayers.id, input.seasonPlayerId),
         with: {
           matches: {
             orderBy: (match, { desc }) => [desc(match.createdAt)],
             limit: 5,
-            with: { match: true },
           },
         },
       });
-
-      return playerMatches.map((pm) => {
-        const form = pm.matches.reverse().map((m) => {
-          if (m.match.homeScore === m.match.awayScore) {
-            return "D";
-          } else if (
-            (m.match.homeScore > m.match.awayScore && m.homeTeam) ||
-            (m.match.awayScore > m.match.homeScore && !m.homeTeam)
-          ) {
-            return "W";
-          } else {
-            return "L";
-          }
-        });
-        return { seasonPlayerId: pm.id, form };
-      });
+      // todo make column not null
+      return playerMatches?.matches.reverse().map((m) => m.result as MatchResult) || [];
     }),
-  pointsDiff: protectedProcedure
+  teamForm: protectedProcedure
+    .input(
+      z.object({
+        seasonTeamId: z.string().nonempty(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const team = await ctx.db.query.seasonTeams.findFirst({
+        columns: { id: true },
+        where: eq(seasonTeams.id, input.seasonTeamId),
+        with: {
+          matches: {
+            orderBy: (match, { desc }) => [desc(match.createdAt)],
+            limit: 5,
+            with: {
+              match: true,
+            },
+          },
+        },
+      });
+      // todo make column not null
+      return team?.matches.reverse().map((tm) => tm.result as MatchResult) || [];
+    }),
+  playerPointDiff: protectedProcedure
     .input(
       z.object({
         seasonPlayerId: z.string().nonempty(),
@@ -346,6 +383,34 @@ export const seasonRouter = createTRPCRouter({
           diff:
             (matchPlayers[matchPlayers.length - 1]?.eloAfter ?? 0) -
             (matchPlayers[0]?.eloBefore ?? 0),
+        };
+      } else {
+        return { diff: 0 };
+      }
+    }),
+  teamPointDiff: protectedProcedure
+    .input(
+      z.object({
+        seasonTeamId: z.string().nonempty(),
+        from: z.date().default(startOfDay(new Date())),
+        to: z.date().default(endOfDay(new Date())),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const matchResult = await ctx.db.query.teamMatches.findMany({
+        where: (teamMatch, { eq, and }) =>
+          and(
+            eq(teamMatch.seasonTeamId, input.seasonTeamId),
+            gte(teamMatch.createdAt, input.from),
+            lte(teamMatch.createdAt, input.to),
+          ),
+        orderBy: (matchPlayer, { asc }) => [asc(matchPlayer.createdAt)],
+      });
+
+      if (matchResult.length > 0) {
+        return {
+          diff:
+            (matchResult[matchResult.length - 1]?.eloAfter ?? 0) - (matchResult[0]?.eloBefore ?? 0),
         };
       } else {
         return { diff: 0 };

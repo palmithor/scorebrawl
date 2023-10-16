@@ -12,11 +12,15 @@ export const useLeagueInvalidation = () => {
       league.getBestForm.invalidate({ leagueSlug }),
       league.getMatchesPlayedStats.invalidate({ leagueSlug }),
       season.getOngoing.invalidate({ leagueSlug }),
-      season.pointsDiff.invalidate(),
+      season.playerPointDiff.invalidate(),
+      season.teamPointDiff.invalidate(),
+      season.playerForm.invalidate(),
+      season.teamForm.invalidate(),
     ]);
     if (props?.seasonId) {
       await season.getPlayers.invalidate({ seasonId: props.seasonId });
-      await season.playerForm.invalidate({ seasonId: props.seasonId });
+      await season.getTeams.invalidate({ seasonId: props.seasonId });
+      await match.getAll.invalidate({ seasonId: props.seasonId });
     }
   };
 };

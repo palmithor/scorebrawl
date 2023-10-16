@@ -17,4 +17,5 @@ export type SeasonPlayerUser = {
   joinedAt: Date;
 };
 
-export type PlayerForm = ("W" | "D" | "L")[];
+export type MatchResult = "W" | "D" | "L";
+export type PlayerForm = MatchResult[];
