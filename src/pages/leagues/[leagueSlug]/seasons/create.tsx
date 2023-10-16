@@ -5,7 +5,7 @@ import { LoadingButton } from "~/components/ui/loading-button";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/lib/api";
 import { create } from "~/server/api/season/season.schema";
-import { SeasonList } from "~/components/league/list";
+import { SeasonList } from "~/components/league/season-list";
 import React from "react";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";

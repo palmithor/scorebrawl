@@ -1,15 +1,20 @@
 import z, { ZodError } from "zod";
 import { experimental_standaloneMiddleware, initTRPC, TRPCError } from "@trpc/server";
-import { getAuth, type SignedInAuthObject, type SignedOutAuthObject } from "@clerk/nextjs/server";
+import {
+  createClerkClient,
+  getAuth,
+  type SignedInAuthObject,
+  type SignedOutAuthObject,
+} from "@clerk/nextjs/server";
 import superjson from "superjson";
 import { db } from "~/server/db";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { getLeagueBySlug } from "~/server/api/league/league.repository";
 import { type Db } from "~/server/db/types";
-import clerk from "@clerk/clerk-sdk-node";
 import { users } from "~/server/db/schema";
 import { fullName } from "~/lib/string-utils";
 import { logger } from "~/lib/logger";
+import { env } from "~/env.mjs";
 
 /**
  * 1. CONTEXT
@@ -70,12 +75,13 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
   },
 });
 
+const clerk = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
+
 // check if the user is signed in, otherwise through a UNAUTHORIZED CODE
 const isAuthenticated = t.middleware(async ({ next, ctx }) => {
   if (!ctx.auth?.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  console.log();
   const user = await db.query.users.findFirst({
     where: (user, { eq }) => eq(user.id, ctx.auth.userId as string),
     columns: { id: true },

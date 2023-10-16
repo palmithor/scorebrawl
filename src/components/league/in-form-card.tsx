@@ -2,7 +2,7 @@ import { api } from "~/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { AvatarName } from "../user/avatar-name";
-import { FormDots } from "./form-dots";
+import { FormDots } from "../standing/form-dots";
 
 export const InFormCard = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data, error, isLoading } = api.league.getBestForm.useQuery(

@@ -65,7 +65,7 @@ export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
                             { matchId: data.id },
                             {
                               onSuccess: () => {
-                                void invalidate();
+                                void invalidate({ seasonId: ongoingSeason.id });
                               },
                             },
                           );

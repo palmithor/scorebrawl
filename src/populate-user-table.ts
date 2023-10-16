@@ -1,13 +1,16 @@
-import clerk, { type User } from "@clerk/clerk-sdk-node";
+import { type User } from "@clerk/clerk-sdk-node";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { fullName } from "~/lib/string-utils";
+import { createClerkClient } from "@clerk/nextjs/server";
+import { env } from "~/env.mjs";
 
 console.log("Fetching users from clerk to populate users table");
 let clerkUsers: User[] = [];
 let lastResponse: User[] = [];
 let offset = 0;
 const limit = 50;
+const clerk = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
 do {
   lastResponse = await clerk.users.getUserList({ limit, orderBy: "created_at", offset });
   clerkUsers = [...clerkUsers, ...lastResponse];

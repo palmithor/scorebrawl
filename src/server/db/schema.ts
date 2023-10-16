@@ -146,7 +146,7 @@ export const seasonTeams = sqliteTable(
 
 const matchResult = ["W", "L", "D"] as const;
 
-export const seasonTeamMatches = sqliteTable("season_team_match", {
+export const teamMatches = sqliteTable("season_team_match", {
   id: text("id", cuidConfig).primaryKey(),
   seasonTeamId: text("season_team_id", cuidConfig).notNull(),
   matchId: text("match_id", cuidConfig).notNull(),
@@ -214,7 +214,7 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
   events: many(leagueEvents),
 }));
 
-export const seasonTeamRelations = relations(seasonTeams, ({ one }) => ({
+export const seasonTeamRelations = relations(seasonTeams, ({ one, many }) => ({
   leagueTeam: one(leagueTeams, {
     fields: [seasonTeams.teamId],
     references: [leagueTeams.id],
@@ -223,6 +223,7 @@ export const seasonTeamRelations = relations(seasonTeams, ({ one }) => ({
     fields: [seasonTeams.seasonId],
     references: [seasons.id],
   }),
+  matches: many(teamMatches),
 }));
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -241,11 +242,12 @@ export const leaguePlayerRelations = relations(leaguePlayers, ({ one, many }) =>
   teamPlayer: many(leagueTeamPlayers),
 }));
 
-export const leagueTeamRelations = relations(leagueTeams, ({ one }) => ({
+export const leagueTeamRelations = relations(leagueTeams, ({ one, many }) => ({
   league: one(leagues, {
     fields: [leagueTeams.leagueId],
     references: [leagues.id],
   }),
+  players: many(leagueTeamPlayers),
 }));
 
 export const leagueTeamPlayerRelations = relations(leagueTeamPlayers, ({ one }) => ({
@@ -295,13 +297,13 @@ export const seasonPlayerRelations = relations(seasonPlayers, ({ one, many }) =>
   matches: many(matchPlayers),
 }));
 
-export const seasonTeamMatchRelations = relations(seasonTeamMatches, ({ one }) => ({
+export const seasonTeamMatchRelations = relations(teamMatches, ({ one }) => ({
   match: one(matches, {
-    fields: [seasonTeamMatches.matchId],
+    fields: [teamMatches.matchId],
     references: [matches.id],
   }),
   seasonTeam: one(seasonTeams, {
-    fields: [seasonTeamMatches.seasonTeamId],
+    fields: [teamMatches.seasonTeamId],
     references: [seasonTeams.id],
   }),
 }));
@@ -312,6 +314,7 @@ export const matchRelations = relations(matches, ({ one, many }) => ({
     fields: [matches.seasonId],
     references: [seasons.id],
   }),
+  teamMatches: many(teamMatches),
 }));
 
 export const matchPlayerRelations = relations(matchPlayers, ({ one }) => ({
