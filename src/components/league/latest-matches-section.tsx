@@ -5,7 +5,7 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import { api } from "~/lib/api";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
-import { MatchResult } from "~/components/match/matchResult";
+import { MatchResult } from "~/components/match/match-result";
 import {
   Table,
   TableBody,

@@ -1,7 +1,7 @@
 import { type GetServerSidePropsContext, type NextPage } from "next";
 import { InFormCard } from "~/components/league/in-form-card";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
-import { MatchesPlayedCard } from "~/components/league/match-count-card";
+import { MatchesPlayedCard } from "~/components/league/matches-played-card";
 import { OngoingSeasonSection } from "~/components/league/ongoing-season-section";
 import { LatestMatchCard } from "~/components/match/latest-match-card";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
