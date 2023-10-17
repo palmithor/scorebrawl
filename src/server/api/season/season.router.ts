@@ -15,6 +15,7 @@ import {
   leagueEvents,
   leaguePlayers,
   leagues,
+  matches,
   seasonPlayers,
   seasons,
   seasonTeams,
@@ -153,7 +154,6 @@ export const seasonRouter = createTRPCRouter({
         disabled: sp.disabled,
       }));
     }),
-
   getTeams: protectedProcedure
     .input(
       z.object({
@@ -415,5 +415,35 @@ export const seasonRouter = createTRPCRouter({
       } else {
         return { diff: 0 };
       }
+    }),
+  getStats: protectedProcedure
+    .input(
+      z.object({
+        seasonId: z.string().nonempty(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const season = await getSeason({ userId: ctx.auth.userId, seasonId: input.seasonId });
+
+      const matchCount = await ctx.db
+        .select({ count: sql<number>`count(*)` })
+        .from(matches)
+        .where(eq(matches.seasonId, season.id))
+        .get();
+      const teamCount = await ctx.db
+        .select({ count: sql<number>`count(*)` })
+        .from(seasonTeams)
+        .where(eq(seasonTeams.seasonId, season.id))
+        .get();
+      const playerCount = await ctx.db
+        .select({ count: sql<number>`count(*)` })
+        .from(seasonPlayers)
+        .where(eq(seasonPlayers.seasonId, season.id))
+        .get();
+      return {
+        matchCount: matchCount?.count || 0,
+        teamCount: teamCount?.count || 0,
+        playerCount: playerCount?.count || 0,
+      };
     }),
 });

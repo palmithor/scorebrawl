@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { api } from "~/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { MatchResult } from "~/components/match/matchResult";
+import { MatchResult } from "~/components/match/match-result";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 import { useIsLeaguePlayer } from "~/hooks/useIsLeaguePlayer";
 
