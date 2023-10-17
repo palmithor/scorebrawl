@@ -413,7 +413,7 @@ export const seasonRouter = createTRPCRouter({
             (matchResult[matchResult.length - 1]?.eloAfter ?? 0) - (matchResult[0]?.eloBefore ?? 0),
         };
       } else {
-        return { diff: 0 };
+        return { diff: undefined };
       }
     }),
   getStats: protectedProcedure
