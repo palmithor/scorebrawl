@@ -10,7 +10,7 @@ import { PointDiffText } from "~/components/standing/PointDiffText";
 const PointsDiff = (id: string): ReactNode | null => {
   const { data } = api.season.teamPointDiff.useQuery({ seasonTeamId: id });
 
-  return <PointDiffText diff={data?.diff || 0} />;
+  return <PointDiffText diff={data?.diff} />;
 };
 
 const Form = (id: string): ReactNode | null => {
