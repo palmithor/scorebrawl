@@ -8,10 +8,6 @@ interface MobileNavConfig {
 export const mobileNavConfig: MobileNavConfig = {
   mainNav: [
     {
-      title: "Dashboard",
-      href: "/dashboard",
-    },
-    {
       title: "Leagues",
       href: "/leagues",
     },

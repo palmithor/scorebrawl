@@ -1,11 +1,11 @@
 import { type NextPage } from "next";
-import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
 import { api } from "~/lib/api";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { Standing } from "~/components/standing/standing";
 import { type ReactNode } from "react";
 import { FormDots } from "~/components/standing/form-dots";
 import { PointDiffText } from "~/components/standing/PointDiffText";
+import { SeasonDetailsLayout } from "~/components/season/season-details-layout";
 
 const PointsDiff = (id: string): ReactNode | null => {
   const { data } = api.season.teamPointDiff.useQuery({ seasonTeamId: id });
@@ -38,9 +38,9 @@ const TeamStanding: NextPage = () => {
     })),
   }));
   return (
-    <LeagueDetailsLayout activeTab={"teams"}>
+    <SeasonDetailsLayout>
       {items && <Standing items={items} renderPointDiff={PointsDiff} renderForm={Form} />}
-    </LeagueDetailsLayout>
+    </SeasonDetailsLayout>
   );
 };
 

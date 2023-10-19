@@ -2,25 +2,11 @@
 /// <reference lib="dom.iterable" />
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { useRouter } from "next/router";
 import { api } from "~/lib/api";
 import { Standing } from "~/components/standing/standing";
-import { type ReactNode } from "react";
-import { FormDots } from "~/components/standing/form-dots";
-import { PointDiffText } from "~/components/standing/PointDiffText";
-
-const PointsDiff = (id: string): ReactNode | null => {
-  const { data } = api.season.playerPointDiff.useQuery({ seasonPlayerId: id });
-
-  return <PointDiffText diff={data?.diff} />;
-};
-
-const Form = (id: string): ReactNode | null => {
-  const { data } = api.season.playerForm.useQuery({ seasonPlayerId: id });
-
-  return data ? <FormDots form={data} /> : null;
-};
+import { PointsDiff } from "~/components/player/points-diff";
+import { Form } from "~/components/player/form";
 
 export const OngoingSeasonSection = ({
   className,
@@ -72,24 +58,18 @@ export const OngoingSeasonSection = ({
 
   return (
     <div className={className}>
-      <CardHeader>
-        <div className="flex">
-          <div className="grow">
-            <CardTitle>Standing</CardTitle>
-            <p className="pt-1 text-xs text-muted-foreground">
-              In season <span className="font-bold">{ongoingSeason?.name}</span>{" "}
-              {ongoingSeason?.endDate &&
-                ` ending at ${ongoingSeason.endDate.toLocaleDateString(window.navigator.language)}`}
-            </p>
-          </div>
+      <div className="flex flex-col py-4">
+        <div className="grow">
+          <h3 className="text-lg font-semibold leading-none tracking-tight">Standing</h3>
+          <p className="pt-1 text-xs text-muted-foreground">
+            In season <span className="font-bold">{ongoingSeason?.name}</span>{" "}
+            {ongoingSeason?.endDate &&
+              ` ending at ${ongoingSeason.endDate.toLocaleDateString(window.navigator.language)}`}
+          </p>
         </div>
-        {!ongoingSeason && !isLoadingOngoingSeason && (
-          <CardDescription>No ongoing season</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="grid">{cardContent()}</div>
-      </CardContent>
+        {!ongoingSeason && !isLoadingOngoingSeason && <div>No ongoing season</div>}
+      </div>
+      <div className="grid grow">{cardContent()}</div>
     </div>
   );
 };

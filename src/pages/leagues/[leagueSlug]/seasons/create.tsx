@@ -20,7 +20,7 @@ export const SeasonForm = () => {
   // todo check editor access and redirect
 
   return (
-    <LeagueDetailsLayout activeTab={"seasons"} hideJoinButton>
+    <LeagueDetailsLayout hideJoinButton>
       <TitleLayout
         title="Create a season"
         subtitle={league ? `In league "${league.name}"` : undefined}

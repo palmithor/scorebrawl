@@ -1,6 +1,6 @@
 import { getCookie } from "cookies-next";
 import { type GetServerSidePropsContext } from "next";
-import { latestOpenLeagueCookie } from "~/pages/leagues/[leagueSlug]";
+import { latestOpenLeagueCookie } from "~/pages/leagues/[leagueSlug]/overview";
 
 const Page = () => {
   // Your UI Here or just return it as null

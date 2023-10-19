@@ -1,4 +1,4 @@
-import { CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { CardTitle } from "~/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { Button } from "~/components/ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -39,7 +39,7 @@ export const LatestMatchesSection = ({
 
   return (
     <div className={className}>
-      <CardHeader>
+      <div className="flex flex-col py-4">
         <div className={"flex items-center"}>
           <CardTitle className={"grow"}>
             Latest Matches
@@ -70,8 +70,8 @@ export const LatestMatchesSection = ({
             </Tooltip>
           )}
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="grid grow">
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -101,7 +101,7 @@ export const LatestMatchesSection = ({
             </TableBody>
           </Table>
         </div>
-      </CardContent>
+      </div>
     </div>
   );
 };

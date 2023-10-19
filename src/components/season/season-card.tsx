@@ -2,30 +2,37 @@ import { useRouter } from "next/router";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { api } from "~/lib/api";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { Badge } from "~/components/ui/badge";
 
 export const SeasonCard = (props: {
   season: {
     id: string;
     name: string;
     slug: string;
+    isOngoing: boolean;
     initialElo: number;
     kFactor: number;
     startDate: Date;
     endDate: Date | null;
   };
 }) => {
-  const { id, name, startDate, endDate } = props.season;
+  const { id, name, startDate, isOngoing, endDate } = props.season;
   const leagueSlug = useLeagueSlug();
   const { data: stats } = api.season.getStats.useQuery({ seasonId: id });
   const { push } = useRouter();
 
   return (
     <Card
-      className="cursor-pointer rounded-md bg-white shadow dark:bg-gray-800"
-      onClick={() => void push(`/leagues/${leagueSlug}/seasons/${id}`)}
+      className="rounded-md bg-white shadow dark:bg-gray-800"
+      onClick={() => void push(`/leagues/${leagueSlug}/seasons/${id}/players`)}
     >
-      <CardHeader className="p-4">
-        <CardTitle className="text-l font-bold text-gray-800 dark:text-white">{name}</CardTitle>
+      <CardHeader>
+        <div className={"flex items-center pb-2"}>
+          <CardTitle className="text-l flex-grow font-bold text-gray-800 dark:text-white">
+            {name}
+          </CardTitle>
+          {isOngoing && <Badge>Ongoing</Badge>}
+        </div>
         <CardDescription className="text-xs text-gray-500 dark:text-gray-300">
           {startDate.toDateString().substring(4)}
           {endDate && ` - ${endDate.toDateString().substring(4)}`}

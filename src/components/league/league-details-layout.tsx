@@ -1,9 +1,7 @@
 import * as React from "react";
 
 import { useAuth } from "@clerk/nextjs";
-import Link from "next/link";
 import { LoadingButton } from "~/components/ui/loading-button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { api } from "~/lib/api";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
@@ -11,15 +9,13 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 import Head from "next/head";
 import { useRouter } from "next/router";
-
-export type Tab = "overview" | "seasons" | "teams" | "players" | "statistics" | "feed";
+import { LeagueNav } from "~/components/league/league-nav";
+import { useLeagueNav } from "~/hooks/useLeagueNav";
 
 export const LeagueDetailsLayout = ({
-  activeTab,
   children,
   hideJoinButton,
 }: {
-  activeTab: Tab;
   children: React.ReactNode;
   hideJoinButton?: boolean;
 }) => {
@@ -33,10 +29,7 @@ export const LeagueDetailsLayout = ({
   const { mutateAsync: joinLeagueMutate } = api.league.join.useMutation();
   const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
   const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug }, { retry: false });
-  const { data: teamStanding } = api.season.getTeams.useQuery(
-    { seasonId: ongoingSeason?.id as string },
-    { enabled: !!ongoingSeason?.id },
-  );
+  const { isActive } = useLeagueNav();
   const { data: seasonPlayers } = api.season.getPlayers.useQuery(
     { seasonId: ongoingSeason?.id as string },
     { enabled: !!ongoingSeason },
@@ -71,31 +64,14 @@ export const LeagueDetailsLayout = ({
   }
 
   return (
-    <Tabs defaultValue={activeTab} className="space-y-4 p-3">
+    <div>
       <Head>
         <title>Scorebrawl - {league.name}</title>
       </Head>
-      <div className="flex flex-grow flex-row flex-wrap items-center gap-4">
-        <div className="grow">
-          <TabsList>
-            <TabsTrigger value="overview">
-              <Link href={`/leagues/${encodeURIComponent(league.slug)}`}>Overview</Link>
-            </TabsTrigger>
-            <TabsTrigger value="seasons">
-              <Link href={`/leagues/${encodeURIComponent(league.slug)}/seasons`}>Seasons</Link>
-            </TabsTrigger>
-            <TabsTrigger value="players">
-              <Link href={`/leagues/${encodeURIComponent(league.slug)}/players`}>Players</Link>
-            </TabsTrigger>
-            {teamStanding && teamStanding.length > 0 && (
-              <TabsTrigger value="teams">
-                <Link href={`/leagues/${encodeURIComponent(league.slug)}/teams`}>Team Table</Link>
-              </TabsTrigger>
-            )}
-          </TabsList>
-        </div>
+      <LeagueNav />
+      <div className="flex flex-grow flex-row flex-wrap gap-4 pb-2 pt-2">
         {shouldShowJoin && (
-          <div className="shrink-0">
+          <div className="shrink-0 ">
             <LoadingButton loading={isJoining} onClick={joinLeague}>
               Join League
             </LoadingButton>
@@ -103,7 +79,7 @@ export const LeagueDetailsLayout = ({
         )}
         {!shouldShowJoin && (
           <div className="shrink-0">
-            {shouldShowInviteButton && activeTab === "players" && (
+            {shouldShowInviteButton && isActive("players") && (
               <Button
                 size="sm"
                 onClick={() =>
@@ -119,7 +95,7 @@ export const LeagueDetailsLayout = ({
                 Invite link
               </Button>
             )}
-            {ongoingSeason && activeTab === "overview" && (
+            {ongoingSeason && isActive("overview") && (
               <Button
                 size="sm"
                 disabled={hasLessThanTwoPlayers}
@@ -135,9 +111,7 @@ export const LeagueDetailsLayout = ({
           </div>
         )}
       </div>
-      <TabsContent value={activeTab} className="space-y-4">
-        {children}
-      </TabsContent>
-    </Tabs>
+      <div>{children}</div>
+    </div>
   );
 };
