@@ -11,6 +11,7 @@ import {
   leagueMembers,
   leaguePlayers,
   leagues,
+  leagueTeams,
   matches,
   seasonPlayers,
   seasons,
@@ -441,5 +442,32 @@ export const leagueRouter = createTRPCRouter({
       return {
         data: events,
       };
+    }),
+  getTeams: leagueProcedure
+    .input(
+      z.object({
+        leagueSlug: z.string().nonempty(),
+      }),
+    )
+    .query(async ({ ctx }) => {
+      return ctx.db.query.leagueTeams.findMany({
+        where: (team, { eq }) => eq(team.leagueId, ctx.league.id),
+        orderBy: asc(leagueTeams.name),
+        with: {
+          players: {
+            columns: {},
+            with: {
+              leaguePlayer: {
+                columns: { id: true },
+                with: {
+                  user: {
+                    columns: { name: true, imageUrl: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
     }),
 });
