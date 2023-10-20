@@ -461,7 +461,7 @@ export const leagueRouter = createTRPCRouter({
                 columns: { id: true },
                 with: {
                   user: {
-                    columns: { name: true, imageUrl: true },
+                    columns: { id: true, name: true, imageUrl: true },
                   },
                 },
               },
