@@ -15,7 +15,7 @@
   "dependencies": {
     "@clerk/clerk-sdk-node": "4.12.12",
     "@clerk/nextjs": "4.25.3",
-    "@headlessui/react": "1.7.15",
+    "@headlessui/react": "1.7.17",
     "@heroicons/react": "2.0.18",
     "@hookform/resolvers": "3.3.1",
     "@ihs7/ts-elo": "0.3.0",
