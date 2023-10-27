@@ -1,28 +1,27 @@
-"use client";
 import * as React from "react";
-import type z from "zod";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/lib/api";
 import { type create } from "~/server/api/league/league.schema";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import type z from "zod";
 import { LeagueForm } from "~/components/league/league-form";
 
-export const DEFAULT_LEAGUE_LOGO =
-  "https://utfs.io/f/c5562abd-47aa-46de-b6a9-936b4cef1875_mascot.png";
-
-const CreateLeague = () => {
+const EditLeague = () => {
   const router = useRouter();
-  const { isLoading, mutate } = api.league.create.useMutation();
+  const leagueSlug = useLeagueSlug();
+  const { data: league } = api.league.getBySlug.useQuery({ leagueSlug });
+  const { isLoading, mutate } = api.league.update.useMutation();
   const { toast } = useToast();
 
   const onSubmit = (val: z.infer<typeof create>) => {
     mutate(
-      { ...val },
+      { leagueSlug, ...val },
       {
         onSuccess: (result) => void router.push(`/leagues/${result?.slug || ""}`),
         onError: (err) =>
           toast({
-            title: "Error creating season",
+            title: "Error editing season",
             description: err.message,
           }),
       },
@@ -31,12 +30,13 @@ const CreateLeague = () => {
 
   return (
     <LeagueForm
-      title={"Create League"}
-      buttonTitle={"Create League"}
+      title={"Edit League"}
+      buttonTitle={"Edit League"}
+      league={league}
       isLoading={isLoading}
       onSubmit={onSubmit}
     />
   );
 };
 
-export default CreateLeague;
+export default EditLeague;
