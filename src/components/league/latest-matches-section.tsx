@@ -1,10 +1,5 @@
 import { CardTitle } from "~/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-import { Button } from "~/components/ui/button";
-import { PlusIcon } from "@radix-ui/react-icons";
 import { api } from "~/lib/api";
-import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/router";
 import { MatchResult } from "~/components/match/match-result";
 import {
   Table,
@@ -22,20 +17,11 @@ export const LatestMatchesSection = ({
   leagueSlug: string;
   className?: string;
 }) => {
-  const { user } = useUser();
-  const router = useRouter();
   const { data: ongoingSeason } = api.season.getOngoing.useQuery({ leagueSlug }, { retry: false });
-  const { data: leaguePlayers } = api.league.getPlayers.useQuery({ leagueSlug });
-  const { data: seasonPlayers } = api.season.getPlayers.useQuery(
-    { seasonId: ongoingSeason?.id as string },
-    { enabled: !!ongoingSeason },
-  );
   const { data } = api.match.getAll.useQuery(
     { seasonId: ongoingSeason?.id as string },
     { enabled: !!ongoingSeason },
   );
-
-  const hasLessThanTwoPlayers = seasonPlayers && seasonPlayers.length < 2;
 
   return (
     <div className={className}>
@@ -47,28 +33,6 @@ export const LatestMatchesSection = ({
               In season <b>{ongoingSeason?.name}</b>
             </p>
           </CardTitle>
-          {ongoingSeason && leaguePlayers?.some((p) => p.userId === user?.id) && (
-            <Tooltip>
-              <TooltipTrigger>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={hasLessThanTwoPlayers}
-                  onClick={() =>
-                    void router.push(
-                      `/leagues/${leagueSlug}/seasons/${ongoingSeason.id}/matches/create`,
-                    )
-                  }
-                >
-                  <PlusIcon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                Create Match
-                {hasLessThanTwoPlayers && ": Season must have more than two players"}
-              </TooltipContent>
-            </Tooltip>
-          )}
         </div>
       </div>
       <div className="grid grow">
