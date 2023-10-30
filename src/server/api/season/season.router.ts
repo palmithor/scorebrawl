@@ -132,6 +132,12 @@ export const seasonRouter = createTRPCRouter({
 
       const seasonPlayerResult = await ctx.db.query.seasonPlayers.findMany({
         where: eq(seasonPlayers.seasonId, season.id),
+        extras: (seasonPlayer, { sql }) => ({
+          matchCount:
+            sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id")`.as(
+              "matchCount",
+            ),
+        }),
         with: {
           leaguePlayer: {
             columns: { userId: true },
@@ -144,6 +150,7 @@ export const seasonRouter = createTRPCRouter({
         },
         orderBy: desc(seasonPlayers.elo),
       });
+
       return seasonPlayerResult.map((sp) => ({
         id: sp.id,
         userId: sp.leaguePlayer.userId,
@@ -152,6 +159,7 @@ export const seasonRouter = createTRPCRouter({
         elo: sp.elo,
         joinedAt: sp.createdAt,
         disabled: sp.disabled,
+        matchCount: sp.matchCount,
       }));
     }),
   getTeams: protectedProcedure
@@ -166,6 +174,12 @@ export const seasonRouter = createTRPCRouter({
         userId: ctx.auth.userId,
       });
       const teams = await ctx.db.query.seasonTeams.findMany({
+        extras: (seasonTeam, { sql }) => ({
+          matchCount:
+            sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id")`.as(
+              "matchCount",
+            ),
+        }),
         where: eq(seasonTeams.seasonId, season.id),
         columns: { id: true, elo: true, createdAt: true, updatedAt: true },
         orderBy: desc(seasonTeams.elo),
@@ -196,6 +210,7 @@ export const seasonRouter = createTRPCRouter({
           name: p.leaguePlayer.user.name,
           imageUrl: p.leaguePlayer.user.imageUrl,
         })),
+        matchCount: team.matchCount,
         createdAt: team.createdAt,
         updatedAt: team.updatedAt,
       }));
