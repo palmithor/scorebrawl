@@ -31,6 +31,7 @@ const TeamStanding: NextPage = () => {
     id: team.id,
     name: team.name,
     elo: team.elo,
+    matchCount: team.matchCount,
     avatars: team.players.map((player) => ({
       id: player.id,
       name: player.name,

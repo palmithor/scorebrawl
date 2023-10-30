@@ -3,6 +3,7 @@ import { Tooltip, TooltipContent } from "~/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { type ReactNode } from "react";
 import { MultiAvatar } from "~/components/user/multi-avatar";
+import { cn } from "~/lib/utils";
 
 export const Standing = ({
   className,
@@ -15,11 +16,22 @@ export const Standing = ({
     id: string;
     name: string;
     elo: number;
+    matchCount: number;
     avatars: { id: string; name: string; imageUrl: string }[];
   }[];
   renderPointDiff: (id: string) => ReactNode | null;
   renderForm: (id: string) => ReactNode | null;
 }) => {
+  const sortedItems = items.sort((a, b) => {
+    // Objects with matchCount=0 are moved to the end
+    if (a.matchCount === 0 && b.matchCount !== 0) {
+      return 1; // a should come after b
+    }
+    if (a.matchCount !== 0 && b.matchCount === 0) {
+      return -1; // a should come before b
+    }
+    return b.elo - a.elo; // Sort by elo in ascending order
+  });
   return (
     <div className={className}>
       <div className="rounded-md border">
@@ -27,6 +39,7 @@ export const Standing = ({
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Matches</TableHead>
               <TableHead>Form</TableHead>
               <TableHead>
                 <Tooltip>
@@ -40,7 +53,7 @@ export const Standing = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items?.map((item) => (
+            {sortedItems.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
                   <div className="flex items-center">
@@ -48,8 +61,19 @@ export const Standing = ({
                       <MultiAvatar users={item.avatars} visibleCount={5} />
                     </div>
                     <div className="ml-4">
-                      <h2 className={"text-sm"}>{item.name}</h2>
+                      <h2
+                        className={cn("text-sm", item.matchCount === 0 && "text-muted-foreground")}
+                      >
+                        {item.name}
+                      </h2>
                     </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div
+                    className={cn(item.matchCount === 0 ? "text-muted-foreground" : "font-bold")}
+                  >
+                    {item.matchCount}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -57,7 +81,7 @@ export const Standing = ({
                 </TableCell>
                 <TableCell>{renderPointDiff(item.id)}</TableCell>
                 <TableCell>
-                  <div className="font-bold">{item.elo}</div>
+                  <div className="font-bold">{item.matchCount < 1 ? "" : item.elo}</div>
                 </TableCell>
               </TableRow>
             ))}

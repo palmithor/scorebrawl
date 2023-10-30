@@ -35,6 +35,7 @@ export const OngoingSeasonSection = ({
       id: p.id,
       name: p.name,
       elo: p.elo,
+      matchCount: p.matchCount,
       avatars: [{ id: p.userId, name: p.name, imageUrl: p.imageUrl }],
     })) || [];
 
