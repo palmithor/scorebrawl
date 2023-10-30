@@ -5,8 +5,8 @@ import {
   leagueMembers,
   leaguePlayers,
   leagues,
-  matchPlayers,
   matches,
+  matchPlayers,
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";
@@ -34,7 +34,9 @@ beforeAll(async () => {
   }
   if (!success) {
     console.error("Unable to apply migration, exiting...", e);
-    Bun.spawn([`${import.meta.dir}/../dev/bin/stop-db.sh`, "test"]);
+    if (!isCI) {
+      Bun.spawn([`${import.meta.dir}/../dev/bin/stop-db.sh`, "test"]);
+    }
     process.exit(1);
   }
 });
