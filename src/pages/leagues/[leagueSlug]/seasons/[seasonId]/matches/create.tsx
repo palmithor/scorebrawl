@@ -19,6 +19,8 @@ import { Input } from "~/components/ui/input";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { useRouter } from "next/router";
 import { FullPageSpinner } from "~/components/full-page-spinner";
+import { ArrowLeftIcon, ReloadIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
 const schema = z.object({
   awayPlayerIds: z.string().array().nonempty({ message: "Must have at least one player" }),
@@ -40,6 +42,9 @@ const CreateMatch = () => {
   } = api.season.getById.useQuery({ leagueSlug, seasonId: router.query.seasonId as string });
   const { data: players = [], isLoading: isLoadingPlayers } = api.season.getPlayers.useQuery({
     seasonId: router.query.seasonId as string,
+  });
+  const { data: latestMatch, isLoading: isLoadingLatestMatch } = api.match.getLatest.useQuery({
+    leagueSlug,
   });
   const { isLoading: isSubmitting, mutate } = api.match.create.useMutation();
   const [homeTeam, setHomeTeam] = React.useState<Item[]>([]);
@@ -91,108 +96,150 @@ const CreateMatch = () => {
     setTeam(items);
   };
 
+  const populateRematch = () => {
+    console.log("onClick", latestMatch);
+    if (!latestMatch) {
+      return;
+    }
+
+    const homeTeam = latestMatch.homeTeam.players.map((p) => ({ value: p.id, label: p.name }));
+    const awayTeam = latestMatch.awayTeam.players.map((p) => ({ value: p.id, label: p.name }));
+    setAwayTeam(awayTeam);
+    setHomeTeam(homeTeam);
+  };
+
   return (
-    <TitleLayout title={"Create Match"} subtitle={season && `In season "${season.name}"`}>
-      <Form {...form}>
-        <form
-          noValidate
-          className="space-y-5"
-          onSubmit={(e) => {
-            void form.handleSubmit(onSubmit)(e);
-          }}
-        >
-          <div className="flex gap-4">
-            <div className="grow">
-              <FormField
-                control={form.control}
-                name="homePlayerIds"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Home Team</FormLabel>
-                      <FormControl className="items-center">
-                        <FancyMultiSelect
-                          items={items}
-                          closeOnSelect
-                          excludeItems={awayTeam}
-                          onValueChange={(items: Item[]) =>
-                            onTeamChange(items, setHomeTeam, field.onChange)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-            </div>
-            <div>
-              <FormField
-                control={form.control}
-                name="homeScore"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Score</FormLabel>
-                      <FormControl>
-                        <Input onFocus={(e) => e.target.select()} type="number" {...field}></Input>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <div className="grow">
-              <FormField
-                control={form.control}
-                name="awayPlayerIds"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Away Team</FormLabel>
-                      <FormControl>
-                        <FancyMultiSelect
-                          items={items}
-                          excludeItems={homeTeam}
-                          closeOnSelect
-                          onValueChange={(items: Item[]) =>
-                            onTeamChange(items, setAwayTeam, field.onChange)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-            </div>
-            <div>
-              <FormField
-                control={form.control}
-                name="awayScore"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Score</FormLabel>
-                      <FormControl>
-                        <Input onFocus={(e) => e.target.select()} type="number" {...field}></Input>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-            </div>
-          </div>
-          <LoadingButton loading={isSubmitting} type="submit">
-            Create Match
+    <div>
+      <TitleLayout title={"Create Match"} subtitle={season && `In season "${season.name}"`}>
+        <div className="flex items-center">
+          <Link className="flex grow items-center text-xs" href={`/leagues/${leagueSlug}`}>
+            <ArrowLeftIcon className="mr-2 h-3 w-3" />
+            Back to league
+          </Link>
+          <LoadingButton
+            loading={isLoadingLatestMatch}
+            disabled={!latestMatch}
+            size="sm"
+            variant={"ghost"}
+            onClick={populateRematch}
+          >
+            <ReloadIcon className="mr-2 h-3 w-3" />
+            Rematch
           </LoadingButton>
-        </form>
-      </Form>
-    </TitleLayout>
+        </div>
+        <Form {...form}>
+          <form
+            noValidate
+            className="space-y-5"
+            onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}
+          >
+            <div className="flex gap-4">
+              <div className="grow">
+                <FormField
+                  control={form.control}
+                  name="homePlayerIds"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Home Team</FormLabel>
+                        <FormControl className="items-center">
+                          <FancyMultiSelect
+                            setSelected={setHomeTeam}
+                            selected={homeTeam}
+                            items={items}
+                            closeOnSelect
+                            excludeItems={awayTeam}
+                            onValueChange={(items: Item[]) =>
+                              onTeamChange(items, setHomeTeam, field.onChange)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="homeScore"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Score</FormLabel>
+                        <FormControl>
+                          <Input
+                            onFocus={(e) => e.target.select()}
+                            type="number"
+                            {...field}
+                          ></Input>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="grow">
+                <FormField
+                  control={form.control}
+                  name="awayPlayerIds"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Away Team</FormLabel>
+                        <FormControl>
+                          <FancyMultiSelect
+                            setSelected={setAwayTeam}
+                            selected={awayTeam}
+                            items={items}
+                            excludeItems={homeTeam}
+                            closeOnSelect
+                            onValueChange={(items: Item[]) =>
+                              onTeamChange(items, setAwayTeam, field.onChange)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="awayScore"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Score</FormLabel>
+                        <FormControl>
+                          <Input
+                            onFocus={(e) => e.target.select()}
+                            type="number"
+                            {...field}
+                          ></Input>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <LoadingButton loading={isSubmitting} type="submit">
+              Create Match
+            </LoadingButton>
+          </form>
+        </Form>
+      </TitleLayout>
+    </div>
   );
 };
 

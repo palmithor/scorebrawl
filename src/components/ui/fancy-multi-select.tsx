@@ -16,17 +16,20 @@ export const FancyMultiSelect = ({
   inputPlaceholder,
   onValueChange,
   closeOnSelect,
+  selected,
+  setSelected,
 }: {
   items: Item[];
   excludeItems: Item[];
   inputPlaceholder?: string;
   onValueChange: (items: Item[]) => void;
   closeOnSelect?: boolean;
+  selected: Item[];
+  setSelected: React.Dispatch<React.SetStateAction<Item[]>>;
 }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
   const [filter, setFilter] = React.useState("");
-  const [selected, setSelected] = React.useState<Item[]>([]);
 
   const handleUnselect = React.useCallback((item: Item) => {
     setSelected((prev) => prev.filter((s) => s.value !== item.value));
@@ -35,6 +38,8 @@ export const FancyMultiSelect = ({
   useEffect(() => {
     onValueChange(selected);
   }, [selected]);
+
+  useEffect(() => {});
 
   const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     const input = inputRef.current;
