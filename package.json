@@ -17,7 +17,7 @@
     "@clerk/nextjs": "4.25.3",
     "@headlessui/react": "1.7.17",
     "@heroicons/react": "2.0.18",
-    "@hookform/resolvers": "3.3.1",
+    "@hookform/resolvers": "3.3.2",
     "@ihs7/ts-elo": "0.3.0",
     "@libsql/client": "0.3.6",
     "@paralleldrive/cuid2": "2.2.2",
