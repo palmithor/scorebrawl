@@ -74,7 +74,7 @@
     "zod": "3.22.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "8.0.2",
+    "@faker-js/faker": "8.2.0",
     "@types/eslint": "8.44.6",
     "@types/fs-extra": "11.0.2",
     "@types/node": "20.5.9",
