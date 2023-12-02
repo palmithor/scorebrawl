@@ -38,16 +38,17 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
+        working-directory: scorebrawl-app
         run: bun install
 
       - name: 🦄 Format
+        working-directory: scorebrawl-app
         run: bun run format:check
 
       - name: 🔬 Lint
+        working-directory: scorebrawl-app
         run: bun run lint
 
       - name: 📝 Test
+        working-directory: scorebrawl-app
         run: bun test
-
-#      - name: 👷 Build
-#        run: bun run build
