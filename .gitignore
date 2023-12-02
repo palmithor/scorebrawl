@@ -4,21 +4,21 @@
 .idea
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
 # testing
-/coverage
+coverage
 
 
 # next.js
-/.next/
+.next/
 /out/
 next-env.d.ts
 
 # production
-/build
+build
 
 # misc
 .DS_Store
@@ -44,4 +44,4 @@ yarn-error.log*
 *.tsbuildinfo
 
 # local db
-dev/.local
+scorebrawl-app/dev/.local
