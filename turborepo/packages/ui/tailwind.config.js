@@ -1,0 +1,1 @@
+module.exports = require("@repo/style-config/tailwind.config.js")
