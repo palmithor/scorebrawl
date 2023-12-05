@@ -1,0 +1,7 @@
+.next
+node_modules
+.idea
+.github
+.vscode
+pnpm-lock.yaml
+dev

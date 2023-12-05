@@ -45,8 +45,7 @@ const LINKS = [
   {
     title: "Deploy",
     href: "https://vercel.com/new",
-    description:
-      " Instantly deploy your Turborepo to a shareable URL with Vercel.",
+    description: " Instantly deploy your Turborepo to a shareable URL with Vercel.",
   },
 ];
 
@@ -81,25 +80,14 @@ export default function Page(): JSX.Element {
         <div className={styles.heroContent}>
           <div className={styles.logos}>
             <div className={styles.circles}>
-              <Image
-                alt="Turborepo"
-                height={614}
-                src="circles.svg"
-                width={614}
-              />
+              <Image alt="Turborepo" height={614} src="circles.svg" width={614} />
             </div>
             <div className={styles.logoGradientContainer}>
               <Gradient className={styles.logoGradient} conic small />
             </div>
 
             <div className={styles.logo}>
-              <Image
-                alt=""
-                height={120}
-                priority
-                src="turborepo.svg"
-                width={120}
-              />
+              <Image alt="" height={120} priority src="turborepo.svg" width={120} />
             </div>
           </div>
           <Gradient className={styles.backgroundGradient} conic />
