@@ -42,7 +42,7 @@ Before running the development environment some environment variables have to be
 ```
 # Scorebrawl dev public key
 echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZmFuY3ktY293LTc5LmNsZXJrLmFjY291bnRzLmRldiQ" >> .env.development
-echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=<secretKey>" >> .env.development
+echo "CLERK_SECRET_KEY=<secretKey>" >> .env.development
 echo "CLERK_WEBHOOK_SECRET=ignore" >> .env.development
 # Port 8002 is hard coded in start-db script
 echo "DATABASE_URL=http://127.0.0.1:8002" >> .env.development

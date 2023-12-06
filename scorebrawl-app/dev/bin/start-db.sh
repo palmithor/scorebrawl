@@ -10,15 +10,15 @@ if [[ ! "${allowed_env[*]}" =~ $env ]]; then
 fi
 
 script_dir="$(dirname "$0")"
-repository_root="$(git rev-parse --show-toplevel)"
+app_root="$(git rev-parse --show-toplevel)/scorebrawl-app"
 
 if [ "$env" == "dev" ]; then
   db_name="scorebrawl.db"
-  db_file="${repository_root}/dev/.local/${db_name}"
+  db_file="${app_root}/dev/.local/${db_name}"
 
   if [ ! -f $db_file ]; then
     echo "Creating db file"
-    cd "${repository_root}/dev/.local"
+    cd "${app_root}/dev/.local"
     sqlite3 ${db_name} "VACUUM"
     sqlite3 ${db_name} 'PRAGMA journal_mode=WAL;'
   else
@@ -27,10 +27,10 @@ if [ "$env" == "dev" ]; then
 
   nohup turso dev --port 8002 --db-file "$db_file" >/dev/null 2>&1 &
 
-  echo $! >$repository_root/dev/.local/turso-dev-pid.nohup
+  echo $! >$app_root/dev/.local/turso-dev-pid.nohup
 
   echo "turso dev db started"
 else
-    nohup turso dev --port 8003 >/dev/null 2>&1 &
-    echo $! >$repository_root/dev/.local/turso-test-pid.nohup
+  nohup turso dev --port 8003 >/dev/null 2>&1 &
+  echo $! >$app_root/dev/.local/turso-test-pid.nohup
 fi
