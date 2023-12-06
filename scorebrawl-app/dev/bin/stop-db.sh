@@ -10,8 +10,8 @@ if [[ ! "${allowed_env[*]}" =~ $env ]]; then
   exit 1
 fi
 
-repository_root="$(git rev-parse --show-toplevel)"
-pid_file="${repository_root}/dev/.local/turso-${env}-pid.nohup"
+app_root="$(git rev-parse --show-toplevel)/scorebrawl-app"
+pid_file="${app_root}/dev/.local/turso-${env}-pid.nohup"
 
 parent_pid="$(cat $pid_file)"
 

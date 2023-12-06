@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-repository_root="$(git rev-parse --show-toplevel)"
+app_root="$(git rev-parse --show-toplevel)/scorebrawl-app"
 
-cd "$repository_root"
+cd "$app_root"
 
 export DATABASE_URL="http://127.0.0.1:8002"
 
