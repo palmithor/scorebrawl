@@ -1,10 +1,10 @@
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 
 export type NavLink = "overview" | "seasons" | "players" | "statistics" | "feed";
 
 export const useLeagueNav = () => {
-  const pathname = usePathname();
+  const { pathname } = useRouter();
   const leagueSlug = useLeagueSlug();
   const leagueHref = `/leagues/${encodeURIComponent(leagueSlug)}`;
   const links: { type: NavLink; name: string; href: string }[] = [

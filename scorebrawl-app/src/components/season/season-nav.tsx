@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { cn } from "~/lib/utils";
 import { Badge } from "~/components/ui/badge";
-import { usePathname } from "next/navigation";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { useRouter } from "next/router";
 import { Button } from "~/components/ui/button";
@@ -14,7 +13,7 @@ export type NavLink = "players" | "teams" | "matches";
 
 export const SeasonNav = ({ className, ...props }: NavProps) => {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = router.pathname;
   const leagueSlug = useLeagueSlug();
   const seasonId = router.query.seasonId as string;
   const leagueHref = `/leagues/${encodeURIComponent(leagueSlug)}`;
