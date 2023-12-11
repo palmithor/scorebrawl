@@ -2,17 +2,16 @@
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
+import { forwardRef } from "react";
 import { cn } from "../lib";
 import { Button } from "./button";
 import { Calendar } from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
-import { forwardRef } from "react";
 
 export const DatePicker = forwardRef<
   HTMLDivElement,
   {
     date?: Date;
-    // eslint-disable-next-line no-unused-vars
     setDate: (date?: Date) => void;
   }
 >(function DatePickerCmp({ date, setDate }, ref) {

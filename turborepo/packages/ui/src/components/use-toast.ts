@@ -1,6 +1,6 @@
 // Inspired by react-hot-toast library
-import type { ToastActionElement, ToastProps } from "./toast";
 import { useEffect, useState } from "react";
+import type { ToastActionElement, ToastProps } from "./toast";
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -121,7 +121,6 @@ export const reducer = (state: State, action: Action): State => {
   }
 };
 
-// eslint-disable-next-line no-unused-vars
 const listeners: Array<(state: State) => void> = [];
 
 let memoryState: State = { toasts: [] };
@@ -184,4 +183,4 @@ function useToast() {
   };
 }
 
-export { useToast, toast };
+export { toast, useToast };

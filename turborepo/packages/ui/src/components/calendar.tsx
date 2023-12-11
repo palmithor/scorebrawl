@@ -3,9 +3,9 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 
+import { ComponentProps } from "react";
 import { cn } from "../lib";
 import { buttonVariants } from "./button";
-import { ComponentProps } from "react";
 
 export type CalendarProps = ComponentProps<typeof DayPicker>;
 
@@ -46,9 +46,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         ...classNames,
       }}
       components={{
-        // eslint-disable-next-line no-unused-vars
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-        // eslint-disable-next-line no-unused-vars
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
       {...props}

@@ -1,5 +1,20 @@
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash } from "lucide-react";
+import { ReactNode } from "react";
+import {
+  ControllerRenderProps,
+  DefaultValues,
+  FieldValues,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import { z } from "zod";
+import { cn } from "../lib";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./accordion";
+import { Button } from "./button";
+import { Checkbox } from "./checkbox";
+import { DatePicker } from "./date-picker";
 import {
   Form,
   FormControl,
@@ -9,27 +24,12 @@ import {
   FormLabel,
   FormMessage,
 } from "./form";
-import {
-  ControllerRenderProps,
-  DefaultValues,
-  FieldValues,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "./button";
 import { Input } from "./input";
-import { Checkbox } from "./checkbox";
-import { DatePicker } from "./date-picker";
-import { cn } from "../lib";
+import { RadioGroup, RadioGroupItem } from "./radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
+import { Separator } from "./separator";
 import { Switch } from "./switch";
 import { Textarea } from "./textarea";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./accordion";
-import { RadioGroup, RadioGroupItem } from "./radio-group";
-import { Separator } from "./separator";
-import { Plus, Trash } from "lucide-react";
-import { ReactNode } from "react";
 
 /**
  * Beautify a camelCase string.
@@ -170,7 +170,6 @@ export type FieldConfigItem = {
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
   fieldType?: keyof typeof INPUT_COMPONENTS | React.FC<AutoFormInputComponentProps>;
 
-  // eslint-disable-next-line no-unused-vars
   renderParent?: (props: { children: React.ReactNode }) => React.ReactElement | null;
 };
 
@@ -581,7 +580,6 @@ function AutoFormArray({
   );
 }
 
-// eslint-disable-next-line no-unused-vars
 function AutoFormSubmit({ children }: { children?: React.ReactNode }) {
   return <Button type="submit">{children ?? "Submit"}</Button>;
 }
@@ -600,9 +598,7 @@ function AutoForm<SchemaType extends ZodObjectOrWrapped>({
 }: {
   formSchema: SchemaType;
   values?: Partial<z.infer<SchemaType>>;
-  // eslint-disable-next-line no-unused-vars
   onValuesChange?: (values: Partial<z.infer<SchemaType>>) => void;
-  // eslint-disable-next-line no-unused-vars
   onSubmit?: (values: z.infer<SchemaType>) => void;
   fieldConfig?: FieldConfig<z.infer<SchemaType>>;
   children?: ReactNode;

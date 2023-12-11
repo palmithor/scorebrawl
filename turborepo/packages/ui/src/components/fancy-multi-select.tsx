@@ -1,12 +1,12 @@
 "use client";
 
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 
+import slugify from "@sindresorhus/slugify";
+import { Command as CommandPrimitive } from "cmdk";
 import { Badge } from "./badge";
 import { Command, CommandGroup, CommandItem } from "./command";
-import { Command as CommandPrimitive } from "cmdk";
-import slugify from "@sindresorhus/slugify";
 
 export type Item = Record<"value" | "label", string>;
 export const FancyMultiSelect = ({
@@ -21,7 +21,6 @@ export const FancyMultiSelect = ({
   items: Item[];
   excludeItems: Item[];
   inputPlaceholder?: string;
-  // eslint-disable-next-line no-unused-vars
   onValueChange: (items: Item[]) => void;
   closeOnSelect?: boolean;
   selected: Item[];

@@ -9,7 +9,8 @@
     "./fonts": "./src/fonts/index.ts"
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
+    "format": "bunx @biomejs/biome check . --apply",
+    "format:check": "bunx @biomejs/biome check .",
     "generate:component": "turbo gen react-component"
   },
   "dependencies": {
@@ -47,15 +48,11 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/syle-config": "*",
     "@repo/typescript-config": "*",
     "@turbo/gen": "^1.10.12",
     "@types/node": "^20.5.2",
-    "@types/eslint": "^8.44.7",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "eslint": "^8.53.0",
     "react": "^18.2.0",
     "typescript": "^5.2.2"
   }
