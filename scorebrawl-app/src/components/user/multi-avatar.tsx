@@ -1,7 +1,7 @@
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { getInitialsFromString } from "~/lib/string-utils";
 import { cn } from "~/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 
 type AvatarProps = { id: string; name: string; imageUrl: string };
 export const MultiAvatar = (

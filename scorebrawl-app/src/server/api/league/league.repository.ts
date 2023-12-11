@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { db } from "~/server/db";
-import { leagueMembers, leagues, type LeagueMemberRole } from "~/server/db/schema";
+import { type LeagueMemberRole, leagueMembers, leagues } from "~/server/db/schema";
 
 export const findLeagueIdBySlug = async ({ userId, slug }: { userId: string; slug: string }) => {
   const row = await db
@@ -12,7 +12,10 @@ export const findLeagueIdBySlug = async ({ userId, slug }: { userId: string; slu
   return row?.leagueId;
 };
 
-export const getLeagueIdBySlug = async (input: { userId: string; slug: string }) => {
+export const getLeagueIdBySlug = async (input: {
+  userId: string;
+  slug: string;
+}) => {
   const leagueId = await findLeagueIdBySlug(input);
   if (!leagueId) {
     throw new TRPCError({

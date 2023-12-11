@@ -1,8 +1,8 @@
 import { api } from "~/lib/api";
+import { FormDots } from "../standing/form-dots";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { AvatarName } from "../user/avatar-name";
-import { FormDots } from "../standing/form-dots";
 
 export const InFormCard = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data, error, isLoading } = api.league.getBestForm.useQuery(
@@ -24,6 +24,7 @@ export const InFormCard = ({ leagueSlug }: { leagueSlug: string }) => {
           stroke="currentColor"
           className="h-4 w-4 text-muted-foreground"
         >
+          <title>In Form</title>
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

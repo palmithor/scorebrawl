@@ -1,20 +1,20 @@
-import z, { ZodError } from "zod";
-import { experimental_standaloneMiddleware, initTRPC, TRPCError } from "@trpc/server";
 import {
-  createClerkClient,
-  getAuth,
   type SignedInAuthObject,
   type SignedOutAuthObject,
+  createClerkClient,
+  getAuth,
 } from "@clerk/nextjs/server";
-import superjson from "superjson";
-import { db } from "~/server/db";
+import { TRPCError, experimental_standaloneMiddleware, initTRPC } from "@trpc/server";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { getLeagueBySlug } from "~/server/api/league/league.repository";
-import { type Db } from "~/server/db/types";
-import { users } from "~/server/db/schema";
-import { fullName } from "~/lib/string-utils";
-import { logger } from "~/lib/logger";
+import superjson from "superjson";
+import z, { ZodError } from "zod";
 import { env } from "~/env.mjs";
+import { logger } from "~/lib/logger";
+import { fullName } from "~/lib/string-utils";
+import { getLeagueBySlug } from "~/server/api/league/league.repository";
+import { db } from "~/server/db";
+import { users } from "~/server/db/schema";
+import { type Db } from "~/server/db/types";
 
 /**
  * 1. CONTEXT
@@ -93,7 +93,10 @@ const isAuthenticated = t.middleware(async ({ next, ctx }) => {
       .insert(users)
       .values({
         id: clerkUser.id,
-        name: fullName({ firstName: clerkUser.firstName, lastName: clerkUser.lastName }),
+        name: fullName({
+          firstName: clerkUser.firstName,
+          lastName: clerkUser.lastName,
+        }),
         imageUrl: clerkUser.imageUrl,
         createdAt: new Date(clerkUser.createdAt),
         updatedAt: new Date(clerkUser.updatedAt),
@@ -101,7 +104,10 @@ const isAuthenticated = t.middleware(async ({ next, ctx }) => {
       .onConflictDoUpdate({
         target: users.id,
         set: {
-          name: fullName({ firstName: clerkUser.firstName, lastName: clerkUser.lastName }),
+          name: fullName({
+            firstName: clerkUser.firstName,
+            lastName: clerkUser.lastName,
+          }),
           imageUrl: clerkUser.imageUrl,
           updatedAt: new Date(clerkUser.updatedAt),
         },
@@ -122,7 +128,10 @@ const leagueAccessMiddleware = experimental_standaloneMiddleware<{
   if (!ctx.auth?.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  const league = await getLeagueBySlug({ userId: ctx.auth.userId, slug: input.leagueSlug });
+  const league = await getLeagueBySlug({
+    userId: ctx.auth.userId,
+    slug: input.leagueSlug,
+  });
 
   return next({
     ctx: {

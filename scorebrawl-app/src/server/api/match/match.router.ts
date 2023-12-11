@@ -6,24 +6,24 @@ import { pageQuerySchema } from "~/server/api/common/pagination";
 import { create } from "~/server/api/match/match.schema";
 import { getSeasonById } from "~/server/api/season/season.repository";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { db } from "~/server/db";
 import {
   createCuid,
   leagueTeamPlayers,
   leagueTeams,
-  matches,
   matchPlayers,
+  matches,
   seasonPlayers,
   seasonTeams,
   teamMatches,
 } from "~/server/db/schema";
+import { type DbTransaction } from "~/server/db/types";
 import {
   getByIdWhereMember,
   getLeagueById,
   getLeagueBySlug,
   getLeagueIdBySlug,
 } from "../league/league.repository";
-import { db } from "~/server/db";
-import { type DbTransaction } from "~/server/db/types";
 
 const toResponse = (match: {
   id: string;
@@ -42,7 +42,10 @@ const toResponse = (match: {
       elo: number;
       createdAt: Date;
       disabled: boolean;
-      leaguePlayer: { userId: string; user: { name: string | null; imageUrl: string | null } };
+      leaguePlayer: {
+        userId: string;
+        user: { name: string | null; imageUrl: string | null };
+      };
     };
   }[];
 }) => ({
@@ -159,7 +162,10 @@ export const matchRouter = createTRPCRouter({
       }
 
       // check access
-      await getLeagueBySlug({ userId: ctx.auth.userId, slug: match.season.league.slug });
+      await getLeagueBySlug({
+        userId: ctx.auth.userId,
+        slug: match.season.league.slug,
+      });
 
       return {
         id: match.id,
@@ -227,7 +233,9 @@ export const matchRouter = createTRPCRouter({
                         with: {
                           leaguePlayer: {
                             columns: { userId: true },
-                            with: { user: { columns: { name: true, imageUrl: true } } },
+                            with: {
+                              user: { columns: { name: true, imageUrl: true } },
+                            },
                           },
                         },
                       },
@@ -244,12 +252,15 @@ export const matchRouter = createTRPCRouter({
       if (!leagueMatches || allMatches.length < 1) {
         return null;
       }
-      const latestMatchAcrossSeasons = allMatches.reduce((currentNewest, currentItem) => {
-        if (currentNewest?.createdAt && currentItem.createdAt > currentNewest.createdAt) {
-          return currentItem;
-        }
-        return currentNewest;
-      }, allMatches[0]);
+      const latestMatchAcrossSeasons = allMatches.reduce(
+        (currentNewest, currentItem) => {
+          if (currentNewest?.createdAt && currentItem.createdAt > currentNewest.createdAt) {
+            return currentItem;
+          }
+          return currentNewest;
+        },
+        allMatches[0],
+      );
 
       if (!latestMatchAcrossSeasons) {
         // can not happen
@@ -450,9 +461,15 @@ export const matchRouter = createTRPCRouter({
         with: {
           matchPlayers: {
             columns: { id: true, eloBefore: true, homeTeam: true },
-            with: { seasonPlayer: { columns: { id: true, elo: true, leaguePlayerId: true } } },
+            with: {
+              seasonPlayer: {
+                columns: { id: true, elo: true, leaguePlayerId: true },
+              },
+            },
           },
-          teamMatches: { columns: { id: true, eloBefore: true, seasonTeamId: true } },
+          teamMatches: {
+            columns: { id: true, eloBefore: true, seasonTeamId: true },
+          },
           season: { columns: { id: true, leagueId: true } },
         },
       });
@@ -460,7 +477,10 @@ export const matchRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "Match not found" });
       }
       // check read access
-      await getLeagueById({ userId: ctx.auth.userId, id: match.season.leagueId });
+      await getLeagueById({
+        userId: ctx.auth.userId,
+        id: match.season.leagueId,
+      });
 
       const isLeaguePlayer = await ctx.db.query.leaguePlayers.findFirst({
         where: (lp, { and, eq }) =>
@@ -472,7 +492,10 @@ export const matchRouter = createTRPCRouter({
       });
 
       if (!isLeaguePlayer) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "User not part of league" });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "User not part of league",
+        });
       }
 
       const lastMatch = await ctx.db.query.matches.findFirst({
@@ -481,7 +504,10 @@ export const matchRouter = createTRPCRouter({
       });
 
       if (lastMatch?.id !== match.id) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Only the last match can be deleted" });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the last match can be deleted",
+        });
       }
 
       await ctx.db.transaction(async (tx) => {
@@ -522,13 +548,13 @@ const calculateMatchResult = ({
 }) => {
   const eloIndividualMatch = new TeamMatch({ kFactor });
   const eloHomeTeam = eloIndividualMatch.addTeam("home", homeScore);
-  homePlayers.forEach((p) => {
+  for (const p of homePlayers) {
     eloHomeTeam.addPlayer(new Player(p.id, p.elo));
-  });
+  }
   const eloAwayTeam = eloIndividualMatch.addTeam("away", awayScore);
-  awayPlayers.forEach((p) => {
+  for (const p of awayPlayers) {
     eloAwayTeam.addPlayer(new Player(p.id, p.elo));
-  });
+  }
   const eloMatchResult = eloIndividualMatch.calculate();
   return { eloHomeTeam, eloAwayTeam, eloMatchResult };
 };
@@ -543,7 +569,10 @@ const getSeasonPlayers = async ({
   const players = await db.query.seasonPlayers.findMany({
     where: and(eq(seasonPlayers.seasonId, seasonId), inArray(seasonPlayers.id, seasonPlayerIds)),
     with: {
-      leaguePlayer: { columns: { id: true }, with: { user: { columns: { name: true } } } },
+      leaguePlayer: {
+        columns: { id: true },
+        with: { user: { columns: { name: true } } },
+      },
     },
   });
   if (players.length !== seasonPlayerIds.length) {
@@ -622,27 +651,25 @@ const getOrInsertTeam = async (
       .run();
 
     return { seasonTeamId, elo: season.initialElo };
-  } else {
-    const seasonTeam = await tx.query.seasonTeams.findFirst({
-      columns: { id: true, elo: true },
-      where: (st, { and, eq }) => and(eq(st.teamId, teamId as string), eq(st.seasonId, season.id)),
-    });
-    if (!seasonTeam) {
-      const seasonTeamId = createCuid();
-      await tx
-        .insert(seasonTeams)
-        .values({
-          id: seasonTeamId,
-          seasonId: season.id,
-          teamId: teamId,
-          elo: season.initialElo,
-          createdAt: now,
-          updatedAt: now,
-        })
-        .run();
-      return { seasonTeamId, elo: season.initialElo };
-    } else {
-      return { seasonTeamId: seasonTeam.id, elo: seasonTeam.elo };
-    }
   }
+  const seasonTeam = await tx.query.seasonTeams.findFirst({
+    columns: { id: true, elo: true },
+    where: (st, { and, eq }) => and(eq(st.teamId, teamId as string), eq(st.seasonId, season.id)),
+  });
+  if (!seasonTeam) {
+    const seasonTeamId = createCuid();
+    await tx
+      .insert(seasonTeams)
+      .values({
+        id: seasonTeamId,
+        seasonId: season.id,
+        teamId: teamId,
+        elo: season.initialElo,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    return { seasonTeamId, elo: season.initialElo };
+  }
+  return { seasonTeamId: seasonTeam.id, elo: seasonTeam.elo };
 };

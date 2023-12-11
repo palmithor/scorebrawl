@@ -1,17 +1,20 @@
+import { setCookie } from "cookies-next";
 import { type GetServerSidePropsContext, type NextPage } from "next";
 import { InFormCard } from "~/components/league/in-form-card";
+import { LatestMatchesSection } from "~/components/league/latest-matches-section";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
 import { MatchesPlayedCard } from "~/components/league/matches-played-card";
 import { OngoingSeasonSection } from "~/components/league/ongoing-season-section";
 import { LatestMatchCard } from "~/components/match/latest-match-card";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
-import { LatestMatchesSection } from "~/components/league/latest-matches-section";
-import { setCookie } from "cookies-next";
 
 export const latestOpenLeagueCookie = "latestOpenLeagueCookie";
 
 export const getServerSideProps = ({ req, res, params }: GetServerSidePropsContext) => {
-  setCookie("latestOpenLeagueCookie", params?.leagueSlug, { req: req, res: res });
+  setCookie("latestOpenLeagueCookie", params?.leagueSlug, {
+    req: req,
+    res: res,
+  });
   return { props: {} };
 };
 

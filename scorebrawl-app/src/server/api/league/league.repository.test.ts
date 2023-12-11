@@ -1,11 +1,11 @@
+import { beforeEach, describe, expect, test } from "bun:test";
 import { faker } from "@faker-js/faker";
 import slugify from "@sindresorhus/slugify";
-import { beforeEach, describe, expect, test } from "bun:test";
-import { db } from "~/server/db";
-import { getByIdWhereMember } from "./league.repository";
-import { createCuid, leagueMembers, leagues } from "~/server/db/schema";
 import { sql } from "drizzle-orm";
+import { db } from "~/server/db";
+import { createCuid, leagueMembers, leagues } from "~/server/db/schema";
 import { type LeagueModel } from "~/server/db/types";
+import { getByIdWhereMember } from "./league.repository";
 
 describe("leagueRepository", () => {
   describe("getByIdWhereMember", () => {

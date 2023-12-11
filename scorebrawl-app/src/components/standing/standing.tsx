@@ -1,9 +1,9 @@
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import { Tooltip, TooltipContent } from "~/components/ui/tooltip";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { type ReactNode } from "react";
+import { Tooltip, TooltipContent } from "~/components/ui/tooltip";
 import { MultiAvatar } from "~/components/user/multi-avatar";
 import { cn } from "~/lib/utils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
 export const Standing = ({
   className,

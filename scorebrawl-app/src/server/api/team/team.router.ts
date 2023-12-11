@@ -1,9 +1,9 @@
-import { createTRPCRouter, leagueProcedure } from "~/server/api/trpc";
+import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import z from "zod";
 import { getByIdWhereMember } from "~/server/api/league/league.repository";
-import { TRPCError } from "@trpc/server";
+import { createTRPCRouter, leagueProcedure } from "~/server/api/trpc";
 import { leagueTeams } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
 
 export const teamRouter = createTRPCRouter({
   update: leagueProcedure
@@ -27,7 +27,10 @@ export const teamRouter = createTRPCRouter({
           players: {
             columns: { id: true },
             with: {
-              leaguePlayer: { columns: { id: true }, with: { user: { columns: { id: true } } } },
+              leaguePlayer: {
+                columns: { id: true },
+                with: { user: { columns: { id: true } } },
+              },
             },
           },
         },

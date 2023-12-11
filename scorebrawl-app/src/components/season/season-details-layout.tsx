@@ -1,9 +1,9 @@
-import * as React from "react";
 import Head from "next/head";
-import { SeasonNav } from "~/components/season/season-nav";
-import { api } from "~/lib/api";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { useRouter } from "next/router";
+import * as React from "react";
+import { SeasonNav } from "~/components/season/season-nav";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
 
 export const SeasonDetailsLayout = ({
   children,
@@ -14,7 +14,10 @@ export const SeasonDetailsLayout = ({
   const leagueSlug = useLeagueSlug();
   const router = useRouter();
   const seasonId = router.query.seasonId as string;
-  const { data: season } = api.season.getById.useQuery({ leagueSlug, seasonId });
+  const { data: season } = api.season.getById.useQuery({
+    leagueSlug,
+    seasonId,
+  });
 
   return (
     <div>

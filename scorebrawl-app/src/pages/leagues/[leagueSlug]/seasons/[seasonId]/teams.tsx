@@ -1,11 +1,11 @@
 import { type NextPage } from "next";
-import { api } from "~/lib/api";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
-import { Standing } from "~/components/standing/standing";
 import { type ReactNode } from "react";
-import { FormDots } from "~/components/standing/form-dots";
-import { PointDiffText } from "~/components/standing/PointDiffText";
 import { SeasonDetailsLayout } from "~/components/season/season-details-layout";
+import { PointDiffText } from "~/components/standing/PointDiffText";
+import { FormDots } from "~/components/standing/form-dots";
+import { Standing } from "~/components/standing/standing";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
 
 const PointsDiff = (id: string): ReactNode | null => {
   const { data } = api.season.teamPointDiff.useQuery({ seasonTeamId: id });

@@ -1,8 +1,8 @@
-import { leagues, seasons } from "~/server/db/schema";
+import { TRPCError } from "@trpc/server";
 import { and, eq, gte, isNull, lte, or } from "drizzle-orm";
 import { canReadLeaguesCriteria } from "~/server/api/league/league.repository";
-import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
+import { leagues, seasons } from "~/server/db/schema";
 
 export const getSeasonById = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const result = await db

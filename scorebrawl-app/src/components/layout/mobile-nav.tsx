@@ -1,17 +1,17 @@
 "use client";
 
-import * as React from "react";
+import { ViewVerticalIcon } from "@radix-ui/react-icons";
 import Link, { type LinkProps } from "next/link";
 import { useRouter } from "next/router";
-import { ViewVerticalIcon } from "@radix-ui/react-icons";
+import * as React from "react";
 
-import { mobileNavConfig } from "~/config/mobile-nav";
-import { siteConfig } from "~/config/site";
-import { cn } from "~/lib/utils";
 import { Icons } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import { mobileNavConfig } from "~/config/mobile-nav";
+import { siteConfig } from "~/config/site";
+import { cn } from "~/lib/utils";
 
 export function MobileNav() {
   const [open, setOpen] = React.useState(false);
@@ -45,7 +45,7 @@ export function MobileNav() {
           </div>
           <div className="flex flex-col space-y-2">
             {mobileNavConfig.sidebarNav.map((item, index) => (
-              <div key={index} className="flex flex-col space-y-3 pt-6">
+              <div key={item.key} className="flex flex-col space-y-3 pt-6">
                 <h4 className="font-medium">{item.title}</h4>
                 {item?.items?.length &&
                   item.items.map((item) => (

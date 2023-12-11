@@ -1,5 +1,5 @@
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { usePathname } from "next/navigation";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 
 export type NavLink = "overview" | "seasons" | "players" | "statistics" | "feed";
 

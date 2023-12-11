@@ -1,4 +1,6 @@
 import { type NextPage } from "next";
+import { useRouter } from "next/router";
+import { MatchResult } from "~/components/match/match-result";
 import { SeasonDetailsLayout } from "~/components/season/season-details-layout";
 import {
   Table,
@@ -8,9 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { MatchResult } from "~/components/match/match-result";
 import { api } from "~/lib/api";
-import { useRouter } from "next/router";
 
 const SeasonPlayers: NextPage = () => {
   const seasonId = useRouter().query.seasonId as string;

@@ -1,3 +1,6 @@
+import { useUser } from "@clerk/nextjs";
+import { EditIcon } from "lucide-react";
+import { UpdateTeamDialog } from "~/components/team/update-team-dialog";
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 import {
@@ -8,15 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { api } from "~/lib/api";
 import { MultiAvatar } from "~/components/user/multi-avatar";
-import { useUser } from "@clerk/nextjs";
-import { UpdateTeamDialog } from "~/components/team/update-team-dialog";
-import { EditIcon } from "lucide-react";
+import { api } from "~/lib/api";
 
 export const LeagueTeamsTable = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.league.getTeams.useQuery({ leagueSlug });
-  const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery({ leagueSlug });
+  const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery({
+    leagueSlug,
+  });
   const { user } = useUser();
 
   return (

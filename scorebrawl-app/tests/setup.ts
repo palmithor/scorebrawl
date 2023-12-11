@@ -5,8 +5,8 @@ import {
   leagueMembers,
   leaguePlayers,
   leagues,
-  matches,
   matchPlayers,
+  matches,
   seasonPlayers,
   seasons,
 } from "~/server/db/schema";

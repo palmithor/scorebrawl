@@ -1,9 +1,9 @@
 import { type NextPage } from "next";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
-import { LeaguePlayersTable } from "~/components/league/league-players-table";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
+import { LeaguePlayersTable } from "~/components/league/league-players-table";
 import { LeagueTeamsTable } from "~/components/league/league-teams-table";
 import { Title } from "~/components/title";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 
 const LeaguePlayers: NextPage = () => {
   const leagueSlug = useLeagueSlug();

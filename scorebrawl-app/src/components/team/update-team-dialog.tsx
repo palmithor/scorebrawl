@@ -1,6 +1,7 @@
-import { api } from "~/lib/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type ReactNode, useState } from "react";
-import { useToast } from "~/components/ui/use-toast";
+import { useForm } from "react-hook-form";
+import z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
-import { LoadingButton } from "~/components/ui/loading-button";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -22,6 +18,10 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { LoadingButton } from "~/components/ui/loading-button";
+import { useToast } from "~/components/ui/use-toast";
+import { api } from "~/lib/api";
 
 const formSchema = z.object({
   name: z.string().nonempty({ message: "name must not be empty." }),

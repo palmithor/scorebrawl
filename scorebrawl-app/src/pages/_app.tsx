@@ -2,23 +2,23 @@ import {
   ClerkLoaded,
   ClerkLoading,
   ClerkProvider,
-  SignedIn,
-  SignedOut,
   SignIn,
   SignUp,
+  SignedIn,
+  SignedOut,
 } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/react";
 import { type AppProps } from "next/app";
 
 import { api } from "~/lib/api";
 
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { MainLayout } from "~/components/layout/layout";
 import { ThemeProvider } from "~/components/layout/providers";
 import { Spinner } from "~/components/spinner";
 import { Toaster } from "~/components/ui/toaster";
 import "~/styles/globals.css";
-import Head from "next/head";
 
 const clerkAppearance = {
   elements: {

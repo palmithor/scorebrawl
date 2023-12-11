@@ -3,7 +3,7 @@ import slugify from "@sindresorhus/slugify";
 import { type inferProcedureInput } from "@trpc/server";
 import { type AppRouter } from "~/server/api/root";
 import { db } from "~/server/db";
-import { createCuid, type LeagueMemberRole, leagueMembers, leagues } from "~/server/db/schema";
+import { type LeagueMemberRole, createCuid, leagueMembers, leagues } from "~/server/db/schema";
 
 type CreateLeagueInput = inferProcedureInput<AppRouter["league"]["create"]>;
 

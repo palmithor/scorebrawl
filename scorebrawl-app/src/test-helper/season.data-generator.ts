@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
+import slugify from "@sindresorhus/slugify";
 import { db } from "~/server/db";
 import { createCuid, seasons } from "~/server/db/schema";
-import slugify from "@sindresorhus/slugify";
 import { type NewSeason, type Season } from "~/server/db/types";
 import { testCtx } from "../../tests/util";
 

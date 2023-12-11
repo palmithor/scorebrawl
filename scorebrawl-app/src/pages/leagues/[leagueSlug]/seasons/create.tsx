@@ -1,15 +1,15 @@
 "use client";
+import { useRouter } from "next/router";
+import React from "react";
 import { TitleLayout } from "~/components/layout/title-layout";
+import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
+import { SeasonList } from "~/components/league/season-list";
 import AutoForm from "~/components/ui/auto-form";
 import { LoadingButton } from "~/components/ui/loading-button";
 import { useToast } from "~/components/ui/use-toast";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { api } from "~/lib/api";
 import { create } from "~/server/api/season/season.schema";
-import { SeasonList } from "~/components/league/season-list";
-import React from "react";
-import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
-import { useRouter } from "next/router";
 
 export const SeasonForm = () => {
   const leagueSlug = useLeagueSlug();
