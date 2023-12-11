@@ -1,5 +1,5 @@
-import { MultiAvatar } from "~/components/user/multi-avatar";
 import { type inferRouterOutputs } from "@trpc/server";
+import { MultiAvatar } from "~/components/user/multi-avatar";
 import { type AppRouter } from "~/server/api/root";
 
 type Match = inferRouterOutputs<AppRouter>["match"]["getAll"]["data"][0];

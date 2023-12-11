@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { type ReactNode } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 export const AvatarName = ({
   name,
@@ -19,7 +19,7 @@ export const AvatarName = ({
     <div className="flex items-center">
       <div className="relative">
         <Avatar>
-          <AvatarImage src={avatarUrl}></AvatarImage>
+          <AvatarImage src={avatarUrl} />
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </div>

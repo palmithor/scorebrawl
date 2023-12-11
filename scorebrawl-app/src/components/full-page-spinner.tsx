@@ -1,5 +1,5 @@
-import { Spinner } from "~/components/spinner";
 import * as React from "react";
+import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
 
 export const FullPageSpinner = ({ className }: { className?: string }) => (

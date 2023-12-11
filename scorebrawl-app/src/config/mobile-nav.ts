@@ -10,6 +10,7 @@ export const mobileNavConfig: MobileNavConfig = {
     {
       title: "Leagues",
       href: "/leagues",
+      key: "leagues",
     },
   ],
   sidebarNav: [],

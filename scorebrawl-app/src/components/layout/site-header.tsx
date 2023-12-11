@@ -1,7 +1,7 @@
+import { UserButton } from "@clerk/nextjs";
 import { MainNav } from "~/components/layout/main-nav";
 import { MobileNav } from "~/components/layout/mobile-nav";
 import { ModeToggle } from "~/components/mode-toggle";
-import { UserButton } from "@clerk/nextjs";
 
 export function SiteHeader() {
   return (

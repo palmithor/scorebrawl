@@ -1,6 +1,6 @@
 name: on-push
 
-on: ['push']
+on: ["push"]
 
 permissions:
   contents: read
@@ -45,10 +45,6 @@ jobs:
         working-directory: scorebrawl-app
         run: bun run format:check
 
-      - name: 🔬 Lint
-        working-directory: scorebrawl-app
-        run: bun run lint
-
       - name: 📝 Test
         working-directory: scorebrawl-app
         run: bun test
@@ -91,4 +87,3 @@ jobs:
       - name: 🔬 Lint
         working-directory: turborepo
         run: bun run lint
-

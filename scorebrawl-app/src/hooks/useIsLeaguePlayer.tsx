@@ -1,6 +1,6 @@
-import { api } from "~/lib/api";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { useUser } from "@clerk/nextjs";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
 
 export const useIsLeaguePlayer = () => {
   const leagueSlug = useLeagueSlug();

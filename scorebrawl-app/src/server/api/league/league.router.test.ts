@@ -1,16 +1,19 @@
-import type z from "zod";
 import { describe, expect, test } from "bun:test";
-import { appRouter } from "~/server/api/root";
 import { faker } from "@faker-js/faker";
-import { createLeague } from "~/test-helper/league.data-generator";
-import { type NextApiRequest } from "next";
 import { and, eq } from "drizzle-orm";
+import { type NextApiRequest } from "next";
+import type z from "zod";
+import { appRouter } from "~/server/api/root";
 import { leagueMembers } from "~/server/db/schema";
-import { type create } from "./league.schema";
+import { createLeague } from "~/test-helper/league.data-generator";
 import { testCtx } from "../../../../tests/util";
+import { type create } from "./league.schema";
 
 describe("leagueRouter", () => {
-  const caller = appRouter.createCaller({ ...testCtx, req: {} as NextApiRequest });
+  const caller = appRouter.createCaller({
+    ...testCtx,
+    req: {} as NextApiRequest,
+  });
 
   describe("createLeague", () => {
     test("should create league", async () => {

@@ -1,7 +1,7 @@
-import { FullPageSpinner } from "~/components/full-page-spinner";
-import { api } from "~/lib/api";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { FullPageSpinner } from "~/components/full-page-spinner";
+import { api } from "~/lib/api";
 import { TOAST_ERROR_PARAM } from "~/lib/url";
 
 const Page = () => {

@@ -1,5 +1,5 @@
-import { api } from "~/lib/api";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
 
 export const useLeagueInvalidation = () => {
   const leagueSlug = useLeagueSlug();

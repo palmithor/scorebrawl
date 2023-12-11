@@ -1,6 +1,5 @@
-import { CardTitle } from "~/components/ui/card";
-import { api } from "~/lib/api";
 import { MatchResult } from "~/components/match/match-result";
+import { CardTitle } from "~/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { api } from "~/lib/api";
 
 export const LatestMatchesSection = ({
   leagueSlug,

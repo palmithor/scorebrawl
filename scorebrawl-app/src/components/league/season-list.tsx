@@ -1,10 +1,10 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-import { api } from "~/lib/api";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import React from "react";
 import { Label } from "~/components/ui/label";
+import { api } from "~/lib/api";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
 export const SeasonList = ({
   className,

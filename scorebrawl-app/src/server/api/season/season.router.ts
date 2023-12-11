@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { endOfDay, startOfDay } from "date-fns";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import z from "zod";
 import { pageQuerySchema } from "~/server/api/common/pagination";
@@ -9,6 +10,7 @@ import {
 } from "~/server/api/league/league.repository";
 import { getOngoingSeason } from "~/server/api/season/season.repository";
 import { createTRPCRouter, leagueProcedure, protectedProcedure } from "~/server/api/trpc";
+import { type MatchResult } from "~/server/api/types";
 import { db } from "~/server/db";
 import {
   createCuid,
@@ -17,14 +19,12 @@ import {
   leagues,
   matches,
   seasonPlayers,
-  seasons,
   seasonTeams,
+  seasons,
 } from "~/server/db/schema";
 import { type Db, type SeasonCreatedEventData } from "~/server/db/types";
 import { slugifySeasonName } from "../common/slug";
 import { create } from "./season.schema";
-import { endOfDay, startOfDay } from "date-fns";
-import { type MatchResult } from "~/server/api/types";
 
 const getSeason = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const season = await db.query.seasons.findFirst({
@@ -399,9 +399,8 @@ export const seasonRouter = createTRPCRouter({
             (matchPlayers[matchPlayers.length - 1]?.eloAfter ?? 0) -
             (matchPlayers[0]?.eloBefore ?? 0),
         };
-      } else {
-        return { diff: 0 };
       }
+      return { diff: 0 };
     }),
   teamPointDiff: protectedProcedure
     .input(
@@ -427,9 +426,8 @@ export const seasonRouter = createTRPCRouter({
           diff:
             (matchResult[matchResult.length - 1]?.eloAfter ?? 0) - (matchResult[0]?.eloBefore ?? 0),
         };
-      } else {
-        return { diff: undefined };
       }
+      return { diff: undefined };
     }),
   getStats: protectedProcedure
     .input(
@@ -438,7 +436,10 @@ export const seasonRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const season = await getSeason({ userId: ctx.auth.userId, seasonId: input.seasonId });
+      const season = await getSeason({
+        userId: ctx.auth.userId,
+        seasonId: input.seasonId,
+      });
 
       const matchCount = await ctx.db
         .select({ count: sql<number>`count(*)` })

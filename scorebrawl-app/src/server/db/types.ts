@@ -1,13 +1,13 @@
+import { type ResultSet } from "@libsql/client";
 import {
   type ExtractTablesWithRelations,
   type InferInsertModel,
   type InferSelectModel,
 } from "drizzle-orm";
-import { type leagues, type seasons } from "~/server/db/schema";
 import { type LibSQLDatabase } from "drizzle-orm/libsql";
-import type * as schema from "./schema";
-import { type ResultSet } from "@libsql/client";
 import { type SQLiteTransaction } from "drizzle-orm/sqlite-core";
+import { type leagues, type seasons } from "~/server/db/schema";
+import type * as schema from "./schema";
 
 export type LeagueModel = InferSelectModel<typeof leagues>;
 export type Season = InferSelectModel<typeof seasons>;

@@ -1,8 +1,8 @@
 import { type NextPage } from "next";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { LeagueDetailsLayout } from "~/components/league/league-details-layout";
-import { api } from "~/lib/api";
 import { SeasonCard } from "~/components/season/season-card";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
 
 const Seasons: NextPage = () => {
   const leagueSlug = useLeagueSlug();

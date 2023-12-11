@@ -1,11 +1,11 @@
+import { type IncomingHttpHeaders } from "http";
+import { type WebhookEvent } from "@clerk/backend";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { Webhook, type WebhookRequiredHeaders } from "svix";
-import { type WebhookEvent } from "@clerk/backend";
-import { type IncomingHttpHeaders } from "http";
 import { env } from "~/env.mjs";
-import { users } from "~/server/db/schema";
-import { db } from "~/server/db";
 import { fullName } from "~/lib/string-utils";
+import { db } from "~/server/db";
+import { users } from "~/server/db/schema";
 
 type NextApiRequestWithSvixRequiredHeaders = NextApiRequest & {
   headers: IncomingHttpHeaders & WebhookRequiredHeaders;
@@ -38,7 +38,10 @@ const handler = async (req: NextApiRequestWithSvixRequiredHeaders, res: NextApiR
       .insert(users)
       .values({
         id: evt.data.id,
-        name: fullName({ firstName: evt.data.first_name, lastName: evt.data.last_name }),
+        name: fullName({
+          firstName: evt.data.first_name,
+          lastName: evt.data.last_name,
+        }),
         imageUrl: evt.data.image_url,
         createdAt: new Date(evt.data.created_at),
         updatedAt: new Date(evt.data.updated_at),
@@ -46,7 +49,10 @@ const handler = async (req: NextApiRequestWithSvixRequiredHeaders, res: NextApiR
       .onConflictDoUpdate({
         target: users.id,
         set: {
-          name: fullName({ firstName: evt.data.first_name, lastName: evt.data.last_name }),
+          name: fullName({
+            firstName: evt.data.first_name,
+            lastName: evt.data.last_name,
+          }),
           imageUrl: evt.data.image_url,
           updatedAt: new Date(evt.data.updated_at),
         },

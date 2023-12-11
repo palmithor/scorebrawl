@@ -1,11 +1,11 @@
 import { CheckIcon, Undo2Icon, XIcon } from "lucide-react";
 import { useState } from "react";
+import { MatchResult } from "~/components/match/match-result";
 import { Button } from "~/components/ui/button";
+import { useIsLeaguePlayer } from "~/hooks/useIsLeaguePlayer";
+import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 import { api } from "~/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { MatchResult } from "~/components/match/match-result";
-import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
-import { useIsLeaguePlayer } from "~/hooks/useIsLeaguePlayer";
 
 export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
   const { mutate } = api.match.undoLatest.useMutation();
@@ -29,6 +29,7 @@ export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
           strokeWidth="2"
           className="h-4 w-4 text-muted-foreground"
         >
+          <title>Latest Match</title>
           <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
         </svg>
       </CardHeader>

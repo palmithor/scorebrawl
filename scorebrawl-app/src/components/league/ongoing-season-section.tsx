@@ -1,12 +1,12 @@
+import { useRouter } from "next/router";
+import { Form } from "~/components/player/form";
+import { PointsDiff } from "~/components/player/points-diff";
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 import { Spinner } from "~/components/spinner";
-import { Button } from "~/components/ui/button";
-import { useRouter } from "next/router";
-import { api } from "~/lib/api";
 import { Standing } from "~/components/standing/standing";
-import { PointsDiff } from "~/components/player/points-diff";
-import { Form } from "~/components/player/form";
+import { Button } from "~/components/ui/button";
+import { api } from "~/lib/api";
 
 export const OngoingSeasonSection = ({
   className,
@@ -42,9 +42,11 @@ export const OngoingSeasonSection = ({
   const cardContent = () => {
     if (isLoadingOngoingSeason) {
       return <Spinner />;
-    } else if (ongoingSeason) {
+    }
+    if (ongoingSeason) {
       return <Standing items={items} renderPointDiff={PointsDiff} renderForm={Form} />;
-    } else if (hasEditorAccess) {
+    }
+    if (hasEditorAccess) {
       return (
         <Button
           onClick={() => void router.push(`/leagues/${league?.slug as string}/seasons/create`)}
@@ -52,9 +54,8 @@ export const OngoingSeasonSection = ({
           Create season
         </Button>
       );
-    } else {
-      return <div className="text">Editors must create a season</div>;
     }
+    return <div className="text">Editors must create a season</div>;
   };
 
   return (

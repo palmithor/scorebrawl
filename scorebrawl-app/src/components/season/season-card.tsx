@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { api } from "~/lib/api";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { Badge } from "~/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
 
 export const SeasonCard = (props: {
   season: {
@@ -53,6 +53,7 @@ export const SeasonCard = (props: {
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
+              <title>Matches</title>
               <rect height="18" rx="2" ry="2" width="18" x="3" y="4" />
               <line x1="16" x2="16" y1="2" y2="6" />
               <line x1="8" x2="8" y1="2" y2="6" />
@@ -75,6 +76,7 @@ export const SeasonCard = (props: {
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
+              <title>Teams</title>
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
               <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
@@ -97,6 +99,7 @@ export const SeasonCard = (props: {
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
+              <title>Players</title>
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>

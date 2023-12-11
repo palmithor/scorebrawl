@@ -1,16 +1,20 @@
-import AutoForm from "~/components/ui/auto-form";
-import { create } from "~/server/api/league/league.schema";
-import { LoadingButton } from "~/components/ui/loading-button";
+import { type inferRouterOutputs } from "@trpc/server";
 import Image from "next/image";
-import { UploadButton } from "~/components/uploadthing";
 import * as React from "react";
 import { TitleLayout } from "~/components/layout/title-layout";
-import { type inferRouterOutputs } from "@trpc/server";
-import { type AppRouter } from "~/server/api/root";
+import AutoForm from "~/components/ui/auto-form";
+import { LoadingButton } from "~/components/ui/loading-button";
+import { UploadButton } from "~/components/uploadthing";
 import { DEFAULT_LEAGUE_LOGO } from "~/pages/leagues/create";
+import { create } from "~/server/api/league/league.schema";
+import { type AppRouter } from "~/server/api/root";
 
 type League = inferRouterOutputs<AppRouter>["league"]["getBySlug"];
-type FormValues = { name: string; visibility: "public" | "private"; logoUrl: string };
+type FormValues = {
+  name: string;
+  visibility: "public" | "private";
+  logoUrl: string;
+};
 
 export const LeagueForm = ({
   title,

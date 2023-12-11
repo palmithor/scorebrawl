@@ -1,11 +1,11 @@
-import * as React from "react";
 import { useRouter } from "next/router";
-import { useToast } from "~/components/ui/use-toast";
-import { api } from "~/lib/api";
-import { type create } from "~/server/api/league/league.schema";
-import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import * as React from "react";
 import type z from "zod";
 import { LeagueForm } from "~/components/league/league-form";
+import { useToast } from "~/components/ui/use-toast";
+import { useLeagueSlug } from "~/hooks/useLeagueSlug";
+import { api } from "~/lib/api";
+import { type create } from "~/server/api/league/league.schema";
 
 const EditLeague = () => {
   const router = useRouter();

@@ -21,6 +21,7 @@ export const MatchesPlayedCard = ({ leagueSlug }: { leagueSlug: string }) => {
           stroke="currentColor"
           className="h-4 w-4 text-muted-foreground"
         >
+          <title>Matches played</title>
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -29,9 +30,9 @@ export const MatchesPlayedCard = ({ leagueSlug }: { leagueSlug: string }) => {
         </svg>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{data && data.count}</div>
+        <div className="text-2xl font-bold">{data?.count}</div>
         <p className="text-xs text-muted-foreground">
-          {data && `Over ${data.seasonCount} ${data.seasonCount == 1 ? "season" : "seasons"}`}
+          {data && `Over ${data.seasonCount} ${data.seasonCount === 1 ? "season" : "seasons"}`}
         </p>
       </CardContent>
     </Card>

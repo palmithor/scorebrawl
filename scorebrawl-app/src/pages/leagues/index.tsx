@@ -1,11 +1,20 @@
 "use client";
 
+import { SelectValue } from "@radix-ui/react-select";
 import { type NextPage } from "next";
+import Head from "next/head";
 import Router, { useRouter } from "next/router";
-import { type ChangeEvent, useState, useEffect } from "react";
+import { type ChangeEvent, useEffect, useState } from "react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+} from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   Table,
@@ -15,20 +24,11 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { useToast } from "~/components/ui/use-toast";
 import { AvatarName } from "~/components/user/avatar-name";
 import { MultiAvatar } from "~/components/user/multi-avatar";
 import { api } from "~/lib/api";
-import { useToast } from "~/components/ui/use-toast";
 import { TOAST_ERROR_PARAM } from "~/lib/url";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-} from "~/components/ui/select";
-import { SelectValue } from "@radix-ui/react-select";
-import Head from "next/head";
 
 const PlayersCell = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.league.getPlayers.useQuery({ leagueSlug });
@@ -147,7 +147,7 @@ const Leagues: NextPage = () => {
                 }}
               >
                 <TableCell>
-                  <AvatarName name={league.name} avatarUrl={league.logoUrl || ""}></AvatarName>
+                  <AvatarName name={league.name} avatarUrl={league.logoUrl || ""} />
                 </TableCell>
                 <TableCell>
                   <PlayersCell leagueSlug={league.slug} />

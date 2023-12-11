@@ -1,9 +1,12 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeftIcon, ReloadIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useEffect, useMemo } from "react";
+import { type FieldPathValue, type FieldValues, useForm } from "react-hook-form";
 import z from "zod";
-import { LoadingButton } from "~/components/ui/loading-button";
+import { FullPageSpinner } from "~/components/full-page-spinner";
 import { TitleLayout } from "~/components/layout/title-layout";
-import { useToast } from "~/components/ui/use-toast";
-import { api } from "~/lib/api";
 import { FancyMultiSelect, type Item } from "~/components/ui/fancy-multi-select";
 import {
   Form,
@@ -13,14 +16,11 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type FieldPathValue, type FieldValues, useForm } from "react-hook-form";
 import { Input } from "~/components/ui/input";
+import { LoadingButton } from "~/components/ui/loading-button";
+import { useToast } from "~/components/ui/use-toast";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
-import { useRouter } from "next/router";
-import { FullPageSpinner } from "~/components/full-page-spinner";
-import { ArrowLeftIcon, ReloadIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
+import { api } from "~/lib/api";
 
 const schema = z.object({
   awayPlayerIds: z.string().array().nonempty({ message: "Must have at least one player" }),
@@ -39,7 +39,10 @@ const CreateMatch = () => {
     data: season,
     error,
     isLoading,
-  } = api.season.getById.useQuery({ leagueSlug, seasonId: router.query.seasonId as string });
+  } = api.season.getById.useQuery({
+    leagueSlug,
+    seasonId: router.query.seasonId as string,
+  });
   const { data: players = [], isLoading: isLoadingPlayers } = api.season.getPlayers.useQuery({
     seasonId: router.query.seasonId as string,
   });
@@ -66,7 +69,7 @@ const CreateMatch = () => {
     if (error) {
       router.push(`/leagues/${leagueSlug}`).catch(console.error);
     }
-  }, [router, players, error, leagueSlug, toast]);
+  }, [error, router, leagueSlug]);
 
   if (isLoading || isLoadingPlayers) {
     return <FullPageSpinner className="h-[calc(100vh-180px)]" />;
@@ -102,8 +105,14 @@ const CreateMatch = () => {
       return;
     }
 
-    const homeTeam = latestMatch.homeTeam.players.map((p) => ({ value: p.id, label: p.name }));
-    const awayTeam = latestMatch.awayTeam.players.map((p) => ({ value: p.id, label: p.name }));
+    const homeTeam = latestMatch.homeTeam.players.map((p) => ({
+      value: p.id,
+      label: p.name,
+    }));
+    const awayTeam = latestMatch.awayTeam.players.map((p) => ({
+      value: p.id,
+      label: p.name,
+    }));
     setAwayTeam(awayTeam);
     setHomeTeam(homeTeam);
   };
@@ -171,11 +180,7 @@ const CreateMatch = () => {
                       <FormItem>
                         <FormLabel>Score</FormLabel>
                         <FormControl>
-                          <Input
-                            onFocus={(e) => e.target.select()}
-                            type="number"
-                            {...field}
-                          ></Input>
+                          <Input onFocus={(e) => e.target.select()} type="number" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -220,11 +225,7 @@ const CreateMatch = () => {
                       <FormItem>
                         <FormLabel>Score</FormLabel>
                         <FormControl>
-                          <Input
-                            onFocus={(e) => e.target.select()}
-                            type="number"
-                            {...field}
-                          ></Input>
+                          <Input onFocus={(e) => e.target.select()} type="number" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

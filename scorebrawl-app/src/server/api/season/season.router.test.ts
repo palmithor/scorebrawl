@@ -1,16 +1,19 @@
-import { TRPCError } from "@trpc/server";
 import { describe, expect, test } from "bun:test";
+import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
+import { type NextApiRequest } from "next";
+import { appRouter } from "~/server/api/root";
+import { db } from "~/server/db";
+import { seasons } from "~/server/db/schema";
 import { createLeague } from "~/test-helper/league.data-generator";
 import { createSeason } from "~/test-helper/season.data-generator";
-import { db } from "~/server/db";
-import { eq } from "drizzle-orm";
-import { seasons } from "~/server/db/schema";
 import { testCtx } from "../../../../tests/util";
-import { appRouter } from "~/server/api/root";
-import { type NextApiRequest } from "next";
 
 describe("seasonRouter", () => {
-  const caller = appRouter.createCaller({ ...testCtx, req: {} as NextApiRequest });
+  const caller = appRouter.createCaller({
+    ...testCtx,
+    req: {} as NextApiRequest,
+  });
 
   describe("createSeason", () => {
     test("should create season", async () => {

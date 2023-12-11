@@ -1,6 +1,6 @@
 import { type Config } from "drizzle-kit";
 
-export default {
+export default ({
   out: "./migrations",
   schema: "./src/server/db/schema.ts",
   breakpoints: false,
@@ -9,4 +9,4 @@ export default {
     url: process.env.DATABASE_URL ?? "",
     authToken: process.env.DATABASE_AUTH_TOKEN,
   },
-} satisfies Config;
+} satisfies Config);

@@ -13,6 +13,7 @@ export const KingOfTheLeagueCard = () => (
         stroke="currentColor"
         className="h-4 w-4 text-muted-foreground"
       >
+        <title>King of the League</title>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"

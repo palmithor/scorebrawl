@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
 import { matchPlayers } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
 
 const matchPlayerList = await db.query.matchPlayers.findMany({
   with: { match: true },

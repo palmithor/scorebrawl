@@ -10,8 +10,8 @@ import {
   leagueEvents,
   leagueMembers,
   leaguePlayers,
-  leagues,
   leagueTeams,
+  leagues,
   matches,
   seasonPlayers,
   seasons,
@@ -60,7 +60,7 @@ export const leagueRouter = createTRPCRouter({
     }),
   getBySlug: leagueProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
-    .query(({ ctx }) => (({ ["code"]: _, ...rest }) => rest)(ctx.league)),
+    .query(({ ctx }) => (({ code: _, ...rest }) => rest)(ctx.league)),
   getPlayers: leagueProcedure
     .input(z.object({ leagueSlug: z.string().nonempty() }))
     .query(async ({ ctx }) => {
@@ -257,7 +257,8 @@ export const leagueRouter = createTRPCRouter({
                     points: pointsAndForm.points + 1,
                     form: [...(pointsAndForm.form ?? []), "D"],
                   };
-                } else if (
+                }
+                if (
                   (match.match.awayScore < match.match.homeScore && match.homeTeam) ||
                   (match.match.awayScore > match.match.homeScore && !match.homeTeam)
                 ) {
@@ -265,12 +266,11 @@ export const leagueRouter = createTRPCRouter({
                     points: pointsAndForm.points + 3,
                     form: [...(pointsAndForm.form ?? []), "W"],
                   };
-                } else {
-                  return {
-                    points: pointsAndForm.points,
-                    form: [...(pointsAndForm.form ?? []), "L"],
-                  };
                 }
+                return {
+                  points: pointsAndForm.points,
+                  form: [...(pointsAndForm.form ?? []), "L"],
+                };
               },
               { points: 0, form: [] },
             );
