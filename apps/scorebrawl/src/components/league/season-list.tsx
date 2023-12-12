@@ -1,8 +1,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-import React from "react";
-import { Label } from "~/components/ui/label";
+import { Label } from "@repo/ui/components";
 import { api } from "~/lib/api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 

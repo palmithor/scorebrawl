@@ -1,6 +1,6 @@
+import { Separator } from "@repo/ui/components";
 import Head from "next/head";
 import { type ReactNode } from "react";
-import { Separator } from "~/components/ui/separator";
 import { Title } from "../title";
 
 export const TitleLayout = ({

@@ -1,13 +1,18 @@
+import {
+  Badge,
+  Button,
+  ScrollArea,
+  ScrollBar,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@repo/ui/components";
+import { cn } from "@repo/ui/lib";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
-import { cn } from "~/lib/utils";
 
 type NavProps = React.HTMLAttributes<HTMLDivElement>;
 export type NavLink = "players" | "teams" | "matches";

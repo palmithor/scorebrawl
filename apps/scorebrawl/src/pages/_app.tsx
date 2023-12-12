@@ -12,12 +12,12 @@ import { type AppProps } from "next/app";
 
 import { api } from "~/lib/api";
 
+import { Toaster } from "@repo/ui/components";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { MainLayout } from "~/components/layout/layout";
 import { ThemeProvider } from "~/components/layout/providers";
 import { Spinner } from "~/components/spinner";
-import { Toaster } from "~/components/ui/toaster";
 import "~/styles/globals.css";
 
 const clerkAppearance = {

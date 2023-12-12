@@ -3,7 +3,7 @@
   "editor.defaultFormatter": "biomejs.biome",
   "editor.codeActionsOnSave": {
     "source.fixAll": true,
-    "source.organizeImports": true
+    "source.organizeImports": false
   },
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"

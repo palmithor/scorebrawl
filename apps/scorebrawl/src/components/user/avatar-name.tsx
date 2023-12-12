@@ -1,5 +1,5 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components";
 import { type ReactNode } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 export const AvatarName = ({
   name,

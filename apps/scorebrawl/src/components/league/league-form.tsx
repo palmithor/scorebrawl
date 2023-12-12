@@ -1,9 +1,8 @@
+import { AutoForm, LoadingButton } from "@repo/ui/components";
 import { type inferRouterOutputs } from "@trpc/server";
 import Image from "next/image";
 import * as React from "react";
 import { TitleLayout } from "~/components/layout/title-layout";
-import AutoForm from "~/components/ui/auto-form";
-import { LoadingButton } from "~/components/ui/loading-button";
 import { UploadButton } from "~/components/uploadthing";
 import { DEFAULT_LEAGUE_LOGO } from "~/pages/leagues/create";
 import { create } from "~/server/api/league/league.schema";

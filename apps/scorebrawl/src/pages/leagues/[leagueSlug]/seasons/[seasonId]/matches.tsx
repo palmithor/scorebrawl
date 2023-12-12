@@ -1,15 +1,8 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components";
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
 import { MatchResult } from "~/components/match/match-result";
 import { SeasonDetailsLayout } from "~/components/season/season-details-layout";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 import { api } from "~/lib/api";
 
 const SeasonPlayers: NextPage = () => {

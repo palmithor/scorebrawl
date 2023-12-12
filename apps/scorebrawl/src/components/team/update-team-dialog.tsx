@@ -1,7 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
-import z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -9,18 +6,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { LoadingButton } from "~/components/ui/loading-button";
-import { useToast } from "~/components/ui/use-toast";
+  Input,
+  LoadingButton,
+  useToast,
+} from "@repo/ui/components";
+import { type ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
+import z from "zod";
 import { api } from "~/lib/api";
 
 const formSchema = z.object({

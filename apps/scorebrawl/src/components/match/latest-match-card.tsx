@@ -1,11 +1,10 @@
+import { Button, Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components";
 import { CheckIcon, Undo2Icon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { MatchResult } from "~/components/match/match-result";
-import { Button } from "~/components/ui/button";
 import { useIsLeaguePlayer } from "~/hooks/useIsLeaguePlayer";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 import { api } from "~/lib/api";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export const LatestMatchCard = ({ leagueSlug }: { leagueSlug: string }) => {
   const { mutate } = api.match.undoLatest.useMutation();

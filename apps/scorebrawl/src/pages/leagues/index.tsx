@@ -1,30 +1,28 @@
 "use client";
 
 import { SelectValue } from "@radix-ui/react-select";
-import { type NextPage } from "next";
-import Head from "next/head";
-import Router, { useRouter } from "next/router";
-import { type ChangeEvent, useEffect, useState } from "react";
-import { Spinner } from "~/components/spinner";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import {
+  Button,
+  Input,
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectTrigger,
-} from "~/components/ui/select";
-import { Skeleton } from "~/components/ui/skeleton";
-import {
+  Skeleton,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "~/components/ui/table";
-import { useToast } from "~/components/ui/use-toast";
+  useToast,
+} from "@repo/ui/components";
+import { type NextPage } from "next";
+import Head from "next/head";
+import Router, { useRouter } from "next/router";
+import { type ChangeEvent, useEffect, useState } from "react";
+import { Spinner } from "~/components/spinner";
 import { AvatarName } from "~/components/user/avatar-name";
 import { MultiAvatar } from "~/components/user/multi-avatar";
 import { api } from "~/lib/api";

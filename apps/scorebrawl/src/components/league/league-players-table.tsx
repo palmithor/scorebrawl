@@ -1,13 +1,6 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components";
 import { AvatarName } from "~/components/user/avatar-name";
 import { api } from "~/lib/api";
 

@@ -2,19 +2,21 @@ import * as React from "react";
 
 import { useAuth, useUser } from "@clerk/nextjs";
 import { DotsVerticalIcon, PlusIcon } from "@radix-ui/react-icons";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { LeagueNav } from "~/components/league/league-nav";
-import { Button } from "~/components/ui/button";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { LoadingButton } from "~/components/ui/loading-button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-import { useToast } from "~/components/ui/use-toast";
+  LoadingButton,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  useToast,
+} from "@repo/ui/components";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { LeagueNav } from "~/components/league/league-nav";
 import { useLeagueInvalidation } from "~/hooks/useLeagueInvalidation";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { api } from "~/lib/api";

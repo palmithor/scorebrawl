@@ -1,13 +1,13 @@
-import { MatchResult } from "~/components/match/match-result";
-import { CardTitle } from "~/components/ui/card";
 import {
+  CardTitle,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "~/components/ui/table";
+} from "@repo/ui/components";
+import { MatchResult } from "~/components/match/match-result";
 import { api } from "~/lib/api";
 
 export const LatestMatchesSection = ({

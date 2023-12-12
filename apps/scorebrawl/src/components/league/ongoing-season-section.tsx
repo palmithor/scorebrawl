@@ -1,11 +1,11 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+import { Button } from "@repo/ui/components";
 import { useRouter } from "next/router";
 import { Form } from "~/components/player/form";
 import { PointsDiff } from "~/components/player/points-diff";
-/// <reference lib="dom" />
-/// <reference lib="dom.iterable" />
 import { Spinner } from "~/components/spinner";
 import { Standing } from "~/components/standing/standing";
-import { Button } from "~/components/ui/button";
 import { api } from "~/lib/api";
 
 export const OngoingSeasonSection = ({

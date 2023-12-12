@@ -1,9 +1,8 @@
+import { Badge, ScrollArea, ScrollBar } from "@repo/ui/components";
+import { cn } from "@repo/ui/lib";
 import Link from "next/link";
 import * as React from "react";
-import { Badge } from "~/components/ui/badge";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { useLeagueNav } from "~/hooks/useLeagueNav";
-import { cn } from "~/lib/utils";
 
 type NavProps = React.HTMLAttributes<HTMLDivElement>;
 

@@ -1,16 +1,9 @@
 import { useUser } from "@clerk/nextjs";
-import { EditIcon } from "lucide-react";
-import { UpdateTeamDialog } from "~/components/team/update-team-dialog";
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components";
+import { EditIcon } from "lucide-react";
+import { UpdateTeamDialog } from "~/components/team/update-team-dialog";
 import { MultiAvatar } from "~/components/user/multi-avatar";
 import { api } from "~/lib/api";
 

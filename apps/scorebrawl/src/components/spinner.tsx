@@ -1,5 +1,5 @@
+import { cn } from "@repo/ui/lib";
 import { Loader2 } from "lucide-react";
-import { cn } from "~/lib/utils";
 
 const Icons = {
   spinner: Loader2,

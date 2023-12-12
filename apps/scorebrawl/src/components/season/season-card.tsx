@@ -1,6 +1,12 @@
+import {
+  Badge,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components";
 import { useRouter } from "next/router";
-import { Badge } from "~/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { useLeagueSlug } from "~/hooks/useLeagueSlug";
 import { api } from "~/lib/api";
 
