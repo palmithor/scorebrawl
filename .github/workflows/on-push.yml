@@ -57,6 +57,8 @@ jobs:
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+      # required for build
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
 
     runs-on:
       labels: ubuntu-latest
@@ -83,7 +85,7 @@ jobs:
       - name: 🦄 Format
         working-directory: turborepo
         run: bun run format:check
-      
+
       - name: 👷‍♂️ Build
         working-directory: turborepo
         run: bun run build
