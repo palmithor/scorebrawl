@@ -3,12 +3,14 @@
 import { X } from "lucide-react";
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 
+// @ts-ignore
 import slugify from "@sindresorhus/slugify";
 import { Command as CommandPrimitive } from "cmdk";
 import { Badge } from "./badge";
 import { Command, CommandGroup, CommandItem } from "./command";
 
 export type Item = Record<"value" | "label", string>;
+
 export const FancyMultiSelect = ({
   items,
   excludeItems = [],
