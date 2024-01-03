@@ -1,1 +1,1 @@
-module.exports = require("@repo/style-config/tailwind.config.js");
+module.exports = require("@scorebrawl/style-config/tailwind.config.js");

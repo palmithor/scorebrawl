@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.4.1",
-    "@repo/typescript-config": "*",
+    "@scorebrawl/typescript-config": "*",
     "tailwindcss": "^3.3.5",
     "turbo": "latest"
   },
