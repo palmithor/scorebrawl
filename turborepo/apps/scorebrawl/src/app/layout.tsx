@@ -1,9 +1,11 @@
 import "@scorebrawl/ui/styles.css";
 
 import { siteConfig } from "@/config/site";
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { fontHeading, fontSans, fontUrban } from "@scorebrawl/ui/fonts";
 import { cn } from "@scorebrawl/ui/lib";
 import { Analytics, Providers } from "@scorebrawl/ui/providers";
+import { Spinner } from "@scorebrawl/ui/spinner";
 import { TailwindIndicator } from "@scorebrawl/ui/tailwind-indicator";
 import { Toaster } from "@scorebrawl/ui/toaster";
 import type { Metadata } from "next";
@@ -52,23 +54,30 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-          fontUrban.variable,
-          fontHeading.variable,
-        )}
-      >
-        <Providers attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          <Analytics />
-          <Toaster />
-          <TailwindIndicator />
-        </Providers>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <head />
+        <body
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            fontSans.variable,
+            fontUrban.variable,
+            fontHeading.variable,
+          )}
+        >
+          <Providers attribute="class" defaultTheme="system" enableSystem>
+            <ClerkLoaded>{children}</ClerkLoaded>
+            <ClerkLoading>
+              <div className="grid h-screen place-items-center">
+                <Spinner size="40" />
+              </div>
+            </ClerkLoading>
+            <Analytics />
+            <Toaster />
+            <TailwindIndicator />
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
