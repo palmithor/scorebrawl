@@ -23,7 +23,7 @@ export const siteConfig: SiteConfig = {
   url: site_url,
   openGraphImage: `${site_url}/scorebrawl.jpg`,
   links: {
-    twitter: "https://twitter.com/scorebrawl",
+    twitter: "https://twitter.com/palmithor",
     github: "https://github.com/scorebrawl",
   },
 };

@@ -1,16 +1,17 @@
 import { ErrorToast } from "@/components/error-toast";
 import { NavBar } from "@/components/layout/navbar";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { navConfig } from "@/config/nav";
 import { auth } from "@clerk/nextjs";
 import { ReactNode } from "react";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function LeaguesLayout({ children }: { children: ReactNode }) {
   const { userId } = auth();
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <NavBar userId={userId} items={navConfig.mainNav} />
-      <div className="container relative flex-1">{children}</div>
-      <div>footer</div>
+      <main className="flex-1 container relative">{children}</main>
+      <SiteFooter />
       <ErrorToast />
     </div>
   );
