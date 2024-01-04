@@ -1,5 +1,3 @@
-import { Table } from "@scorebrawl/ui/table";
-
 export default function LeagueListPage() {
-  return <Table />;
+  return <h1>league list</h1>;
 }
