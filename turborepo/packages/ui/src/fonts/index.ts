@@ -16,4 +16,4 @@ export const fontHeading = localFont({
   variable: "--font-heading",
 });
 
-export const GodaBlack = localFont({ src: "./GodaRegular.ttf" });
+export const GodaBlack = localFont({ src: "./GodaBlack.ttf" });
