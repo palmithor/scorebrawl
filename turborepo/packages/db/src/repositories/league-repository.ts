@@ -1,5 +1,14 @@
-import { db, leagueMembers, leagues } from "@scorebrawl/db";
+import { CreateLeagueInput } from "@scorebrawl/api";
+import {
+  createCuid,
+  db,
+  leagueMembers,
+  leaguePlayers,
+  leagues,
+  slugifyLeagueName,
+} from "@scorebrawl/db";
 import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
+import z from "zod";
 import { ScoreBrawlError } from "../errors";
 
 export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
@@ -27,4 +36,50 @@ export const getLeagueBySlug = async ({ userId, slug }: { userId: string; slug: 
     });
   }
   return league;
+};
+
+export const createLeague = async ({ name, logoUrl, userId, visibility }: CreateLeagueInput) => {
+  const slug = await slugifyLeagueName({ name });
+  const now = new Date();
+  return db.transaction(async (tx) => {
+    const league = await tx
+      .insert(leagues)
+      .values({
+        id: createCuid(),
+        slug,
+        name,
+        logoUrl,
+        visibility,
+        code: createCuid(),
+        updatedBy: userId,
+        createdBy: userId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning()
+      .get();
+    await tx
+      .insert(leagueMembers)
+      .values({
+        id: createCuid(),
+        leagueId: league.id,
+        userId: userId,
+        role: "owner",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+
+    await tx
+      .insert(leaguePlayers)
+      .values({
+        id: createCuid(),
+        leagueId: league.id,
+        userId: userId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    return league;
+  });
 };
