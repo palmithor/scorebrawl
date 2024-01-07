@@ -13,10 +13,12 @@
     "@clerk/themes": "1.7.9",
     "@scorebrawl/ui": "workspace:*",
     "@t3-oss/env-nextjs": "0.7.1",
+    "@uploadthing/react": "6.1.0",
     "next": "14.0.4",
     "nuqs": "^1.14.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "uploadthing": "6.1.1",
     "zod": "3.22.4"
   },
   "devDependencies": {
