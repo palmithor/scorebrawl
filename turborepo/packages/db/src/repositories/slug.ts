@@ -5,7 +5,7 @@ import { leagues, seasons } from "../schema";
 
 // TODO Refactor to reuse same parts
 
-const slugifyWithCustomReplacement = (text: string) => {
+export const slugifyWithCustomReplacement = (text: string) => {
   return slugify(text, {
     customReplacements: [
       ["þ", "th"],
