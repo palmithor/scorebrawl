@@ -1,5 +1,6 @@
 "use client";
 
+import { create } from "@/actions/league";
 import { TitleLayout } from "@/components/layout/title-layout";
 import { UploadButton } from "@/components/uploadthing";
 import { createLeagueSchema } from "@scorebrawl/api";
@@ -9,7 +10,6 @@ import { useToast } from "@scorebrawl/ui/use-toast";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { create } from "./actions";
 
 export const DEFAULT_LEAGUE_LOGO =
   "https://utfs.io/f/c5562abd-47aa-46de-b6a9-936b4cef1875_mascot.png";

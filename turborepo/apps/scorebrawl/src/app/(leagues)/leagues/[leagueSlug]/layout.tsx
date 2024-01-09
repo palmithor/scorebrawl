@@ -1,4 +1,4 @@
-import { getLeagueBySlug } from "@/repository/league-repository";
+import { getBySlug } from "@/actions/league";
 import { auth } from "@clerk/nextjs";
 import { ScoreBrawlError } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
@@ -11,10 +11,8 @@ export default async function LeagueLayout({
   params: { leagueSlug: string };
   children: ReactNode;
 }) {
-  const { userId } = auth();
-
   try {
-    await getLeagueBySlug({ userId: userId as string, slug: params.leagueSlug });
+    await getBySlug({ slug: params.leagueSlug });
   } catch (e) {
     redirect(
       `/leagues?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,
