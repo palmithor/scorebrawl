@@ -1,5 +1,5 @@
 import { getAll, getMine } from "@/actions/league";
-import { LeagueList } from "@/app/(leagues)/leagues/league-list";
+import { LeagueList } from "@/components/league/league-list";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
