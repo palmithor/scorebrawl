@@ -1,4 +1,4 @@
-import { LeagueForm } from "@/app/(leagues)/leagues/create/league-form";
+import { LeagueForm } from "@/components/league/league-form";
 
 const CreateLeague = () => {
   return <LeagueForm title={"Create League"} buttonTitle={"Create League"} />;

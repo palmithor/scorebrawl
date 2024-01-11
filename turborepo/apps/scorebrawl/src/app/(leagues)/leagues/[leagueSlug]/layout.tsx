@@ -1,5 +1,4 @@
 import { getBySlug } from "@/actions/league";
-import { auth } from "@clerk/nextjs";
 import { ScoreBrawlError } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
 import { ReactNode } from "react";
@@ -20,5 +19,5 @@ export default async function LeagueLayout({
     );
   }
 
-  return <>${children}</>;
+  return <div className="py-2">{children}</div>;
 }
