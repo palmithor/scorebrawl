@@ -1,5 +1,6 @@
 import { CreateLeagueInput } from "@scorebrawl/api";
 import {
+  LeagueMemberRole,
   createCuid,
   db,
   leagueMembers,
@@ -10,6 +11,7 @@ import {
 } from "@scorebrawl/db";
 import { and, asc, eq, inArray, isNotNull, like, or, sql } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
+import { LeagueOmitCode } from "../types";
 
 export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
   or(
@@ -63,7 +65,7 @@ export const getUserLeagues = async ({
     .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id))
     .get()) as { count: number };
   return {
-    data: data,
+    data: data.map((league) => ({ ...league, code: undefined })),
     meta: { totalCount: count, page, limit },
   };
 };
@@ -88,7 +90,10 @@ export const getAllLeagues = async ({
     .where(and(canReadLeaguesCriteria({ userId }), like(leagues.name, `%${search}%`)))
     .get()) as { count: number };
 
-  return { data, meta: { totalCount: count, page, limit } };
+  return {
+    data: data.map((league) => ({ ...league, code: undefined })),
+    meta: { totalCount: count, page, limit },
+  };
 };
 
 export const getLeagueBySlug = async ({ userId, slug }: { userId: string; slug: string }) => {
@@ -102,7 +107,79 @@ export const getLeagueBySlug = async ({ userId, slug }: { userId: string; slug: 
       message: "League not found",
     });
   }
-  return league;
+  return { ...league, code: undefined };
+};
+
+export const getLeagueById = async ({ userId, id }: { userId: string; id: string }) => {
+  const league = await db
+    .select()
+    .from(leagues)
+    .where(and(eq(leagues.id, id), canReadLeaguesCriteria({ userId })))
+    .get();
+  if (!league) {
+    throw new ScoreBrawlError({
+      code: "NOT_FOUND",
+      message: "League not found",
+    });
+  }
+  return { ...league, code: undefined };
+};
+
+export const getHasLeagueEditorAccess = async ({
+  userId,
+  leagueId,
+}: { userId: string; leagueId: string }) => {
+  const league = await getByIdWhereMember({
+    leagueId: leagueId,
+    userId: userId,
+    allowedRoles: ["owner", "editor"],
+  });
+
+  return !!league;
+};
+
+export const getLeagueCode = async ({
+  league,
+  userId,
+}: { league: LeagueOmitCode; userId: string }) => {
+  if (league.visibility === "private") {
+    const leagueAsMember = await getByIdWhereMember({
+      leagueId: league.id,
+      userId: userId,
+      allowedRoles: ["owner", "editor"],
+    });
+    if (!leagueAsMember) {
+      return undefined;
+    }
+  }
+  return (
+    await db.select({ code: leagues.code }).from(leagues).where(eq(leagues.id, league.id)).get()
+  )?.code;
+};
+
+export const getByIdWhereMember = async ({
+  userId,
+  leagueId,
+  allowedRoles,
+}: {
+  userId: string;
+  leagueId: string;
+  allowedRoles?: LeagueMemberRole[];
+}) => {
+  const joinCriteria = allowedRoles
+    ? and(
+        eq(leagueMembers.leagueId, leagues.id),
+        eq(leagueMembers.userId, userId),
+        inArray(leagueMembers.role, allowedRoles),
+      )
+    : and(eq(leagueMembers.leagueId, leagues.id), eq(leagueMembers.userId, userId));
+  const result = await db
+    .select()
+    .from(leagues)
+    .innerJoin(leagueMembers, joinCriteria)
+    .where(eq(leagues.id, leagueId))
+    .get();
+  return result?.league;
 };
 
 export const createLeague = async ({ name, logoUrl, userId, visibility }: CreateLeagueInput) => {

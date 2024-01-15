@@ -9,13 +9,13 @@ type SubNavProps = React.HTMLAttributes<HTMLDivElement> & {
   links: { name: string; href: string }[];
 };
 
-export function SubNav({ links, className, ...props }: SubNavProps) {
+export function SubNav({ links, children, className, ...props }: SubNavProps) {
   const pathname = usePathname();
 
   return (
-    <div className="relative">
-      <ScrollArea className="max-w-[600px] lg:max-w-none">
-        <div className={cn("mb-4 flex items-center", className)} {...props}>
+    <div className="flex items-center gap-4 py-2">
+      <ScrollArea className="grow lg:max-w-none">
+        <div className={cn("flex items-center", className)} {...props}>
           {links.map((link, index) => (
             <Link
               href={link.href}
@@ -33,6 +33,7 @@ export function SubNav({ links, className, ...props }: SubNavProps) {
         </div>
         <ScrollBar orientation="horizontal" className="invisible" />
       </ScrollArea>
+      <div className="flex">{children}</div>
     </div>
   );
 }
