@@ -5,10 +5,13 @@ import { CreateLeagueInput } from "@scorebrawl/api";
 import {
   createLeague,
   getAllLeagues,
+  getHasLeagueEditorAccess,
   getLeagueBySlug,
+  getLeagueCode,
   getLeaguePlayers,
   getUserLeagues,
 } from "@scorebrawl/db";
+import { LeagueOmitCode } from "@scorebrawl/db/src/types";
 import { cache } from "react";
 
 export const getBySlug = cache((params: { slug: string }) =>
@@ -33,6 +36,14 @@ export const getAll = cache(
 
 export const getPlayers = cache(({ leagueId }: { leagueId: string }) =>
   getLeaguePlayers({ leagueId }),
+);
+
+export const getCode = cache(({ league }: { league: LeagueOmitCode }) =>
+  getLeagueCode({ league, userId: auth().userId as string }),
+);
+
+export const getHasEditorAccess = cache(({ leagueId }: { leagueId: string }) =>
+  getHasLeagueEditorAccess({ leagueId, userId: auth().userId as string }),
 );
 
 export const create = async (val: Omit<CreateLeagueInput, "userId">) =>
