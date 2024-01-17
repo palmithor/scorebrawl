@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs";
 import { CreateLeagueInput } from "@scorebrawl/api";
 import {
+  ScoreBrawlError,
   createLeague,
   getAllLeagues,
   getHasLeagueEditorAccess,
@@ -10,8 +11,10 @@ import {
   getLeagueCode,
   getLeaguePlayers,
   getUserLeagues,
+  joinLeague,
 } from "@scorebrawl/db";
 import { LeagueOmitCode } from "@scorebrawl/db/src/types";
+import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
 
 export const getBySlug = cache((params: { slug: string }) =>
@@ -48,3 +51,17 @@ export const getHasEditorAccess = cache(({ leagueId }: { leagueId: string }) =>
 
 export const create = async (val: Omit<CreateLeagueInput, "userId">) =>
   createLeague({ ...val, userId: auth().userId as string });
+
+export const join = async (val: { code: string }) =>
+  joinLeague({ code: val.code, userId: auth().userId as string });
+
+export const getLeagueOrRedirect = cache((slug: string) => {
+  try {
+    return getBySlug({ slug });
+  } catch (e) {
+    redirect(
+      `/leagues?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,
+      RedirectType.replace,
+    );
+  }
+});

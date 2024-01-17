@@ -3,15 +3,18 @@ import {
   LeagueMemberRole,
   createCuid,
   db,
+  leagueEvents,
   leagueMembers,
   leaguePlayers,
   leagues,
+  seasonPlayers,
+  seasons,
   slugifyLeagueName,
   slugifyWithCustomReplacement,
 } from "@scorebrawl/db";
-import { and, asc, eq, inArray, isNotNull, like, or, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNotNull, isNull, like, or, sql } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
-import { LeagueOmitCode } from "../types";
+import { LeagueOmitCode, PlayerJoinedEventData } from "../types";
 
 export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
   or(
@@ -226,4 +229,80 @@ export const createLeague = async ({ name, logoUrl, userId, visibility }: Create
       .run();
     return league;
   });
+};
+
+export const joinLeague = async ({ code, userId }: { code: string; userId: string }) => {
+  const league = await db.query.leagues.findFirst({
+    where: eq(leagues.code, code),
+  });
+  if (!league) {
+    throw new ScoreBrawlError({
+      code: "NOT_FOUND",
+      message: "League not found",
+    });
+  }
+  const now = new Date();
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(leagueMembers)
+      .values({
+        id: createCuid(),
+        userId: userId,
+        leagueId: league.id,
+        role: "member",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoNothing()
+      .run();
+
+    const leaguePlayer = await tx
+      .insert(leaguePlayers)
+      .values({
+        id: createCuid(),
+        userId: userId,
+        leagueId: league.id,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoNothing()
+      .returning()
+      .get();
+
+    const ongoingAndFutureSeasons = await tx.query.seasons.findMany({
+      where: and(
+        eq(seasons.leagueId, league.id),
+        or(isNull(seasons.endDate), gte(seasons.endDate, now)),
+      ),
+    });
+    for (const season of ongoingAndFutureSeasons) {
+      await tx
+        .insert(seasonPlayers)
+        .values({
+          id: createCuid(),
+          leaguePlayerId: leaguePlayer.id,
+          elo: season.initialElo,
+          seasonId: season.id,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .onConflictDoNothing()
+        .run();
+    }
+
+    await tx
+      .insert(leagueEvents)
+      .values({
+        id: createCuid(),
+        leagueId: league.id,
+        type: "player_joined_v1",
+        data: {
+          leaguePlayerId: leaguePlayer.id,
+        } as PlayerJoinedEventData,
+        createdBy: userId,
+        createdAt: now,
+      })
+      .run();
+  });
+  return league;
 };

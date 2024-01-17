@@ -17,7 +17,6 @@ export const DEFAULT_LEAGUE_LOGO =
 type FormValues = {
   name: string;
   visibility: "public" | "private";
-  logoUrl: string;
 };
 
 export const LeagueForm = ({
@@ -39,14 +38,14 @@ export const LeagueForm = ({
   const onSubmit = async (val: FormValues) => {
     setIsLoading(true);
     try {
-      const league = await create(val);
+      const league = await create({ ...val, logoUrl: logo });
       push(`/leagues/${league.slug}`);
     } catch (err) {
       toast({
         title: "Error creating league",
         description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -58,7 +57,7 @@ export const LeagueForm = ({
           formSchema={createLeagueSchema.omit({ logoUrl: true, userId: true })}
           fieldConfig={{ visibility: { fieldType: "radio" } }}
           values={league}
-          onSubmit={(val) => onSubmit({ ...val, logoUrl: logo })}
+          onSubmit={onSubmit}
         >
           <LoadingButton loading={isLoading} type="submit" disabled={uploadInProgress}>
             {buttonTitle}

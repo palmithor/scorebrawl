@@ -4,7 +4,7 @@ import { leagues, seasons } from "./schema";
 export type League = InferSelectModel<typeof leagues>;
 export type LeagueOmitCode = Omit<League, "code">;
 export type Season = InferSelectModel<typeof seasons>;
-export type NewSeason = InferInsertModel<typeof seasons>;
+export type SeasonInsertModel = InferInsertModel<typeof seasons>;
 
 export type LeagueEventData = PlayerJoinedEventData | SeasonCreatedEventData;
 

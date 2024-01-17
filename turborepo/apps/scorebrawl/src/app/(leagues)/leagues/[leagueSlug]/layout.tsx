@@ -1,11 +1,14 @@
-import { getBySlug, getCode, getHasEditorAccess, getPlayers } from "@/actions/league";
+import {
+  getBySlug,
+  getCode,
+  getHasEditorAccess,
+  getLeagueOrRedirect,
+  getPlayers,
+} from "@/actions/league";
 import { findOngoing, getPlayers as getSeasonPlayers } from "@/actions/season";
 import { LeagueDetailsSubNav } from "@/components/league/league-details-sub-nav";
 import { auth } from "@clerk/nextjs/server";
-import { ScoreBrawlError } from "@scorebrawl/db";
-import { LeagueOmitCode } from "@scorebrawl/db/src/types";
 import { Metadata, ResolvingMetadata } from "next";
-import { RedirectType, redirect } from "next/navigation";
 import { ReactNode } from "react";
 
 export async function generateMetadata(
@@ -25,22 +28,14 @@ export async function generateMetadata(
   };
 }
 
-export default async function LeagueLayout({
+export default async function ({
   params,
   children,
 }: {
   params: { leagueSlug: string };
   children: ReactNode;
 }) {
-  let league: LeagueOmitCode | undefined;
-  try {
-    league = await getBySlug({ slug: params.leagueSlug });
-  } catch (e) {
-    redirect(
-      `/leagues?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,
-      RedirectType.replace,
-    );
-  }
+  const league = await getLeagueOrRedirect(params.leagueSlug);
   const leaguePlayers = await getPlayers({ leagueId: league.id });
   const ongoingSeason = await findOngoing({ leagueId: league.id });
   const ongoingSeasonPlayers = ongoingSeason
@@ -61,7 +56,7 @@ export default async function LeagueLayout({
       shouldEnableAddMatch={hasTwoPlayersOrMore && !!ongoingSeason}
       shouldShowAddMatch={leaguePlayers?.some((p) => p.userId === userId)}
     >
-      <h1>overview</h1>
+      {children}
     </LeagueDetailsSubNav>
   );
 }
