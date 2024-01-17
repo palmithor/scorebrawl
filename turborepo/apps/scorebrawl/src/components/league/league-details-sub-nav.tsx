@@ -1,5 +1,6 @@
 "use client";
 
+import { join } from "@/actions/league";
 import { EllipsisVerticalIcon, PlusIcon, UserPlusIcon } from "@heroicons/react/24/solid";
 import { LeagueOmitCode, Season } from "@scorebrawl/db/src/types";
 import { Button } from "@scorebrawl/ui/button";
@@ -13,6 +14,7 @@ import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { SubNav } from "../layout/sub-nav";
 
 type LeagueDetailsSubNavProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -34,7 +36,8 @@ export const LeagueDetailsSubNav = ({
   hasEditorAccess,
   ongoingSeason,
 }: LeagueDetailsSubNavProps) => {
-  const { push } = useRouter();
+  const [isJoiningLeague, setIsJoiningLeague] = useState(false);
+  const { push, refresh } = useRouter();
   const { toast } = useToast();
   const links = constructLinks(league);
 
@@ -44,9 +47,19 @@ export const LeagueDetailsSubNav = ({
         <LoadingButton
           variant="ghost"
           size="sm"
-          loading={false}
-          onClick={() => {
-            console.log("hello");
+          loading={isJoiningLeague}
+          onClick={async () => {
+            setIsJoiningLeague(true);
+            try {
+              await join({ code: inviteCode ?? "" });
+              refresh();
+              toast({
+                title: "League joined",
+                description: `${league.name} has been added to your leagues.`,
+              });
+            } catch {
+              setIsJoiningLeague(false);
+            }
           }}
         >
           <UserPlusIcon className="mr-2 h-4 w-4" />
@@ -69,7 +82,11 @@ export const LeagueDetailsSubNav = ({
             </Button>
           </TooltipTrigger>
           {!shouldEnableAddMatch && (
-            <TooltipContent>at least two players required for adding match</TooltipContent>
+            <TooltipContent>
+              <p className="w-52">
+                An ongoing season or at least two players required for adding match
+              </p>
+            </TooltipContent>
           )}
         </Tooltip>
       )}

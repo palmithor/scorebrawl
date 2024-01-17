@@ -3,6 +3,7 @@ export type ErrorCode =
   | "UNAUTHORIZED"
   | "FORBIDDEN"
   | "BAD_REQUEST"
+  | "CONFLICT"
   | "INTERNAL_SERVER_ERROR"
   | "UNKNOWN";
 
