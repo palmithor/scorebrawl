@@ -7,6 +7,7 @@ import {
   createLeague,
   getAllLeagues,
   getHasLeagueEditorAccess,
+  getLeagueById,
   getLeagueBySlug,
   getLeagueCode,
   getLeaguePlayers,
@@ -20,6 +21,11 @@ import { cache } from "react";
 export const getBySlug = cache((params: { slug: string }) =>
   getLeagueBySlug({ userId: auth().userId as string, ...params }),
 );
+
+export const getById = cache((params: { id: string }) =>
+  getLeagueById({ userId: auth().userId as string, ...params }),
+);
+
 export const getMine = cache(
   ({
     search,

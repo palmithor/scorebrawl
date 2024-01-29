@@ -72,9 +72,7 @@ export const LeagueDetailsSubNav = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() =>
-                void push(`/leagues/${league.slug}/seasons/${ongoingSeason?.id}/matches/create`)
-              }
+              onClick={() => void push(`/leagues/${league.slug}/seasons/ongoing/matches/create`)}
               disabled={!shouldEnableAddMatch}
             >
               <PlusIcon className="mr-2 h-4 w-4" />

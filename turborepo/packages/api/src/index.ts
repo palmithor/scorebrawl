@@ -17,5 +17,15 @@ export const createSeasonSchema = z.object({
   userId: z.string(),
 });
 
+export const createMatchSchema = z.object({
+  seasonId: z.string().min(1),
+  homePlayerIds: z.string().array().nonempty(),
+  awayPlayerIds: z.string().array().nonempty(),
+  homeScore: z.number().int(),
+  awayScore: z.number().int(),
+  userId: z.string(),
+});
+
 export type CreateLeagueInput = z.infer<typeof createLeagueSchema>;
 export type CreateSeasonInput = z.infer<typeof createSeasonSchema>;
+export type CreateMatchInput = z.infer<typeof createMatchSchema>;

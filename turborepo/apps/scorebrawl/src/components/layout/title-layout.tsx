@@ -18,7 +18,7 @@ export const TitleLayout = ({
 }) => {
   const { push } = useRouter();
   return (
-    <div className="space-y-6 p-10 pb-16 md:block">
+    <div className="container pt-4">
       <div className="space-y-0.5 flex items-center">
         {backLink && (
           <Button className="mr-2" variant="ghost" size="sm" onClick={() => void push(backLink)}>
