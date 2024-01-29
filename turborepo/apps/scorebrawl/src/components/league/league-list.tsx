@@ -1,6 +1,6 @@
 "use client";
 
-import { LeaguePlayerMultiAvatar } from "@/components/users/league-player-multi-avatar";
+import { LeaguePlayerMultiAvatar } from "@/components/user/league-player-multi-avatar";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { Button } from "@scorebrawl/ui/button";
 import { Input } from "@scorebrawl/ui/input";

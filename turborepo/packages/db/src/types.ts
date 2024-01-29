@@ -15,3 +15,14 @@ export type PlayerJoinedEventData = {
 export type SeasonCreatedEventData = {
   seasonId: string;
 };
+
+export type SeasonPlayer = {
+  id: string;
+  userId: string;
+  name: string;
+  imageUrl: string;
+  elo: number;
+  joinedAt: Date;
+  disabled: boolean;
+  matchCount: number;
+};
