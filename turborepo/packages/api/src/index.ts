@@ -29,3 +29,8 @@ export const createMatchSchema = z.object({
 export type CreateLeagueInput = z.infer<typeof createLeagueSchema>;
 export type CreateSeasonInput = z.infer<typeof createSeasonSchema>;
 export type CreateMatchInput = z.infer<typeof createMatchSchema>;
+export type PageRequest = {
+  search?: string;
+  page?: number;
+  limit?: number;
+};

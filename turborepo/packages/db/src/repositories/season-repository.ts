@@ -9,7 +9,9 @@ import {
   leagueEvents,
   leaguePlayers,
   leagues,
+  matches,
   seasonPlayers,
+  seasonTeams,
   seasons,
   slugifySeasonName,
 } from "..";
@@ -211,4 +213,35 @@ export const createSeason = async ({
       })
       .run();
   });
+};
+
+export const getSeasonStats = async ({
+  seasonId,
+  userId,
+}: { seasonId: string; userId: string }) => {
+  const season = await getSeasonById({
+    userId: userId,
+    seasonId: seasonId,
+  });
+
+  const matchCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(matches)
+    .where(eq(matches.seasonId, season.id))
+    .get();
+  const teamCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(seasonTeams)
+    .where(eq(seasonTeams.seasonId, season.id))
+    .get();
+  const playerCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(seasonPlayers)
+    .where(eq(seasonPlayers.seasonId, season.id))
+    .get();
+  return {
+    matchCount: matchCount?.count || 0,
+    teamCount: teamCount?.count || 0,
+    playerCount: playerCount?.count || 0,
+  };
 };

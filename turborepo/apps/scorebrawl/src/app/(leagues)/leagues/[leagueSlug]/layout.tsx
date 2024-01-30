@@ -17,7 +17,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const league = { name: "" };
   try {
-    const { name } = await getBySlug({ slug: params.leagueSlug });
+    const { name } = await getBySlug(params);
     league.name = name;
   } catch (e) {
     // ignore
@@ -47,16 +47,17 @@ export default async function ({
   const hasTwoPlayersOrMore = ongoingSeasonPlayers && ongoingSeasonPlayers.length > 1;
 
   return (
-    <LeagueDetailsSubNav
-      league={league}
-      shouldShowJoin={!!(code && !leaguePlayers.some((u) => u?.userId === userId))}
-      hasEditorAccess={hasEditorAccess}
-      inviteCode={code}
-      ongoingSeason={ongoingSeason}
-      shouldEnableAddMatch={hasTwoPlayersOrMore && !!ongoingSeason}
-      shouldShowAddMatch={leaguePlayers?.some((p) => p.userId === userId)}
-    >
+    <>
+      <LeagueDetailsSubNav
+        league={league}
+        shouldShowJoin={!!(code && !leaguePlayers.some((u) => u?.userId === userId))}
+        hasEditorAccess={hasEditorAccess}
+        inviteCode={code}
+        ongoingSeason={ongoingSeason}
+        shouldEnableAddMatch={hasTwoPlayersOrMore && !!ongoingSeason}
+        shouldShowAddMatch={leaguePlayers?.some((p) => p.userId === userId)}
+      />
       {children}
-    </LeagueDetailsSubNav>
+    </>
   );
 }

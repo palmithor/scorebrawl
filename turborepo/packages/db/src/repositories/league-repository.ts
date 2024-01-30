@@ -99,7 +99,10 @@ export const getAllLeagues = async ({
   };
 };
 
-export const getLeagueBySlug = async ({ userId, slug }: { userId: string; slug: string }) => {
+export const getLeagueBySlug = async ({
+  userId,
+  leagueSlug: slug,
+}: { userId: string; leagueSlug: string }) => {
   const league = await db.query.leagues.findFirst({
     where: (league, { eq }) => and(eq(league.slug, slug), canReadLeaguesCriteria({ userId })),
   });
