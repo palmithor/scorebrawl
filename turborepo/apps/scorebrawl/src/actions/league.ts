@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs";
-import { CreateLeagueInput } from "@scorebrawl/api";
+import { CreateLeagueInput, PageRequest } from "@scorebrawl/api";
 import {
   ScoreBrawlError,
   createLeague,
@@ -18,7 +18,7 @@ import { LeagueOmitCode } from "@scorebrawl/db/src/types";
 import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
 
-export const getBySlug = cache((params: { slug: string }) =>
+export const getBySlug = cache((params: { leagueSlug: string }) =>
   getLeagueBySlug({ userId: auth().userId as string, ...params }),
 );
 
@@ -33,13 +33,12 @@ export const getMine = cache(
     limit = 30,
   }: {
     search?: string;
-    page?: number;
-    limit?: number;
-  }) => getUserLeagues({ userId: auth().userId as string, search: search ?? "", page, limit }),
+  } & PageRequest) =>
+    getUserLeagues({ userId: auth().userId as string, search: search ?? "", page, limit }),
 );
 
 export const getAll = cache(
-  ({ search, page = 0, limit = 30 }: { search?: string; page?: number; limit?: number }) =>
+  ({ search, page = 0, limit = 30 }: { search?: string } & PageRequest) =>
     getAllLeagues({ userId: auth().userId as string, search: search ?? "", page, limit }),
 );
 
@@ -61,9 +60,9 @@ export const create = async (val: Omit<CreateLeagueInput, "userId">) =>
 export const join = async (val: { code: string }) =>
   joinLeague({ code: val.code, userId: auth().userId as string });
 
-export const getLeagueOrRedirect = cache((slug: string) => {
+export const getLeagueOrRedirect = cache(async (leagueSlug: string) => {
   try {
-    return getBySlug({ slug });
+    return await getLeagueBySlug({ leagueSlug, userId: auth().userId as string });
   } catch (e) {
     redirect(
       `/leagues?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,

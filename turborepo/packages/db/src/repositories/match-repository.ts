@@ -1,5 +1,5 @@
 import { Player, TeamMatch } from "@ihs7/ts-elo";
-import { CreateMatchInput } from "@scorebrawl/api";
+import { CreateMatchInput, PageRequest } from "@scorebrawl/api";
 import { and, eq, inArray } from "drizzle-orm";
 import { getByIdWhereMember, getSeasonById, getSeasonPlayers } from ".";
 import {
@@ -197,6 +197,41 @@ export const createMatch = async ({
   });
 };
 
+export const getMatchesBySeasonId = async ({
+  seasonId,
+  userId,
+  limit = 15,
+  page = 1,
+}: { seasonId: string; userId: string } & PageRequest) => {
+  const season = await getSeasonById({
+    seasonId: seasonId,
+    userId: userId,
+  });
+  const seasonMatches = await db.query.matches.findMany({
+    where: (match, { eq }) => eq(match.seasonId, season.id),
+    orderBy: (match, { desc }) => [desc(match.createdAt)],
+    limit,
+    offset: (page - 1) * limit,
+    with: {
+      matchPlayers: {
+        with: {
+          seasonPlayer: {
+            with: {
+              leaguePlayer: {
+                columns: { userId: true },
+                with: { user: { columns: { name: true, imageUrl: true } } },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  return {
+    data: seasonMatches.map(toMatchObj),
+  };
+};
+
 const findAndValidateSeasonPlayers = async ({
   seasonId,
   seasonPlayerIds,
@@ -247,3 +282,64 @@ const calculateMatchResult = ({
   const eloMatchResult = eloIndividualMatch.calculate();
   return { eloHomeTeam, eloAwayTeam, eloMatchResult };
 };
+
+const toMatchObj = (match: {
+  id: string;
+  homeScore: number;
+  awayScore: number;
+  homeExpectedElo: number;
+  awayExpectedElo: number;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  matchPlayers: {
+    homeTeam: boolean;
+    seasonPlayer: {
+      id: string;
+      elo: number;
+      createdAt: Date;
+      disabled: boolean;
+      leaguePlayer: {
+        userId: string;
+        user: { name: string | null; imageUrl: string | null };
+      };
+    };
+  }[];
+}) => ({
+  id: match.id,
+  homeTeam: {
+    score: match.homeScore,
+    expectedElo: match.homeExpectedElo,
+    players: match.matchPlayers
+      .filter((p) => p.homeTeam)
+      .map((p) => ({
+        id: p.seasonPlayer.id,
+        userId: p.seasonPlayer.leaguePlayer.userId,
+        elo: p.seasonPlayer.elo,
+        joinedAt: p.seasonPlayer.createdAt,
+        disabled: p.seasonPlayer.disabled,
+        name: p.seasonPlayer.leaguePlayer.user?.name ?? "",
+        imageUrl: p.seasonPlayer.leaguePlayer.user?.imageUrl ?? "",
+      })),
+  },
+  awayTeam: {
+    score: match.awayScore,
+    expectedElo: match.awayExpectedElo,
+    players: match.matchPlayers
+      .filter((p) => !p.homeTeam)
+      .map((p) => ({
+        id: p.seasonPlayer.id,
+        userId: p.seasonPlayer.leaguePlayer.userId,
+        elo: p.seasonPlayer.elo,
+        joinedAt: p.seasonPlayer.createdAt,
+        disabled: p.seasonPlayer.disabled,
+        name: p.seasonPlayer.leaguePlayer.user?.name ?? "",
+        imageUrl: p.seasonPlayer.leaguePlayer.user?.imageUrl ?? "",
+      })),
+  },
+  createdBy: match.createdBy,
+  updatedBy: match.updatedBy,
+  createdAt: match.createdAt,
+  updatedAt: match.updatedAt,
+});

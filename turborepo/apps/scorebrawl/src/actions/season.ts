@@ -7,8 +7,10 @@ import {
   findOngoingSeason,
   getAllSeasons,
   getLeagueBySlug,
+  getMatchesBySeasonId,
   getSeasonById,
   getSeasonPlayers,
+  getSeasonStats,
 } from "@scorebrawl/db";
 import { Season } from "@scorebrawl/db/src/types";
 import { cache } from "react";
@@ -17,7 +19,7 @@ import { getBySlug } from "./league";
 export const getByIdOrOngoing = cache(
   async ({ seasonId, leagueSlug }: { seasonId: string | "ongoing"; leagueSlug: string }) => {
     if (seasonId === "ongoing") {
-      const league = await getBySlug({ slug: leagueSlug });
+      const league = await getBySlug({ leagueSlug });
       const ongoingSeason = await findOngoingSeason({
         leagueId: league.id,
         userId: auth().userId as string,
@@ -41,8 +43,16 @@ export const getPlayers = cache(({ seasonId }: { seasonId: string }) =>
   getSeasonPlayers({ seasonId, userId: auth().userId as string }),
 );
 
+export const getMatches = cache(({ seasonId }: { seasonId: string }) =>
+  getMatchesBySeasonId({ seasonId, userId: auth().userId as string }),
+);
+
 export const getAll = cache(({ leagueSlug }: { leagueSlug: string }) =>
   getAllSeasons({ leagueSlug, userId: auth().userId as string }),
+);
+
+export const getStats = cache(({ seasonId }: { seasonId: string }) =>
+  getSeasonStats({ seasonId, userId: auth().userId as string }),
 );
 
 export const create = async (val: Omit<CreateSeasonInput, "userId">) =>
