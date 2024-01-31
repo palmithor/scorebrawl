@@ -34,3 +34,5 @@ export type PageRequest = {
   page?: number;
   limit?: number;
 };
+export type MatchResult = "W" | "D" | "L";
+export type PlayerForm = MatchResult[];
