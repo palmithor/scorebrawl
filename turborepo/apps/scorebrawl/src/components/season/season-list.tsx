@@ -1,6 +1,6 @@
 "use client";
 
-import { Season } from "@scorebrawl/db/src/types";
+import { Season } from "@scorebrawl/db/types";
 import { Label } from "@scorebrawl/ui/label";
 import {
   Table,

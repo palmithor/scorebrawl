@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Season, SeasonPlayer } from "@scorebrawl/db/src/types";
+import { Season, SeasonPlayer } from "@scorebrawl/db/types";
 import { badgeVariants } from "@scorebrawl/ui/badge";
 import { Button } from "@scorebrawl/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@scorebrawl/ui/card";

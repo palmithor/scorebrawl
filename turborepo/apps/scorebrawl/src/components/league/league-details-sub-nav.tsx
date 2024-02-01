@@ -2,7 +2,7 @@
 
 import { join } from "@/actions/league";
 import { EllipsisVerticalIcon, PlusIcon, UserPlusIcon } from "@heroicons/react/24/solid";
-import { LeagueOmitCode, Season } from "@scorebrawl/db/src/types";
+import { LeagueOmitCode, Season } from "@scorebrawl/db/types";
 import { Button } from "@scorebrawl/ui/button";
 import {
   DropdownMenu,
