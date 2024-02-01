@@ -1,7 +1,7 @@
 import { Player, TeamMatch } from "@ihs7/ts-elo";
 import { CreateMatchInput, PageRequest } from "@scorebrawl/api";
 import { and, eq, inArray } from "drizzle-orm";
-import { getByIdWhereMember, getSeasonById, getSeasonPlayers } from ".";
+import { getByIdWhereMember, getSeasonById } from ".";
 import {
   ScoreBrawlError,
   createCuid,

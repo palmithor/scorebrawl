@@ -1,7 +1,6 @@
 import { fullName } from "@scorebrawl/utils/string";
-import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { leaguePlayers, users } from "../schema";
+import { users } from "../schema";
 
 export const findUserById = async ({ id }: { id: string }) => {
   return db.query.users.findFirst({

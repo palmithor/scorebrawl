@@ -6,14 +6,13 @@ import {
   createSeason,
   findOngoingSeason,
   getAllSeasons,
-  getLeagueBySlug,
   getMatchesBySeasonId,
   getSeasonById,
   getSeasonPlayerLatestMatches,
   getSeasonPlayers,
   getSeasonStats,
 } from "@scorebrawl/db";
-import { Season, SeasonPlayer } from "@scorebrawl/db/types";
+import { SeasonPlayer } from "@scorebrawl/db/types";
 import { cache } from "react";
 import { getBySlug } from "./league";
 

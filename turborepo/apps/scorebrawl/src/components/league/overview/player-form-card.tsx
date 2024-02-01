@@ -1,9 +1,8 @@
-import { MatchResult, PlayerForm } from "@scorebrawl/api";
+import { MatchResult } from "@scorebrawl/api";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 import { FormDots } from "../player-form";
 
-import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
 import { Flame, Snowflake } from "lucide-react";
 
 export const PlayerFormCard = ({

@@ -2,29 +2,8 @@
 
 import { env } from "@/env.mjs";
 import { auth } from "@clerk/nextjs";
-import {
-  type SignedInAuthObject,
-  type SignedOutAuthObject,
-  createClerkClient,
-  getAuth,
-} from "@clerk/nextjs/server";
-import { CreateLeagueInput, PageRequest } from "@scorebrawl/api";
-import {
-  ScoreBrawlError,
-  createLeague,
-  findUserById,
-  getAllLeagues,
-  getHasLeagueEditorAccess,
-  getLeagueById,
-  getLeagueBySlug,
-  getLeagueCode,
-  getLeaguePlayers,
-  getUserLeagues,
-  joinLeague,
-  upsertUser,
-} from "@scorebrawl/db";
-import { LeagueOmitCode } from "@scorebrawl/db/types";
-import { RedirectType, redirect } from "next/navigation";
+import { createClerkClient } from "@clerk/nextjs/server";
+import { findUserById, upsertUser } from "@scorebrawl/db";
 import { cache } from "react";
 
 export const getAuthenticatedUser = cache(() => findUserById({ id: auth().userId as string }));

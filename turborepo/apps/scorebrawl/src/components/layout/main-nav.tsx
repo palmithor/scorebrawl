@@ -7,7 +7,7 @@ import * as React from "react";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { MainNavItem } from "@/components/layout/types";
 import { siteConfig } from "@/config/site";
-import { GodaBlack, fontHeading } from "@scorebrawl/ui/fonts";
+import { fontHeading } from "@scorebrawl/ui/fonts";
 import { Icons } from "@scorebrawl/ui/icons";
 import { cn } from "@scorebrawl/ui/lib";
 

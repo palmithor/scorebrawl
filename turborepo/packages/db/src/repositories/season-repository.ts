@@ -1,4 +1,3 @@
-import { match } from "assert";
 import { CreateSeasonInput } from "@scorebrawl/api";
 import { and, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {

@@ -7,6 +7,13 @@ export const createLeagueSchema = z.object({
   visibility: z.enum(["public", "private"]),
 });
 
+export const updateTeamSchema = z.object({
+  teamId: z.string(),
+  leagueId: z.string(),
+  userId: z.string(),
+  name: z.string().min(0, { message: "Name is required" }),
+});
+
 export const createSeasonSchema = z.object({
   name: z.string().min(0, "Name is required"),
   leagueId: z.string(),
@@ -36,3 +43,4 @@ export type PageRequest = {
 };
 export type MatchResult = "W" | "D" | "L";
 export type PlayerForm = MatchResult[];
+export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;
