@@ -2,7 +2,6 @@
 
 import { AvatarProps, MultiAvatar } from "@scorebrawl/ui/multi-avatar";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
-import React from "react";
 import useSWR, { Fetcher } from "swr";
 
 const fetcher: Fetcher<AvatarProps[], string> = async (path: string) => {

@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs";
-import { CreateLeagueInput, PageRequest } from "@scorebrawl/api";
+import { CreateLeagueInput, PageRequest, UpdateTeamInput } from "@scorebrawl/api";
 import {
   ScoreBrawlError,
   createLeague,
@@ -11,8 +11,10 @@ import {
   getLeagueBySlug,
   getLeagueCode,
   getLeaguePlayers,
+  getLeagueTeams,
   getUserLeagues,
   joinLeague,
+  updateTeam as updateTeamDb,
 } from "@scorebrawl/db";
 import { LeagueOmitCode } from "@scorebrawl/db/types";
 import { RedirectType, redirect } from "next/navigation";
@@ -45,6 +47,11 @@ export const getAll = cache(
 export const getPlayers = cache(({ leagueId }: { leagueId: string }) =>
   getLeaguePlayers({ leagueId }),
 );
+
+export const updateTeam = async (val: Omit<UpdateTeamInput, "userId">) =>
+  updateTeamDb({ ...val, userId: auth().userId as string });
+
+export const getTeams = cache(({ leagueId }: { leagueId: string }) => getLeagueTeams({ leagueId }));
 
 export const getCode = cache(({ league }: { league: LeagueOmitCode }) =>
   getLeagueCode({ league, userId: auth().userId as string }),

@@ -70,7 +70,7 @@ export const LeagueDetailsSubNav = ({
         <Tooltip>
           <TooltipTrigger>
             <Button
-              variant="ghost"
+              variant="secondary"
               size="sm"
               onClick={() => void push(`/leagues/${league.slug}/seasons/ongoing/matches/create`)}
               disabled={!shouldEnableAddMatch}
@@ -80,7 +80,7 @@ export const LeagueDetailsSubNav = ({
             </Button>
           </TooltipTrigger>
           {!shouldEnableAddMatch && (
-            <TooltipContent>
+            <TooltipContent side="bottom">
               <p className="w-52">
                 An ongoing season or at least two players required for adding match
               </p>

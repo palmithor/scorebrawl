@@ -1,6 +1,6 @@
 import { getById as getLeagueById } from "@/actions/league";
 import { getByIdOrOngoing } from "@/actions/season";
-import { ErrorCode, ScoreBrawlError } from "@scorebrawl/db";
+import { ScoreBrawlError } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
 import { ReactNode } from "react";
 

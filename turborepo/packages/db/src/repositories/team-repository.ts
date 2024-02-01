@@ -1,5 +1,15 @@
-import { inArray, sql } from "drizzle-orm";
-import { DbTransaction, createCuid, leagueTeamPlayers, leagueTeams, seasonTeams } from "..";
+import { UpdateTeamInput } from "@scorebrawl/api";
+import { asc, eq, inArray, sql } from "drizzle-orm";
+import {
+  DbTransaction,
+  ScoreBrawlError,
+  createCuid,
+  getByIdWhereMember,
+  leagueTeamPlayers,
+  leagueTeams,
+  seasonTeams,
+} from "..";
+import { db } from "../db";
 
 export const getOrInsertTeam = async (
   tx: DbTransaction,
@@ -89,4 +99,63 @@ export const getOrInsertTeam = async (
     return { seasonTeamId, elo: season.initialElo };
   }
   return { seasonTeamId: seasonTeam.id, elo: seasonTeam.elo };
+};
+
+export const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamInput) => {
+  const league = await getByIdWhereMember({
+    leagueId: leagueId,
+    userId: userId,
+    allowedRoles: ["owner", "editor"],
+  });
+
+  const team = await db.query.leagueTeams.findFirst({
+    where: (team, { eq, and }) => and(eq(team.id, teamId), eq(team.leagueId, leagueId)),
+    with: {
+      players: {
+        columns: { id: true },
+        with: {
+          leaguePlayer: {
+            columns: { id: true },
+            with: { user: { columns: { id: true } } },
+          },
+        },
+      },
+    },
+  });
+  if (!league && !team?.players.map((p) => p.leaguePlayer.user.id).includes(userId)) {
+    throw new ScoreBrawlError({
+      code: "FORBIDDEN",
+      message: "You are not authorized to update this team",
+    });
+  }
+  return db
+    .update(leagueTeams)
+    .set({
+      name: name,
+    })
+    .where(eq(leagueTeams.id, teamId))
+    .returning()
+    .get();
+};
+
+export const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {
+  return db.query.leagueTeams.findMany({
+    where: (team, { eq }) => eq(team.leagueId, leagueId),
+    orderBy: asc(leagueTeams.name),
+    with: {
+      players: {
+        columns: {},
+        with: {
+          leaguePlayer: {
+            columns: { id: true },
+            with: {
+              user: {
+                columns: { id: true, name: true, imageUrl: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 };

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.4.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "files": {
     "ignore": [".next", "node_modules", ".idea", "bun.lockb", "dev"]
   },
@@ -15,7 +15,9 @@
     "enabled": true,
     "ignore": ["packages/ui/src/components"],
     "rules": {
-      "recommended": true
+      "nursery": {
+        "noUnusedImports": "error"
+      }
     }
   }
 }

@@ -1,5 +1,5 @@
 import { getBySlug } from "@/actions/league";
-import { findOngoing, getByIdOrOngoing, getForm, getMatches, getPlayers } from "@/actions/season";
+import { findOngoing, getForm, getMatches, getPlayers } from "@/actions/season";
 import { PlayerFormCard } from "@/components/league/overview/player-form-card";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {
