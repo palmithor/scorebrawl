@@ -34,6 +34,7 @@ import { AvatarBadge } from "../user/avatar-badge";
 
 const seasonPlayerSchema = z.object({
   id: z.string(),
+  leaguePlayerId: z.string(),
   userId: z.string(),
   name: z.string(),
   imageUrl: z.string(),

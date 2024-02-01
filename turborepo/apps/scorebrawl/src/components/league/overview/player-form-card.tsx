@@ -1,4 +1,4 @@
-import { MatchResult } from "@scorebrawl/api";
+import { MatchResultSymbol } from "@scorebrawl/api";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 import { FormDots } from "../player-form";
@@ -9,12 +9,11 @@ export const PlayerFormCard = ({
   state,
   player,
 }: {
-  player?: { name: string; imageUrl: string; matches: { result: MatchResult }[] };
+  player?: { name: string; imageUrl: string; form: MatchResultSymbol[] };
   state: "top" | "bottom";
 }) => {
-  const title = state === "top" ? "On Fire" : "Ice Cold";
+  const title = state === "top" ? "On Fire" : "Struggling";
   const StateIcon = state === "top" ? Flame : Snowflake;
-  const form = player?.matches.map((match) => match.result) ?? [];
 
   return (
     <Card>
@@ -25,9 +24,9 @@ export const PlayerFormCard = ({
       <CardContent>
         {!player && <div className="text-sm">No games played in current season</div>}
         {player && (
-          <div className="flex items-center ">
+          <div className="flex items-center">
             <AvatarName name={player.name} avatarUrl={player.imageUrl}>
-              <FormDots form={form} />
+              <FormDots form={player.form} />
             </AvatarName>
           </div>
         )}

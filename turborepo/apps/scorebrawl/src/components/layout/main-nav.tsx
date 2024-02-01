@@ -36,7 +36,7 @@ export function MainNav({ items, children }: MainNavProps) {
     return () => {
       document.removeEventListener("click", closeMobileMenuOnClickOutside);
     };
-  }, [showMobileMenu, setShowMobileMenu]);
+  }, [showMobileMenu]);
 
   return (
     <div className="flex gap-6 md:gap-10">

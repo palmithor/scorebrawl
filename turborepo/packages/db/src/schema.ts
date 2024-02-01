@@ -238,6 +238,7 @@ export const leaguePlayerRelations = relations(leaguePlayers, ({ one, many }) =>
     references: [leagues.id],
   }),
   teamPlayer: many(leagueTeamPlayers),
+  seasonPlayers: many(seasonPlayers),
 }));
 
 export const leagueTeamRelations = relations(leagueTeams, ({ one, many }) => ({

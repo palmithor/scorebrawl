@@ -41,6 +41,6 @@ export type PageRequest = {
   page?: number;
   limit?: number;
 };
-export type MatchResult = "W" | "D" | "L";
-export type PlayerForm = MatchResult[];
+export type MatchResultSymbol = "W" | "D" | "L";
+export type PlayerForm = MatchResultSymbol[];
 export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;

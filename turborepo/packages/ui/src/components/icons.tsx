@@ -1,12 +1,12 @@
-import {Activity, Loader2, LucideIcon, X} from "lucide-react";
+import { Activity, Loader2, LucideIcon, X } from "lucide-react";
 
-type Icon = LucideIcon
+type Icon = LucideIcon;
 
 export const Icons = {
-    logo: Activity,
+  logo: Activity,
 
-    spinner: Loader2,
+  spinner: Loader2,
 
-    // call to action
-    close: X,
+  // call to action
+  close: X,
 };

@@ -1,7 +1,7 @@
 import { Player, TeamMatch } from "@ihs7/ts-elo";
-import { CreateMatchInput, PageRequest } from "@scorebrawl/api";
-import { and, eq, inArray } from "drizzle-orm";
-import { getByIdWhereMember, getSeasonById } from ".";
+import { CreateMatchInput, MatchResultSymbol, PageRequest } from "@scorebrawl/api";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import { getByIdWhereMember, getLeagueById, getSeasonById } from ".";
 import {
   ScoreBrawlError,
   createCuid,
@@ -10,8 +10,10 @@ import {
   matches,
   seasonPlayers,
   seasonTeams,
+  seasons,
   teamMatches,
 } from "..";
+import { Match, MatchPlayer } from "../types";
 import { getOrInsertTeam } from "./team-repository";
 
 export const createMatch = async ({
@@ -232,6 +234,59 @@ export const getMatchesBySeasonId = async ({
   };
 };
 
+export const getLatestMatch = async ({
+  leagueId,
+  userId,
+}: { leagueId: string; userId: string }): Promise<Match | undefined> => {
+  const league = await getLeagueById({ leagueId, userId });
+
+  const match = await db.query.matches.findFirst({
+    where: (match, { inArray }) =>
+      inArray(
+        match.seasonId,
+        db.select({ id: seasons.id }).from(seasons).where(eq(seasons.leagueId, league.id)),
+      ),
+    with: {
+      matchPlayers: {
+        columns: { id: true, homeTeam: true, result: true, seasonPlayerId: true },
+        with: {
+          seasonPlayer: {
+            columns: { id: true, elo: true, leaguePlayerId: true },
+            with: {
+              leaguePlayer: {
+                columns: {},
+                with: { user: { columns: { id: true, name: true, imageUrl: true } } },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: (match, { desc }) => [desc(match.createdAt)],
+  });
+
+  return match
+    ? {
+        id: match.id,
+        homeTeam: {
+          score: match.homeScore,
+          expectedElo: match.homeExpectedElo,
+          result: match.matchPlayers.find((p) => p.homeTeam)?.result as MatchResultSymbol,
+          players: mapMatchTeam({ matchPlayers: match.matchPlayers.filter((p) => p.homeTeam) }),
+        },
+        awayTeam: {
+          score: match.awayScore,
+          expectedElo: match.awayExpectedElo,
+          result: match.matchPlayers.find((p) => !p.homeTeam)?.result as MatchResultSymbol,
+          players: mapMatchTeam({ matchPlayers: match.matchPlayers.filter((p) => !p.homeTeam) }),
+        },
+        seasonId: match.seasonId,
+        createdAt: match.createdAt,
+        createdBy: match.createdBy,
+      }
+    : undefined;
+};
+
 const findAndValidateSeasonPlayers = async ({
   seasonId,
   seasonPlayerIds,
@@ -255,6 +310,79 @@ const findAndValidateSeasonPlayers = async ({
     });
   }
   return players;
+};
+
+export const deleteMatch = async ({ matchId, userId }: { matchId: string; userId: string }) => {
+  const match = await db.query.matches.findFirst({
+    where: (match, { eq }) => eq(match.id, matchId),
+    with: {
+      matchPlayers: {
+        columns: { id: true, eloBefore: true, homeTeam: true },
+        with: {
+          seasonPlayer: {
+            columns: { id: true, elo: true, leaguePlayerId: true },
+          },
+        },
+      },
+      teamMatches: {
+        columns: { id: true, eloBefore: true, seasonTeamId: true },
+      },
+      season: { columns: { id: true, leagueId: true } },
+    },
+  });
+  if (!match) {
+    throw new ScoreBrawlError({ code: "NOT_FOUND", message: "Match not found" });
+  }
+  // check read access
+  await getLeagueById({
+    userId,
+    leagueId: match.season.leagueId,
+  });
+
+  const isLeaguePlayer = await db.query.leaguePlayers.findFirst({
+    where: (lp, { and, eq }) =>
+      and(eq(lp.leagueId, match.season.leagueId), eq(lp.userId, userId), eq(lp.disabled, false)),
+  });
+
+  if (!isLeaguePlayer) {
+    throw new ScoreBrawlError({
+      code: "FORBIDDEN",
+      message: "User not part of league",
+    });
+  }
+
+  const lastMatch = await db.query.matches.findFirst({
+    where: (m, { eq }) => eq(m.seasonId, match.seasonId),
+    orderBy: desc(matches.createdAt),
+  });
+
+  if (lastMatch?.id !== match.id) {
+    throw new ScoreBrawlError({
+      code: "FORBIDDEN",
+      message: "Only the last match can be deleted",
+    });
+  }
+
+  await db.transaction(async (tx) => {
+    for (const matchPlayer of match.matchPlayers) {
+      await tx
+        .update(seasonPlayers)
+        .set({ elo: matchPlayer.eloBefore })
+        .where(eq(seasonPlayers.id, matchPlayer.seasonPlayer.id))
+        .run();
+    }
+    for (const teamMatch of match.teamMatches) {
+      await tx
+        .update(seasonTeams)
+        .set({ elo: teamMatch.eloBefore })
+        .where(eq(seasonTeams.id, teamMatch.seasonTeamId))
+        .run();
+    }
+    await tx.delete(matchPlayers).where(eq(matchPlayers.matchId, match.id)).run();
+    await tx.delete(teamMatches).where(eq(teamMatches.matchId, match.id)).run();
+
+    await tx.delete(matches).where(eq(matches.id, match.id)).run();
+  });
 };
 
 const calculateMatchResult = ({
@@ -317,8 +445,6 @@ const toMatchObj = (match: {
         id: p.seasonPlayer.id,
         userId: p.seasonPlayer.leaguePlayer.userId,
         elo: p.seasonPlayer.elo,
-        joinedAt: p.seasonPlayer.createdAt,
-        disabled: p.seasonPlayer.disabled,
         name: p.seasonPlayer.leaguePlayer.user?.name ?? "",
         imageUrl: p.seasonPlayer.leaguePlayer.user?.imageUrl ?? "",
       })),
@@ -343,3 +469,28 @@ const toMatchObj = (match: {
   createdAt: match.createdAt,
   updatedAt: match.updatedAt,
 });
+
+const mapMatchTeam = ({
+  matchPlayers,
+}: {
+  matchPlayers: {
+    id: string;
+    seasonPlayerId: string;
+    seasonPlayer: {
+      leaguePlayerId: string;
+      elo: number;
+      leaguePlayer: { user: { id: string; imageUrl: string; name: string } };
+    };
+  }[];
+}) =>
+  matchPlayers.map(
+    (p): MatchPlayer => ({
+      id: p.id,
+      seasonPlayerId: p.seasonPlayerId,
+      leaguePlayerId: p.seasonPlayer.leaguePlayerId,
+      userId: p.seasonPlayer.leaguePlayer.user.id,
+      name: p.seasonPlayer.leaguePlayer.user.name,
+      elo: p.seasonPlayer.elo,
+      imageUrl: p.seasonPlayer.leaguePlayer.user.imageUrl,
+    }),
+  );
