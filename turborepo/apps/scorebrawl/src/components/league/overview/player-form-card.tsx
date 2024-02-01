@@ -1,4 +1,4 @@
-import { MatchResultSymbol } from "@scorebrawl/api";
+import { PlayerForm } from "@scorebrawl/api";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 import { FormDots } from "../player-form";
@@ -9,7 +9,7 @@ export const PlayerFormCard = ({
   state,
   player,
 }: {
-  player?: { name: string; imageUrl: string; form: MatchResultSymbol[] };
+  player?: { name: string; imageUrl: string; form: PlayerForm };
   state: "top" | "bottom";
 }) => {
   const title = state === "top" ? "On Fire" : "Struggling";
