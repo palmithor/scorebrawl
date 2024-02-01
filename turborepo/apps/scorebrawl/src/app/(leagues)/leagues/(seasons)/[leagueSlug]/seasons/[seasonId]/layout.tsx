@@ -16,7 +16,7 @@ export default async function ({
     if (!season) {
       redirect(`/leagues/${params.leagueSlug}?errorCode=FORBIDDEN`, RedirectType.replace);
     }
-    const league = await getLeagueById({ id: season.leagueId });
+    const league = await getLeagueById({ leagueId: season.leagueId });
     if (league.slug !== params.leagueSlug) {
       redirect(`/leagues/${params.leagueSlug}?errorCode=FORBIDDEN`, RedirectType.replace);
     }

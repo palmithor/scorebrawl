@@ -6,7 +6,9 @@ import {
   leagueEvents,
   leagueMembers,
   leaguePlayers,
+  leagueTeams,
   leagues,
+  matches,
   seasonPlayers,
   seasons,
   slugifyLeagueName,
@@ -116,11 +118,11 @@ export const getLeagueBySlug = async ({
   return { ...league, code: undefined };
 };
 
-export const getLeagueById = async ({ userId, id }: { userId: string; id: string }) => {
+export const getLeagueById = async ({ userId, leagueId }: { userId: string; leagueId: string }) => {
   const league = await db
     .select()
     .from(leagues)
-    .where(and(eq(leagues.id, id), canReadLeaguesCriteria({ userId })))
+    .where(and(eq(leagues.id, leagueId), canReadLeaguesCriteria({ userId })))
     .get();
   if (!league) {
     throw new ScoreBrawlError({
@@ -308,4 +310,45 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
       .run();
   });
   return league;
+};
+
+export const getLeagueStats = async ({
+  leagueId,
+  userId,
+}: { leagueId: string; userId: string }) => {
+  // verify access
+  await getLeagueById({ userId, leagueId });
+
+  const matchCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(matches)
+    .where(
+      inArray(
+        matches.seasonId,
+        db.select({ id: seasons.id }).from(seasons).where(eq(seasons.leagueId, leagueId)),
+      ),
+    )
+    .get();
+
+  const teamCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(leagueTeams)
+    .where(eq(leagueTeams.leagueId, leagueId))
+    .get();
+  const seasonCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(seasons)
+    .where(eq(seasons.leagueId, leagueId))
+    .get();
+  const playerCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(leaguePlayers)
+    .where(eq(leaguePlayers.leagueId, leagueId))
+    .get();
+  return {
+    seasonCount: seasonCount?.count || 0,
+    matchCount: matchCount?.count || 0,
+    teamCount: teamCount?.count || 0,
+    playerCount: playerCount?.count || 0,
+  };
 };

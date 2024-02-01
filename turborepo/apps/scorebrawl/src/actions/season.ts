@@ -8,11 +8,9 @@ import {
   getAllSeasons,
   getMatchesBySeasonId,
   getSeasonById,
-  getSeasonPlayerLatestMatches,
   getSeasonPlayers,
   getSeasonStats,
 } from "@scorebrawl/db";
-import { SeasonPlayer } from "@scorebrawl/db/types";
 import { cache } from "react";
 import { getBySlug } from "./league";
 
@@ -54,19 +52,6 @@ export const getAll = cache(({ leagueSlug }: { leagueSlug: string }) =>
 export const getStats = cache(({ seasonId }: { seasonId: string }) =>
   getSeasonStats({ seasonId, userId: auth().userId as string }),
 );
-
-export const getForm = cache(async ({ seasonPlayers }: { seasonPlayers: SeasonPlayer[] }) => {
-  const latestMatches = await getSeasonPlayerLatestMatches({
-    seasonPlayerIds: seasonPlayers.map((sp) => sp.id),
-  });
-  return seasonPlayers.map((sp) => {
-    const matches = latestMatches.find((lm) => lm.id === sp.id)?.matches || [];
-    const formScore = matches
-      .map((m) => m.result)
-      .reduce((sum, result) => sum + (result === "W" ? 3 : result === "D" ? 1 : 0), 0);
-    return { ...sp, matches, formScore };
-  });
-});
 
 export const create = async (val: Omit<CreateSeasonInput, "userId">) =>
   createSeason({ ...val, userId: auth().userId as string });

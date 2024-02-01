@@ -162,7 +162,7 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
     const [options, setOptions] = React.useState<GroupOption>(
       transToGroupOption(arrayDefaultOptions, groupBy),
     );
-    const [inputValue, setInputValue] = React.useState('');
+    const [inputValue, setInputValue] = React.useState("");
     const debouncedSearchTerm = useDebounce(inputValue, delay || 500);
 
     React.useImperativeHandle(
@@ -187,14 +187,14 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
       (e: React.KeyboardEvent<HTMLDivElement>) => {
         const input = inputRef.current;
         if (input) {
-          if (e.key === 'Delete' || e.key === 'Backspace') {
-            if (input.value === '' && selected.length > 0) {
+          if (e.key === "Delete" || e.key === "Backspace") {
+            if (input.value === "" && selected.length > 0) {
               // @ts-ignore
               handleUnselect(selected[selected.length - 1]);
             }
           }
           // This is not a default behaviour of the <input /> field
-          if (e.key === 'Escape') {
+          if (e.key === "Escape") {
             input.blur();
           }
         }
@@ -259,7 +259,7 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
               onMaxSelected?.(selected.length);
               return;
             }
-            setInputValue('');
+            setInputValue("");
             const newOptions = [...selected, { value, label: value }];
             setSelected(newOptions);
             onChange?.(newOptions);
@@ -308,14 +308,14 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
           handleKeyDown(e);
           commandProps?.onKeyDown?.(e);
         }}
-        className={cn('overflow-visible bg-transparent', commandProps?.className)}
+        className={cn("overflow-visible bg-transparent", commandProps?.className)}
         shouldFilter={
           commandProps?.shouldFilter !== undefined ? commandProps.shouldFilter : !onSearch
         } // When onSearch is provided, we don't want to filter the options. You can still override it.
       >
         <div
           className={cn(
-            'group rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+            "group rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
             className,
           )}
         >
@@ -325,8 +325,8 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
                 <Badge
                   key={option.value}
                   className={cn(
-                    'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
-                    'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
+                    "data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground",
+                    "data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground",
                     badgeClassName,
                   )}
                   data-fixed={option.fixed}
@@ -335,11 +335,11 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
                   {option.label}
                   <button
                     className={cn(
-                      'ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                      (disabled || option.fixed) && 'hidden',
+                      "ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                      (disabled || option.fixed) && "hidden",
                     )}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         handleUnselect(option);
                       }
                     }}
@@ -373,9 +373,9 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
                 triggerSearchOnFocus && onSearch?.(debouncedSearchTerm);
                 inputProps?.onFocus?.(event);
               }}
-              placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
+              placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? "" : placeholder}
               className={cn(
-                'ml-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground',
+                "ml-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
                 inputProps?.className,
               )}
             />
@@ -410,14 +410,14 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
                                   onMaxSelected?.(selected.length);
                                   return;
                                 }
-                                setInputValue('');
+                                setInputValue("");
                                 const newOptions = [...selected, option];
                                 setSelected(newOptions);
                                 onChange?.(newOptions);
                               }}
                               className={cn(
-                                'cursor-pointer',
-                                option.disable && 'cursor-default text-muted-foreground',
+                                "cursor-pointer",
+                                option.disable && "cursor-default text-muted-foreground",
                               )}
                             >
                               {option.label}

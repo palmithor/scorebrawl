@@ -1,5 +1,5 @@
 import { CreateSeasonInput } from "@scorebrawl/api";
-import { and, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
 import {
   ScoreBrawlError,
   canReadLeaguesCriteria,
@@ -98,6 +98,7 @@ export const getSeasonPlayers = async ({
 
   return seasonPlayerResult.map((sp) => ({
     id: sp.id,
+    leaguePlayerId: sp.leaguePlayerId,
     userId: sp.leaguePlayer.userId,
     name: sp.leaguePlayer.user.name,
     imageUrl: sp.leaguePlayer.user.imageUrl,
@@ -220,10 +221,7 @@ export const getSeasonStats = async ({
   seasonId,
   userId,
 }: { seasonId: string; userId: string }) => {
-  const season = await getSeasonById({
-    userId: userId,
-    seasonId: seasonId,
-  });
+  const season = await getSeasonById({ userId, seasonId });
 
   const matchCount = await db
     .select({ count: sql<number>`count(*)` })
@@ -245,21 +243,4 @@ export const getSeasonStats = async ({
     teamCount: teamCount?.count || 0,
     playerCount: playerCount?.count || 0,
   };
-};
-
-export const getSeasonPlayerLatestMatches = async ({
-  seasonPlayerIds,
-  limit = 5,
-}: { seasonPlayerIds: string[]; limit?: number }) => {
-  return db.query.seasonPlayers.findMany({
-    columns: { id: true },
-    where: inArray(seasonPlayers.id, seasonPlayerIds),
-    with: {
-      season: { columns: { id: true } },
-      matches: {
-        orderBy: (match, { desc }) => [desc(match.createdAt)],
-        limit: 5,
-      },
-    },
-  });
 };
