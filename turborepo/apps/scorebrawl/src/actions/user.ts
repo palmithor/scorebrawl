@@ -23,7 +23,7 @@ import {
   joinLeague,
   upsertUser,
 } from "@scorebrawl/db";
-import { LeagueOmitCode } from "@scorebrawl/db/src/types";
+import { LeagueOmitCode } from "@scorebrawl/db/types";
 import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
 

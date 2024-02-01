@@ -13,7 +13,7 @@ import {
   getSeasonPlayers,
   getSeasonStats,
 } from "@scorebrawl/db";
-import { Season, SeasonPlayer } from "@scorebrawl/db/src/types";
+import { Season, SeasonPlayer } from "@scorebrawl/db/types";
 import { cache } from "react";
 import { getBySlug } from "./league";
 
