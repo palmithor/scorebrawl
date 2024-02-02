@@ -1,0 +1,23 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
+  "files": {
+    "ignore": [".next", "node_modules", ".idea", "bun.lockb", "dev", "deprecated-scorebrawl-app"]
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "ignore": ["packages/ui/src/components"],
+    "rules": {
+      "nursery": {
+        "noUnusedImports": "error"
+      }
+    }
+  }
+}

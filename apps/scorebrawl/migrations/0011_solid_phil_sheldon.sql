@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `season_team_uq_idx` ON `season_team` (`season_id`,`team_id`);

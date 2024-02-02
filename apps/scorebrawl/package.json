@@ -1,0 +1,46 @@
+{
+  "name": "scorebrawl",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "../../dev/bin/db-migrate.sh && next dev --port 5050",
+    "build": "next build",
+    "start": "next start",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.4",
+    "@clerk/nextjs": "^4.29.1",
+    "@clerk/themes": "1.7.9",
+    "@heroicons/react": "2.1.1",
+    "@hookform/resolvers": "3.3.4",
+    "@ihs7/ts-elo": "0.3.0",
+    "@scorebrawl/ui": "workspace:*",
+    "@t3-oss/env-nextjs": "0.7.1",
+    "@uploadthing/react": "6.1.0",
+    "date-fns": "^3.3.1",
+    "next": "14.0.4",
+    "nuqs": "^1.14.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "7.49.3",
+    "uploadthing": "6.1.1",
+    "uuid": "^9.0.1",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.0",
+    "@scorebrawl/style-config": "workspace:*",
+    "@scorebrawl/typescript-config": "workspace:*",
+    "@types/bun": "^1.0.4",
+    "@types/date-fns": "^2.6.0",
+    "@types/node": "20.10.6",
+    "@types/react": "18.2.46",
+    "@types/react-dom": "18.2.18",
+    "@types/uuid": "^9.0.8",
+    "autoprefixer": "10.4.16",
+    "tailwindcss": "3.3.7",
+    "tailwindcss-animate": "1.0.7",
+    "typescript": "5.3.3"
+  }
+}
