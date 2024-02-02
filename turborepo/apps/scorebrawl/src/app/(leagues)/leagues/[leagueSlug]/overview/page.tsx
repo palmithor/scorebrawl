@@ -3,7 +3,8 @@ import { getPlayersForm as getLeaguePlayersForm } from "@/actions/league";
 import { findOngoing, getMatches } from "@/actions/season";
 import { LatestMatchCard } from "@/components/league/overview/latest-match-card";
 import { PlayerFormCard } from "@/components/league/overview/player-form-card";
-import { SeasonPlayerStanding } from "@/components/league/overview/season-standing";
+import { SeasonTeamStanding } from "@/components/league/overview/season-league-standing";
+import { SeasonPlayerStanding } from "@/components/league/overview/season-player-standing";
 import { LeagueStatsCard } from "@/components/league/overview/stats-card";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {
@@ -30,6 +31,7 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
       </div>
       <div className="grid gap-4 m:grid-cols-1 lg:grid-cols-2">
         {ongoingSeason && <SeasonPlayerStanding seasonId={ongoingSeason.id} />}
+        {ongoingSeason && <SeasonTeamStanding seasonId={ongoingSeason.id} />}
       </div>
     </div>
   );

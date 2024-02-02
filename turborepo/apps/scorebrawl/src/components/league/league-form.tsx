@@ -16,7 +16,6 @@ export const DEFAULT_LEAGUE_LOGO =
 
 type FormValues = {
   name: string;
-  visibility: "public" | "private";
 };
 
 export const LeagueForm = ({
@@ -38,7 +37,7 @@ export const LeagueForm = ({
   const onSubmit = async (val: FormValues) => {
     setIsLoading(true);
     try {
-      const league = await create({ ...val, logoUrl: logo });
+      const league = await create({ ...val, logoUrl: logo, visibility: "private" });
       push(`/leagues/${league.slug}`);
     } catch (err) {
       toast({
