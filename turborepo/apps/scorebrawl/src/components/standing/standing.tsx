@@ -18,9 +18,11 @@ import { PointDiffText } from "./point-diff-text";
 
 export const Standing = ({
   className,
+  excludeMatchesColumn = false,
   items,
 }: {
   className?: string;
+  excludeMatchesColumn?: boolean;
   items: {
     id: string;
     name: string;
@@ -49,7 +51,7 @@ export const Standing = ({
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Matches</TableHead>
+              {!excludeMatchesColumn && <TableHead>Matches</TableHead>}
               <TableHead>Form</TableHead>
               <TableHead>
                 <Tooltip>
@@ -73,11 +75,13 @@ export const Standing = ({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className={cn(matchCount === 0 ? "text-muted-foreground" : "font-bold")}>
-                    {matchCount}
-                  </div>
-                </TableCell>
+                {!excludeMatchesColumn && (
+                  <TableCell>
+                    <div className={cn(matchCount === 0 ? "text-muted-foreground" : "font-bold")}>
+                      {matchCount}
+                    </div>
+                  </TableCell>
+                )}
                 <TableCell>
                   <TableCell>
                     <FormDots form={form} key={id} />
