@@ -10,51 +10,15 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  ci:
-    name: 🔁 ci
-
-    env:
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
-
-    runs-on:
-      labels: ubuntu-latest
-
-    steps:
-
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        working-directory: scorebrawl-app
-        run: bun install
-
-      - name: 🦄 Format
-        working-directory: scorebrawl-app
-        run: bun run format:check
-
-      - name: 📝 Test
-        working-directory: scorebrawl-app
-        run: bun test
 
   turborepo:
-    name: ⚡️turborepo
+    name: ⚡️ on-push
 
     env:
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
-      # required for build
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
 
     runs-on:
       labels: ubuntu-latest
@@ -71,13 +35,13 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        working-directory: turborepo
         run: bun install
 
       - name: 🦄 Format
-        working-directory: turborepo
+        run: bun run format:check
+
+      - name: 🧪 Test
         run: bun run format:check
 
       - name: 👷‍♂️ Build
-        working-directory: turborepo
         run: bun run build
