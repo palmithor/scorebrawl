@@ -1,4 +1,4 @@
-import { getForm, getPlayers } from "@/actions/season";
+import { getPlayers, getPlayersForm } from "@/actions/season";
 import { Standing } from "@/components/standing/standing";
 
 export const SeasonPlayerStanding = async ({
@@ -6,7 +6,7 @@ export const SeasonPlayerStanding = async ({
   excludeMatchesColumn,
 }: { seasonId: string; excludeMatchesColumn?: boolean }) => {
   const seasonPlayers = await getPlayers({ seasonId });
-  const seasonPlayersForm = await getForm({ seasonPlayers });
+  const seasonPlayersForm = await getPlayersForm({ seasonPlayers });
 
   return (
     <Standing

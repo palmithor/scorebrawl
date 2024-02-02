@@ -12,6 +12,9 @@ import {
   getSeasonPlayers,
   getSeasonPlayersPointDiff,
   getSeasonStats,
+  getSeasonTeams,
+  getSeasonTeamsLatestMatches,
+  getSeasonTeamsPointDiff,
 } from "@scorebrawl/db";
 import { SeasonPlayer } from "@scorebrawl/db/types";
 import { cache } from "react";
@@ -51,18 +54,20 @@ export const getPlayers = cache(async ({ seasonId }: { seasonId: string }) => {
   }));
 });
 
-export const getForm = cache(async ({ seasonPlayers }: { seasonPlayers: SeasonPlayer[] }) => {
-  const latestMatches = await getSeasonPlayerLatestMatches({
-    seasonPlayerIds: seasonPlayers.map((sp) => sp.id),
-  });
-  return seasonPlayers.map((sp) => {
-    const matches = latestMatches.find((lm) => lm.id === sp.id)?.matches || [];
-    const formScore = matches
-      .map((m) => m.result)
-      .reduce((sum, result) => sum + (result === "W" ? 3 : result === "D" ? 1 : 0), 0);
-    return { ...sp, form: matches.map((m) => m.result).reverse(), formScore };
-  });
-});
+export const getPlayersForm = cache(
+  async ({ seasonPlayers }: { seasonPlayers: SeasonPlayer[] }) => {
+    const latestMatches = await getSeasonPlayerLatestMatches({
+      seasonPlayerIds: seasonPlayers.map((sp) => sp.id),
+    });
+    return seasonPlayers.map((sp) => {
+      const matches = latestMatches.find((lm) => lm.id === sp.id)?.matches || [];
+      const formScore = matches
+        .map((m) => m.result)
+        .reduce((sum, result) => sum + (result === "W" ? 3 : result === "D" ? 1 : 0), 0);
+      return { ...sp, form: matches.map((m) => m.result).reverse(), formScore };
+    });
+  },
+);
 
 export const getMatches = cache(({ seasonId }: { seasonId: string }) =>
   getMatchesBySeasonId({ seasonId, userId: auth().userId as string }),
@@ -78,3 +83,32 @@ export const getStats = cache(({ seasonId }: { seasonId: string }) =>
 
 export const create = async (val: Omit<CreateSeasonInput, "userId">) =>
   createSeason({ ...val, userId: auth().userId as string });
+
+export const getTeams = cache(async ({ seasonId }: { seasonId: string }) => {
+  const seasonTeams = await getSeasonTeams({ seasonId, userId: auth().userId as string });
+  if (seasonTeams.length < 1) {
+    return [];
+  }
+  const pointsDiff = await getSeasonTeamsPointDiff({
+    seasonTeamIds: seasonTeams.map((sp) => sp.id),
+  });
+
+  return seasonTeams.map((sp) => ({
+    ...sp,
+    todaysPointsDiff: pointsDiff.find((pd) => pd.seasonTeamId === sp.id)?.pointsDiff ?? 0,
+  }));
+});
+
+export const getTeamsForm = cache(async ({ seasonTeams }: { seasonTeams: { id: string }[] }) => {
+  if (seasonTeams.length < 1) return [];
+  const latestMatches = await getSeasonTeamsLatestMatches({
+    seasonTeamIds: seasonTeams.map((sp) => sp.id),
+  });
+  return seasonTeams.map((sp) => {
+    const matches = latestMatches.find((lm) => lm.id === sp.id)?.matches || [];
+    const formScore = matches
+      .map((m) => m.result)
+      .reduce((sum, result) => sum + (result === "W" ? 3 : result === "D" ? 1 : 0), 0);
+    return { ...sp, form: matches.map((m) => m.result).reverse(), formScore };
+  });
+});

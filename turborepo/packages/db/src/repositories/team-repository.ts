@@ -1,5 +1,6 @@
 import { UpdateTeamInput } from "@scorebrawl/api";
-import { asc, eq, inArray, sql } from "drizzle-orm";
+import { endOfDay, startOfDay } from "date-fns";
+import { asc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import {
   DbTransaction,
   ScoreBrawlError,
@@ -8,6 +9,7 @@ import {
   leagueTeamPlayers,
   leagueTeams,
   seasonTeams,
+  teamMatches,
 } from "..";
 import { db } from "../db";
 
@@ -158,4 +160,37 @@ export const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {
       },
     },
   });
+};
+
+export const getSeasonTeamsPointDiff = async ({
+  seasonTeamIds,
+  from = startOfDay(new Date()),
+  to = endOfDay(new Date()),
+}: { seasonTeamIds: string[]; from?: Date; to?: Date }) => {
+  const result = await db.query.teamMatches.findMany({
+    where: (matchPlayer, { eq, and }) =>
+      and(
+        inArray(teamMatches.seasonTeamId, seasonTeamIds),
+        gte(matchPlayer.createdAt, from),
+        lte(matchPlayer.createdAt, to),
+      ),
+    orderBy: (matchPlayer, { asc }) => [asc(matchPlayer.createdAt)],
+  });
+  if (result.length === 0) {
+    return [];
+  }
+  type MatchTeamType = (typeof result)[0];
+  type SeasonTeamMatches = { seasonTeamId: string; matches: MatchTeamType[] };
+  const seasonTeamMatches = result.reduce((acc: SeasonTeamMatches[], curr: MatchTeamType) => {
+    const { seasonTeamId, ...matchInfo } = curr;
+    const index = acc.findIndex((item: SeasonTeamMatches) => item.seasonTeamId === seasonTeamId);
+    index !== -1 ? acc[index]?.matches.push(curr) : acc.push({ seasonTeamId, matches: [curr] });
+    return acc;
+  }, []);
+
+  return seasonTeamMatches.map((spm) => ({
+    seasonTeamId: spm.seasonTeamId,
+    pointsDiff:
+      (spm.matches[spm.matches.length - 1]?.eloAfter ?? 0) - (spm.matches[0]?.eloBefore ?? 0),
+  }));
 };

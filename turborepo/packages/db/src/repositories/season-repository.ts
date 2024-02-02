@@ -261,3 +261,68 @@ export const getSeasonPlayerLatestMatches = async ({
     },
   });
 };
+
+export const getSeasonTeamsLatestMatches = async ({
+  seasonTeamIds,
+  limit = 5,
+}: { seasonTeamIds: string[]; limit?: number }) => {
+  return db.query.seasonTeams.findMany({
+    columns: { id: true },
+    where: inArray(seasonTeams.id, seasonTeamIds),
+    with: {
+      season: { columns: { id: true } },
+      matches: {
+        orderBy: (match, { desc }) => [desc(match.createdAt)],
+        limit: 5,
+      },
+    },
+  });
+};
+
+export const getSeasonTeams = async ({
+  seasonId,
+  userId,
+}: { seasonId: string; userId: string }) => {
+  const season = await getSeasonById({ seasonId, userId });
+  const teams = await db.query.seasonTeams.findMany({
+    extras: (seasonTeam, { sql }) => ({
+      matchCount:
+        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id")`.as(
+          "matchCount",
+        ),
+    }),
+    where: eq(seasonTeams.seasonId, season.id),
+    columns: { id: true, elo: true, createdAt: true, updatedAt: true },
+    orderBy: desc(seasonTeams.elo),
+    with: {
+      leagueTeam: {
+        columns: { id: true, name: true },
+        with: {
+          players: {
+            columns: { id: true },
+            with: {
+              leaguePlayer: {
+                columns: { id: true },
+                with: { user: { columns: { name: true, imageUrl: true } } },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  return teams.map((team) => ({
+    id: team.id,
+    leagueTeamId: team.leagueTeam.id,
+    name: team.leagueTeam.name,
+    elo: team.elo,
+    players: team.leagueTeam.players.map((p) => ({
+      id: p.leaguePlayer.id,
+      name: p.leaguePlayer.user.name,
+      imageUrl: p.leaguePlayer.user.imageUrl,
+    })),
+    matchCount: team.matchCount,
+    createdAt: team.createdAt,
+    updatedAt: team.updatedAt,
+  }));
+};
