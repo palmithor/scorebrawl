@@ -246,6 +246,7 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
       message: "League not found",
     });
   }
+
   const now = new Date();
   await db.transaction(async (tx) => {
     await tx
@@ -294,21 +295,24 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
         .onConflictDoNothing()
         .run();
     }
-
-    await tx
-      .insert(leagueEvents)
-      .values({
-        id: createCuid(),
-        leagueId: league.id,
-        type: "player_joined_v1",
-        data: {
-          leaguePlayerId: leaguePlayer.id,
-        } as PlayerJoinedEventData,
-        createdBy: userId,
-        createdAt: now,
-      })
-      .run();
+    if (leaguePlayer) {
+      await tx
+        .insert(leagueEvents)
+        .values({
+          id: createCuid(),
+          leagueId: league.id,
+          type: "player_joined_v1",
+          data: {
+            leaguePlayerId: leaguePlayer.id,
+          } as PlayerJoinedEventData,
+          createdBy: userId,
+          createdAt: now,
+        })
+        .onConflictDoNothing()
+        .run();
+    }
   });
+
   return league;
 };
 

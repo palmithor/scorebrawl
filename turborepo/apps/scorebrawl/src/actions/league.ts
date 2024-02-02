@@ -87,6 +87,7 @@ export const getLeagueOrRedirect = cache(async (leagueSlug: string) => {
   try {
     return await getLeagueBySlug({ leagueSlug, userId: auth().userId as string });
   } catch (e) {
+    console.log("hello world");
     redirect(
       `/leagues?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,
       RedirectType.replace,
