@@ -36,3 +36,10 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# IDE
+.idea
+
+# Local DB
+!dev/.local/.gitkeep
+dev/.local
