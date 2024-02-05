@@ -11,6 +11,7 @@ import {
   getSeasonPlayerLatestMatches,
   getSeasonPlayers,
   getSeasonPlayersPointDiff,
+  getSeasonPointProgression,
   getSeasonStats,
   getSeasonTeams,
   getSeasonTeamsLatestMatches,
@@ -43,16 +44,13 @@ export const getById = cache(({ seasonId }: { seasonId: string }) =>
   getSeasonById({ seasonId, userId: auth().userId as string }),
 );
 
-export const getPlayers = cache(async ({ seasonId }: { seasonId: string }) => {
-  const seasonPlayers = await getSeasonPlayers({ seasonId, userId: auth().userId as string });
-  const pointsDiff = await getSeasonPlayersPointDiff({
-    seasonPlayerIds: seasonPlayers.map((sp) => sp.id),
-  });
-  return seasonPlayers.map((sp) => ({
-    ...sp,
-    todaysPointsDiff: pointsDiff.find((pd) => pd.seasonPlayerId === sp.id)?.pointsDiff ?? 0,
-  }));
-});
+export const getPlayers = cache(async ({ seasonId }: { seasonId: string }) =>
+  getSeasonPlayers({ seasonId, userId: auth().userId as string }),
+);
+
+export const getPlayerPointDiff = cache(({ seasonPlayerIds }: { seasonPlayerIds: string[] }) =>
+  getSeasonPlayersPointDiff({ seasonPlayerIds }),
+);
 
 export const getPlayersForm = cache(
   async ({ seasonPlayers }: { seasonPlayers: SeasonPlayer[] }) => {
@@ -80,24 +78,20 @@ export const getAll = cache(({ leagueSlug }: { leagueSlug: string }) =>
 export const getStats = cache(({ seasonId }: { seasonId: string }) =>
   getSeasonStats({ seasonId, userId: auth().userId as string }),
 );
+export const getPointProgression = cache(({ seasonId }: { seasonId: string }) =>
+  getSeasonPointProgression({ seasonId, userId: auth().userId as string }),
+);
 
 export const create = async (val: Omit<CreateSeasonInput, "userId">) =>
   createSeason({ ...val, userId: auth().userId as string });
 
-export const getTeams = cache(async ({ seasonId }: { seasonId: string }) => {
-  const seasonTeams = await getSeasonTeams({ seasonId, userId: auth().userId as string });
-  if (seasonTeams.length < 1) {
-    return [];
-  }
-  const pointsDiff = await getSeasonTeamsPointDiff({
-    seasonTeamIds: seasonTeams.map((sp) => sp.id),
-  });
+export const getTeams = cache(async ({ seasonId }: { seasonId: string }) =>
+  getSeasonTeams({ seasonId, userId: auth().userId as string }),
+);
 
-  return seasonTeams.map((sp) => ({
-    ...sp,
-    todaysPointsDiff: pointsDiff.find((pd) => pd.seasonTeamId === sp.id)?.pointsDiff ?? 0,
-  }));
-});
+export const getTeamPointDiff = cache(({ seasonTeamIds }: { seasonTeamIds: string[] }) =>
+  getSeasonTeamsPointDiff({ seasonTeamIds }),
+);
 
 export const getTeamsForm = cache(async ({ seasonTeams }: { seasonTeams: { id: string }[] }) => {
   if (seasonTeams.length < 1) return [];
