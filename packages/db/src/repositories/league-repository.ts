@@ -240,6 +240,7 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
   const league = await db.query.leagues.findFirst({
     where: eq(leagues.code, code),
   });
+
   if (!league) {
     throw new ScoreBrawlError({
       code: "NOT_FOUND",
@@ -248,7 +249,7 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
   }
 
   const now = new Date();
-  await db.transaction(async (tx) => {
+  await db.transaction(async (tx): Promise<void> => {
     await tx
       .insert(leagueMembers)
       .values({
@@ -275,27 +276,28 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
       .returning()
       .get();
 
-    const ongoingAndFutureSeasons = await tx.query.seasons.findMany({
-      where: and(
-        eq(seasons.leagueId, league.id),
-        or(isNull(seasons.endDate), gte(seasons.endDate, now)),
-      ),
-    });
-    for (const season of ongoingAndFutureSeasons) {
-      await tx
-        .insert(seasonPlayers)
-        .values({
-          id: createCuid(),
-          leaguePlayerId: leaguePlayer.id,
-          elo: season.initialElo,
-          seasonId: season.id,
-          createdAt: now,
-          updatedAt: now,
-        })
-        .onConflictDoNothing()
-        .run();
-    }
     if (leaguePlayer) {
+      const ongoingAndFutureSeasons = await tx.query.seasons.findMany({
+        where: and(
+          eq(seasons.leagueId, league.id),
+          or(isNull(seasons.endDate), gte(seasons.endDate, now)),
+        ),
+      });
+
+      for (const season of ongoingAndFutureSeasons) {
+        await tx
+          .insert(seasonPlayers)
+          .values({
+            id: createCuid(),
+            leaguePlayerId: leaguePlayer.id,
+            elo: season.initialElo,
+            seasonId: season.id,
+            createdAt: now,
+            updatedAt: now,
+          })
+          .onConflictDoNothing()
+          .run();
+      }
       await tx
         .insert(leagueEvents)
         .values({

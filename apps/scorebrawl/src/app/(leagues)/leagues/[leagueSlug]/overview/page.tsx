@@ -8,6 +8,7 @@ import { SeasonTeamStanding } from "@/components/league/overview/season-league-s
 import { SeasonPlayerStanding } from "@/components/league/overview/season-player-standing";
 import { LeagueStatsCard } from "@/components/league/overview/stats-card";
 import { MatchTable } from "@/components/match/match-table";
+import { SeasonPlayerPointProgression } from "@/components/season/season-player-point-progression";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {
   const league = await getBySlug(params);
@@ -34,11 +35,14 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
         <LatestMatchCard leagueId={league.id} />
       </div>
       {/* todo no ongoing season view */}
-      <div className="grid gap-4 m:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-4 m:grid-cols-1 lg:grid-cols-2 items-start">
         {ongoingSeason && (
           <>
             <LeagueOverviewTitleSection title="Player Standing">
               <SeasonPlayerStanding seasonId={ongoingSeason.id} />
+            </LeagueOverviewTitleSection>
+            <LeagueOverviewTitleSection title="Points Progression">
+              <SeasonPlayerPointProgression seasonId={ongoingSeason.id} />
             </LeagueOverviewTitleSection>
             <LeagueOverviewTitleSection title="Team Standing">
               <SeasonTeamStanding seasonId={ongoingSeason.id} />

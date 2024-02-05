@@ -10,6 +10,7 @@ import {
   leagueEvents,
   leaguePlayers,
   leagues,
+  matchPlayers,
   matches,
   seasonPlayers,
   seasonTeams,
@@ -325,4 +326,32 @@ export const getSeasonTeams = async ({
     createdAt: team.createdAt,
     updatedAt: team.updatedAt,
   }));
+};
+
+export const getSeasonPointProgression = async ({
+  userId,
+  seasonId,
+}: { userId: string; seasonId: string }) => {
+  const season = getSeasonById({ seasonId, userId });
+  return db
+    .select({
+      seasonPlayerId: seasonPlayers.id,
+      date: sql`strftime('%Y-%m-%d', datetime(MAX( ${matchPlayers.createdAt}), 'unixepoch'))`.mapWith(
+        String,
+      ),
+      elo: matchPlayers.eloAfter,
+    })
+    .from(matchPlayers)
+    .innerJoin(
+      seasonPlayers,
+      and(eq(seasonPlayers.id, matchPlayers.seasonPlayerId), eq(seasonPlayers.seasonId, seasonId)),
+    )
+    .groupBy(
+      seasonPlayers.id,
+      sql`strftime('%Y-%m-%d', datetime(${matchPlayers.createdAt}, 'unixepoch'))`,
+    )
+    .orderBy(
+      seasonPlayers.id,
+      sql`strftime('%Y-%m-%d', datetime(${matchPlayers.createdAt}, 'unixepoch'))`,
+    );
 };
