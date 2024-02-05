@@ -7,6 +7,8 @@ import { cn } from "@scorebrawl/ui/lib";
 import { Analytics, Providers } from "@scorebrawl/ui/providers";
 import { Spinner } from "@scorebrawl/ui/spinner";
 import { TailwindIndicator } from "@scorebrawl/ui/tailwind-indicator";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import { Toaster } from "@scorebrawl/ui/toaster";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
@@ -73,6 +75,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               </div>
             </ClerkLoading>
             <Analytics />
+            <SpeedInsights />
             <Toaster />
             <TailwindIndicator />
           </Providers>
