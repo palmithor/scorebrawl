@@ -372,35 +372,32 @@ const ScoreStepper = ({
   max?: number;
   onClickMinus: () => void;
   onClickPlus: () => void;
-}) => {
-  return (
-    <div className="flex items-center justify-between w-40">
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-8 w-8 shrink-0 rounded-full"
-        onClick={onClickMinus}
-        type="button"
-        disabled={min !== undefined && score <= min}
-      >
-        <MinusIcon className="h-4 w-4" />
-        <span className="sr-only">Decrease</span>
-      </Button>
-      <div className="text-center">
-        <div className="text-6xl font-bold tracking-tighter">{score}</div>
-        <div className="text-[0.70rem] uppercase text-muted-foreground">{team}</div>
-      </div>
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-8 w-8 shrink-0 rounded-full"
-        onClick={onClickPlus}
-        type="button"
-        disabled={max !== undefined && score <= max}
-      >
-        <PlusIcon className="h-4 w-4" />
-        <span className="sr-only">Increase</span>
-      </Button>
+}) => (
+  <div className="grid gap-4 justify-items-center">
+    <Button
+      variant="outline"
+      size="icon"
+      className="h-8 w-8 shrink-0 rounded-full"
+      onClick={onClickPlus}
+      type="button"
+      disabled={max !== undefined && score <= max}
+    >
+      <PlusIcon className="h-4 w-4" />
+      <span className="sr-only">Increase</span>
+    </Button>
+    <div className="text-center">
+      <div className="text-6xl font-bold tracking-tighter">{score}</div>
     </div>
-  );
-};
+    <Button
+      variant="outline"
+      size="icon"
+      className="h-8 w-8 shrink-0 rounded-full"
+      onClick={onClickMinus}
+      type="button"
+      disabled={min !== undefined && score <= min}
+    >
+      <MinusIcon className="h-4 w-4" />
+      <span className="sr-only">Decrease</span>
+    </Button>
+  </div>
+);
