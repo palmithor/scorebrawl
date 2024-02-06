@@ -4,6 +4,7 @@ import "./src/env.mjs";
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  optimizePackageImports: ["@tremor/react"],
   transpilePackages: ["@scorebrawl/ui"],
   images: {
     remotePatterns: [

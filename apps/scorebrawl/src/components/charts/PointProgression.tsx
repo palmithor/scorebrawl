@@ -10,6 +10,9 @@ import {
   YAxis,
 } from "recharts";
 
+// TODO tremor config https://github.com/shadcn-ui/ui/issues/1144#issuecomment-1732561385
+// TODO replace recharts with tremor
+
 type DailyElo = { elo: number; date: string };
 type Data = { label: string; data: DailyElo[] }[];
 
