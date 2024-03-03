@@ -17,11 +17,9 @@ import { FormDots } from "../league/player-form";
 import { PointDiffText } from "./point-diff-text";
 
 export const Standing = ({
-  className,
   excludeMatchesColumn = false,
   items,
 }: {
-  className?: string;
   excludeMatchesColumn?: boolean;
   items: {
     id: string;
@@ -45,59 +43,57 @@ export const Standing = ({
   });
 
   return (
-    <div className={className}>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              {!excludeMatchesColumn && <TableHead>Matches</TableHead>}
-              <TableHead>Form</TableHead>
-              <TableHead>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div>+/-</div>
-                  </TooltipTrigger>
-                  <TooltipContent>+/- points today</TooltipContent>
-                </Tooltip>
-              </TableHead>
-              <TableHead>Points</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedItems.map(({ id, avatars, matchCount, name, elo, form, pointDiff }) => (
-              <TableRow key={id}>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            {!excludeMatchesColumn && <TableHead>Matches</TableHead>}
+            <TableHead>Form</TableHead>
+            <TableHead>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div>+/-</div>
+                </TooltipTrigger>
+                <TooltipContent>+/- points today</TooltipContent>
+              </Tooltip>
+            </TableHead>
+            <TableHead>Points</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedItems.map(({ id, avatars, matchCount, name, elo, form, pointDiff }) => (
+            <TableRow key={id}>
+              <TableCell>
+                <div className="flex gap-2" key={id}>
+                  <MultiAvatar users={avatars} visibleCount={5} />
+                  <div className="grid items-center">
+                    <p className="text-sm font-medium truncate">{name}</p>
+                  </div>
+                </div>
+              </TableCell>
+              {!excludeMatchesColumn && (
                 <TableCell>
-                  <div className="flex gap-2" key={id}>
-                    <MultiAvatar users={avatars} visibleCount={5} />
-                    <div className="grid items-center">
-                      <p className="text-sm font-medium truncate">{name}</p>
-                    </div>
+                  <div className={cn(matchCount === 0 ? "text-muted-foreground" : "font-bold")}>
+                    {matchCount}
                   </div>
                 </TableCell>
-                {!excludeMatchesColumn && (
-                  <TableCell>
-                    <div className={cn(matchCount === 0 ? "text-muted-foreground" : "font-bold")}>
-                      {matchCount}
-                    </div>
-                  </TableCell>
-                )}
+              )}
+              <TableCell>
                 <TableCell>
-                  <TableCell>
-                    <FormDots form={form} key={id} />
-                  </TableCell>
+                  <FormDots form={form} key={id} />
                 </TableCell>
-                <TableCell>
-                  <PointDiffText diff={pointDiff} />
-                </TableCell>
-                <TableCell>
-                  <div className="font-bold">{matchCount < 1 ? "" : elo}</div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+              </TableCell>
+              <TableCell>
+                <PointDiffText diff={pointDiff} />
+              </TableCell>
+              <TableCell>
+                <div className="font-bold">{matchCount < 1 ? "" : elo}</div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };

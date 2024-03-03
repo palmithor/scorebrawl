@@ -41,7 +41,7 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
             <LeagueOverviewTitleSection title="Player Standing">
               <SeasonPlayerStanding seasonId={ongoingSeason.id} />
             </LeagueOverviewTitleSection>
-            <LeagueOverviewTitleSection title="Points Progression">
+            <LeagueOverviewTitleSection title="Points Progression" className="row-span-2 h-full">
               <SeasonPlayerPointProgression seasonId={ongoingSeason.id} />
             </LeagueOverviewTitleSection>
             <LeagueOverviewTitleSection title="Team Standing">
