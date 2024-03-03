@@ -1,18 +1,39 @@
 import { getPlayers, getPointProgression } from "@/actions/season";
-import { PointProgressionChart } from "@/components/charts/PointProgression";
+import { Data, PointProgressionChart } from "@/components/charts/PointProgression";
 
-export const SeasonPlayerPointProgression = async ({ seasonId }: { seasonId: string }) => {
+export const SeasonPlayerPointProgression = async ({
+  seasonId,
+}: {
+  seasonId: string;
+}) => {
   const pointProgression = await getPointProgression({ seasonId });
   const seasonPlayers = await getPlayers({ seasonId });
-  const series = seasonPlayers.map((sp) => ({
-    label: sp.name,
-    data: pointProgression
-      .filter((pp) => pp.seasonPlayerId === sp.id)
-      .map((pp) => ({
-        elo: pp.elo,
-        date: pp.date,
-      })),
-  }));
 
-  return <PointProgressionChart data={series} />;
+  const playerNames: Record<string, string> = {};
+  for (const player of seasonPlayers) {
+    playerNames[player.id] = player.name;
+  }
+
+  const data = Object.values(
+    pointProgression.reduce<Record<string, Data>>((total, pp) => {
+      const playerName = playerNames[pp.seasonPlayerId];
+      if (!playerName) {
+        return total;
+      }
+
+      const value = total[pp.date];
+      if (!value) {
+        total[pp.date] = { date: pp.date, [playerName]: pp.elo };
+      } else {
+        value[playerName] = pp.elo;
+      }
+
+      return total;
+    }, {}),
+  );
+  return (
+    <div className="rounded-md border min-h-[20rem]">
+      <PointProgressionChart data={data} />
+    </div>
+  );
 };
