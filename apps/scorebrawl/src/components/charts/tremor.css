@@ -7,3 +7,6 @@
 .stroke-dark-tremor-background {
     @apply border-gray-700;
 }
+.tremor-Legend-root > div {
+    @apply flex-nowrap overflow-auto
+}
