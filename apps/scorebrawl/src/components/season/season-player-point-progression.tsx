@@ -33,7 +33,9 @@ export const SeasonPlayerPointProgression = async ({
   );
   return (
     <div className="rounded-md border min-h-[20rem]">
-      <PointProgressionChart data={data} />
+      <PointProgressionChart
+        data={data.sort((a, b) => a.date.localeCompare(b.date))}
+      />
     </div>
   );
 };
