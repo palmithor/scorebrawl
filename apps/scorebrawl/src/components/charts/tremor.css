@@ -8,5 +8,5 @@
     @apply border-gray-700;
 }
 .tremor-Legend-root > div {
-    @apply flex-nowrap overflow-auto
+    @apply flex-nowrap overflow-auto md:flex-wrap
 }
