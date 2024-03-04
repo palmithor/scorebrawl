@@ -1,11 +1,70 @@
-import { getPlayers, getPointProgression } from "@/actions/season";
-import { Data, PointProgressionChart } from "@/components/charts/PointProgression";
+import { getById, getPlayers, getPointProgression } from "@/actions/season";
+import { PointProgressionChart } from "@/components/charts/PointProgression";
+import { Season } from "@scorebrawl/db/types";
+
+interface DataPoint {
+  seasonPlayerId: string;
+  date: string;
+  elo: number;
+}
+
+interface UserNameMapping {
+  [seasonPlayerId: string]: string;
+}
+
+interface ResultData {
+  date: string;
+  [userName: string]: number | string;
+}
+
+function generateDataForPeriod(
+  season: Season,
+  data: DataPoint[],
+  userNameMapping: UserNameMapping,
+): ResultData[] {
+  const resultData: ResultData[] = [];
+  const startDate = season.startDate;
+  const initialElo = season.initialElo;
+  for (
+    let currentDate = new Date(startDate);
+    currentDate <= new Date();
+    currentDate.setDate(currentDate.getDate() + 1)
+  ) {
+    const currentDateStr = currentDate.toISOString().split("T")[0] as string;
+
+    const currentDateData: ResultData = { date: currentDateStr };
+
+    for (const userId in userNameMapping) {
+      const userName = userNameMapping[userId] as string;
+
+      const userDateData = data.find(
+        (d) => d.seasonPlayerId === userId && d.date === currentDateStr,
+      );
+
+      if (userDateData) {
+        currentDateData[userName] = userDateData.elo;
+      } else {
+        // Use the last available elo for the user
+        const lastUserData = data
+          .filter((d) => d.seasonPlayerId === userId && new Date(d.date) < currentDate)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+
+        currentDateData[userName] = lastUserData ? lastUserData.elo : initialElo;
+      }
+    }
+
+    resultData.push(currentDateData);
+  }
+
+  return resultData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+}
 
 export const SeasonPlayerPointProgression = async ({
   seasonId,
 }: {
   seasonId: string;
 }) => {
+  const season = await getById({ seasonId });
   const pointProgression = await getPointProgression({ seasonId });
   const seasonPlayers = await getPlayers({ seasonId });
 
@@ -14,28 +73,9 @@ export const SeasonPlayerPointProgression = async ({
     playerNames[player.id] = player.name;
   }
 
-  const data = Object.values(
-    pointProgression.reduce<Record<string, Data>>((total, pp) => {
-      const playerName = playerNames[pp.seasonPlayerId];
-      if (!playerName) {
-        return total;
-      }
-
-      const value = total[pp.date];
-      if (!value) {
-        total[pp.date] = { date: pp.date, [playerName]: pp.elo };
-      } else {
-        value[playerName] = pp.elo;
-      }
-
-      return total;
-    }, {}),
-  );
   return (
     <div className="rounded-md border min-h-[20rem]">
-      <PointProgressionChart
-        data={data.sort((a, b) => a.date.localeCompare(b.date))}
-      />
+      <PointProgressionChart data={generateDataForPeriod(season, pointProgression, playerNames)} />
     </div>
   );
 };

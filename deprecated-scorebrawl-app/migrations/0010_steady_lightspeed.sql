@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX `league_team_player_uq_idx` ON `league_team_player` (`team_id`,`league_player_id`);

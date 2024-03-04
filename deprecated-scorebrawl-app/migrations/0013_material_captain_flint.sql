@@ -1,1 +1,0 @@
-ALTER TABLE match_player ADD `result` text;

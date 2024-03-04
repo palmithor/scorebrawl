@@ -4,7 +4,7 @@ export const navConfig: NavConfig = {
   mainNav: [
     {
       title: "Leagues",
-      href: "/leagues",
+      href: "/",
     },
   ],
 };
