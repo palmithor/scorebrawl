@@ -1,5 +1,5 @@
 import { CreateSeasonInput } from "@scorebrawl/api";
-import { startOfDay } from "date-fns";
+import { endOfDay } from "date-fns";
 import { and, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
   ScoreBrawlError,
@@ -23,7 +23,11 @@ const findOverlappingSeason = async ({
   leagueId,
   startDate,
   endDate,
-}: { leagueId: string; startDate: Date; endDate?: Date }) =>
+}: {
+  leagueId: string;
+  startDate: Date;
+  endDate?: Date;
+}) =>
   db.query.seasons.findFirst({
     where: and(
       eq(seasons.leagueId, leagueId),
@@ -32,7 +36,13 @@ const findOverlappingSeason = async ({
     ),
   });
 
-export const getSeasonById = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
+export const getSeasonById = async ({
+  seasonId,
+  userId,
+}: {
+  seasonId: string;
+  userId: string;
+}) => {
   const result = await db
     .select()
     .from(seasons)
@@ -52,8 +62,12 @@ export const findOngoingSeason = async ({
   leagueId,
   userId,
   date,
-}: { leagueId: string; userId: string; date?: Date }) => {
-  const dateParam = date ?? startOfDay(new Date());
+}: {
+  leagueId: string;
+  userId: string;
+  date?: Date;
+}) => {
+  const dateParam = date ?? endOfDay(new Date());
   const result = await db
     .select()
     .from(seasons)
@@ -73,7 +87,10 @@ export const findOngoingSeason = async ({
 export const getSeasonPlayers = async ({
   seasonId,
   userId,
-}: { seasonId: string; userId: string }) => {
+}: {
+  seasonId: string;
+  userId: string;
+}) => {
   // verify access
   await getSeasonById({ seasonId, userId });
   const seasonPlayerResult = await db.query.seasonPlayers.findMany({
@@ -113,7 +130,10 @@ export const getSeasonPlayers = async ({
 export const getAllSeasons = async ({
   leagueSlug,
   userId,
-}: { leagueSlug: string; userId: string }) => {
+}: {
+  leagueSlug: string;
+  userId: string;
+}) => {
   const result = await db
     .select()
     .from(seasons)
@@ -158,7 +178,11 @@ export const createSeason = async ({
       message: "User does not have editor access to this league",
     });
   }
-  const overlappingSeason = await findOverlappingSeason({ leagueId, startDate, endDate });
+  const overlappingSeason = await findOverlappingSeason({
+    leagueId,
+    startDate,
+    endDate,
+  });
   if (overlappingSeason) {
     throw new ScoreBrawlError({
       code: "CONFLICT",
@@ -221,7 +245,10 @@ export const createSeason = async ({
 export const getSeasonStats = async ({
   seasonId,
   userId,
-}: { seasonId: string; userId: string }) => {
+}: {
+  seasonId: string;
+  userId: string;
+}) => {
   const season = await getSeasonById({ userId, seasonId });
 
   const matchCount = await db
@@ -249,7 +276,10 @@ export const getSeasonStats = async ({
 export const getSeasonPlayerLatestMatches = async ({
   seasonPlayerIds,
   limit = 5,
-}: { seasonPlayerIds: string[]; limit?: number }) => {
+}: {
+  seasonPlayerIds: string[];
+  limit?: number;
+}) => {
   return db.query.seasonPlayers.findMany({
     columns: { id: true },
     where: inArray(seasonPlayers.id, seasonPlayerIds),
@@ -266,7 +296,10 @@ export const getSeasonPlayerLatestMatches = async ({
 export const getSeasonTeamsLatestMatches = async ({
   seasonTeamIds,
   limit = 5,
-}: { seasonTeamIds: string[]; limit?: number }) => {
+}: {
+  seasonTeamIds: string[];
+  limit?: number;
+}) => {
   return db.query.seasonTeams.findMany({
     columns: { id: true },
     where: inArray(seasonTeams.id, seasonTeamIds),
@@ -283,7 +316,10 @@ export const getSeasonTeamsLatestMatches = async ({
 export const getSeasonTeams = async ({
   seasonId,
   userId,
-}: { seasonId: string; userId: string }) => {
+}: {
+  seasonId: string;
+  userId: string;
+}) => {
   const season = await getSeasonById({ seasonId, userId });
   const teams = await db.query.seasonTeams.findMany({
     extras: (seasonTeam, { sql }) => ({
@@ -329,10 +365,10 @@ export const getSeasonTeams = async ({
 };
 
 export const getSeasonPointProgression = async ({
-  userId,
   seasonId,
-}: { userId: string; seasonId: string }) => {
-  const season = getSeasonById({ seasonId, userId });
+}: {
+  seasonId: string;
+}) => {
   return db
     .select({
       seasonPlayerId: seasonPlayers.id,
