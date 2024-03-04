@@ -366,9 +366,13 @@ export const getSeasonTeams = async ({
 
 export const getSeasonPointProgression = async ({
   seasonId,
+  userId,
 }: {
   seasonId: string;
+  userId: string;
 }) => {
+  // check if user has permission to view season
+  const season = await getSeasonById({ seasonId, userId });
   return db
     .select({
       seasonPlayerId: seasonPlayers.id,
@@ -380,7 +384,7 @@ export const getSeasonPointProgression = async ({
     .from(matchPlayers)
     .innerJoin(
       seasonPlayers,
-      and(eq(seasonPlayers.id, matchPlayers.seasonPlayerId), eq(seasonPlayers.seasonId, seasonId)),
+      and(eq(seasonPlayers.id, matchPlayers.seasonPlayerId), eq(seasonPlayers.seasonId, season.id)),
     )
     .groupBy(
       seasonPlayers.id,
