@@ -90,7 +90,7 @@ export const getTeams = cache(async ({ seasonId }: { seasonId: string }) =>
 );
 
 export const getTeamPointDiff = cache(({ seasonTeamIds }: { seasonTeamIds: string[] }) =>
-  getSeasonTeamsPointDiff({ seasonTeamIds }),
+  seasonTeamIds.length > 0 ? getSeasonTeamsPointDiff({ seasonTeamIds }) : [],
 );
 
 export const getTeamsForm = cache(async ({ seasonTeams }: { seasonTeams: { id: string }[] }) => {
