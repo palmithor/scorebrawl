@@ -81,7 +81,7 @@
     "@vercel/analytics": "1.1.1",
     "@vercel/og": "0.5.20",
     "class-variance-authority": "0.7.0",
-    "clsx": "2.0.0",
+    "clsx": "2.1.0",
     "cmdk": "0.2.1",
     "date-fns": "2.30.0",
     "lucide-react": "0.354.0",
