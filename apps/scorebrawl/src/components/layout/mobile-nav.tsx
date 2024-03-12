@@ -3,7 +3,7 @@ import * as React from "react";
 
 import { MainNavItem } from "@/components/layout/types";
 import { siteConfig } from "@/config/site";
-import { useLockBody } from "@/hooks/use-lock-body";
+import { useLockBody } from "@/hooks/useLockBody";
 import { fontHeading } from "@scorebrawl/ui/fonts";
 import { Icons } from "@scorebrawl/ui/icons";
 import { cn } from "@scorebrawl/ui/lib";

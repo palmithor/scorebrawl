@@ -7,6 +7,7 @@
     "./providers": "./src/providers/index.ts",
     "./lib": "./src/lib/index.ts",
     "./fonts": "./src/fonts/index.ts",
+    "./hooks": "./src/hooks/index.ts",
     "./accordion": "./src/components/accordion.tsx",
     "./auto-form": "./src/components/auto-form.tsx",
     "./avatar": "./src/components/avatar.tsx",

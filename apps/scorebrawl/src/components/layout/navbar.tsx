@@ -1,7 +1,7 @@
 "use client";
 
 import { MainNavItem } from "@/components/layout/types";
-import useScroll from "@/hooks/use-scroll";
+import useScroll from "@/hooks/useScroll";
 import { UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
