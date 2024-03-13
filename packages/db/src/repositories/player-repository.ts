@@ -95,6 +95,6 @@ export const getSeasonPlayersPointDiff = async ({
   return seasonPlayerMatches.map((spm) => ({
     seasonPlayerId: spm.seasonPlayerId,
     pointsDiff:
-      (spm.matches[spm.matches.length - 1]?.eloAfter ?? 0) - (spm.matches[0]?.eloBefore ?? 0),
+      (spm.matches[spm.matches.length - 1]?.scoreAfter ?? 0) - (spm.matches[0]?.scoreBefore ?? 0),
   }));
 };

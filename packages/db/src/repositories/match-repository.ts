@@ -13,7 +13,7 @@ import {
   seasons,
   teamMatches,
 } from "..";
-import { Match, MatchPlayer } from "../types";
+import { Match, MatchPlayer, Season } from "../types";
 import { getOrInsertTeam } from "./team-repository";
 
 export const createMatch = async ({
@@ -65,12 +65,8 @@ export const createMatch = async ({
 
   const now = new Date();
   return db.transaction(async (tx) => {
-    const {
-      eloMatchResult: individualMatchResult,
-      eloHomeTeam: individualHomeTeamElo,
-      eloAwayTeam: individualAwayTeamElo,
-    } = calculateMatchResult({
-      kFactor: season.kFactor,
+    const individualMatchResult = calculateMatchResult({
+      season,
       homeScore: homeScore,
       awayScore: awayScore,
       homePlayers: homeSeasonPlayers,
@@ -83,8 +79,8 @@ export const createMatch = async ({
         id: createCuid(),
         homeScore: homeScore,
         awayScore: awayScore,
-        homeExpectedElo: individualHomeTeamElo.expectedScoreAgainst(individualAwayTeamElo),
-        awayExpectedElo: individualAwayTeamElo.expectedScoreAgainst(individualHomeTeamElo),
+        homeExpectedElo: individualMatchResult.homeTeam.winningOdds,
+        awayExpectedElo: individualMatchResult.awayTeam.winningOdds,
         seasonId: season.id,
         createdBy: userId,
         updatedBy: userId,
@@ -94,8 +90,8 @@ export const createMatch = async ({
       .returning()
       .get();
 
-    let homeTeamResult: "W" | "L" | "D" = "D";
-    let awayTeamResult: "W" | "L" | "D" = "D";
+    let homeTeamResult: MatchResultSymbol = "D";
+    let awayTeamResult: MatchResultSymbol = "D";
     if (homeScore > awayScore) {
       homeTeamResult = "W";
       awayTeamResult = "L";
@@ -108,10 +104,12 @@ export const createMatch = async ({
       ...awaySeasonPlayers.map((player) => ({
         id: createCuid(),
         matchId: match.id,
-        scoreBefore: player.elo,
-        eloBefore: player.elo,
-        eloAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
-        scoreAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
+        scoreBefore: player.score,
+        eloBefore: player.score,
+        eloAfter: individualMatchResult.awayTeam.players.find((p) => p.id === player.id)
+          ?.scoreAfter as number,
+        scoreAfter: individualMatchResult.awayTeam.players.find((p) => p.id === player.id)
+          ?.scoreAfter as number,
         seasonPlayerId: player.id,
         homeTeam: false,
         result: awayTeamResult,
@@ -121,10 +119,12 @@ export const createMatch = async ({
       ...homeSeasonPlayers.map((player) => ({
         id: createCuid(),
         matchId: match.id,
-        eloBefore: player.elo,
-        scoreBefore: player.elo,
-        eloAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
-        scoreAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
+        eloBefore: player.score,
+        scoreBefore: player.score,
+        eloAfter: individualMatchResult.homeTeam.players.find((p) => p.id === player.id)
+          ?.scoreAfter as number,
+        scoreAfter: individualMatchResult.homeTeam.players.find((p) => p.id === player.id)
+          ?.scoreAfter as number,
         seasonPlayerId: player.id,
         homeTeam: true,
         result: homeTeamResult,
@@ -134,32 +134,41 @@ export const createMatch = async ({
     ];
     await tx.insert(matchPlayers).values(matchPlayerValues).run();
 
-    for (const playerResult of individualMatchResult.results) {
+    for (const playerResult of [
+      ...individualMatchResult.homeTeam.players,
+      ...individualMatchResult.awayTeam.players,
+    ]) {
       await tx
         .update(seasonPlayers)
-        .set({ elo: playerResult.rating, score: playerResult.rating })
-        .where(eq(seasonPlayers.id, playerResult.identifier))
+        .set({ elo: playerResult.scoreAfter, score: playerResult.scoreAfter })
+        .where(eq(seasonPlayers.id, playerResult.id))
         .run();
     }
 
     if (homeSeasonPlayers.length > 1 && awaySeasonPlayers.length > 1) {
-      const { seasonTeamId: homeSeasonTeamId, elo: homeSeasonTeamElo } = await getOrInsertTeam(tx, {
-        season,
-        now,
-        players: homeSeasonPlayers,
-      });
-      const { seasonTeamId: awaySeasonTeamId, elo: awaySeasonTeamElo } = await getOrInsertTeam(tx, {
-        season,
-        now,
-        players: awaySeasonPlayers,
-      });
+      const { seasonTeamId: homeSeasonTeamId, score: homeSeasonTeamScore } = await getOrInsertTeam(
+        tx,
+        {
+          season,
+          now,
+          players: homeSeasonPlayers,
+        },
+      );
+      const { seasonTeamId: awaySeasonTeamId, score: awaySeasonTeamScore } = await getOrInsertTeam(
+        tx,
+        {
+          season,
+          now,
+          players: awaySeasonPlayers,
+        },
+      );
 
-      const { eloMatchResult: teamMatchResult } = calculateMatchResult({
-        kFactor: season.kFactor,
+      const teamMatchResult = calculateMatchResult({
+        season,
         homeScore: homeScore,
         awayScore: awayScore,
-        homePlayers: [{ id: homeSeasonTeamId, elo: homeSeasonTeamElo }],
-        awayPlayers: [{ id: awaySeasonTeamId, elo: awaySeasonTeamElo }],
+        homePlayers: [{ id: homeSeasonTeamId, score: homeSeasonTeamScore }],
+        awayPlayers: [{ id: awaySeasonTeamId, score: awaySeasonTeamScore }],
       });
 
       await tx
@@ -169,12 +178,12 @@ export const createMatch = async ({
             id: createCuid(),
             matchId: match.id,
             seasonTeamId: homeSeasonTeamId,
-            scoreBefore: homeSeasonTeamElo,
-            eloBefore: homeSeasonTeamElo,
-            eloAfter: teamMatchResult.results.find((r) => r.identifier === homeSeasonTeamId)
-              ?.rating,
-            scoreAfter: teamMatchResult.results.find((r) => r.identifier === homeSeasonTeamId)
-              ?.rating,
+            scoreBefore: homeSeasonTeamScore,
+            eloBefore: homeSeasonTeamScore,
+            eloAfter: teamMatchResult.homeTeam.players.find((r) => r.id === homeSeasonTeamId)
+              ?.scoreAfter as number,
+            scoreAfter: teamMatchResult.homeTeam.players.find((r) => r.id === homeSeasonTeamId)
+              ?.scoreAfter as number,
             result: homeTeamResult,
             createdAt: now,
             updatedAt: now,
@@ -183,12 +192,12 @@ export const createMatch = async ({
             id: createCuid(),
             matchId: match.id,
             seasonTeamId: awaySeasonTeamId,
-            eloBefore: awaySeasonTeamElo,
-            scoreBefore: awaySeasonTeamElo,
-            eloAfter: teamMatchResult.results.find((r) => r.identifier === awaySeasonTeamId)
-              ?.rating,
-            scoreAfter: teamMatchResult.results.find((r) => r.identifier === awaySeasonTeamId)
-              ?.rating,
+            eloBefore: awaySeasonTeamScore,
+            scoreBefore: awaySeasonTeamScore,
+            eloAfter: teamMatchResult.awayTeam.players.find((r) => r.id === homeSeasonTeamId)
+              ?.scoreAfter as number,
+            scoreAfter: teamMatchResult.awayTeam.players.find((r) => r.id === homeSeasonTeamId)
+              ?.scoreAfter as number,
             result: awayTeamResult,
             createdAt: now,
             updatedAt: now,
@@ -196,11 +205,14 @@ export const createMatch = async ({
         ])
         .run();
 
-      for (const teamResult of teamMatchResult.results) {
+      for (const teamResult of [
+        ...teamMatchResult.homeTeam.players,
+        ...teamMatchResult.awayTeam.players,
+      ]) {
         await tx
           .update(seasonTeams)
-          .set({ elo: teamResult.rating, score: teamResult.rating })
-          .where(eq(seasonTeams.id, teamResult.identifier))
+          .set({ elo: teamResult.scoreAfter, score: teamResult.scoreAfter })
+          .where(eq(seasonTeams.id, teamResult.id))
           .run();
       }
     }
@@ -229,7 +241,7 @@ export const getMatchesBySeasonId = async ({
         columns: { id: true, homeTeam: true, result: true, seasonPlayerId: true },
         with: {
           seasonPlayer: {
-            columns: { id: true, elo: true, leaguePlayerId: true },
+            columns: { id: true, score: true, leaguePlayerId: true },
             with: {
               leaguePlayer: {
                 columns: {},
@@ -280,7 +292,7 @@ export const getLatestMatch = async ({
         columns: { id: true, homeTeam: true, result: true, seasonPlayerId: true },
         with: {
           seasonPlayer: {
-            columns: { id: true, elo: true, leaguePlayerId: true },
+            columns: { id: true, score: true, leaguePlayerId: true },
             with: {
               leaguePlayer: {
                 columns: {},
@@ -346,15 +358,15 @@ export const deleteMatch = async ({ matchId, userId }: { matchId: string; userId
     where: (match, { eq }) => eq(match.id, matchId),
     with: {
       matchPlayers: {
-        columns: { id: true, eloBefore: true, homeTeam: true },
+        columns: { id: true, scoreBefore: true, homeTeam: true },
         with: {
           seasonPlayer: {
-            columns: { id: true, elo: true, leaguePlayerId: true },
+            columns: { id: true, score: true, leaguePlayerId: true },
           },
         },
       },
       teamMatches: {
-        columns: { id: true, eloBefore: true, seasonTeamId: true },
+        columns: { id: true, scoreBefore: true, seasonTeamId: true },
       },
       season: { columns: { id: true, leagueId: true } },
     },
@@ -396,14 +408,14 @@ export const deleteMatch = async ({ matchId, userId }: { matchId: string; userId
     for (const matchPlayer of match.matchPlayers) {
       await tx
         .update(seasonPlayers)
-        .set({ elo: matchPlayer.eloBefore, score: matchPlayer.eloBefore })
+        .set({ elo: matchPlayer.scoreBefore, score: matchPlayer.scoreBefore })
         .where(eq(seasonPlayers.id, matchPlayer.seasonPlayer.id))
         .run();
     }
     for (const teamMatch of match.teamMatches) {
       await tx
         .update(seasonTeams)
-        .set({ elo: teamMatch.eloBefore, score: teamMatch.eloBefore })
+        .set({ elo: teamMatch.scoreBefore, score: teamMatch.scoreBefore })
         .where(eq(seasonTeams.id, teamMatch.seasonTeamId))
         .run();
     }
@@ -414,30 +426,76 @@ export const deleteMatch = async ({ matchId, userId }: { matchId: string; userId
   });
 };
 
+type CalculateMatchTeamResult = {
+  winningOdds: number;
+  players: { id: string; scoreAfter: number }[];
+};
 const calculateMatchResult = ({
-  kFactor,
+  season,
   homeScore,
   awayScore,
   homePlayers,
   awayPlayers,
 }: {
-  kFactor: number;
+  season: Season;
   homeScore: number;
   awayScore: number;
-  homePlayers: { id: string; elo: number }[];
-  awayPlayers: { id: string; elo: number }[];
-}) => {
-  const eloIndividualMatch = new TeamMatch({ kFactor });
-  const eloHomeTeam = eloIndividualMatch.addTeam("home", homeScore);
-  for (const p of homePlayers) {
-    eloHomeTeam.addPlayer(new Player(p.id, p.elo));
+  homePlayers: { id: string; score: number }[];
+  awayPlayers: { id: string; score: number }[];
+}): {
+  homeTeam: CalculateMatchTeamResult;
+  awayTeam: CalculateMatchTeamResult;
+} => {
+  if (season.scoreType === "elo") {
+    const eloIndividualMatch = new TeamMatch({ kFactor: season.kFactor });
+    const eloHomeTeam = eloIndividualMatch.addTeam("home", homeScore);
+    for (const p of homePlayers) {
+      eloHomeTeam.addPlayer(new Player(p.id, p.score));
+    }
+    const eloAwayTeam = eloIndividualMatch.addTeam("away", awayScore);
+    for (const p of awayPlayers) {
+      eloAwayTeam.addPlayer(new Player(p.id, p.score));
+    }
+    const eloMatchResult = eloIndividualMatch.calculate();
+    return {
+      homeTeam: {
+        winningOdds: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
+        players: eloHomeTeam.players.map((p) => ({
+          id: p.identifier,
+          scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
+            ?.rating as number,
+        })),
+      },
+      awayTeam: {
+        winningOdds: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
+        players: eloAwayTeam.players.map((p) => ({
+          id: p.identifier,
+          scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
+            ?.rating as number,
+        })),
+      },
+    };
   }
-  const eloAwayTeam = eloIndividualMatch.addTeam("away", awayScore);
-  for (const p of awayPlayers) {
-    eloAwayTeam.addPlayer(new Player(p.id, p.elo));
+
+  if (season.scoreType === "3-1-0") {
+    return {
+      homeTeam: {
+        winningOdds: 0.5,
+        players: homePlayers.map((p) => ({
+          id: p.id,
+          scoreAfter: p.score + (homeScore > awayScore ? 3 : homeScore === awayScore ? 1 : 0),
+        })),
+      },
+      awayTeam: {
+        winningOdds: 0.5,
+        players: awayPlayers.map((p) => ({
+          id: p.id,
+          scoreAfter: p.score + (awayScore > homeScore ? 3 : awayScore === homeScore ? 1 : 0),
+        })),
+      },
+    };
   }
-  const eloMatchResult = eloIndividualMatch.calculate();
-  return { eloHomeTeam, eloAwayTeam, eloMatchResult };
+  throw new ScoreBrawlError({ message: "Oh my lord!", code: "INTERNAL_SERVER_ERROR" });
 };
 
 const mapMatchTeam = ({
@@ -448,7 +506,7 @@ const mapMatchTeam = ({
     seasonPlayerId: string;
     seasonPlayer: {
       leaguePlayerId: string;
-      elo: number;
+      score: number;
       leaguePlayer: { user: { id: string; imageUrl: string; name: string } };
     };
   }[];
@@ -460,7 +518,7 @@ const mapMatchTeam = ({
       leaguePlayerId: p.seasonPlayer.leaguePlayerId,
       userId: p.seasonPlayer.leaguePlayer.user.id,
       name: p.seasonPlayer.leaguePlayer.user.name,
-      elo: p.seasonPlayer.elo,
+      score: p.seasonPlayer.score,
       imageUrl: p.seasonPlayer.leaguePlayer.user.imageUrl,
     }),
   );

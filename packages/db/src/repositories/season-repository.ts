@@ -123,7 +123,7 @@ export const getSeasonPlayers = async ({
         },
       },
     },
-    orderBy: desc(seasonPlayers.elo),
+    orderBy: desc(seasonPlayers.score),
   });
 
   return seasonPlayerResult.map((sp) => ({
@@ -132,7 +132,7 @@ export const getSeasonPlayers = async ({
     userId: sp.leaguePlayer.userId,
     name: sp.leaguePlayer.user.name,
     imageUrl: sp.leaguePlayer.user.imageUrl,
-    elo: sp.elo,
+    score: sp.score,
     joinedAt: sp.createdAt,
     disabled: sp.disabled,
     matchCount: sp.matchCount,
@@ -360,8 +360,8 @@ export const getSeasonTeams = async ({
         ),
     }),
     where: eq(seasonTeams.seasonId, season.id),
-    columns: { id: true, elo: true, createdAt: true, updatedAt: true },
-    orderBy: desc(seasonTeams.elo),
+    columns: { id: true, score: true, createdAt: true, updatedAt: true },
+    orderBy: desc(seasonTeams.score),
     with: {
       leagueTeam: {
         columns: { id: true, name: true },
@@ -383,7 +383,7 @@ export const getSeasonTeams = async ({
     id: team.id,
     leagueTeamId: team.leagueTeam.id,
     name: team.leagueTeam.name,
-    elo: team.elo,
+    score: team.score,
     players: team.leagueTeam.players.map((p) => ({
       id: p.leaguePlayer.id,
       name: p.leaguePlayer.user.name,
@@ -413,7 +413,7 @@ export const getSeasonPointProgression = async ({
       date: sql`strftime('%Y-%m-%d', datetime(MAX( ${matchPlayers.createdAt}), 'unixepoch'))`.mapWith(
         String,
       ),
-      elo: matchPlayers.eloAfter,
+      score: matchPlayers.scoreAfter,
     })
     .from(matchPlayers)
     .innerJoin(

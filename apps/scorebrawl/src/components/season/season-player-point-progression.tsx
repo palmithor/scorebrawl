@@ -5,7 +5,7 @@ import { Season } from "@scorebrawl/db/types";
 interface DataPoint {
   seasonPlayerId: string;
   date: string;
-  elo: number;
+  score: number;
 }
 
 interface UserNameMapping {
@@ -24,7 +24,7 @@ function generateDataForPeriod(
 ): ResultData[] {
   const resultData: ResultData[] = [];
   const startDate = season.startDate;
-  const initialElo = season.initialElo;
+  const initialScore = season.initialScore;
   for (
     let currentDate = new Date(startDate);
     currentDate <= new Date();
@@ -42,14 +42,14 @@ function generateDataForPeriod(
       );
 
       if (userDateData) {
-        currentDateData[userName] = userDateData.elo;
+        currentDateData[userName] = userDateData.score;
       } else {
         // Use the last available elo for the user
         const lastUserData = data
           .filter((d) => d.seasonPlayerId === userId && new Date(d.date) < currentDate)
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-        currentDateData[userName] = lastUserData ? lastUserData.elo : initialElo;
+        currentDateData[userName] = lastUserData ? lastUserData.score : initialScore;
       }
     }
 
