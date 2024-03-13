@@ -1,18 +1,16 @@
 "use client";
 import { create } from "@/actions/season";
-import { ScoreType, createSeasonSchema } from "@scorebrawl/api";
-import { LeagueOmitCode, Season } from "@scorebrawl/db/types";
+import { createSeasonSchema } from "@scorebrawl/api";
+import { LeagueOmitCode } from "@scorebrawl/db/types";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { TitleLayout } from "../layout/title-layout";
-import { SeasonList } from "./season-list";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
 
 type FormValues = {
   name: string;
-  scoreType: ScoreType;
   initialScore: number;
   startDate: Date;
   endDate?: Date;
@@ -20,24 +18,33 @@ type FormValues = {
 };
 
 const schema = createSeasonSchema
-  .omit({ userId: true, leagueId: true })
+  .omit({ userId: true, leagueId: true, scoreType: true })
   .refine((data) => data.endDate && data.endDate > data.startDate, {
     message: "End date cannot be earlier than start date.",
     path: ["endDate"],
   });
 
-export const SeasonForm = ({ league, seasons }: { league: LeagueOmitCode; seasons: Season[] }) => {
+export const SeasonFormElo = ({ league }: { league: LeagueOmitCode }) => {
   const { toast } = useToast();
   const { push } = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-
+  const [scoreType, setScoreType] = useQueryState(
+    "scoreType",
+    parseAsString.withDefault("").withOptions({
+      shallow: false,
+      throttleMs: 500,
+    }),
+  );
+  useEffect(() => {
+    setScoreType("elo");
+  }, [setScoreType]);
   const onSubmit = async (val: FormValues) => {
     setIsLoading(true);
     try {
       await create({
         ...val,
         leagueId: league.id,
-        scoreType: val.scoreType,
+        scoreType: "elo",
         initialScore: val.initialScore,
       });
       push(`/leagues/${league.slug}/overview`);
@@ -52,19 +59,16 @@ export const SeasonForm = ({ league, seasons }: { league: LeagueOmitCode; season
   };
 
   return (
-    <TitleLayout
-      title="Create a season"
-      subtitle={league ? `In league "${league.name}"` : undefined}
-      backLink={`/leagues/${league.slug}`}
-    >
-      <div className="flex flex-col gap-6 md:flex-row">
-        <AutoForm className="flex-1" formSchema={schema} onSubmit={onSubmit}>
-          <LoadingButton loading={isLoading} type="submit">
-            Create Season
-          </LoadingButton>
-        </AutoForm>
-        {seasons.length > 0 && <SeasonList className="flex-1" seasons={seasons} />}
-      </div>
-    </TitleLayout>
+    <>
+      <p className="text-xs text-muted-foreground  h-16">
+        Create a season using the Elo Points System. A higher K-Factor may lead to more volatile
+        ratings, while a lower K-Factor results in more stable ratings over time.
+      </p>
+      <AutoForm className="flex-1" formSchema={schema} onSubmit={onSubmit}>
+        <LoadingButton loading={isLoading} type="submit">
+          Create Season
+        </LoadingButton>
+      </AutoForm>
+    </>
   );
 };
