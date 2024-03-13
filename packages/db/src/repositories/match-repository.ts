@@ -108,8 +108,10 @@ export const createMatch = async ({
       ...awaySeasonPlayers.map((player) => ({
         id: createCuid(),
         matchId: match.id,
+        scoreBefore: player.elo,
         eloBefore: player.elo,
         eloAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
+        scoreAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
         seasonPlayerId: player.id,
         homeTeam: false,
         result: awayTeamResult,
@@ -120,7 +122,9 @@ export const createMatch = async ({
         id: createCuid(),
         matchId: match.id,
         eloBefore: player.elo,
+        scoreBefore: player.elo,
         eloAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
+        scoreAfter: individualMatchResult.results.find((r) => r.identifier === player.id)?.rating,
         seasonPlayerId: player.id,
         homeTeam: true,
         result: homeTeamResult,
@@ -165,8 +169,11 @@ export const createMatch = async ({
             id: createCuid(),
             matchId: match.id,
             seasonTeamId: homeSeasonTeamId,
+            scoreBefore: homeSeasonTeamElo,
             eloBefore: homeSeasonTeamElo,
             eloAfter: teamMatchResult.results.find((r) => r.identifier === homeSeasonTeamId)
+              ?.rating,
+            scoreAfter: teamMatchResult.results.find((r) => r.identifier === homeSeasonTeamId)
               ?.rating,
             result: homeTeamResult,
             createdAt: now,
@@ -177,7 +184,10 @@ export const createMatch = async ({
             matchId: match.id,
             seasonTeamId: awaySeasonTeamId,
             eloBefore: awaySeasonTeamElo,
+            scoreBefore: awaySeasonTeamElo,
             eloAfter: teamMatchResult.results.find((r) => r.identifier === awaySeasonTeamId)
+              ?.rating,
+            scoreAfter: teamMatchResult.results.find((r) => r.identifier === awaySeasonTeamId)
               ?.rating,
             result: awayTeamResult,
             createdAt: now,
@@ -386,14 +396,14 @@ export const deleteMatch = async ({ matchId, userId }: { matchId: string; userId
     for (const matchPlayer of match.matchPlayers) {
       await tx
         .update(seasonPlayers)
-        .set({ elo: matchPlayer.eloBefore })
+        .set({ elo: matchPlayer.eloBefore, score: matchPlayer.eloBefore })
         .where(eq(seasonPlayers.id, matchPlayer.seasonPlayer.id))
         .run();
     }
     for (const teamMatch of match.teamMatches) {
       await tx
         .update(seasonTeams)
-        .set({ elo: teamMatch.eloBefore })
+        .set({ elo: teamMatch.eloBefore, score: teamMatch.eloBefore })
         .where(eq(seasonTeams.id, teamMatch.seasonTeamId))
         .run();
     }

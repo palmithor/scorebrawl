@@ -172,7 +172,8 @@ export const createSeason = async ({
   name,
   startDate,
   endDate,
-  initialElo,
+  initialScore,
+  scoreType,
   kFactor,
 }: CreateSeasonInput) => {
   if (endDate && startDate.getTime() >= endDate.getTime()) {
@@ -216,7 +217,9 @@ export const createSeason = async ({
         leagueId,
         startDate,
         endDate,
-        initialElo,
+        initialElo: initialScore,
+        initialScore,
+        scoreType,
         kFactor,
         updatedBy: userId,
         createdBy: userId,
@@ -235,6 +238,7 @@ export const createSeason = async ({
           id: createCuid(),
           disabled: false,
           elo: season.initialElo,
+          score: season.initialScore,
           leaguePlayerId: lp.id,
           seasonId: season.id,
           createdAt: now,

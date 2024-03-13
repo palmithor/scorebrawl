@@ -106,13 +106,18 @@ export const leagueMembers = sqliteTable(
     leaguePlayerIdx: uniqueIndex("league_member_uq_idx").on(player.leagueId, player.userId),
   }),
 );
+
+const scoreType = ["elo", "3-2-1", "glicko-2"] as const;
+
 export const seasons = sqliteTable(
   "season",
   {
     id: text("id", cuidConfig).primaryKey(),
     name: text("name", defaultTextConfig).notNull(),
     slug: text("name_slug", defaultTextConfig).notNull(),
+    initialScore: integer("initial_score"),
     initialElo: integer("initial_elo").notNull(),
+    scoreType: text("score_type", { enum: scoreType }),
     kFactor: integer("k_factor").notNull(),
     startDate: integer("start_date", { mode: "timestamp" }).notNull(),
     endDate: integer("end_date", { mode: "timestamp" }),
@@ -133,6 +138,7 @@ export const seasonTeams = sqliteTable(
     id: text("id", cuidConfig).primaryKey(),
     seasonId: text("season_id", cuidConfig).notNull(),
     teamId: text("team_id", cuidConfig).notNull(),
+    score: integer("score"),
     elo: integer("elo").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
@@ -148,6 +154,8 @@ export const teamMatches = sqliteTable("season_team_match", {
   id: text("id", cuidConfig).primaryKey(),
   seasonTeamId: text("season_team_id", cuidConfig).notNull(),
   matchId: text("match_id", cuidConfig).notNull(),
+  scoreBefore: integer("score_before"),
+  scoreAfter: integer("score_after"),
   eloBefore: integer("elo_before").notNull().default(-1),
   eloAfter: integer("elo_after").notNull().default(-1),
   result: text("result", { enum: matchResult }).notNull(),
@@ -162,6 +170,7 @@ export const seasonPlayers = sqliteTable(
     seasonId: text("season_id", cuidConfig).notNull(),
     leaguePlayerId: text("league_player_id", cuidConfig).notNull(),
     elo: integer("elo").notNull(),
+    score: integer("score"),
     disabled: integer("disabled", { mode: "boolean" }).default(false).notNull(),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
@@ -189,6 +198,8 @@ export const matchPlayers = sqliteTable("match_player", {
   seasonPlayerId: text("season_player_id", cuidConfig).notNull(),
   homeTeam: integer("home_team", { mode: "boolean" }).notNull(),
   matchId: text("match_id", cuidConfig).notNull(),
+  scoreBefore: integer("score_before"),
+  scoreAfter: integer("score_after"),
   eloBefore: integer("elo_before").notNull().default(-1),
   eloAfter: integer("elo_after").notNull().default(-1),
   result: text("result", { enum: matchResult }).notNull(),
