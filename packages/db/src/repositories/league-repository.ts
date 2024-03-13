@@ -290,7 +290,8 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
           .values({
             id: createCuid(),
             leaguePlayerId: leaguePlayer.id,
-            elo: season.initialElo,
+            elo: season.initialScore,
+            score: season.initialScore,
             seasonId: season.id,
             createdAt: now,
             updatedAt: now,

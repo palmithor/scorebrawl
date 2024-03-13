@@ -1,6 +1,6 @@
 "use client";
 import { create } from "@/actions/season";
-import { createSeasonSchema } from "@scorebrawl/api";
+import { ScoreType, createSeasonSchema } from "@scorebrawl/api";
 import { LeagueOmitCode, Season } from "@scorebrawl/db/types";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
@@ -12,9 +12,10 @@ import { SeasonList } from "./season-list";
 
 type FormValues = {
   name: string;
+  scoreType: ScoreType;
+  initialScore: number;
   startDate: Date;
   endDate?: Date;
-  initialScore: number;
   kFactor: number;
 };
 
@@ -36,7 +37,7 @@ export const SeasonForm = ({ league, seasons }: { league: LeagueOmitCode; season
       await create({
         ...val,
         leagueId: league.id,
-        scoreType: "elo",
+        scoreType: val.scoreType,
         initialScore: val.initialScore,
       });
       push(`/leagues/${league.slug}/overview`);

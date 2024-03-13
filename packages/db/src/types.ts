@@ -23,7 +23,7 @@ export type SeasonPlayer = {
   userId: string;
   name: string;
   imageUrl: string;
-  elo: number;
+  score: number;
   joinedAt: Date;
   disabled: boolean;
   matchCount: number;
@@ -34,7 +34,7 @@ export type MatchPlayer = {
   id: string;
   seasonPlayerId: string;
   leaguePlayerId: string;
-  elo: number;
+  score: number;
   name: string;
   imageUrl: string;
 };

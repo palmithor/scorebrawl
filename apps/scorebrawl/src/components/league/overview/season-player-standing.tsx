@@ -16,7 +16,7 @@ export const SeasonPlayerStanding = async ({
       items={seasonPlayers.map((sp) => ({
         id: sp.id,
         name: sp.name,
-        elo: sp.elo,
+        score: sp.score,
         form: seasonPlayersForm.find((pf) => pf.id === sp.id)?.form ?? [],
         matchCount: sp.matchCount,
         winCount: sp.winCount,

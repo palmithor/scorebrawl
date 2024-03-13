@@ -26,7 +26,7 @@ export const Standing = ({
   items: {
     id: string;
     name: string;
-    elo: number;
+    score: number;
     matchCount: number;
     winCount: number;
     drawCount: number;
@@ -44,7 +44,7 @@ export const Standing = ({
     if (a.matchCount !== 0 && b.matchCount === 0) {
       return -1;
     }
-    return b.elo - a.elo;
+    return b.score - a.score;
   });
 
   return (
@@ -76,7 +76,7 @@ export const Standing = ({
               avatars,
               matchCount,
               name,
-              elo,
+              score,
               form,
               pointDiff,
               winCount,
@@ -109,10 +109,10 @@ export const Standing = ({
                 </TableCell>
                 <TableCell
                   className={`text-center ${
-                    matchCount > 1 ? "font-bold" : "text-muted-foreground"
+                    matchCount > 0 ? "font-bold" : "text-muted-foreground"
                   }`}
                 >
-                  {elo}
+                  {score}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <div className={"flex justify-center"}>

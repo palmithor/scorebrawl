@@ -1,10 +1,7 @@
 import { getTeamPointDiff, getTeams, getTeamsForm } from "@/actions/season";
 import { Standing } from "@/components/standing/standing";
 
-export const SeasonTeamStanding = async ({
-  seasonId,
-  excludeMatchesColumn,
-}: { seasonId: string; excludeMatchesColumn?: boolean }) => {
+export const SeasonTeamStanding = async ({ seasonId }: { seasonId: string }) => {
   const seasonTeams = await getTeams({ seasonId });
   const seasonTeamsForm = await getTeamsForm({ seasonTeams });
   const seasonTeamsPointDiff = await getTeamPointDiff({
@@ -20,7 +17,7 @@ export const SeasonTeamStanding = async ({
       items={seasonTeams.map((t) => ({
         id: t.id,
         name: t.name,
-        elo: t.elo,
+        score: t.score,
         form: seasonTeamsForm.find((tf) => tf.id === t.id)?.form ?? [],
         matchCount: t.matchCount,
         winCount: t.winCount,

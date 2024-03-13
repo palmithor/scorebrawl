@@ -1,5 +1,10 @@
 import z from "zod";
 
+export const matchResultSymbol = ["W", "D", "L"] as const;
+export type MatchResultSymbol = (typeof matchResultSymbol)[number];
+export const scoreType = ["elo", "3-1-0"] as const;
+export type ScoreType = (typeof scoreType)[number];
+
 export const createLeagueSchema = z.object({
   userId: z.string(),
   name: z.string().min(0, { message: "Name is required" }),
@@ -16,12 +21,12 @@ export const updateTeamSchema = z.object({
 
 export const createSeasonSchema = z.object({
   name: z.string().min(0, "Name is required"),
+  scoreType: z.enum(scoreType).default("elo"),
   leagueId: z.string(),
   startDate: z.date().optional().default(new Date()),
   endDate: z.date().optional(),
   initialScore: z.coerce.number().int().min(100).default(1200),
   kFactor: z.coerce.number().int().min(10).max(50).default(32),
-  scoreType: z.enum(["elo"]).default("elo"),
   userId: z.string(),
 });
 
@@ -42,7 +47,6 @@ export type PageRequest = {
   page?: number;
   limit?: number;
 };
-export type MatchResultSymbol = "W" | "D" | "L";
-export type ScoreType = "elo" | "3-1-0";
+
 export type PlayerForm = MatchResultSymbol[];
 export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;

@@ -38,7 +38,7 @@ const seasonPlayerSchema = z.object({
   userId: z.string(),
   name: z.string(),
   imageUrl: z.string(),
-  elo: z.number(),
+  score: z.number(),
   joinedAt: z.date(),
   disabled: z.boolean(),
   matchCount: z.number(),
@@ -252,7 +252,7 @@ const PlayerListCard = ({
           </Avatar>
           <div className="grid auto-rows-min">
             <p className="text-xs font-medium truncate">{p.name}</p>
-            <p className="text-xs text-muted-foreground">{p.elo}</p>
+            <p className="text-xs text-muted-foreground">{p.score}</p>
           </div>
         </div>
       ))}

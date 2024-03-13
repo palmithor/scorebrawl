@@ -21,7 +21,7 @@ export const getOrInsertTeam = async (
     players,
   }: {
     now: Date;
-    season: { id: string; initialElo: number; leagueId: string };
+    season: { id: string; initialScore: number; leagueId: string };
     players: { leaguePlayer: { id: string; user: { name: string } } }[];
   },
 ) => {
@@ -73,17 +73,17 @@ export const getOrInsertTeam = async (
         id: seasonTeamId,
         teamId: teamId,
         seasonId: season.id,
-        elo: season.initialElo,
-        score: season.initialElo,
+        elo: season.initialScore,
+        score: season.initialScore,
         createdAt: now,
         updatedAt: now,
       })
       .run();
 
-    return { seasonTeamId, elo: season.initialElo };
+    return { seasonTeamId, score: season.initialScore };
   }
   const seasonTeam = await tx.query.seasonTeams.findFirst({
-    columns: { id: true, elo: true },
+    columns: { id: true, score: true },
     where: (st, { and, eq }) => and(eq(st.teamId, teamId as string), eq(st.seasonId, season.id)),
   });
   if (!seasonTeam) {
@@ -94,15 +94,15 @@ export const getOrInsertTeam = async (
         id: seasonTeamId,
         seasonId: season.id,
         teamId: teamId,
-        elo: season.initialElo,
-        score: season.initialElo,
+        elo: season.initialScore,
+        score: season.initialScore,
         createdAt: now,
         updatedAt: now,
       })
       .run();
-    return { seasonTeamId, elo: season.initialElo };
+    return { seasonTeamId, score: season.initialScore };
   }
-  return { seasonTeamId: seasonTeam.id, elo: seasonTeam.elo };
+  return { seasonTeamId: seasonTeam.id, score: seasonTeam.score };
 };
 
 export const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamInput) => {
@@ -193,6 +193,6 @@ export const getSeasonTeamsPointDiff = async ({
   return seasonTeamMatches.map((spm) => ({
     seasonTeamId: spm.seasonTeamId,
     pointsDiff:
-      (spm.matches[spm.matches.length - 1]?.eloAfter ?? 0) - (spm.matches[0]?.eloBefore ?? 0),
+      (spm.matches[spm.matches.length - 1]?.scoreAfter ?? 0) - (spm.matches[0]?.scoreBefore ?? 0),
   }));
 };
