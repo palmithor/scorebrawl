@@ -74,6 +74,7 @@ export const getOrInsertTeam = async (
         teamId: teamId,
         seasonId: season.id,
         elo: season.initialElo,
+        score: season.initialElo,
         createdAt: now,
         updatedAt: now,
       })
@@ -94,6 +95,7 @@ export const getOrInsertTeam = async (
         seasonId: season.id,
         teamId: teamId,
         elo: season.initialElo,
+        score: season.initialElo,
         createdAt: now,
         updatedAt: now,
       })

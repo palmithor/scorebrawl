@@ -14,7 +14,7 @@ type FormValues = {
   name: string;
   startDate: Date;
   endDate?: Date;
-  initialElo: number;
+  initialScore: number;
   kFactor: number;
 };
 
@@ -33,8 +33,13 @@ export const SeasonForm = ({ league, seasons }: { league: LeagueOmitCode; season
   const onSubmit = async (val: FormValues) => {
     setIsLoading(true);
     try {
-      const season = await create({ ...val, leagueId: league.id });
-      push(`/leagues/${league.slug}/seasons`);
+      await create({
+        ...val,
+        leagueId: league.id,
+        scoreType: "elo",
+        initialScore: val.initialScore,
+      });
+      push(`/leagues/${league.slug}/overview`);
     } catch (err) {
       toast({
         title: "Error creating season",

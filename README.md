@@ -18,7 +18,7 @@ brew install tursodatabase/tap/turso
 curl -fsSL https://bun.sh/install | bash
 
 brew tap libsql/sqld
-brew install sqld-beta
+brew install sqld
 ```
 
 ## Development environment

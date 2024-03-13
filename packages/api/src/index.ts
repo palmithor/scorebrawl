@@ -19,8 +19,9 @@ export const createSeasonSchema = z.object({
   leagueId: z.string(),
   startDate: z.date().optional().default(new Date()),
   endDate: z.date().optional(),
-  initialElo: z.coerce.number().int().min(100).default(1200),
+  initialScore: z.coerce.number().int().min(100).default(1200),
   kFactor: z.coerce.number().int().min(10).max(50).default(32),
+  scoreType: z.enum(["elo"]).default("elo"),
   userId: z.string(),
 });
 
@@ -42,5 +43,6 @@ export type PageRequest = {
   limit?: number;
 };
 export type MatchResultSymbol = "W" | "D" | "L";
+export type ScoreType = "elo" | "3-1-0";
 export type PlayerForm = MatchResultSymbol[];
 export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;
