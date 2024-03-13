@@ -16,16 +16,21 @@ import { Tooltip, TooltipContent } from "@scorebrawl/ui/tooltip";
 import { FormDots } from "../league/player-form";
 import { PointDiffText } from "./point-diff-text";
 
+const CountText = ({ count }: { count: number }) => (
+  <div className={cn(count === 0 ? "text-muted-foreground" : "")}>{count}</div>
+);
+
 export const Standing = ({
-  excludeMatchesColumn = false,
   items,
 }: {
-  excludeMatchesColumn?: boolean;
   items: {
     id: string;
     name: string;
     elo: number;
     matchCount: number;
+    winCount: number;
+    drawCount: number;
+    lossCount: number;
     avatars: { id: string; name: string; imageUrl: string }[];
     pointDiff: number;
     form: PlayerForm;
@@ -45,12 +50,14 @@ export const Standing = ({
   return (
     <div className="rounded-md border">
       <Table>
-        <TableHeader>
+        <TableHeader className="text-xs">
           <TableRow>
             <TableHead>Name</TableHead>
-            {!excludeMatchesColumn && <TableHead>Matches</TableHead>}
-            <TableHead>Form</TableHead>
-            <TableHead>
+            <TableHead className="text-center">MP</TableHead>
+            <TableHead className="text-center">W</TableHead>
+            <TableHead className="text-center">D</TableHead>
+            <TableHead className="text-center">L</TableHead>
+            <TableHead className="text-center">
               <Tooltip>
                 <TooltipTrigger>
                   <div>+/-</div>
@@ -58,40 +65,63 @@ export const Standing = ({
                 <TooltipContent>+/- points today</TooltipContent>
               </Tooltip>
             </TableHead>
-            <TableHead>Points</TableHead>
+            <TableHead className={"font-bold text-center"}>Pts</TableHead>
+            <TableHead className="hidden md:table-cell text-center">Last 5</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {sortedItems.map(({ id, avatars, matchCount, name, elo, form, pointDiff }) => (
-            <TableRow key={id}>
-              <TableCell>
-                <div className="flex gap-2" key={id}>
-                  <MultiAvatar users={avatars} visibleCount={5} />
-                  <div className="grid items-center">
-                    <p className="text-sm font-medium truncate">{name}</p>
-                  </div>
-                </div>
-              </TableCell>
-              {!excludeMatchesColumn && (
+        <TableBody className="text-sm">
+          {sortedItems.map(
+            ({
+              id,
+              avatars,
+              matchCount,
+              name,
+              elo,
+              form,
+              pointDiff,
+              winCount,
+              drawCount,
+              lossCount,
+            }) => (
+              <TableRow key={id}>
                 <TableCell>
-                  <div className={cn(matchCount === 0 ? "text-muted-foreground" : "font-bold")}>
-                    {matchCount}
+                  <div className="flex gap-2" key={id}>
+                    <MultiAvatar users={avatars} visibleCount={5} />
+                    <div className="grid items-center">
+                      <p className="font-medium truncate">{name}</p>
+                    </div>
                   </div>
                 </TableCell>
-              )}
-              <TableCell>
-                <TableCell>
-                  <FormDots form={form} key={id} />
+                <TableCell className="text-center">
+                  <CountText count={matchCount} />
                 </TableCell>
-              </TableCell>
-              <TableCell>
-                <PointDiffText diff={pointDiff} />
-              </TableCell>
-              <TableCell>
-                <div className="font-bold">{matchCount < 1 ? "" : elo}</div>
-              </TableCell>
-            </TableRow>
-          ))}
+                <TableCell className="text-center">
+                  <CountText count={winCount} />
+                </TableCell>
+                <TableCell className="text-center">
+                  <CountText count={drawCount} />
+                </TableCell>
+                <TableCell className="text-center">
+                  <CountText count={lossCount} />
+                </TableCell>
+                <TableCell className="text-center">
+                  <PointDiffText diff={pointDiff} />
+                </TableCell>
+                <TableCell
+                  className={`text-center ${
+                    matchCount > 1 ? "font-bold" : "text-muted-foreground"
+                  }`}
+                >
+                  {elo}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className={"flex justify-center"}>
+                    <FormDots form={form} key={id} />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ),
+          )}
         </TableBody>
       </Table>
     </div>
