@@ -100,6 +100,18 @@ export const getSeasonPlayers = async ({
         sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id")`.as(
           "matchCount",
         ),
+      winCount:
+        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = "W")`.as(
+          "winCount",
+        ),
+      lossCount:
+        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = "L")`.as(
+          "lossCount",
+        ),
+      drawCount:
+        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = "D")`.as(
+          "drawCount",
+        ),
     }),
     with: {
       leaguePlayer: {
@@ -124,6 +136,9 @@ export const getSeasonPlayers = async ({
     joinedAt: sp.createdAt,
     disabled: sp.disabled,
     matchCount: sp.matchCount,
+    winCount: sp.winCount,
+    lossCount: sp.lossCount,
+    drawCount: sp.drawCount,
   }));
 };
 
@@ -327,6 +342,18 @@ export const getSeasonTeams = async ({
         sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id")`.as(
           "matchCount",
         ),
+      winCount:
+        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = "W")`.as(
+          "winCount",
+        ),
+      lossCount:
+        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = "L")`.as(
+          "lossCount",
+        ),
+      drawCount:
+        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = "D")`.as(
+          "drawCount",
+        ),
     }),
     where: eq(seasonTeams.seasonId, season.id),
     columns: { id: true, elo: true, createdAt: true, updatedAt: true },
@@ -359,6 +386,9 @@ export const getSeasonTeams = async ({
       imageUrl: p.leaguePlayer.user.imageUrl,
     })),
     matchCount: team.matchCount,
+    winCount: team.winCount,
+    lossCount: team.lossCount,
+    drawCount: team.drawCount,
     createdAt: team.createdAt,
     updatedAt: team.updatedAt,
   }));

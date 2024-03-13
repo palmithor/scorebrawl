@@ -25,12 +25,10 @@ export const getByIdOrOngoing = cache(
   async ({ seasonId, leagueSlug }: { seasonId: string | "ongoing"; leagueSlug: string }) => {
     if (seasonId === "ongoing") {
       const league = await getBySlug({ leagueSlug });
-      const ongoingSeason = await findOngoingSeason({
+      return await findOngoingSeason({
         leagueId: league.id,
         userId: auth().userId as string,
       });
-
-      return ongoingSeason;
     }
     return getById({ seasonId });
   },

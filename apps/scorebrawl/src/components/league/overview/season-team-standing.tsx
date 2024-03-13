@@ -17,13 +17,15 @@ export const SeasonTeamStanding = async ({
 
   return (
     <Standing
-      excludeMatchesColumn={excludeMatchesColumn}
       items={seasonTeams.map((t) => ({
         id: t.id,
         name: t.name,
         elo: t.elo,
         form: seasonTeamsForm.find((tf) => tf.id === t.id)?.form ?? [],
         matchCount: t.matchCount,
+        winCount: t.winCount,
+        drawCount: t.drawCount,
+        lossCount: t.lossCount,
         pointDiff: seasonTeamsPointDiff.find((ptd) => ptd.seasonTeamId === t.id)?.pointsDiff ?? 0,
         avatars: t.players,
       }))}
