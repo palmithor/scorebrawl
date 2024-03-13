@@ -137,7 +137,7 @@ export const createMatch = async ({
     for (const playerResult of individualMatchResult.results) {
       await tx
         .update(seasonPlayers)
-        .set({ elo: playerResult.rating })
+        .set({ elo: playerResult.rating, score: playerResult.rating })
         .where(eq(seasonPlayers.id, playerResult.identifier))
         .run();
     }
@@ -199,7 +199,7 @@ export const createMatch = async ({
       for (const teamResult of teamMatchResult.results) {
         await tx
           .update(seasonTeams)
-          .set({ elo: teamResult.rating })
+          .set({ elo: teamResult.rating, score: teamResult.rating })
           .where(eq(seasonTeams.id, teamResult.identifier))
           .run();
       }
