@@ -1,10 +1,7 @@
 import { getPlayerPointDiff, getPlayers, getPlayersForm } from "@/actions/season";
 import { Standing } from "@/components/standing/standing";
 
-export const SeasonPlayerStanding = async ({
-  seasonId,
-  excludeMatchesColumn,
-}: { seasonId: string; excludeMatchesColumn?: boolean }) => {
+export const SeasonPlayerStanding = async ({ seasonId }: { seasonId: string }) => {
   const seasonPlayers = await getPlayers({ seasonId });
   const seasonPlayersForm = await getPlayersForm({ seasonPlayers });
   const seasonPlayersPointDiff = await getPlayerPointDiff({

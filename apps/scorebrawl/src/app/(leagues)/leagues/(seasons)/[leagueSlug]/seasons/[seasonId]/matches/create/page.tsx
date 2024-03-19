@@ -6,6 +6,9 @@ import { Season } from "@scorebrawl/db/types";
 
 export default async function ({ params }: { params: { leagueSlug: string; seasonId: string } }) {
   const season = (await getByIdOrOngoing(params)) as Season;
+  if (!season) {
+    return null;
+  }
   const players = await getPlayers({ seasonId: season.id });
 
   return (
@@ -13,7 +16,7 @@ export default async function ({ params }: { params: { leagueSlug: string; seaso
       <MatchForm leagueSlug={params.leagueSlug} season={season} seasonPlayers={players} />
       <div className="container">
         <Title className="mb-4" title="Season Standing" />
-        <SeasonPlayerStanding seasonId={season.id} excludeMatchesColumn />
+        <SeasonPlayerStanding seasonId={season.id} />
       </div>
     </div>
   );
