@@ -64,7 +64,7 @@ export const createMatch = async ({
   });
 
   const now = new Date();
-  return db.transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const individualMatchResult = calculateMatchResult({
       season,
       homeScore: homeScore,
