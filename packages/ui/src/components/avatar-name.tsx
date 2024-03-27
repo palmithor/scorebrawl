@@ -5,11 +5,13 @@ export const AvatarName = ({
   name,
   avatarUrl,
   children,
+  textClassName,
   avatarClassName,
 }: {
   name: string;
   avatarUrl?: string;
   avatarClassName?: string;
+  textClassName?: string;
   children?: ReactNode;
 }) => {
   const initials = name
@@ -26,7 +28,7 @@ export const AvatarName = ({
         </Avatar>
       </div>
       <div className="ml-4">
-        <h2 className={"text-sm"}>{name}</h2>
+        <h2 className={textClassName ?? "text-sm"}>{name}</h2>
         {children}
       </div>
     </div>

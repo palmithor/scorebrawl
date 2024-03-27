@@ -138,6 +138,10 @@ const constructLinks = ({ slug }: { slug: string }) => [
     href: `/leagues/${slug}/overview`,
   },
   {
+    name: "Seasons",
+    href: `/leagues/${slug}/seasons`,
+  },
+  {
     name: "Players",
     href: `/leagues/${slug}/players`,
   },

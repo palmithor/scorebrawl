@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./string": "./src/string/index.ts"
+    "./string": "./src/stringUtils.ts",
+    "./date": "./src/dateUtils.ts"
   },
   "scripts": {},
   "dependencies": {},

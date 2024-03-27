@@ -71,7 +71,7 @@ export const getAll = cache((leagueSlug: string) =>
   getAllSeasons({ leagueSlug, userId: auth().userId as string }),
 );
 
-export const getStats = cache((seasonId: string) =>
+export const getStats = cache(({ seasonId }: { seasonId: string }) =>
   getSeasonStats({ seasonId, userId: auth().userId as string }),
 );
 export const getPointProgression = cache((seasonId: string) =>
