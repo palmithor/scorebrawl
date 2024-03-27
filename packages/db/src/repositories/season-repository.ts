@@ -9,6 +9,9 @@ import {
   getByIdWhereMember,
   leagueEvents,
   leaguePlayers,
+  leagueTeamPlayerRelations,
+  leagueTeamPlayers,
+  leagueTeams,
   leagues,
   matchPlayers,
   matches,
@@ -16,6 +19,7 @@ import {
   seasonTeams,
   seasons,
   slugifySeasonName,
+  users,
 } from "..";
 import type { SeasonCreatedEventData } from "../types";
 
@@ -455,4 +459,56 @@ export const getTodaysDiff = async ({
     return { diff };
   }
   return { diff: 0 };
+};
+
+export const getSeasonTopTeam = async ({
+  seasonId,
+  userId,
+}: { seasonId: string; userId: string }) => {
+  const result = await db
+    .select({
+      seasonTeamId: seasonTeams.id,
+      id: users.id,
+      teamName: leagueTeams.name,
+      name: users.name,
+      imageUrl: users.imageUrl,
+    })
+    .from(seasonTeams)
+    .where(
+      and(
+        eq(seasonTeams.seasonId, seasonId),
+
+        canReadLeaguesCriteria({ userId }),
+      ),
+    )
+    .innerJoin(seasons, eq(seasons.id, seasonTeams.seasonId))
+    .innerJoin(leagues, eq(seasons.leagueId, leagues.id))
+    .innerJoin(leagueTeams, eq(leagueTeams.id, seasonTeams.teamId))
+    .innerJoin(leagueTeamPlayers, eq(leagueTeamPlayers.teamId, leagueTeams.id))
+    .innerJoin(leaguePlayers, eq(leaguePlayers.id, leagueTeamPlayers.leaguePlayerId))
+    .innerJoin(users, eq(users.id, leaguePlayers.userId))
+    .orderBy(desc(seasonTeams.score));
+
+  const topTeamId = result[0]?.seasonTeamId;
+  return topTeamId ? result.filter((r) => r.seasonTeamId === topTeamId) : [];
+};
+export const getSeasonTopPlayer = async ({
+  seasonId,
+  userId,
+}: { seasonId: string; userId: string }) => {
+  const [topPlayer] = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      imageUrl: users.imageUrl,
+    })
+    .from(seasonPlayers)
+    .where(and(eq(seasonPlayers.seasonId, seasonId), canReadLeaguesCriteria({ userId })))
+    .innerJoin(seasons, eq(seasons.id, seasonPlayers.seasonId))
+    .innerJoin(leagues, eq(seasons.leagueId, leagues.id))
+    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
+    .innerJoin(users, eq(users.id, leaguePlayers.userId))
+    .orderBy(desc(seasonPlayers.score));
+
+  return topPlayer;
 };

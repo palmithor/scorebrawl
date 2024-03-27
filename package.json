@@ -3,7 +3,10 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "dev:all": "turbo dev --filter scorebrawl",
     "dev": "turbo dev --filter scorebrawl",
+    "db:start": "./dev/bin/start-db.sh",
+    "db:stop": "./dev/bin/stop-db.sh",
     "test": "turbo test",
     "format": "bunx @biomejs/biome check . --write --unsafe",
     "format:check": "bunx @biomejs/biome check ."

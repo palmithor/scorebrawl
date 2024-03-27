@@ -3,8 +3,9 @@ import { getAll } from "@/actions/season";
 import { TitleLayout } from "@/components/layout/title-layout";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
-import { SeasonList } from "@/components/season/season-list";
+import { SeasonTable } from "@/components/season/season-table";
 import type { ScoreType } from "@scorebrawl/api";
+import { Label } from "@scorebrawl/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
 
 export default async function ({
@@ -42,7 +43,16 @@ export default async function ({
             </div>
           </TabsContent>
         </Tabs>
-        {seasons.length > 0 && <SeasonList className="flex-1" seasons={seasons} />}
+        {seasons.length > 0 && (
+          <div className={"flex-1"}>
+            <div className="pb-3">
+              <Label className="text-sm font-medium">All seasons</Label>
+            </div>
+            <div className="rounded-md border">
+              <SeasonTable seasons={seasons} />
+            </div>
+          </div>
+        )}
       </div>
     </TitleLayout>
   );
