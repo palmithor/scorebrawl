@@ -107,7 +107,7 @@ export const leagueMembers = sqliteTable(
   }),
 );
 
-const scoreType = ["elo", "3-1-0"] as const;
+const scoreType = ["elo", "3-1-0", "elo-individual-vs-team"] as const;
 
 export const seasons = sqliteTable(
   "season",

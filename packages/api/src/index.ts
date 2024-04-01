@@ -2,8 +2,10 @@ import z from "zod";
 
 export const matchResultSymbol = ["W", "D", "L"] as const;
 export type MatchResultSymbol = (typeof matchResultSymbol)[number];
-export const scoreType = ["elo", "3-1-0"] as const;
+export const scoreType = ["elo", "3-1-0", "elo-individual-vs-team"] as const;
 export type ScoreType = (typeof scoreType)[number];
+export const eloType = ["team vs team", "individual vs team"] as const;
+export type EloType = (typeof eloType)[number];
 
 export const createLeagueSchema = z.object({
   userId: z.string(),
