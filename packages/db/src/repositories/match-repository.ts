@@ -1,4 +1,4 @@
-import { Player, TeamMatch } from "@ihs7/ts-elo";
+import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
 import { CreateMatchInput, MatchResultSymbol, PageRequest } from "@scorebrawl/api";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getByIdWhereMember, getLeagueById, getSeasonById } from ".";
@@ -430,6 +430,7 @@ type CalculateMatchTeamResult = {
   winningOdds: number;
   players: { id: string; scoreAfter: number }[];
 };
+
 const calculateMatchResult = ({
   season,
   homeScore,
@@ -446,57 +447,87 @@ const calculateMatchResult = ({
   homeTeam: CalculateMatchTeamResult;
   awayTeam: CalculateMatchTeamResult;
 } => {
-  if (season.scoreType === "elo") {
-    const eloIndividualMatch = new TeamMatch({ kFactor: season.kFactor });
-    const eloHomeTeam = eloIndividualMatch.addTeam("home", homeScore);
-    for (const p of homePlayers) {
-      eloHomeTeam.addPlayer(new Player(p.id, p.score));
-    }
-    const eloAwayTeam = eloIndividualMatch.addTeam("away", awayScore);
-    for (const p of awayPlayers) {
-      eloAwayTeam.addPlayer(new Player(p.id, p.score));
-    }
-    const eloMatchResult = eloIndividualMatch.calculate();
-    return {
-      homeTeam: {
-        winningOdds: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
-        players: eloHomeTeam.players.map((p) => ({
-          id: p.identifier,
-          scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
-            ?.rating as number,
-        })),
-      },
-      awayTeam: {
-        winningOdds: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
-        players: eloAwayTeam.players.map((p) => ({
-          id: p.identifier,
-          scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
-            ?.rating as number,
-        })),
-      },
-    };
+  if (season.scoreType === "elo" || season.scoreType === "elo-individual-vs-team") {
+    return calculateElo(season, homeScore, homePlayers, awayScore, awayPlayers);
   }
 
   if (season.scoreType === "3-1-0") {
-    return {
-      homeTeam: {
-        winningOdds: 0.5,
-        players: homePlayers.map((p) => ({
-          id: p.id,
-          scoreAfter: p.score + (homeScore > awayScore ? 3 : homeScore === awayScore ? 1 : 0),
-        })),
-      },
-      awayTeam: {
-        winningOdds: 0.5,
-        players: awayPlayers.map((p) => ({
-          id: p.id,
-          scoreAfter: p.score + (awayScore > homeScore ? 3 : awayScore === homeScore ? 1 : 0),
-        })),
-      },
-    };
+    return calculate310(homePlayers, homeScore, awayScore, awayPlayers);
   }
+
   throw new ScoreBrawlError({ message: "Oh my lord!", code: "INTERNAL_SERVER_ERROR" });
 };
+
+const calculateElo = (
+  season: Season,
+  homeScore: number,
+  homePlayers: {
+    id: string;
+    score: number;
+  }[],
+  awayScore: number,
+  awayPlayers: { id: string; score: number }[],
+) => {
+  const eloIndividualMatch = new TeamMatch({
+    kFactor: season.kFactor,
+    calculationStrategy:
+      season.scoreType === "elo"
+        ? CalculationStrategy.TEAM_VS_TEAM
+        : CalculationStrategy.INDIVIDUAL_VS_TEAM,
+  });
+  const eloHomeTeam = eloIndividualMatch.addTeam("home", homeScore);
+  for (const p of homePlayers) {
+    eloHomeTeam.addPlayer(new Player(p.id, p.score));
+  }
+  const eloAwayTeam = eloIndividualMatch.addTeam("away", awayScore);
+  for (const p of awayPlayers) {
+    eloAwayTeam.addPlayer(new Player(p.id, p.score));
+  }
+  const eloMatchResult = eloIndividualMatch.calculate();
+  return {
+    homeTeam: {
+      winningOdds: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
+      players: eloHomeTeam.players.map((p) => ({
+        id: p.identifier,
+        scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
+          ?.rating as number,
+      })),
+    },
+    awayTeam: {
+      winningOdds: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
+      players: eloAwayTeam.players.map((p) => ({
+        id: p.identifier,
+        scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
+          ?.rating as number,
+      })),
+    },
+  };
+};
+
+const calculate310 = (
+  homePlayers: { id: string; score: number }[],
+  homeScore: number,
+  awayScore: number,
+  awayPlayers: {
+    id: string;
+    score: number;
+  }[],
+) => ({
+  homeTeam: {
+    winningOdds: 0.5,
+    players: homePlayers.map((p) => ({
+      id: p.id,
+      scoreAfter: p.score + (homeScore > awayScore ? 3 : homeScore === awayScore ? 1 : 0),
+    })),
+  },
+  awayTeam: {
+    winningOdds: 0.5,
+    players: awayPlayers.map((p) => ({
+      id: p.id,
+      scoreAfter: p.score + (awayScore > homeScore ? 3 : awayScore === homeScore ? 1 : 0),
+    })),
+  },
+});
 
 const mapMatchTeam = ({
   matchPlayers,

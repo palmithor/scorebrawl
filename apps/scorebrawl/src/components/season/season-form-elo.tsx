@@ -1,6 +1,6 @@
 "use client";
 import { create } from "@/actions/season";
-import { createSeasonSchema } from "@scorebrawl/api";
+import { createSeasonSchema, eloType } from "@scorebrawl/api";
 import { LeagueOmitCode } from "@scorebrawl/db/types";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
@@ -8,16 +8,21 @@ import { useToast } from "@scorebrawl/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 
 type FormValues = {
   name: string;
   initialScore: number;
   startDate: Date;
+  eloType?: "team vs team" | "individual vs team";
   endDate?: Date;
   kFactor: number;
 };
 
 const schema = createSeasonSchema
+  .extend({
+    eloType: z.enum(eloType).default("team vs team"),
+  })
   .omit({ userId: true, leagueId: true, scoreType: true })
   .refine((data) => data.endDate && data.endDate > data.startDate, {
     message: "End date cannot be earlier than start date.",
@@ -44,7 +49,7 @@ export const SeasonFormElo = ({ league }: { league: LeagueOmitCode }) => {
       await create({
         ...val,
         leagueId: league.id,
-        scoreType: "elo",
+        scoreType: val.eloType === "team vs team" ? "elo" : "elo-individual-vs-team",
         initialScore: val.initialScore,
       });
       push(`/leagues/${league.slug}/overview`);
