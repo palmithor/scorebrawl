@@ -3,7 +3,7 @@ import { authMiddleware } from "@clerk/nextjs";
 export default authMiddleware({
   debug: process.env.DEBUG === "true",
   ignoredRoutes: ["/api/webhooks/(.*)"],
-  publicRoutes: ["/api/uploadthing"],
+  publicRoutes: ["/api/uploadthing", "/api/public/(.*)"],
 });
 
 // Stop Middleware running on static files

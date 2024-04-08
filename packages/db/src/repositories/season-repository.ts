@@ -1,6 +1,6 @@
 import { CreateSeasonInput } from "@scorebrawl/api";
-import { endOfDay } from "date-fns";
-import { and, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
+import { endOfDay, startOfDay } from "date-fns";
+import { and, asc, between, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
   ScoreBrawlError,
   canReadLeaguesCriteria,
@@ -428,4 +428,57 @@ export const getSeasonPointProgression = async ({
       seasonPlayers.id,
       sql`strftime('%Y-%m-%d', datetime(${matchPlayers.createdAt}, 'unixepoch'))`,
     );
+};
+
+/**
+ * used by the public endpoint that is used to show the scores for Jón Þór statue
+ */
+export const getTodaysDiff = async ({ leagueId, userId }: { leagueId: string; userId: string }) => {
+  const now = new Date();
+  const dayEnd = endOfDay(now);
+  const dayStart = startOfDay(now);
+  const season = await db.query.seasons.findFirst({
+    where: and(
+      eq(seasons.leagueId, leagueId),
+      lte(seasons.startDate, dayEnd),
+      or(isNull(seasons.endDate), gte(seasons.endDate, dayEnd)),
+    ),
+    with: {
+      seasonPlayers: {
+        columns: { id: true, score: true },
+        with: {
+          leaguePlayer: { columns: { userId: true } },
+        },
+      },
+    },
+  });
+
+  if (!season) {
+    return { diff: 0 };
+  }
+
+  const seasonPlayer = season.seasonPlayers.find((sp) => sp.leaguePlayer.userId === userId);
+  if (!seasonPlayer) {
+    return { diff: 0 };
+  }
+
+  const seasonPlayerMatches = await db.query.matchPlayers.findMany({
+    where: and(
+      between(matchPlayers.createdAt, dayStart, dayEnd),
+      eq(matchPlayers.seasonPlayerId, seasonPlayer.id),
+    ),
+    orderBy: asc(matchPlayers.createdAt),
+  });
+
+  // Ensure there are matches and the array is not empty
+  if (seasonPlayerMatches && seasonPlayerMatches.length > 0) {
+    // Access scoreBefore of the first match
+    const scoreBeforeFirstMatch = seasonPlayerMatches[0]?.scoreBefore;
+    // Access scoreAfter of the last match
+    const scoreAfterLastMatch = seasonPlayerMatches[seasonPlayerMatches.length - 1]?.scoreAfter;
+    // Calculate the difference
+    const diff = (scoreAfterLastMatch ?? 0) - (scoreBeforeFirstMatch ?? 0);
+    return { diff };
+  }
+  return { diff: 0 };
 };
