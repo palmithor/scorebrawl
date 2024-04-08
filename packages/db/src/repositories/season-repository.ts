@@ -1,6 +1,6 @@
 import { CreateSeasonInput } from "@scorebrawl/api";
 import { endOfDay } from "date-fns";
-import { and, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
   ScoreBrawlError,
   canReadLeaguesCriteria,
@@ -428,4 +428,46 @@ export const getSeasonPointProgression = async ({
       seasonPlayers.id,
       sql`strftime('%Y-%m-%d', datetime(${matchPlayers.createdAt}, 'unixepoch'))`,
     );
+};
+
+/**
+ * used by the public endpoint that is used to show the scores for Jón Þór statue
+ */
+export const getTodaysDiff = async ({ leagueId, userId }: { leagueId: string; userId: string }) => {
+  const dateParam = endOfDay(new Date());
+  const season = await db.query.seasons.findFirst({
+    where: and(
+      eq(seasons.leagueId, leagueId),
+      lte(seasons.startDate, dateParam),
+      or(isNull(seasons.endDate), gte(seasons.endDate, dateParam)),
+    ),
+    with: {
+      seasonPlayers: {
+        columns: { id: true, score: true },
+        with: {
+          leaguePlayer: { columns: { userId: true }, with: { user: { columns: { name: true } } } },
+          matches: {
+            columns: { scoreBefore: true, scoreAfter: true, createdAt: true },
+            orderBy: asc(matches.createdAt),
+            limit: 5,
+          },
+        },
+      },
+    },
+  });
+  const seasonPlayer = season?.seasonPlayers.find((sp) => sp.leaguePlayer.userId === userId);
+  if (!seasonPlayer) {
+    return { diff: 0 };
+  }
+  // Ensure there are matches and the array is not empty
+  if (seasonPlayer.matches && seasonPlayer.matches.length > 0) {
+    // Access scoreBefore of the first match
+    const scoreBeforeFirstMatch = seasonPlayer.matches[0]?.scoreBefore;
+    // Access scoreAfter of the last match
+    const scoreAfterLastMatch = seasonPlayer.matches[seasonPlayer.matches.length - 1]?.scoreAfter;
+    // Calculate the difference
+    const diff = (scoreAfterLastMatch ?? 0) - (scoreBeforeFirstMatch ?? 0);
+    return { diff };
+  }
+  return { diff: 0 };
 };
