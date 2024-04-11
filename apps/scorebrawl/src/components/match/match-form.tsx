@@ -16,6 +16,7 @@ import {
 } from "@scorebrawl/ui/drawer";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@scorebrawl/ui/form";
 import { cn } from "@scorebrawl/ui/lib";
+import { CircleEqual, Shuffle } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { create } from "@/actions/match";
@@ -52,6 +53,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+type SeasonPlayerType = z.infer<typeof seasonPlayerSchema>;
 export const MatchForm = ({
   season,
   leagueSlug,
@@ -73,12 +75,84 @@ export const MatchForm = ({
     },
   });
 
-  const isHomeTeam = () => selectedTeam === "home";
+  const enableReorder =
+    form.getValues().homePlayers.length > 1 &&
+    form.getValues().homePlayers.length === form.getValues().awayPlayers.length;
 
+  const shuffleTeams = () => {
+    const homePlayers = form.getValues().homePlayers;
+    const awayPlayers = form.getValues().awayPlayers;
+    const allPlayers = [...homePlayers, ...awayPlayers];
+
+    for (let i = allPlayers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      // @ts-ignore
+      [allPlayers[i], allPlayers[j]] = [allPlayers[j], allPlayers[i]];
+    }
+    form.setValue("homePlayers", allPlayers.slice(0, homePlayers.length));
+    form.setValue("awayPlayers", allPlayers.slice(homePlayers.length));
+  };
+
+  const evenTeams = () => {
+    const homePlayers = form.getValues().homePlayers;
+    const awayPlayers = form.getValues().awayPlayers;
+    const allPlayers = [...homePlayers, ...awayPlayers].sort((u1, u2) =>
+      u1.score < u2.score ? 1 : -1,
+    );
+    const n = allPlayers.length;
+    let minDiff = Infinity;
+    let bestTeams: [SeasonPlayerType[], SeasonPlayerType[]] = [[], []];
+
+    // Helper function to calculate the absolute difference between two numbers
+    const absDiff = (a: number, b: number) => Math.abs(a - b);
+
+    // Backtracking function to explore all possible team combinations
+    function backtrack(
+      index: number,
+      team1: SeasonPlayerType[],
+      team2: SeasonPlayerType[],
+      total1: number,
+      total2: number,
+    ) {
+      if (index === n) {
+        // Calculate the difference in total scores between the two teams
+        const diff = absDiff(total1, total2);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestTeams = [team1.slice(), team2.slice()];
+        }
+        return;
+      }
+
+      // Try adding the current player to team 1
+      backtrack(
+        index + 1,
+        [...team1, allPlayers[index] as SeasonPlayerType],
+        team2,
+        total1 + (allPlayers[index] as SeasonPlayerType).score,
+        total2,
+      );
+
+      // Try adding the current player to team 2
+      backtrack(
+        index + 1,
+        team1,
+        [...team2, allPlayers[index] as SeasonPlayerType],
+        total1,
+        total2 + (allPlayers[index] as SeasonPlayerType).score,
+      );
+    }
+
+    // Start backtracking from the first player
+    backtrack(0, [], [], 0, 0);
+
+    form.setValue("homePlayers", bestTeams[0]);
+    form.setValue("awayPlayers", bestTeams[1]);
+  };
   const onSubmit = async ({ homeScore, homePlayers, awayPlayers, awayScore }: FormValues) => {
     setIsLoading(true);
     try {
-      const match = await create({
+      await create({
         seasonId: season.id,
         homeScore,
         awayScore,
@@ -211,9 +285,31 @@ export const MatchForm = ({
                   )}
                 />
               </div>
-              <LoadingButton loading={isLoading} type="submit">
-                Create Match
-              </LoadingButton>
+              <div className="flex justify-between">
+                <div>
+                  <Button
+                    disabled={!enableReorder}
+                    className="text-xs"
+                    variant="outline"
+                    type="button"
+                    onClick={shuffleTeams}
+                  >
+                    <Shuffle className="mr-2 h-4 w-4" /> Shuffle
+                  </Button>
+                  <Button
+                    className="ml-2 text-xs"
+                    disabled={!enableReorder}
+                    variant="outline"
+                    type="button"
+                    onClick={evenTeams}
+                  >
+                    <CircleEqual className="mr-2 h-4 w-4" /> Even
+                  </Button>
+                </div>
+                <LoadingButton loading={isLoading} type="submit">
+                  Create Match
+                </LoadingButton>
+              </div>
             </Drawer>
           </form>
         </Form>
