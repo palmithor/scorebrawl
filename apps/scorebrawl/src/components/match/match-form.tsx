@@ -61,7 +61,7 @@ export const MatchForm = ({
 }: { leagueSlug: string; season: Season; seasonPlayers: SeasonPlayer[] }) => {
   const { toast } = useToast();
   const { refresh } = useRouter();
-  const [remainingPlayers, setRemainingPlayers] = useState<SeasonPlayer[]>(seasonPlayers);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<"home" | "away">("home");
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormValues>({
@@ -165,7 +165,7 @@ export const MatchForm = ({
       });
       form.reset();
       refresh();
-      setRemainingPlayers(seasonPlayers);
+      setSelectedPlayerIds([]);
     } catch (err) {
       toast({
         title: "Error creating league",
@@ -176,7 +176,7 @@ export const MatchForm = ({
       setIsLoading(false);
     }
   };
-
+  const remainingPlayers = seasonPlayers.filter((player) => !selectedPlayerIds.includes(player.id));
   return (
     <div>
       <TitleLayout
@@ -246,11 +246,11 @@ export const MatchForm = ({
                           onClickAddPlayers={setSelectedTeam}
                           onSelect={(player) => {
                             field.onChange([...field.value, player]);
-                            setRemainingPlayers(remainingPlayers.filter((p) => p.id !== player.id));
+                            setSelectedPlayerIds((prev) => [...prev, player.id]);
                           }}
                           onDeselect={(player) => {
                             field.onChange(field.value.filter((p) => p.id !== player.id));
-                            setRemainingPlayers([...remainingPlayers, player]);
+                            setSelectedPlayerIds((prev) => prev.filter((pId) => pId !== player.id));
                           }}
                         />
                       </FormControl>
@@ -272,11 +272,11 @@ export const MatchForm = ({
                           onClickAddPlayers={setSelectedTeam}
                           onSelect={(player) => {
                             field.onChange([...field.value, player]);
-                            setRemainingPlayers(remainingPlayers.filter((p) => p.id !== player.id));
+                            setSelectedPlayerIds((prev) => [...prev, player.id]);
                           }}
                           onDeselect={(player) => {
                             field.onChange(field.value.filter((p) => p.id !== player.id));
-                            setRemainingPlayers([...remainingPlayers, player]);
+                            setSelectedPlayerIds((prev) => prev.filter((pId) => pId !== player.id));
                           }}
                         />
                       </FormControl>
