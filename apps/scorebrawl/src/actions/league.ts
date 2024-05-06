@@ -34,7 +34,7 @@ export const getMine = cache(
   ({
     search,
     page = 0,
-    limit = 30,
+    limit = 20,
   }: {
     search?: string;
   } & PageRequest) =>
