@@ -224,7 +224,7 @@ export const createMatch = async ({
 export const getMatchesBySeasonId = async ({
   seasonId,
   userId,
-  limit = 15,
+  limit = 10,
   page = 1,
 }: { seasonId: string; userId: string } & PageRequest): Promise<{ data: Match[] }> => {
   const season = await getSeasonById({
