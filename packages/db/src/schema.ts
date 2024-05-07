@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { blob, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
-import { type LeagueEventData } from "./types";
+import type { LeagueEventData } from "./types";
 
 const defaultTextConfig = { length: 100 };
 export const cuidConfig = { length: 32 };

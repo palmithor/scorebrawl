@@ -1,4 +1,4 @@
-import { PlayerForm } from "@scorebrawl/api";
+import type { PlayerForm } from "@scorebrawl/api";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 import { FormDots } from "../player-form";

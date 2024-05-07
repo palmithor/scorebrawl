@@ -1,9 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
-import { Badge, badgeVariants } from "@scorebrawl/ui/badge";
+import { Badge, type badgeVariants } from "@scorebrawl/ui/badge";
 import { cn } from "@scorebrawl/ui/lib";
-import { AvatarProps } from "@scorebrawl/ui/multi-avatar";
+import type { AvatarProps } from "@scorebrawl/ui/multi-avatar";
 import { getInitialsFromString } from "@scorebrawl/utils/string";
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 export interface AvatarBadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,

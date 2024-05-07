@@ -1,7 +1,7 @@
 "use server";
 import { auth } from "@clerk/nextjs";
 import { ScoreBrawlError, joinLeague } from "@scorebrawl/db";
-import { League } from "@scorebrawl/db/types";
+import type { League } from "@scorebrawl/db/types";
 import { redirect } from "next/navigation";
 
 export default async function ({ params }: { params: { code: string } }) {

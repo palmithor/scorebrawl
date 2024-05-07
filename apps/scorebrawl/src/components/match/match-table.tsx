@@ -1,5 +1,5 @@
 "use client";
-import { Match } from "@scorebrawl/db/types";
+import type { Match } from "@scorebrawl/db/types";
 import {
   Table,
   TableBody,

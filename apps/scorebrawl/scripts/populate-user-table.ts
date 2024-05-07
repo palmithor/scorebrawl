@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs";
-import { type User } from "@clerk/clerk-sdk-node";
+import type { User } from "@clerk/clerk-sdk-node";
 import { createClerkClient } from "@clerk/nextjs/server";
 import { db, users } from "@scorebrawl/db";
 import { fullName } from "@scorebrawl/utils/string";

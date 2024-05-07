@@ -1,7 +1,7 @@
 import Link from "next/link";
-import * as React from "react";
+import type * as React from "react";
 
-import { MainNavItem } from "@/components/layout/types";
+import type { MainNavItem } from "@/components/layout/types";
 import { siteConfig } from "@/config/site";
 import { useLockBody } from "@/hooks/useLockBody";
 import { fontHeading } from "@scorebrawl/ui/fonts";

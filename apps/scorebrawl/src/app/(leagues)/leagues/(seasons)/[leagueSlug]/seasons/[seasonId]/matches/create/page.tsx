@@ -2,7 +2,7 @@ import { getByIdOrOngoing, getPlayers } from "@/actions/season";
 import { SeasonPlayerStanding } from "@/components/league/overview/season-player-standing";
 import { MatchForm } from "@/components/match/match-form";
 import { Title } from "@/components/title";
-import { Season } from "@scorebrawl/db/types";
+import type { Season } from "@scorebrawl/db/types";
 
 export default async function ({ params }: { params: { leagueSlug: string; seasonId: string } }) {
   const season = (await getByIdOrOngoing(params)) as Season;

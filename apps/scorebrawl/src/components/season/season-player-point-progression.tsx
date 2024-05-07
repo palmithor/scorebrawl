@@ -1,6 +1,6 @@
 import { getById, getPlayers, getPointProgression } from "@/actions/season";
 import { PointProgressionChart } from "@/components/charts/PointProgression";
-import { Season } from "@scorebrawl/db/types";
+import type { Season } from "@scorebrawl/db/types";
 
 interface DataPoint {
   seasonPlayerId: string;

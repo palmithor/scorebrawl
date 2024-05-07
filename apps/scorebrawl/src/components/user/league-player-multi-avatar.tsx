@@ -1,8 +1,8 @@
 "use client";
 
-import { AvatarProps, MultiAvatar } from "@scorebrawl/ui/multi-avatar";
+import { type AvatarProps, MultiAvatar } from "@scorebrawl/ui/multi-avatar";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
-import useSWR, { Fetcher } from "swr";
+import useSWR, { type Fetcher } from "swr";
 
 const fetcher: Fetcher<AvatarProps[], string> = async (path: string) => {
   const res = await fetch(path);

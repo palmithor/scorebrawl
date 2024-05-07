@@ -4,7 +4,7 @@ import { TitleLayout } from "@/components/layout/title-layout";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonList } from "@/components/season/season-list";
-import { ScoreType } from "@scorebrawl/api";
+import type { ScoreType } from "@scorebrawl/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
 
 export default async function ({

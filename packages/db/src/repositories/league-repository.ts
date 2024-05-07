@@ -1,6 +1,6 @@
-import { CreateLeagueInput } from "@scorebrawl/api";
+import type { CreateLeagueInput } from "@scorebrawl/api";
 import {
-  LeagueMemberRole,
+  type LeagueMemberRole,
   createCuid,
   db,
   leagueEvents,
@@ -16,7 +16,7 @@ import {
 } from "@scorebrawl/db";
 import { and, asc, eq, gte, inArray, isNotNull, isNull, like, or, sql } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
-import { LeagueOmitCode, PlayerJoinedEventData } from "../types";
+import type { LeagueOmitCode, PlayerJoinedEventData } from "../types";
 
 export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
   or(

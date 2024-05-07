@@ -4,7 +4,7 @@ import { NavBar } from "@/components/layout/navbar";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { navConfig } from "@/config/nav";
 import { auth } from "@clerk/nextjs";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export default async function LeaguesLayout({ children }: { children: ReactNode }) {
   const { userId } = auth();

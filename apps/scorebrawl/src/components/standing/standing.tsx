@@ -1,7 +1,7 @@
 "use client";
 
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import { PlayerForm } from "@scorebrawl/api";
+import type { PlayerForm } from "@scorebrawl/api";
 import { cn } from "@scorebrawl/ui/lib";
 import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
 import {
