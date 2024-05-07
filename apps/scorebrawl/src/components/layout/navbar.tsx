@@ -1,11 +1,11 @@
 "use client";
 
-import { MainNavItem } from "@/components/layout/types";
+import type { MainNavItem } from "@/components/layout/types";
 import useScroll from "@/hooks/useScroll";
 import { UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { MainNav } from "./main-nav";
 
 interface NavBarProps {

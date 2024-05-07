@@ -1,8 +1,8 @@
-import { UpdateTeamInput } from "@scorebrawl/api";
+import type { UpdateTeamInput } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { asc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import {
-  DbTransaction,
+  type DbTransaction,
   ScoreBrawlError,
   createCuid,
   getByIdWhereMember,

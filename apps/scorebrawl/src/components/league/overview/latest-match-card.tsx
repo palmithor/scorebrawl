@@ -2,7 +2,7 @@ import { getLatest } from "@/actions/match";
 import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 
 import { getById } from "@/actions/season";
-import { Season } from "@scorebrawl/db/types";
+import type { Season } from "@scorebrawl/db/types";
 import { MonitorPlay } from "lucide-react";
 import { LatestMatchCardContent } from "./latest-match-card-content";
 

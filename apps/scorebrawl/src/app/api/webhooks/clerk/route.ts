@@ -1,4 +1,4 @@
-import { WebhookEvent } from "@clerk/nextjs/server";
+import type { WebhookEvent } from "@clerk/nextjs/server";
 import { db, users } from "@scorebrawl/db";
 import { fullName } from "@scorebrawl/utils/string";
 import { headers } from "next/headers";

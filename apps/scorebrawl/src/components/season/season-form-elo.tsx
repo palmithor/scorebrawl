@@ -1,7 +1,7 @@
 "use client";
 import { create } from "@/actions/season";
 import { createSeasonSchema, eloType } from "@scorebrawl/api";
-import { LeagueOmitCode } from "@scorebrawl/db/types";
+import type { LeagueOmitCode } from "@scorebrawl/db/types";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";

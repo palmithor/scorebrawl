@@ -3,7 +3,7 @@ import { getByIdOrOngoing } from "@/actions/season";
 import { FullPageSpinner } from "@/components/full-page-spinner";
 import { ScoreBrawlError } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export default async function ({
   params,

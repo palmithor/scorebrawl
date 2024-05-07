@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Season, SeasonPlayer } from "@scorebrawl/db/types";
-import { badgeVariants } from "@scorebrawl/ui/badge";
+import type { Season, SeasonPlayer } from "@scorebrawl/db/types";
+import type { badgeVariants } from "@scorebrawl/ui/badge";
 import { Button } from "@scorebrawl/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 import {
@@ -26,7 +26,7 @@ import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { Separator } from "@scorebrawl/ui/separator";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { capitalize, getInitialsFromString } from "@scorebrawl/utils/string";
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
@@ -100,7 +100,7 @@ export const MatchForm = ({
       u1.score < u2.score ? 1 : -1,
     );
     const n = allPlayers.length;
-    let minDiff = Infinity;
+    let minDiff = Number.POSITIVE_INFINITY;
     let bestTeams: [SeasonPlayerType[], SeasonPlayerType[]] = [[], []];
 
     // Helper function to calculate the absolute difference between two numbers

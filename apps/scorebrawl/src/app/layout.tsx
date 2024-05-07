@@ -11,7 +11,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Toaster } from "@scorebrawl/ui/toaster";
 import type { Metadata } from "next";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface RootLayoutProps {
   children: ReactNode;

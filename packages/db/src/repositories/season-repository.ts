@@ -1,4 +1,4 @@
-import { CreateSeasonInput } from "@scorebrawl/api";
+import type { CreateSeasonInput } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { and, asc, between, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
@@ -17,7 +17,7 @@ import {
   seasons,
   slugifySeasonName,
 } from "..";
-import { SeasonCreatedEventData } from "../types";
+import type { SeasonCreatedEventData } from "../types";
 
 const findOverlappingSeason = async ({
   leagueId,

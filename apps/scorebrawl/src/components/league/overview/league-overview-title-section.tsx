@@ -1,6 +1,6 @@
 import { Title } from "@/components/title";
 import { cn } from "@scorebrawl/ui/lib";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export const LeagueOverviewTitleSection = ({
   title,

@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { CreateSeasonInput } from "@scorebrawl/api";
+import type { CreateSeasonInput } from "@scorebrawl/api";
 import {
   createSeason,
   findOngoingSeason,
@@ -17,7 +17,7 @@ import {
   getSeasonTeamsLatestMatches,
   getSeasonTeamsPointDiff,
 } from "@scorebrawl/db";
-import { SeasonPlayer } from "@scorebrawl/db/types";
+import type { SeasonPlayer } from "@scorebrawl/db/types";
 import { cache } from "react";
 import { getBySlug } from "./league";
 

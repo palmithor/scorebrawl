@@ -8,23 +8,23 @@ export const useBreakpoint = (): "xs" | "sm" | "md" | "lg" | "xl" | "2xl" => {
 
   const fullConfig = resolveConfig(tailwindConfig);
 
-  if (width < parseInt(fullConfig.theme.screens.sm)) {
+  if (width < Number.parseInt(fullConfig.theme.screens.sm)) {
     return "xs";
   }
 
-  if (width < parseInt(fullConfig.theme.screens.md)) {
+  if (width < Number.parseInt(fullConfig.theme.screens.md)) {
     return "sm";
   }
 
-  if (width < parseInt(fullConfig.theme.screens.lg)) {
+  if (width < Number.parseInt(fullConfig.theme.screens.lg)) {
     return "md";
   }
 
-  if (width < parseInt(fullConfig.theme.screens.xl)) {
+  if (width < Number.parseInt(fullConfig.theme.screens.xl)) {
     return "lg";
   }
 
-  if (width < parseInt(fullConfig.theme.screens["2xl"])) {
+  if (width < Number.parseInt(fullConfig.theme.screens["2xl"])) {
     return "xl";
   }
 

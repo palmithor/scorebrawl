@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs";
-import { CreateMatchInput } from "@scorebrawl/api";
+import type { CreateMatchInput } from "@scorebrawl/api";
 import { createMatch, getLatestMatch } from "@scorebrawl/db";
 import { deleteMatch as repositoryDeleteMatch } from "@scorebrawl/db";
 import { cache } from "react";

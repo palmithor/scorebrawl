@@ -3,7 +3,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { Button } from "@scorebrawl/ui/button";
 import { Separator } from "@scorebrawl/ui/separator";
 import { useRouter } from "next/navigation";
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Title } from "../title";
 
 export const TitleLayout = ({

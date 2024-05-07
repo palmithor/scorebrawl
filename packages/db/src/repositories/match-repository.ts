@@ -1,5 +1,5 @@
 import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
-import { CreateMatchInput, MatchResultSymbol, PageRequest } from "@scorebrawl/api";
+import type { CreateMatchInput, MatchResultSymbol, PageRequest } from "@scorebrawl/api";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getByIdWhereMember, getLeagueById, getSeasonById } from ".";
 import {
@@ -13,7 +13,7 @@ import {
   seasons,
   teamMatches,
 } from "..";
-import { Match, MatchPlayer, Season } from "../types";
+import type { Match, MatchPlayer, Season } from "../types";
 import { getOrInsertTeam } from "./team-repository";
 
 export const createMatch = async ({

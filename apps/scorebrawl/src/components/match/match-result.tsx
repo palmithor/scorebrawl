@@ -1,4 +1,4 @@
-import { Match } from "@scorebrawl/db/types";
+import type { Match } from "@scorebrawl/db/types";
 import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
 
 export const MatchResult = ({ match }: { match: Match }) => (

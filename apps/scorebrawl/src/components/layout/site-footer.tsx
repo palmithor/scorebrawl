@@ -1,4 +1,4 @@
-import * as React from "react";
+import type * as React from "react";
 
 import { siteConfig } from "@/config/site";
 import { Icons } from "@scorebrawl/ui/icons";

@@ -1,6 +1,6 @@
 import { getAll, getMine } from "@/actions/league";
 import { LeagueList } from "@/components/league/league-list";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Leagues",

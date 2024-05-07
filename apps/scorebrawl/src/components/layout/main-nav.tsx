@@ -5,7 +5,7 @@ import { useSelectedLayoutSegment } from "next/navigation";
 import * as React from "react";
 
 import { MobileNav } from "@/components/layout/mobile-nav";
-import { MainNavItem } from "@/components/layout/types";
+import type { MainNavItem } from "@/components/layout/types";
 import { siteConfig } from "@/config/site";
 import { fontHeading } from "@scorebrawl/ui/fonts";
 import { Icons } from "@scorebrawl/ui/icons";

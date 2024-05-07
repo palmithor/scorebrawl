@@ -1,4 +1,4 @@
-import { PlayerForm } from "@scorebrawl/api";
+import type { PlayerForm } from "@scorebrawl/api";
 import { v4 as uuid } from "uuid";
 
 export const FormDots = ({ form }: { form: PlayerForm }) => {

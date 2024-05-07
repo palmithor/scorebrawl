@@ -8,8 +8,8 @@ import {
 import { findOngoing, getPlayers as getSeasonPlayers } from "@/actions/season";
 import { LeagueDetailsSubNav } from "@/components/league/league-details-sub-nav";
 import { auth } from "@clerk/nextjs/server";
-import { Metadata, ResolvingMetadata } from "next";
-import { ReactNode } from "react";
+import type { Metadata, ResolvingMetadata } from "next";
+import type { ReactNode } from "react";
 
 export async function generateMetadata(
   { params }: { params: { leagueSlug: string } },

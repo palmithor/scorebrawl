@@ -22,7 +22,7 @@ import {
 } from "@scorebrawl/ui/table";
 import { useRouter } from "next/navigation";
 import { parseAsString, parseAsStringEnum, useQueryState } from "nuqs";
-import { ChangeEvent, useTransition } from "react";
+import { type ChangeEvent, useTransition } from "react";
 
 export const LeagueList = ({
   data,

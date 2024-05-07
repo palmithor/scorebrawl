@@ -1,5 +1,5 @@
 import { getLeagueOrRedirect } from "@/actions/league";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export default async function ({
   params,
