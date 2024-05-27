@@ -9,7 +9,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^4.13.4",
+    "@clerk/clerk-sdk-node": "^5.0.9",
     "@clerk/nextjs": "^4.29.1",
     "@clerk/themes": "1.7.9",
     "@heroicons/react": "2.1.1",
