@@ -64,7 +64,7 @@ export const createMatch = async ({
   });
 
   const now = new Date();
-  return await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
     const individualMatchResult = calculateMatchResult({
       season,
       homeScore: homeScore,
@@ -194,9 +194,9 @@ export const createMatch = async ({
             seasonTeamId: awaySeasonTeamId,
             eloBefore: awaySeasonTeamScore,
             scoreBefore: awaySeasonTeamScore,
-            eloAfter: teamMatchResult.awayTeam.players.find((r) => r.id === homeSeasonTeamId)
+            eloAfter: teamMatchResult.awayTeam.players.find((r) => r.id === awaySeasonTeamId)
               ?.scoreAfter as number,
-            scoreAfter: teamMatchResult.awayTeam.players.find((r) => r.id === homeSeasonTeamId)
+            scoreAfter: teamMatchResult.awayTeam.players.find((r) => r.id === awaySeasonTeamId)
               ?.scoreAfter as number,
             result: awayTeamResult,
             createdAt: now,

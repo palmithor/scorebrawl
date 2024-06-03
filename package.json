@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter scorebrawl",
     "test": "turbo test",
     "format": "bunx @biomejs/biome check . --apply-unsafe",
     "format:check": "bunx @biomejs/biome check ."
