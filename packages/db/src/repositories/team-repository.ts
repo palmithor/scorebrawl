@@ -170,7 +170,7 @@ export const getSeasonTeamsPointDiff = async ({
   to = endOfDay(new Date()),
 }: { seasonTeamIds: string[]; from?: Date; to?: Date }) => {
   const result = await db.query.teamMatches.findMany({
-    where: (matchPlayer, { eq, and }) =>
+    where: (matchPlayer, { and }) =>
       and(
         inArray(teamMatches.seasonTeamId, seasonTeamIds),
         gte(matchPlayer.createdAt, from),
@@ -183,8 +183,9 @@ export const getSeasonTeamsPointDiff = async ({
   }
   type MatchTeamType = (typeof result)[0];
   type SeasonTeamMatches = { seasonTeamId: string; matches: MatchTeamType[] };
+
   const seasonTeamMatches = result.reduce((acc: SeasonTeamMatches[], curr: MatchTeamType) => {
-    const { seasonTeamId, ...matchInfo } = curr;
+    const { seasonTeamId } = curr;
     const index = acc.findIndex((item: SeasonTeamMatches) => item.seasonTeamId === seasonTeamId);
     index !== -1 ? acc[index]?.matches.push(curr) : acc.push({ seasonTeamId, matches: [curr] });
     return acc;
