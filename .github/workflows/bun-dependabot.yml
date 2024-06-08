@@ -14,7 +14,7 @@ concurrency:
 jobs:
 
   update-dependencies:
-    if: ${{ github.actor != 'dependabot[bot]' }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     name: 🚀 Update Lockfile
 
     runs-on:
