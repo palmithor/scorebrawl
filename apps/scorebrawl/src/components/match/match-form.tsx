@@ -75,9 +75,12 @@ export const MatchForm = ({
     },
   });
 
-  const enableReorder =
-    form.getValues().homePlayers.length > 1 &&
-    form.getValues().homePlayers.length === form.getValues().awayPlayers.length;
+  const enableReorder = () => {
+    return (
+      form.getValues().homePlayers.length > 1 &&
+      (form.getValues().homePlayers.length + form.getValues().awayPlayers.length) % 2 === 0
+    );
+  };
 
   const shuffleTeams = () => {
     const homePlayers = form.getValues().homePlayers;
