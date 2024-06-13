@@ -6,5 +6,4 @@ import * as schema from "./schema";
 export const neonConnection = neon(process.env.DRIZZLE_DATABASE_URL ?? "");
 export const db = drizzle(neonConnection, {
   schema,
-  logger: true,
 });
