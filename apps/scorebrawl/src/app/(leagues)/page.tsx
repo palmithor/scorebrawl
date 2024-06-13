@@ -19,6 +19,5 @@ export default async function LeagueListPage({ searchParams }: PageProps) {
     searchParams.filter === "all"
       ? await getAll({ search: searchParams.search, page: searchParams.page ?? 0 })
       : await getMine({ search: searchParams.search, page: searchParams.page ?? 0 });
-
   return <LeagueList data={response.data} />;
 }

@@ -1,118 +1,13 @@
 {
-  "version": "5",
-  "dialect": "sqlite",
+  "version": "7",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1688738520337,
-      "tag": "0000_burly_mentor",
+      "version": "7",
+      "when": 1718287061525,
+      "tag": "0000_sparkling_fenris",
       "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1694698456204,
-      "tag": "0001_cuddly_sage",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1695981788069,
-      "tag": "0002_odd_wonder_man",
-      "breakpoints": false
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1696510170117,
-      "tag": "0003_cynical_echo",
-      "breakpoints": false
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1697188411306,
-      "tag": "0004_organic_union_jack",
-      "breakpoints": false
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1697189849939,
-      "tag": "0005_crazy_iron_monger",
-      "breakpoints": false
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1697193926092,
-      "tag": "0006_fearless_crystal",
-      "breakpoints": false
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1697194406162,
-      "tag": "0007_bizarre_living_tribunal",
-      "breakpoints": false
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1697195519170,
-      "tag": "0008_free_grey_gargoyle",
-      "breakpoints": false
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1697195573638,
-      "tag": "0009_simple_luminals",
-      "breakpoints": false
-    },
-    {
-      "idx": 10,
-      "version": "5",
-      "when": 1697195633033,
-      "tag": "0010_steady_lightspeed",
-      "breakpoints": false
-    },
-    {
-      "idx": 11,
-      "version": "5",
-      "when": 1697195680296,
-      "tag": "0011_solid_phil_sheldon",
-      "breakpoints": false
-    },
-    {
-      "idx": 12,
-      "version": "5",
-      "when": 1697402995067,
-      "tag": "0012_bright_storm",
-      "breakpoints": false
-    },
-    {
-      "idx": 13,
-      "version": "5",
-      "when": 1697403002376,
-      "tag": "0013_material_captain_flint",
-      "breakpoints": false
-    },
-    {
-      "idx": 14,
-      "version": "5",
-      "when": 1710333263017,
-      "tag": "0014_cynical_earthquake",
-      "breakpoints": false
-    },
-    {
-      "idx": 15,
-      "version": "5",
-      "when": 1710343571352,
-      "tag": "0015_shocking_firedrake",
-      "breakpoints": false
     }
   ]
 }

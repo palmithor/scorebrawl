@@ -43,12 +43,12 @@ export const getSeasonById = async ({
   seasonId: string;
   userId: string;
 }) => {
-  const result = await db
+  const [result] = await db
     .select()
     .from(seasons)
     .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
-    .where(and(eq(seasons.id, seasonId), canReadLeaguesCriteria({ userId })))
-    .get();
+    .where(and(eq(seasons.id, seasonId), canReadLeaguesCriteria({ userId })));
+
   if (!result?.season) {
     throw new ScoreBrawlError({
       code: "NOT_FOUND",
@@ -68,7 +68,7 @@ export const findOngoingSeason = async ({
   date?: Date;
 }) => {
   const dateParam = date ?? endOfDay(new Date());
-  const result = await db
+  const [result] = await db
     .select()
     .from(seasons)
     .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
@@ -79,8 +79,7 @@ export const findOngoingSeason = async ({
         or(isNull(seasons.endDate), gte(seasons.endDate, dateParam)),
         canReadLeaguesCriteria({ userId }),
       ),
-    )
-    .get();
+    );
   return result ? { ...result.season } : undefined;
 };
 
@@ -101,15 +100,15 @@ export const getSeasonPlayers = async ({
           "matchCount",
         ),
       winCount:
-        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = "W")`.as(
+        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = 'W')`.as(
           "winCount",
         ),
       lossCount:
-        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = "L")`.as(
+        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = 'L')`.as(
           "lossCount",
         ),
       drawCount:
-        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = "D")`.as(
+        sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id" and result = 'D')`.as(
           "drawCount",
         ),
     }),
@@ -125,7 +124,6 @@ export const getSeasonPlayers = async ({
     },
     orderBy: desc(seasonPlayers.score),
   });
-
   return seasonPlayerResult.map((sp) => ({
     id: sp.id,
     leaguePlayerId: sp.leaguePlayerId,
@@ -135,10 +133,10 @@ export const getSeasonPlayers = async ({
     score: sp.score,
     joinedAt: sp.createdAt,
     disabled: sp.disabled,
-    matchCount: sp.matchCount,
-    winCount: sp.winCount,
-    lossCount: sp.lossCount,
-    drawCount: sp.drawCount,
+    matchCount: Number(sp.matchCount),
+    winCount: Number(sp.winCount),
+    lossCount: Number(sp.lossCount),
+    drawCount: Number(sp.drawCount),
   }));
 };
 
@@ -160,8 +158,7 @@ export const getAllSeasons = async ({
         canReadLeaguesCriteria({ userId }),
       ),
     )
-    .orderBy(desc(seasons.startDate))
-    .all();
+    .orderBy(desc(seasons.startDate));
 
   return result.map((r) => r.season);
 };
@@ -205,59 +202,55 @@ export const createSeason = async ({
       message: "Season overlaps with existing season",
     });
   }
+
   const slug = await slugifySeasonName({ name });
-  return db.transaction(async (tx) => {
-    const now = new Date();
-    const season = await tx
-      .insert(seasons)
-      .values({
+
+  const now = new Date();
+  const [season] = await db
+    .insert(seasons)
+    .values({
+      id: createCuid(),
+      name,
+      slug,
+      leagueId,
+      startDate,
+      endDate,
+      initialElo: initialScore,
+      initialScore,
+      scoreType,
+      kFactor,
+      updatedBy: userId,
+      createdBy: userId,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+  const players = await db.query.leaguePlayers.findMany({
+    columns: { id: true },
+    where: and(eq(leaguePlayers.leagueId, leagueId), eq(leaguePlayers.disabled, false)),
+  });
+  await Promise.all(
+    players.map((lp) =>
+      db.insert(seasonPlayers).values({
         id: createCuid(),
-        name,
-        slug,
-        leagueId,
-        startDate,
-        endDate,
-        initialElo: initialScore,
-        initialScore,
-        scoreType,
-        kFactor,
-        updatedBy: userId,
-        createdBy: userId,
+        disabled: false,
+        elo: season?.initialElo ?? 0,
+        score: season?.initialScore ?? 0,
+        leaguePlayerId: lp.id,
+        seasonId: season?.id ?? "",
         createdAt: now,
         updatedAt: now,
-      })
-      .returning()
-      .get();
-    const players = await tx.query.leaguePlayers.findMany({
-      columns: { id: true },
-      where: and(eq(leaguePlayers.leagueId, leagueId), eq(leaguePlayers.disabled, false)),
-    });
-    await Promise.all(
-      players.map((lp) =>
-        tx.insert(seasonPlayers).values({
-          id: createCuid(),
-          disabled: false,
-          elo: season.initialElo,
-          score: season.initialScore,
-          leaguePlayerId: lp.id,
-          seasonId: season.id,
-          createdAt: now,
-          updatedAt: now,
-        }),
-      ),
-    );
+      }),
+    ),
+  );
 
-    await tx
-      .insert(leagueEvents)
-      .values({
-        id: createCuid(),
-        leagueId: league.id,
-        type: "season_created_v1",
-        data: { seasonId: season.id } as SeasonCreatedEventData,
-        createdBy: userId,
-        createdAt: now,
-      })
-      .run();
+  await db.insert(leagueEvents).values({
+    id: createCuid(),
+    leagueId: league.id,
+    type: "season_created_v1",
+    data: { seasonId: season?.id } as SeasonCreatedEventData,
+    createdBy: userId,
+    createdAt: now,
   });
 };
 
@@ -270,21 +263,18 @@ export const getSeasonStats = async ({
 }) => {
   const season = await getSeasonById({ userId, seasonId });
 
-  const matchCount = await db
+  const [matchCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(matches)
-    .where(eq(matches.seasonId, season.id))
-    .get();
-  const teamCount = await db
+    .where(eq(matches.seasonId, season.id));
+  const [teamCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(seasonTeams)
-    .where(eq(seasonTeams.seasonId, season.id))
-    .get();
-  const playerCount = await db
+    .where(eq(seasonTeams.seasonId, season.id));
+  const [playerCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(seasonPlayers)
-    .where(eq(seasonPlayers.seasonId, season.id))
-    .get();
+    .where(eq(seasonPlayers.seasonId, season.id));
   return {
     matchCount: matchCount?.count || 0,
     teamCount: teamCount?.count || 0,
@@ -347,15 +337,15 @@ export const getSeasonTeams = async ({
           "matchCount",
         ),
       winCount:
-        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = "W")`.as(
+        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = 'W')`.as(
           "winCount",
         ),
       lossCount:
-        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = "L")`.as(
+        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = 'L')`.as(
           "lossCount",
         ),
       drawCount:
-        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = "D")`.as(
+        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = 'D')`.as(
           "drawCount",
         ),
     }),
@@ -405,35 +395,19 @@ export const getSeasonPointProgression = async ({
   seasonId: string;
   userId: string;
 }) => {
-  // check if user has permission to view season
-  const season = await getSeasonById({ seasonId, userId });
-  return db
-    .select({
-      seasonPlayerId: seasonPlayers.id,
-      date: sql`strftime('%Y-%m-%d', datetime(MAX( ${matchPlayers.createdAt}), 'unixepoch'))`.mapWith(
-        String,
-      ),
-      score: matchPlayers.scoreAfter,
-    })
-    .from(matchPlayers)
-    .innerJoin(
-      seasonPlayers,
-      and(eq(seasonPlayers.id, matchPlayers.seasonPlayerId), eq(seasonPlayers.seasonId, season.id)),
-    )
-    .groupBy(
-      seasonPlayers.id,
-      sql`strftime('%Y-%m-%d', datetime(${matchPlayers.createdAt}, 'unixepoch'))`,
-    )
-    .orderBy(
-      seasonPlayers.id,
-      sql`strftime('%Y-%m-%d', datetime(${matchPlayers.createdAt}, 'unixepoch'))`,
-    );
+  return [];
 };
 
 /**
  * used by the public endpoint that is used to show the scores for Jón Þór statue
  */
-export const getTodaysDiff = async ({ leagueId, userId }: { leagueId: string; userId: string }) => {
+export const getTodaysDiff = async ({
+  leagueId,
+  userId,
+}: {
+  leagueId: string;
+  userId: string;
+}) => {
   const now = new Date();
   const dayEnd = endOfDay(now);
   const dayStart = startOfDay(now);

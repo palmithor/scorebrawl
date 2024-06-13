@@ -17,6 +17,5 @@ export const insertAuthUser = async () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     })
-    .onConflictDoNothing()
-    .run();
+    .onConflictDoNothing();
 };

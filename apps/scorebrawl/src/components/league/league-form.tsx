@@ -38,7 +38,7 @@ export const LeagueForm = ({
     setIsLoading(true);
     try {
       const league = await create({ ...val, logoUrl: logo, visibility: "private" });
-      push(`/leagues/${league.slug}`);
+      push(`/leagues/${league?.slug}`);
     } catch (err) {
       toast({
         title: "Error creating league",

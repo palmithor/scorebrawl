@@ -1,1 +1,0 @@
-DROP INDEX IF EXISTS `league_team_player_uq_idx`;
