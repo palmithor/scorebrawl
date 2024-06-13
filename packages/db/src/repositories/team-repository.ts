@@ -2,7 +2,6 @@ import type { UpdateTeamInput } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { asc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import {
-  type DbTransaction,
   ScoreBrawlError,
   createCuid,
   getByIdWhereMember,
@@ -13,19 +12,16 @@ import {
 } from "..";
 import { db } from "../db";
 
-export const getOrInsertTeam = async (
-  tx: DbTransaction,
-  {
-    now,
-    season,
-    players,
-  }: {
-    now: Date;
-    season: { id: string; initialScore: number; leagueId: string };
-    players: { leaguePlayer: { id: string; user: { name: string } } }[];
-  },
-) => {
-  const teamIdResult = await tx
+export const getOrInsertTeam = async ({
+  now,
+  season,
+  players,
+}: {
+  now: Date;
+  season: { id: string; initialScore: number; leagueId: string };
+  players: { leaguePlayer: { id: string; user: { name: string } } }[];
+}) => {
+  const [teamIdResult] = await db
     .select({ teamId: leagueTeamPlayers.teamId })
     .from(leagueTeamPlayers)
     .where(
@@ -35,71 +31,58 @@ export const getOrInsertTeam = async (
       ),
     )
     .groupBy(leagueTeamPlayers.teamId)
-    .having(sql`COUNT(DISTINCT ${leagueTeamPlayers.leaguePlayerId}) = ${players.length}`)
-    .get();
+    .having(sql`COUNT(DISTINCT ${leagueTeamPlayers.leaguePlayerId}) = ${players.length}`);
 
   let teamId = teamIdResult?.teamId;
 
   if (!teamId) {
     teamId = createCuid();
-    await tx
-      .insert(leagueTeams)
-      .values({
-        id: teamId,
-        name: players.map((p) => p.leaguePlayer.user.name.split(" ")[0]).join(" & "),
-        leagueId: season.leagueId,
-        updatedAt: now,
-        createdAt: now,
-      })
-      .run();
+    await db.insert(leagueTeams).values({
+      id: teamId,
+      name: players.map((p) => p.leaguePlayer.user.name.split(" ")[0]).join(" & "),
+      leagueId: season.leagueId,
+      updatedAt: now,
+      createdAt: now,
+    });
 
-    await tx
-      .insert(leagueTeamPlayers)
-      .values(
-        players.map((p) => ({
-          id: createCuid(),
-          teamId: teamId as string,
-          leaguePlayerId: p.leaguePlayer.id,
-          createdAt: now,
-          updatedAt: now,
-        })),
-      )
-      .run();
+    await db.insert(leagueTeamPlayers).values(
+      players.map((p) => ({
+        id: createCuid(),
+        teamId: teamId as string,
+        leaguePlayerId: p.leaguePlayer.id,
+        createdAt: now,
+        updatedAt: now,
+      })),
+    );
 
     const seasonTeamId = createCuid();
-    await tx
-      .insert(seasonTeams)
-      .values({
-        id: seasonTeamId,
-        teamId: teamId,
-        seasonId: season.id,
-        elo: season.initialScore,
-        score: season.initialScore,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
+    await db.insert(seasonTeams).values({
+      id: seasonTeamId,
+      teamId: teamId,
+      seasonId: season.id,
+      elo: season.initialScore,
+      score: season.initialScore,
+      createdAt: now,
+      updatedAt: now,
+    });
 
     return { seasonTeamId, score: season.initialScore };
   }
-  const seasonTeam = await tx.query.seasonTeams.findFirst({
+  const seasonTeam = await db.query.seasonTeams.findFirst({
     columns: { id: true, score: true },
     where: (st, { and, eq }) => and(eq(st.teamId, teamId as string), eq(st.seasonId, season.id)),
   });
   if (!seasonTeam) {
     const seasonTeamId = createCuid();
-    await tx
-      .insert(seasonTeams)
-      .values({
-        id: seasonTeamId,
-        seasonId: season.id,
-        teamId: teamId,
-        elo: season.initialScore,
-        score: season.initialScore,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
+    await db.insert(seasonTeams).values({
+      id: seasonTeamId,
+      seasonId: season.id,
+      teamId: teamId,
+      elo: season.initialScore,
+      score: season.initialScore,
+      createdAt: now,
+      updatedAt: now,
+    });
     return { seasonTeamId, score: season.initialScore };
   }
   return { seasonTeamId: seasonTeam.id, score: seasonTeam.score };
@@ -138,8 +121,7 @@ export const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamI
       name: name,
     })
     .where(eq(leagueTeams.id, teamId))
-    .returning()
-    .get();
+    .returning();
 };
 
 export const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {

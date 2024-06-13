@@ -14,7 +14,19 @@ import {
   slugifyLeagueName,
   slugifyWithCustomReplacement,
 } from "@scorebrawl/db";
-import { and, asc, eq, gte, inArray, isNotNull, isNull, like, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  eq,
+  getTableColumns,
+  gte,
+  inArray,
+  isNotNull,
+  isNull,
+  like,
+  or,
+  sql,
+} from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueOmitCode, PlayerJoinedEventData } from "../types";
 
@@ -36,7 +48,12 @@ export const getUserLeagues = async ({
   search,
   page,
   limit,
-}: { userId: string; search?: string; page: number; limit: number }) => {
+}: {
+  userId: string;
+  search?: string;
+  page: number;
+  limit: number;
+}) => {
   const where = search
     ? and(
         eq(leaguePlayers.userId, userId),
@@ -60,18 +77,18 @@ export const getUserLeagues = async ({
     .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id))
     .where(where)
     .limit(limit)
-    .offset((page - 1) * limit)
+    .offset((page > 0 ? page - 1 : 0) * limit)
     .orderBy(asc(leagues.slug));
-
-  const { count } = (await db
-    .select({ count: sql<number>`cast(count(${leaguePlayers.id}) as int)` })
+  const [result] = await db
+    .select({
+      totalCount: sql<number>`cast(count(${leaguePlayers.id}) as int)`,
+    })
     .from(leagues)
     .where(where)
-    .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id))
-    .get()) as { count: number };
+    .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id));
   return {
     data: data.map((league) => ({ ...league, code: undefined })),
-    meta: { totalCount: count, page, limit },
+    meta: { totalCount: result?.totalCount ?? 0, page, limit },
   };
 };
 
@@ -80,7 +97,12 @@ export const getAllLeagues = async ({
   search,
   page,
   limit,
-}: { userId: string; search: string; page: number; limit: number }) => {
+}: {
+  userId: string;
+  search: string;
+  page: number;
+  limit: number;
+}) => {
   const data = await db.query.leagues.findMany({
     columns: { code: false },
     where: and(canReadLeaguesCriteria({ userId }), like(leagues.name, `%${search}%`)),
@@ -89,22 +111,24 @@ export const getAllLeagues = async ({
     orderBy: asc(leagues.slug),
   });
 
-  const { count } = (await db
-    .select({ count: sql<number>`cast(count(${leagues.id}) as int)` })
+  const [result] = await db
+    .select({ totalCount: sql<number>`cast(count(${leagues.id}) as int)` })
     .from(leagues)
-    .where(and(canReadLeaguesCriteria({ userId }), like(leagues.name, `%${search}%`)))
-    .get()) as { count: number };
+    .where(and(canReadLeaguesCriteria({ userId }), like(leagues.name, `%${search}%`)));
 
   return {
     data: data.map((league) => ({ ...league, code: undefined })),
-    meta: { totalCount: count, page, limit },
+    meta: { totalCount: result?.totalCount ?? 0, page, limit },
   };
 };
 
 export const getLeagueBySlug = async ({
   userId,
   leagueSlug: slug,
-}: { userId: string; leagueSlug: string }) => {
+}: {
+  userId: string;
+  leagueSlug: string;
+}) => {
   const league = await db.query.leagues.findFirst({
     where: (league, { eq }) => and(eq(league.slug, slug), canReadLeaguesCriteria({ userId })),
   });
@@ -118,12 +142,17 @@ export const getLeagueBySlug = async ({
   return { ...league, code: undefined };
 };
 
-export const getLeagueById = async ({ userId, leagueId }: { userId: string; leagueId: string }) => {
-  const league = await db
+export const getLeagueById = async ({
+  userId,
+  leagueId,
+}: {
+  userId: string;
+  leagueId: string;
+}) => {
+  const [league] = await db
     .select()
     .from(leagues)
-    .where(and(eq(leagues.id, leagueId), canReadLeaguesCriteria({ userId })))
-    .get();
+    .where(and(eq(leagues.id, leagueId), canReadLeaguesCriteria({ userId })));
   if (!league) {
     throw new ScoreBrawlError({
       code: "NOT_FOUND",
@@ -136,7 +165,10 @@ export const getLeagueById = async ({ userId, leagueId }: { userId: string; leag
 export const getHasLeagueEditorAccess = async ({
   userId,
   leagueId,
-}: { userId: string; leagueId: string }) => {
+}: {
+  userId: string;
+  leagueId: string;
+}) => {
   const league = await getByIdWhereMember({
     leagueId: leagueId,
     userId: userId,
@@ -149,7 +181,10 @@ export const getHasLeagueEditorAccess = async ({
 export const getLeagueCode = async ({
   league,
   userId,
-}: { league: LeagueOmitCode; userId: string }) => {
+}: {
+  league: LeagueOmitCode;
+  userId: string;
+}) => {
   if (league.visibility === "private") {
     const leagueAsMember = await getByIdWhereMember({
       leagueId: league.id,
@@ -160,9 +195,11 @@ export const getLeagueCode = async ({
       return undefined;
     }
   }
-  return (
-    await db.select({ code: leagues.code }).from(leagues).where(eq(leagues.id, league.id)).get()
-  )?.code;
+  const [result] = await db
+    .select({ code: leagues.code })
+    .from(leagues)
+    .where(eq(leagues.id, league.id));
+  return result?.code;
 };
 
 export const getByIdWhereMember = async ({
@@ -181,62 +218,58 @@ export const getByIdWhereMember = async ({
         inArray(leagueMembers.role, allowedRoles),
       )
     : and(eq(leagueMembers.leagueId, leagues.id), eq(leagueMembers.userId, userId));
-  const result = await db
+  const [result] = await db
     .select()
     .from(leagues)
     .innerJoin(leagueMembers, joinCriteria)
-    .where(eq(leagues.id, leagueId))
-    .get();
+    .where(eq(leagues.id, leagueId));
   return result?.league;
 };
 
 export const createLeague = async ({ name, logoUrl, userId, visibility }: CreateLeagueInput) => {
   const slug = await slugifyLeagueName({ name });
   const now = new Date();
-  return db.transaction(async (tx) => {
-    const league = await tx
-      .insert(leagues)
-      .values({
-        id: createCuid(),
-        slug,
-        name,
-        logoUrl,
-        visibility,
-        code: createCuid(),
-        updatedBy: userId,
-        createdBy: userId,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .returning()
-      .get();
-    await tx
-      .insert(leagueMembers)
-      .values({
-        id: createCuid(),
-        leagueId: league.id,
-        userId: userId,
-        role: "owner",
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
-
-    await tx
-      .insert(leaguePlayers)
-      .values({
-        id: createCuid(),
-        leagueId: league.id,
-        userId: userId,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
-    return league;
+  const [league] = await db
+    .insert(leagues)
+    .values({
+      id: createCuid(),
+      slug,
+      name,
+      logoUrl,
+      visibility,
+      code: createCuid(),
+      updatedBy: userId,
+      createdBy: userId,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning(getTableColumns(leagues));
+  await db.insert(leagueMembers).values({
+    id: createCuid(),
+    leagueId: league?.id ?? "",
+    userId: userId,
+    role: "owner",
+    createdAt: now,
+    updatedAt: now,
   });
+
+  await db.insert(leaguePlayers).values({
+    id: createCuid(),
+    leagueId: league?.id ?? "",
+    userId: userId,
+    createdAt: now,
+    updatedAt: now,
+  });
+  return league;
 };
 
-export const joinLeague = async ({ code, userId }: { code: string; userId: string }) => {
+export const joinLeague = async ({
+  code,
+  userId,
+}: {
+  code: string;
+  userId: string;
+}) => {
   const league = await db.query.leagues.findFirst({
     where: eq(leagues.code, code),
   });
@@ -249,72 +282,66 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
   }
 
   const now = new Date();
-  await db.transaction(async (tx): Promise<void> => {
-    await tx
-      .insert(leagueMembers)
-      .values({
-        id: createCuid(),
-        userId: userId,
-        leagueId: league.id,
-        role: "member",
-        createdAt: now,
-        updatedAt: now,
-      })
-      .onConflictDoNothing()
-      .run();
+  await db
+    .insert(leagueMembers)
+    .values({
+      id: createCuid(),
+      userId: userId,
+      leagueId: league.id,
+      role: "member",
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoNothing();
 
-    const leaguePlayer = await tx
-      .insert(leaguePlayers)
-      .values({
-        id: createCuid(),
-        userId: userId,
-        leagueId: league.id,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .onConflictDoNothing()
-      .returning()
-      .get();
+  const [leaguePlayer] = await db
+    .insert(leaguePlayers)
+    .values({
+      id: createCuid(),
+      userId: userId,
+      leagueId: league.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoNothing()
+    .returning();
 
-    if (leaguePlayer) {
-      const ongoingAndFutureSeasons = await tx.query.seasons.findMany({
-        where: and(
-          eq(seasons.leagueId, league.id),
-          or(isNull(seasons.endDate), gte(seasons.endDate, now)),
-        ),
-      });
+  if (leaguePlayer) {
+    const ongoingAndFutureSeasons = await db.query.seasons.findMany({
+      where: and(
+        eq(seasons.leagueId, league.id),
+        or(isNull(seasons.endDate), gte(seasons.endDate, now)),
+      ),
+    });
 
-      for (const season of ongoingAndFutureSeasons) {
-        await tx
-          .insert(seasonPlayers)
-          .values({
-            id: createCuid(),
-            leaguePlayerId: leaguePlayer.id,
-            elo: season.initialScore,
-            score: season.initialScore,
-            seasonId: season.id,
-            createdAt: now,
-            updatedAt: now,
-          })
-          .onConflictDoNothing()
-          .run();
-      }
-      await tx
-        .insert(leagueEvents)
+    for (const season of ongoingAndFutureSeasons) {
+      await db
+        .insert(seasonPlayers)
         .values({
           id: createCuid(),
-          leagueId: league.id,
-          type: "player_joined_v1",
-          data: {
-            leaguePlayerId: leaguePlayer.id,
-          } as PlayerJoinedEventData,
-          createdBy: userId,
+          leaguePlayerId: leaguePlayer?.id ?? "",
+          elo: season.initialScore,
+          score: season.initialScore,
+          seasonId: season.id,
           createdAt: now,
+          updatedAt: now,
         })
-        .onConflictDoNothing()
-        .run();
+        .onConflictDoNothing();
     }
-  });
+    await db
+      .insert(leagueEvents)
+      .values({
+        id: createCuid(),
+        leagueId: league.id,
+        type: "player_joined_v1",
+        data: {
+          leaguePlayerId: leaguePlayer?.id ?? "",
+        } as PlayerJoinedEventData,
+        createdBy: userId,
+        createdAt: now,
+      })
+      .onConflictDoNothing();
+  }
 
   return league;
 };
@@ -322,11 +349,14 @@ export const joinLeague = async ({ code, userId }: { code: string; userId: strin
 export const getLeagueStats = async ({
   leagueId,
   userId,
-}: { leagueId: string; userId: string }) => {
+}: {
+  leagueId: string;
+  userId: string;
+}) => {
   // verify access
   await getLeagueById({ userId, leagueId });
 
-  const matchCount = await db
+  const [matchCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(matches)
     .where(
@@ -334,24 +364,22 @@ export const getLeagueStats = async ({
         matches.seasonId,
         db.select({ id: seasons.id }).from(seasons).where(eq(seasons.leagueId, leagueId)),
       ),
-    )
-    .get();
+    );
 
-  const teamCount = await db
+  const [teamCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(leagueTeams)
-    .where(eq(leagueTeams.leagueId, leagueId))
-    .get();
-  const seasonCount = await db
+    .where(eq(leagueTeams.leagueId, leagueId));
+  const [seasonCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(seasons)
-    .where(eq(seasons.leagueId, leagueId))
-    .get();
-  const playerCount = await db
+    .where(eq(seasons.leagueId, leagueId));
+
+  const [playerCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(leaguePlayers)
-    .where(eq(leaguePlayers.leagueId, leagueId))
-    .get();
+    .where(eq(leaguePlayers.leagueId, leagueId));
+
   return {
     seasonCount: seasonCount?.count || 0,
     matchCount: matchCount?.count || 0,

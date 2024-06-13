@@ -5,6 +5,7 @@ import type { LeagueOmitCode } from "@scorebrawl/db/types";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
+import { endOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
@@ -31,7 +32,7 @@ const schema = createSeasonSchema
 
 export const SeasonFormElo = ({ league }: { league: LeagueOmitCode }) => {
   const { toast } = useToast();
-  const { push } = useRouter();
+  const { push, refresh } = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [scoreType, setScoreType] = useQueryState(
     "scoreType",
@@ -48,10 +49,12 @@ export const SeasonFormElo = ({ league }: { league: LeagueOmitCode }) => {
     try {
       await create({
         ...val,
+        endDate: val.endDate ? endOfDay(val.endDate) : undefined,
         leagueId: league.id,
         scoreType: val.eloType === "team vs team" ? "elo" : "elo-individual-vs-team",
         initialScore: val.initialScore,
       });
+      refresh();
       push(`/leagues/${league.slug}/overview`);
     } catch (err) {
       toast({

@@ -74,8 +74,7 @@ export async function POST(req: Request) {
           imageUrl: evt.data.image_url,
           updatedAt: new Date(evt.data.updated_at),
         },
-      })
-      .run();
+      });
   }
   return new Response("", { status: 200 });
 }

@@ -17,7 +17,6 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
   const seasonMatches = ongoingSeason
     ? await getMatches({ seasonId: ongoingSeason.id })
     : { data: [] };
-
   const leaguePlayersForm = await getLeaguePlayersForm({ leagueId: league.id });
   const topFormPlayer = leaguePlayersForm.reduce((max, obj) =>
     obj.formScore > max.formScore ? obj : max,

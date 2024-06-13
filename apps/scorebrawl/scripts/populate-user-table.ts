@@ -42,8 +42,7 @@ for (const user of clerkUsers) {
           imageUrl: user.imageUrl,
           updatedAt: new Date(user.updatedAt),
         },
-      })
-      .run();
+      });
   }
 }
 

@@ -19,6 +19,7 @@ jobs:
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+      DRIZZLE_DATABASE_URL: postgresql://test:test@example.com/test
 
     runs-on:
       labels: ubuntu-latest
@@ -43,5 +44,5 @@ jobs:
       - name: 🧪 Test
         run: bun run format:check
 
-      - name: 👷‍♂️ Build
+      - name: 👷‍ Build
         run: bun run build

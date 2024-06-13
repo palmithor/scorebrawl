@@ -38,11 +38,21 @@ export const getMine = cache(
   }: {
     search?: string;
   } & PageRequest) =>
-    getUserLeagues({ userId: auth().userId as string, search: search ?? "", page, limit }),
+    getUserLeagues({
+      userId: auth().userId as string,
+      search: search ?? "",
+      page,
+      limit,
+    }),
 );
 
 export const getAll = cache(({ search, page = 0, limit = 30 }: { search?: string } & PageRequest) =>
-  getAllLeagues({ userId: auth().userId as string, search: search ?? "", page, limit }),
+  getAllLeagues({
+    userId: auth().userId as string,
+    search: search ?? "",
+    page,
+    limit,
+  }),
 );
 
 export const getPlayers = cache(({ leagueId }: { leagueId: string }) =>
@@ -63,7 +73,10 @@ export const getStats = cache(({ leagueId }: { leagueId: string }) =>
 );
 
 export const getPlayersForm = cache(async ({ leagueId }: { leagueId: string }) => {
-  const leaguePlayers = await getLeaguePlayersForm({ leagueId, userId: auth().userId as string });
+  const leaguePlayers = await getLeaguePlayersForm({
+    leagueId,
+    userId: auth().userId as string,
+  });
   return leaguePlayers.map((lp) => {
     const formScore = lp.form.reduce(
       (sum, result) => sum + (result === "W" ? 3 : result === "D" ? 1 : 0),
@@ -85,10 +98,13 @@ export const join = async (val: { code: string }) =>
 
 export const getLeagueOrRedirect = cache(async (leagueSlug: string) => {
   try {
-    return await getLeagueBySlug({ leagueSlug, userId: auth().userId as string });
+    return await getLeagueBySlug({
+      leagueSlug,
+      userId: auth().userId as string,
+    });
   } catch (e) {
     redirect(
-      `/leagues?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,
+      `?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,
       RedirectType.replace,
     );
   }

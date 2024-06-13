@@ -10,7 +10,7 @@ import {
   seasons,
 } from "@scorebrawl/db";
 import { $ } from "bun";
-import { migrate } from "drizzle-orm/libsql/migrator";
+import { migrate } from "drizzle-orm/neon-http/migrator";
 import { insertAuthUser } from "./util";
 
 const isCI = process.env.CI;
@@ -54,13 +54,13 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  await db.delete(matchPlayers).run();
-  await db.delete(matches).run();
-  await db.delete(leagueMembers).run();
-  await db.delete(seasonPlayers).run();
-  await db.delete(leaguePlayers).run();
-  await db.delete(seasons).run();
-  await db.delete(leagues).run();
+  await db.delete(matchPlayers);
+  await db.delete(matches);
+  await db.delete(leagueMembers);
+  await db.delete(seasonPlayers);
+  await db.delete(leaguePlayers);
+  await db.delete(seasons);
+  await db.delete(leagues);
 });
 
 afterAll(async () => {
