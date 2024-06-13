@@ -16,7 +16,7 @@ export const LeaguePlayersTable = async ({
 }: {
   leagueId: string;
 }) => {
-  const players = await getPlayers({ leagueId });
+  const players = await getPlayers(leagueId);
   return (
     <div className="rounded-md border px-2">
       <Table>

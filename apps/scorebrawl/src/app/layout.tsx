@@ -1,7 +1,21 @@
 import "@scorebrawl/ui/styles.css";
 
 import { siteConfig } from "@/config/site";
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
+import { fontHeading, fontSans, fontUrban } from "@scorebrawl/ui/fonts";
+import { cn } from "@scorebrawl/ui/lib";
+import { Analytics, Providers } from "@scorebrawl/ui/providers";
+import { Spinner } from "@scorebrawl/ui/spinner";
+import { TailwindIndicator } from "@scorebrawl/ui/tailwind-indicator";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
+import { Toaster } from "@scorebrawl/ui/toaster";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
+
+interface RootLayoutProps {
+  children: ReactNode;
+}
 
 export const metadata: Metadata = {
   title: {
@@ -40,9 +54,8 @@ export const metadata: Metadata = {
   manifest: `${siteConfig.url}/manifest.json`,
 };
 
-export default function RootLayout() {
-  return <p>Major Incident</p>;
-  /*return (
+export default function RootLayout({ children }: RootLayoutProps) {
+  return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head />
@@ -55,9 +68,7 @@ export default function RootLayout() {
           )}
         >
           <Providers attribute="class" defaultTheme="system" enableSystem>
-            <ClerkLoaded>
-              <p>Major Incident</p>
-            </ClerkLoaded>
+            <ClerkLoaded>{children}</ClerkLoaded>
             <ClerkLoading>
               <div className="grid h-screen place-items-center">
                 <Spinner size="40" />
@@ -71,5 +82,5 @@ export default function RootLayout() {
         </body>
       </html>
     </ClerkProvider>
-  );*/
+  );
 }

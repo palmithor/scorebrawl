@@ -17,7 +17,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const league = { name: "" };
   try {
-    const { name } = await getBySlug(params);
+    const { name } = await getBySlug(params.leagueSlug);
     league.name = name;
   } catch (e) {
     // ignore
@@ -36,13 +36,11 @@ export default async function ({
   children: ReactNode;
 }) {
   const league = await getLeagueOrRedirect(params.leagueSlug);
-  const leaguePlayers = await getPlayers({ leagueId: league.id });
-  const ongoingSeason = await findOngoing({ leagueId: league.id });
-  const ongoingSeasonPlayers = ongoingSeason
-    ? await getSeasonPlayers({ seasonId: ongoingSeason.id })
-    : [];
+  const leaguePlayers = await getPlayers(league.id);
+  const ongoingSeason = await findOngoing(league.id);
+  const ongoingSeasonPlayers = ongoingSeason ? await getSeasonPlayers(ongoingSeason.id) : [];
   const code = await getCode({ league });
-  const hasEditorAccess = await getHasEditorAccess({ leagueId: league.id });
+  const hasEditorAccess = await getHasEditorAccess(league.id);
   const userId = auth().userId as string;
   const hasTwoPlayersOrMore = ongoingSeasonPlayers && ongoingSeasonPlayers.length > 1;
 

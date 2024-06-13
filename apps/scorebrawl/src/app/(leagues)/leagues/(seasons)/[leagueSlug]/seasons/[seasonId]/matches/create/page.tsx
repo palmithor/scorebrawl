@@ -5,11 +5,11 @@ import { Title } from "@/components/title";
 import type { Season } from "@scorebrawl/db/types";
 
 export default async function ({ params }: { params: { leagueSlug: string; seasonId: string } }) {
-  const season = (await getByIdOrOngoing(params)) as Season;
+  const season = (await getByIdOrOngoing(params.seasonId, params.leagueSlug)) as Season;
   if (!season) {
     return null;
   }
-  const players = await getPlayers({ seasonId: season.id });
+  const players = await getPlayers(season.id);
 
   return (
     <div className="grid gap-8">

@@ -17,7 +17,7 @@ type PageProps = {
 export default async function LeagueListPage({ searchParams }: PageProps) {
   const response =
     searchParams.filter === "all"
-      ? await getAll({ search: searchParams.search, page: searchParams.page ?? 0 })
-      : await getMine({ search: searchParams.search, page: searchParams.page ?? 0 });
+      ? await getAll(searchParams.search, searchParams.page ?? 0)
+      : await getMine(searchParams.search, searchParams.page ?? 0);
   return <LeagueList data={response.data} />;
 }

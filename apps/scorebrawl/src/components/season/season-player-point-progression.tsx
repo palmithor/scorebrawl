@@ -64,9 +64,9 @@ export const SeasonPlayerPointProgression = async ({
 }: {
   seasonId: string;
 }) => {
-  const season = await getById({ seasonId });
-  const pointProgression = await getPointProgression({ seasonId });
-  const seasonPlayers = await getPlayers({ seasonId });
+  const season = await getById(seasonId);
+  const pointProgression = await getPointProgression(seasonId);
+  const seasonPlayers = await getPlayers(seasonId);
   const playerNames: Record<string, string> = {};
   for (const player of seasonPlayers) {
     playerNames[player.id] = player.name;

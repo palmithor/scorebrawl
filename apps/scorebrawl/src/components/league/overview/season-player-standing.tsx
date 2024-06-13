@@ -2,11 +2,9 @@ import { getPlayerPointDiff, getPlayers, getPlayersForm } from "@/actions/season
 import { Standing } from "@/components/standing/standing";
 
 export const SeasonPlayerStanding = async ({ seasonId }: { seasonId: string }) => {
-  const seasonPlayers = await getPlayers({ seasonId });
+  const seasonPlayers = await getPlayers(seasonId);
   const seasonPlayersForm = await getPlayersForm({ seasonPlayers });
-  const seasonPlayersPointDiff = await getPlayerPointDiff({
-    seasonPlayerIds: seasonPlayers.map((sp) => sp.id),
-  });
+  const seasonPlayersPointDiff = await getPlayerPointDiff(seasonPlayers.map((sp) => sp.id));
 
   return (
     <Standing

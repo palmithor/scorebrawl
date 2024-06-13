@@ -22,16 +22,13 @@ const getRedirectUrl = async ({
   seasonId,
 }: { leagueSlug: string; seasonId: string }) => {
   try {
-    const season = await getByIdOrOngoing({
-      seasonId,
-      leagueSlug,
-    });
+    const season = await getByIdOrOngoing(seasonId, leagueSlug);
     if (!season) {
       return `/leagues/${leagueSlug}/overview?errorCode=${
         seasonId === "ongoing" ? "NOT_FOUND" : "FORBIDDEN"
       }`;
     }
-    const league = await getLeagueById({ leagueId: season.leagueId });
+    const league = await getLeagueById(season.leagueId);
     if (league.slug !== leagueSlug) {
       return `/leagues/${leagueSlug}/overview?errorCode=FORBIDDEN`;
     }

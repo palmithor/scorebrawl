@@ -10,7 +10,7 @@ const CountText = ({ count, entity }: { count: number; entity: string }) => (
 );
 
 export const LeagueStatsCard = async ({ leagueId }: { leagueId: string }) => {
-  const { seasonCount, matchCount, playerCount, teamCount } = await getStats({ leagueId });
+  const { seasonCount, matchCount, playerCount, teamCount } = await getStats(leagueId);
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

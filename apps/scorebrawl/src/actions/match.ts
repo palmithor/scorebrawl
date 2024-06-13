@@ -12,6 +12,6 @@ export const create = async (val: Omit<CreateMatchInput, "userId">) =>
 export const deleteMatch = async ({ matchId }: { matchId: string }) =>
   repositoryDeleteMatch({ matchId, userId: auth().userId as string });
 
-export const getLatest = cache((params: { leagueId: string }) =>
-  getLatestMatch({ userId: auth().userId as string, ...params }),
+export const getLatest = cache((leagueId: string) =>
+  getLatestMatch({ userId: auth().userId as string, leagueId }),
 );

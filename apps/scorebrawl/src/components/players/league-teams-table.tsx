@@ -15,8 +15,8 @@ import { EditIcon } from "lucide-react";
 
 export const LeagueTeamsTable = async ({ leagueId }: { leagueId: string }) => {
   const user = auth();
-  const teams = await getTeams({ leagueId });
-  const hasEditorAccess = await getHasEditorAccess({ leagueId });
+  const teams = await getTeams(leagueId);
+  const hasEditorAccess = await getHasEditorAccess(leagueId);
   return (
     <div className="rounded-md border px-2">
       <Table>

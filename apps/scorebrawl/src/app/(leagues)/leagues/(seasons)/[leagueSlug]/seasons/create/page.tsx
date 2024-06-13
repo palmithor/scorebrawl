@@ -12,7 +12,7 @@ export default async function ({
   searchParams,
 }: { params: { leagueSlug: string }; searchParams: { scoreType: ScoreType } }) {
   const league = await getLeagueOrRedirect(params.leagueSlug);
-  const seasons = await getAll({ leagueSlug: params.leagueSlug });
+  const seasons = await getAll(params.leagueSlug);
 
   const scoreType = searchParams.scoreType ?? "elo";
   return (

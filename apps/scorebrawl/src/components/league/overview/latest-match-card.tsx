@@ -7,10 +7,10 @@ import { MonitorPlay } from "lucide-react";
 import { LatestMatchCardContent } from "./latest-match-card-content";
 
 export const LatestMatchCard = async ({ leagueId }: { leagueId: string }) => {
-  const match = await getLatest({ leagueId });
+  const match = await getLatest(leagueId);
   let season: Season | undefined;
   if (match) {
-    season = await getById({ seasonId: match.seasonId });
+    season = await getById(match.seasonId);
   }
   // TODO check is league player
   const isLeaguePlayer = true;

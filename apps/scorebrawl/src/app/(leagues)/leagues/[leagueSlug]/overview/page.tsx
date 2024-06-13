@@ -11,13 +11,11 @@ import { MatchTable } from "@/components/match/match-table";
 import { SeasonPlayerPointProgression } from "@/components/season/season-player-point-progression";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {
-  const league = await getBySlug(params);
-  const ongoingSeason = await findOngoing({ leagueId: league.id });
+  const league = await getBySlug(params.leagueSlug);
+  const ongoingSeason = await findOngoing(league.id);
 
-  const seasonMatches = ongoingSeason
-    ? await getMatches({ seasonId: ongoingSeason.id })
-    : { data: [] };
-  const leaguePlayersForm = await getLeaguePlayersForm({ leagueId: league.id });
+  const seasonMatches = ongoingSeason ? await getMatches(ongoingSeason.id) : { data: [] };
+  const leaguePlayersForm = await getLeaguePlayersForm(league.id);
   const topFormPlayer = leaguePlayersForm.reduce((max, obj) =>
     obj.formScore > max.formScore ? obj : max,
   );
