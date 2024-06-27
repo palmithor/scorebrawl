@@ -5,14 +5,14 @@
     "build": "turbo build",
     "dev": "turbo dev --filter scorebrawl",
     "test": "turbo test",
-    "format": "bunx @biomejs/biome check . --apply-unsafe",
+    "format": "bunx @biomejs/biome check . --write --unsafe",
     "format:check": "bunx @biomejs/biome check ."
   },
   "devDependencies": {
     "@biomejs/biome": "1.8.0",
     "@scorebrawl/typescript-config": "*",
     "tailwindcss": "^3.3.5",
-    "turbo": "latest"
+    "turbo": "^2.0.5"
   },
   "engines": {
     "node": ">=18"

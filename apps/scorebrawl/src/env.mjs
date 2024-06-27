@@ -18,4 +18,5 @@ export const env = createEnv({
     DRIZZLE_DATABASE_URL: process.env.DRIZZLE_DATABASE_URL,
     DEBUG: process.env.DEBUG,
   },
+  skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
 });
