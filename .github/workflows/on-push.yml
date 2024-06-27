@@ -16,7 +16,7 @@ jobs:
 
     env:
       SKIP_ENV_VALIDATION: "true"
-      DRIZZLE_DATABASE_URL: postgresql://user:password@host.tld/scorebrawl-ci-build?option=value
+      DATABASE_URL: postgresql://user:password@host.tld/scorebrawl-ci-build?option=value
 
     runs-on:
       labels: ubuntu-latest
