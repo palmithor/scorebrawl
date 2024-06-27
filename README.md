@@ -1,66 +1,28 @@
 # Scorebrawl
 
-Scorebrawl is the ultimate score-tracking solution for gaming, sports, and competitions, bringing your victories to life in real-time
+Scorebrawl is the ultimate score-tracking solution for gaming, sports, and competitions, bringing your victories to life
+in real-time
 
 # Getting started
 
 ## Dev environment
 
-Developing in Scorebrawl requires [bun](https://bun.sh/) and [turso](https://turso.tech/) along with [Clerk](https://clerk.com) and [uploadthing](https://uploadthing.com) credentials.
-
-The development server and database can be run completely locally.
-In addition to the tools listed above `sqld` is needed.
-
-To install these tools on Mac OS do the following
-
-```
-brew install tursodatabase/tap/turso
-curl -fsSL https://bun.sh/install | bash
-
-brew tap libsql/sqld
-brew install sqld
-```
+Developing in Scorebrawl requires [bun](https://bun.sh/) and [neon](https://neon.tech/) along
+with [Clerk](https://clerk.com) and [uploadthing](https://uploadthing.com) credentials.
 
 ## Development environment
 
-### Local DB
+### Setup
 
-In order to start a local database, both `turso` and `sqld` need to be installed.
+Neon database has to be set up for the development environment.
 
-To start a local database:
+Clerk and Uploadthing credentials have to be set up in the environment variables.
 
-`./dev/bin/start-db.sh`
+See `apps/scorebrawl/.env.example` for the required environment variables.
 
-This creates a database file and stores the parent pid in `./dev/.local`.
-
-To stop the database run
-
-`./dev/bin/stop-db.sh`
-
-Before running the development environment some environment variables have to be set up. Replace the secret keys and run the following in the source root.
-
-```
-# Scorebrawl dev public key
-echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZmFuY3ktY293LTc5LmNsZXJrLmFjY291bnRzLmRldiQ" >> .env.development
-echo "CLERK_SECRET_KEY=<secretKey>" >> .env.development
-echo "CLERK_WEBHOOK_SECRET=ignore" >> .env.development
-# Port 8002 is hard coded in start-db script
-echo "DATABASE_URL=http://127.0.0.1:8002" >> .env.development
-echo "UPLOADTHING_APP_ID=cjmox8rnt4" >> .env.development
-echo "UPLOADTHING_SECRET=<secretKey>" >> .env.development
-echo "UPLOADTHING_URL=http://localhost:3000" >> .env.development
-```
+### Running the development server
 
 Run db migrations and start the development server by executing `bun run dev`.
-
-## Testing
-
-Tests require `turso` to be installed as tests are run against in-memory database.
-The in-memory database is started and shut down as part of the test execution.
-
-Tests are executed by running
-
-`bun run test`
 
 # Stack
 
@@ -70,4 +32,4 @@ Tests are executed by running
 - Uploadthing
 - Shadcn
 - Tailwind
-- Turso
+- Neon
