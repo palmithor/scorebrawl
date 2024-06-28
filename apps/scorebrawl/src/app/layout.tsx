@@ -9,6 +9,7 @@ import { Spinner } from "@scorebrawl/ui/spinner";
 import { TailwindIndicator } from "@scorebrawl/ui/tailwind-indicator";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
+import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@scorebrawl/ui/toaster";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -67,18 +68,20 @@ export default function RootLayout({ children }: RootLayoutProps) {
             fontHeading.variable,
           )}
         >
-          <Providers attribute="class" defaultTheme="system" enableSystem>
-            <ClerkLoaded>{children}</ClerkLoaded>
-            <ClerkLoading>
-              <div className="grid h-screen place-items-center">
-                <Spinner size="40" />
-              </div>
-            </ClerkLoading>
-            <Analytics />
-            <SpeedInsights />
-            <Toaster />
-            <TailwindIndicator />
-          </Providers>
+          <TRPCReactProvider>
+            <Providers attribute="class" defaultTheme="system" enableSystem>
+              <ClerkLoaded>{children}</ClerkLoaded>
+              <ClerkLoading>
+                <div className="grid h-screen place-items-center">
+                  <Spinner size="40" />
+                </div>
+              </ClerkLoading>
+              <Analytics />
+              <SpeedInsights />
+              <Toaster />
+              <TailwindIndicator />
+            </Providers>
+          </TRPCReactProvider>
         </body>
       </html>
     </ClerkProvider>
