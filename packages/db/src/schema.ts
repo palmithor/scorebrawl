@@ -21,9 +21,6 @@ export const leagues = pgTable(
     name: varchar("name", defaultVarcharConfig).notNull(),
     slug: varchar("name_slug", defaultVarcharConfig).notNull(),
     logoUrl: varchar("logo_url", defaultVarcharConfig),
-    visibility: varchar("visibility", { enum: ["private", "public"] })
-      .default("public")
-      .notNull(),
     code: varchar("code", cuidConfig).notNull(),
     archived: boolean("archived").default(false).notNull(),
     createdBy: varchar("created_by").notNull(),

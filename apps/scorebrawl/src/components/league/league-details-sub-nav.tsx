@@ -14,10 +14,10 @@ import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { type HTMLAttributes, useState } from "react";
 import { SubNav } from "../layout/sub-nav";
 
-type LeagueDetailsSubNavProps = React.HTMLAttributes<HTMLDivElement> & {
+type LeagueDetailsSubNavProps = HTMLAttributes<HTMLDivElement> & {
   league: LeagueOmitCode;
   ongoingSeason?: Season;
   shouldShowJoin: boolean;
@@ -96,12 +96,6 @@ export const LeagueDetailsSubNav = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => void push(`/leagues/${league.slug}/edit`)}
-            >
-              Edit League
-            </DropdownMenuItem>
             {!!inviteCode && (
               <DropdownMenuItem
                 className="cursor-pointer"

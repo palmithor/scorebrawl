@@ -31,16 +31,13 @@ import { ScoreBrawlError } from "../errors";
 import type { LeagueOmitCode, PlayerJoinedEventData } from "../types";
 
 export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
-  or(
-    eq(leagues.visibility, "public"),
-    inArray(
-      leagues.id,
-      db
-        .select({ data: leagues.id })
-        .from(leagues)
-        .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
-        .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id))),
-    ),
+  inArray(
+    leagues.id,
+    db
+      .select({ data: leagues.id })
+      .from(leagues)
+      .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
+      .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id))),
   );
 
 export const getUserLeagues = async ({
@@ -67,7 +64,6 @@ export const getUserLeagues = async ({
       name: leagues.name,
       logoUrl: leagues.logoUrl,
       slug: leagues.slug,
-      visibility: leagues.visibility,
       archived: leagues.archived,
       createdAt: leagues.createdAt,
       updatedAt: leagues.updatedAt,
@@ -86,36 +82,6 @@ export const getUserLeagues = async ({
     .from(leagues)
     .where(where)
     .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id));
-  return {
-    data: data.map((league) => ({ ...league, code: undefined })),
-    meta: { totalCount: result?.totalCount ?? 0, page, limit },
-  };
-};
-
-export const getAllLeagues = async ({
-  userId,
-  search,
-  page,
-  limit,
-}: {
-  userId: string;
-  search: string;
-  page: number;
-  limit: number;
-}) => {
-  const data = await db.query.leagues.findMany({
-    columns: { code: false },
-    where: and(canReadLeaguesCriteria({ userId }), like(leagues.name, `%${search}%`)),
-    offset: (page - 1) * limit,
-    limit,
-    orderBy: asc(leagues.slug),
-  });
-
-  const [result] = await db
-    .select({ totalCount: sql<number>`cast(count(${leagues.id}) as int)` })
-    .from(leagues)
-    .where(and(canReadLeaguesCriteria({ userId }), like(leagues.name, `%${search}%`)));
-
   return {
     data: data.map((league) => ({ ...league, code: undefined })),
     meta: { totalCount: result?.totalCount ?? 0, page, limit },
@@ -185,16 +151,15 @@ export const getLeagueCode = async ({
   league: LeagueOmitCode;
   userId: string;
 }) => {
-  if (league.visibility === "private") {
-    const leagueAsMember = await getByIdWhereMember({
-      leagueId: league.id,
-      userId: userId,
-      allowedRoles: ["owner", "editor"],
-    });
-    if (!leagueAsMember) {
-      return undefined;
-    }
+  const leagueAsMember = await getByIdWhereMember({
+    leagueId: league.id,
+    userId: userId,
+    allowedRoles: ["owner", "editor"],
+  });
+  if (!leagueAsMember) {
+    return undefined;
   }
+
   const [result] = await db
     .select({ code: leagues.code })
     .from(leagues)
@@ -226,7 +191,7 @@ export const getByIdWhereMember = async ({
   return result?.league;
 };
 
-export const createLeague = async ({ name, logoUrl, userId, visibility }: CreateLeagueInput) => {
+export const createLeague = async ({ name, logoUrl, userId }: CreateLeagueInput) => {
   const slug = await slugifyLeagueName({ name });
   const now = new Date();
   const [league] = await db
@@ -236,7 +201,6 @@ export const createLeague = async ({ name, logoUrl, userId, visibility }: Create
       slug,
       name,
       logoUrl,
-      visibility,
       code: createCuid(),
       updatedBy: userId,
       createdBy: userId,

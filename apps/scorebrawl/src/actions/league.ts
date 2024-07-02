@@ -5,7 +5,6 @@ import type { CreateLeagueInput, UpdateTeamInput } from "@scorebrawl/api";
 import {
   ScoreBrawlError,
   createLeague,
-  getAllLeagues,
   getHasLeagueEditorAccess,
   getLeagueById,
   getLeagueBySlug,
@@ -30,17 +29,8 @@ export const getById = cache((leagueId: string) =>
   getLeagueById({ userId: auth().userId as string, leagueId }),
 );
 
-export const getMine = cache((search?: string, page = 0, limit = 20) =>
-  getUserLeagues({
-    userId: auth().userId as string,
-    search: search ?? "",
-    page,
-    limit,
-  }),
-);
-
 export const getAll = cache((search?: string, page = 0, limit = 30) =>
-  getAllLeagues({
+  getUserLeagues({
     userId: auth().userId as string,
     search: search ?? "",
     page,

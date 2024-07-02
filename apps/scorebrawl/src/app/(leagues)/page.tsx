@@ -1,4 +1,4 @@
-import { getAll, getMine } from "@/actions/league";
+import { getAll } from "@/actions/league";
 import { LeagueList } from "@/components/league/league-list";
 import type { Metadata } from "next";
 
@@ -15,9 +15,6 @@ type PageProps = {
 };
 
 export default async function LeagueListPage({ searchParams }: PageProps) {
-  const response =
-    searchParams.filter === "all"
-      ? await getAll(searchParams.search, searchParams.page ?? 0)
-      : await getMine(searchParams.search, searchParams.page ?? 0);
+  const response = await getAll(searchParams.search, searchParams.page ?? 0);
   return <LeagueList data={response.data} />;
 }
