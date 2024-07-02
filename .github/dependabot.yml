@@ -3,15 +3,15 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
-    open-pull-requests-limit: 6
+      interval: 'monthly'
+    open-pull-requests-limit: 5
     reviewers:
       - 'palmithor'
 
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly'
-    open-pull-requests-limit: 6
+      interval: 'monthly'
+    open-pull-requests-limit: 5
     reviewers:
       - 'palmithor'
