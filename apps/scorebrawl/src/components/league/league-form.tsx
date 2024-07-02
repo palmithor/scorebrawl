@@ -37,7 +37,7 @@ export const LeagueForm = ({
   const onSubmit = async (val: FormValues) => {
     setIsLoading(true);
     try {
-      const league = await create({ ...val, logoUrl: logo, visibility: "private" });
+      const league = await create({ ...val, logoUrl: logo });
       push(`/leagues/${league?.slug}`);
     } catch (err) {
       toast({
@@ -53,8 +53,7 @@ export const LeagueForm = ({
     <TitleLayout title={title}>
       <div className="grid grid-rows-2 gap-8 sm:grid-cols-2">
         <AutoForm
-          formSchema={createLeagueSchema.omit({ logoUrl: true, userId: true })}
-          fieldConfig={{ visibility: { fieldType: "radio" } }}
+          formSchema={createLeagueSchema.omit({ logoUrl: true, userId: true, visibility: true })}
           values={league}
           onSubmit={onSubmit}
         >
