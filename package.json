@@ -14,14 +14,14 @@
   "devDependencies": {
     "@biomejs/biome": "1.8.0",
     "@scorebrawl/typescript-config": "*",
-    "tailwindcss": "^3.3.5",
-    "turbo": "^2.0.5"
+    "tailwindcss": "^3.4.4",
+    "turbo": "^2.0.6"
   },
   "packageManager": "bun@1.1.17",
   "workspaces": ["apps/*", "packages/*"],
   "dependencies": {
-    "postcss": "^8.4.32",
-    "swr": "^2.2.4"
+    "postcss": "^8.4.39",
+    "swr": "^2.2.5"
   },
   "trustedDependencies": ["@biomejs/biome", "@vercel/speed-insights"]
 }
