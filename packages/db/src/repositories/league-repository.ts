@@ -41,6 +41,29 @@ export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
   );
 
 export const getUserLeagues = async ({
+  search,
+  userId,
+}: {
+  search?: string;
+  userId: string;
+}) => {
+  const where = search
+    ? and(
+        eq(leaguePlayers.userId, userId),
+        like(leagues.name, `%${slugifyWithCustomReplacement(search)}%`),
+      )
+    : eq(leaguePlayers.userId, userId);
+
+  const data = await db
+    .select(getTableColumns(leagues))
+    .from(leagues)
+    .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id))
+    .where(where)
+    .orderBy(asc(leagues.slug));
+  return data.map(({ code, ...league }) => league);
+};
+
+export const getUserLeaguesPaginated = async ({
   userId,
   search,
   page,

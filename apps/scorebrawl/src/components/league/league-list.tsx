@@ -1,6 +1,7 @@
 "use client";
 
 import { LeaguePlayerMultiAvatar } from "@/components/user/league-player-multi-avatar";
+import { api } from "@/trpc/react";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { Button } from "@scorebrawl/ui/button";
 import { Input } from "@scorebrawl/ui/input";
@@ -16,19 +17,16 @@ import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import type { ChangeEvent } from "react";
 
-export const LeagueList = ({
-  data,
-}: {
-  data: { id: string; slug: string; name: string; logoUrl: string | null }[];
-}) => {
+export const LeagueList = () => {
   const { push } = useRouter();
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault("").withOptions({
       shallow: false,
-      throttleMs: 500,
+      throttleMs: 300,
     }),
   );
+  const { data } = api.league.getLeagues.useQuery({ search });
 
   return (
     <div className="w-full">
