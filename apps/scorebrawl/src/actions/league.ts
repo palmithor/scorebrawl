@@ -13,7 +13,7 @@ import {
   getLeaguePlayersForm,
   getLeagueStats,
   getLeagueTeams,
-  getUserLeagues,
+  getUserLeaguesPaginated,
   joinLeague,
   updateTeam as updateTeamDb,
 } from "@scorebrawl/db";
@@ -27,15 +27,6 @@ export const getBySlug = cache((leagueSlug: string) =>
 
 export const getById = cache((leagueId: string) =>
   getLeagueById({ userId: auth().userId as string, leagueId }),
-);
-
-export const getAll = cache((search?: string, page = 0, limit = 30) =>
-  getUserLeagues({
-    userId: auth().userId as string,
-    search: search ?? "",
-    page,
-    limit,
-  }),
 );
 
 export const getPlayers = cache((leagueId: string) => getLeaguePlayers({ leagueId }));
