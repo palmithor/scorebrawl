@@ -1,4 +1,5 @@
 import type { SignedInAuthObject, SignedOutAuthObject } from "@clerk/backend";
+import { LeagueRepository } from "@scorebrawl/db";
 /**
  * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
  * 1. You want to modify request context (see Part 1).
@@ -7,9 +8,10 @@ import type { SignedInAuthObject, SignedOutAuthObject } from "@clerk/backend";
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { TRPCError, initTRPC } from "@trpc/server";
+import { TRPCError, experimental_standaloneMiddleware, initTRPC } from "@trpc/server";
+import type { MiddlewareFunction } from "@trpc/server/unstable-core-do-not-import";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import { ZodError, z } from "zod";
 
 /**
  * 1. CONTEXT
@@ -85,5 +87,22 @@ const isAuthed = t.middleware(({ next, ctx }) => {
     },
   });
 });
+
+const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next }) => {
+  const league = await LeagueRepository.getLeagueBySlug({
+    userId: ctx.auth.userId,
+    leagueSlug: (input as { leagueSlug: string }).leagueSlug as string,
+  });
+  return next({
+    ctx: {
+      ...ctx,
+      league,
+    },
+  });
+});
+
+export const leagueProcedure = t.procedure
+  .input(z.object({ leagueSlug: z.string().min(1) }))
+  .use(leagueAccessMiddleware);
 
 export const protectedProcedure = t.procedure.use(isAuthed);

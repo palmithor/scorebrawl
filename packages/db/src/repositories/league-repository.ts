@@ -367,14 +367,14 @@ const getLeagueStats = async ({
 };
 
 export const LeagueRepository = {
+  createLeague,
+  getByIdWhereMember,
+  getLeagueById,
+  getLeagueBySlug,
+  getLeagueCode,
+  getLeagueStats,
   getUserLeagues,
   getUserLeaguesPaginated,
-  getLeagueBySlug,
-  getLeagueById,
   hasLeagueEditorAccess,
-  getLeagueCode,
-  getByIdWhereMember,
-  createLeague,
   joinLeague,
-  getLeagueStats,
 };

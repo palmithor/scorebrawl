@@ -1,6 +1,15 @@
 import { fullName } from "@scorebrawl/utils/string";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { users } from "../schema";
+
+const getUserAvatar = async ({ id }: { id: string }) => {
+  const [userAvatar] = await db
+    .select({ name: users.name, imageUrl: users.imageUrl })
+    .from(users)
+    .where(eq(users.id, id));
+  return userAvatar;
+};
 
 const findUserById = async ({ id }: { id: string }) => {
   return db.query.users.findFirst({
@@ -49,4 +58,4 @@ const upsertUser = async ({
     });
 };
 
-export const UserRepository = { findUserById, upsertUser };
+export const UserRepository = { findUserById, upsertUser, getUserAvatar };

@@ -1,19 +1,19 @@
 import { InviteRepository, leagueMemberRoles } from "@scorebrawl/db";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, leagueProcedure, protectedProcedure } from "@/server/api/trpc";
 
 export const inviteRouter = createTRPCRouter({
-  getInvites: protectedProcedure
-    .input(z.object({ leagueId: z.string() }))
-    .query(({ input, ctx }) =>
-      InviteRepository.getLeagueInvites({ leagueId: input.leagueId, userId: ctx.auth.userId }),
+  getInvites: leagueProcedure
+    .input(z.object({ leagueSlug: z.string() }))
+    .query(({ ctx }) =>
+      InviteRepository.getLeagueInvites({ leagueId: ctx.league.id, userId: ctx.auth.userId }),
     ),
-  createInvite: protectedProcedure
-    .input(z.object({ leagueId: z.string(), role: z.enum(leagueMemberRoles) }))
+  createInvite: leagueProcedure
+    .input(z.object({ leagueSlug: z.string(), role: z.enum(leagueMemberRoles) }))
     .query(({ input, ctx }) =>
       InviteRepository.createInvite({
-        leagueId: input.leagueId,
+        leagueId: ctx.league.id,
         userId: ctx.auth.userId,
         role: input.role,
       }),

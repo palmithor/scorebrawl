@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 export const AvatarName = ({
@@ -27,7 +27,7 @@ export const AvatarName = ({
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </div>
-      <div className="ml-4">
+      <div className="ml-2">
         <h2 className={textClassName ?? "text-sm"}>{name}</h2>
         {children}
       </div>
