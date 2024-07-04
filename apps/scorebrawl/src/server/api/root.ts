@@ -1,3 +1,4 @@
+import { inviteRouter } from "@/server/api/routers/inviteRouter";
 import { leagueRouter } from "@/server/api/routers/leagueRouter";
 import { seasonRouter } from "@/server/api/routers/seasonRouter";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  invite: inviteRouter,
   league: leagueRouter,
   season: seasonRouter,
 });
@@ -15,11 +17,4 @@ export const appRouter = createTRPCRouter({
 // export type definition of API
 export type AppRouter = typeof appRouter;
 
-/**
- * Create a server-side caller for the tRPC API.
- * @example
- * const trpc = createCaller(createContext);
- * const res = await trpc.post.all();
- *       ^? Post[]
- */
 export const createCaller = createCallerFactory(appRouter);

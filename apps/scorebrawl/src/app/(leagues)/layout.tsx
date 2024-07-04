@@ -3,7 +3,6 @@ import { ErrorToast } from "@/components/error-toast";
 import { NavBar } from "@/components/layout/navbar";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { navConfig } from "@/config/nav";
-import { api } from "@/trpc/server";
 import { auth } from "@clerk/nextjs";
 import type { ReactNode } from "react";
 
