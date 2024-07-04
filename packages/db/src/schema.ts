@@ -92,7 +92,7 @@ export const leagueTeamPlayers = pgTable(
   }),
 );
 
-const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
+export const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
 export type LeagueMemberRole = (typeof leagueMemberRoles)[number];
 
@@ -213,6 +213,24 @@ export const matchPlayers = pgTable("match_player", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const leagueInvites = pgTable(
+  "league_invite",
+  {
+    id: varchar("id", cuidConfig).primaryKey(),
+    leagueId: varchar("league_id").references(() => leagues.id),
+    role: varchar("role", { enum: leagueMemberRoles }).notNull(),
+    code: varchar("code", cuidConfig).notNull(),
+    expiresAt: timestamp("expires_at"),
+    createdBy: varchar("created_by").notNull(),
+    updatedBy: varchar("updated_by").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (invite) => ({
+    codeIdx: uniqueIndex("league_invite_code_uq_idx").on(invite.code),
+  }),
+);
+
 export const users = pgTable("user", {
   id: varchar("id", { length: 100 }).primaryKey(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
@@ -223,10 +241,18 @@ export const users = pgTable("user", {
 
 export const leaguesRelations = relations(leagues, ({ many }) => ({
   seasons: many(seasons),
+  invites: many(leagueInvites),
   leaguePlayers: many(leaguePlayers),
   leagueTeams: many(leagueTeams),
   members: many(leagueMembers),
   events: many(leagueEvents),
+}));
+
+export const leagueInvitesRelations = relations(leagueInvites, ({ one }) => ({
+  league: one(leagues, {
+    fields: [leagueInvites.leagueId],
+    references: [leagues.id],
+  }),
 }));
 
 export const seasonTeamRelations = relations(seasonTeams, ({ one, many }) => ({

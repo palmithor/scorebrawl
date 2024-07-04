@@ -15,6 +15,13 @@
       "when": 1719906585049,
       "tag": "0001_rainy_gabe_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1720090456338,
+      "tag": "0002_elite_bug",
+      "breakpoints": true
     }
   ]
 }
