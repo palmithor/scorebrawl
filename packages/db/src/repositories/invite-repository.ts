@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns } from "drizzle-orm";
 import { db } from "../db";
 import { ScoreBrawlError } from "../errors";
 import { type LeagueMemberRole, leagueInvites, leagues } from "../schema";
@@ -55,7 +55,8 @@ const getLeagueInvites = async ({
     .select(getTableColumns(leagueInvites))
     .from(leagueInvites)
     .innerJoin(leagues, eq(leagueInvites.leagueId, leagues.id))
-    .where(and(eq(leagueInvites.leagueId, leagueId), canReadLeaguesCriteria({ userId })));
+    .where(and(eq(leagueInvites.leagueId, leagueId), canReadLeaguesCriteria({ userId })))
+    .orderBy(desc(leagueInvites.expiresAt));
 
 export const InviteRepository = {
   createInvite,
