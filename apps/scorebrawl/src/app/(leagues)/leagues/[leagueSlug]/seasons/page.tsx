@@ -3,11 +3,11 @@ import { getAll } from "@/actions/season";
 import { SeasonTable } from "@/components/season/season-table";
 import { sortSeasons } from "@/utils/seasonUtils";
 import { auth } from "@clerk/nextjs";
-import { getLeagueById, getLeagueBySlug } from "@scorebrawl/db";
+import { LeagueRepository } from "@scorebrawl/db";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {
   const seasons = await getAll(params.leagueSlug);
-  const league = await getLeagueBySlug({
+  const league = await LeagueRepository.getLeagueBySlug({
     leagueSlug: params.leagueSlug,
     userId: auth().userId as string,
   });

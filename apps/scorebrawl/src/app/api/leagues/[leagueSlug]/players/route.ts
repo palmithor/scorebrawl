@@ -1,12 +1,12 @@
 import { auth } from "@clerk/nextjs";
-import { getLeagueBySlug, getLeaguePlayers } from "@scorebrawl/db";
+import { LeagueRepository, PlayerRepository } from "@scorebrawl/db";
 
 export async function GET(request: Request, { params }: { params: { leagueSlug: string } }) {
-  const league = await getLeagueBySlug({
+  const league = await LeagueRepository.getLeagueBySlug({
     userId: auth().userId as string,
     leagueSlug: params.leagueSlug,
   });
-  const leaguePlayers = await getLeaguePlayers({ leagueId: league.id });
+  const leaguePlayers = await PlayerRepository.getLeaguePlayers({ leagueId: league.id });
 
   return Response.json(leaguePlayers);
 }

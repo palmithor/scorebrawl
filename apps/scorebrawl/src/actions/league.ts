@@ -3,49 +3,42 @@
 import { auth } from "@clerk/nextjs";
 import type { CreateLeagueInput, UpdateTeamInput } from "@scorebrawl/api";
 import {
+  LeagueRepository,
+  PlayerRepository,
   ScoreBrawlError,
-  createLeague,
-  getHasLeagueEditorAccess,
-  getLeagueById,
-  getLeagueBySlug,
-  getLeagueCode,
-  getLeaguePlayers,
-  getLeaguePlayersForm,
-  getLeagueStats,
-  getLeagueTeams,
-  getUserLeaguesPaginated,
-  joinLeague,
-  updateTeam as updateTeamDb,
+  TeamRepository,
 } from "@scorebrawl/db";
 import type { LeagueOmitCode } from "@scorebrawl/db/types";
 import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
 
 export const getBySlug = cache((leagueSlug: string) =>
-  getLeagueBySlug({ userId: auth().userId as string, leagueSlug }),
+  LeagueRepository.getLeagueBySlug({ userId: auth().userId as string, leagueSlug }),
 );
 
 export const getById = cache((leagueId: string) =>
-  getLeagueById({ userId: auth().userId as string, leagueId }),
+  LeagueRepository.getLeagueById({ userId: auth().userId as string, leagueId }),
 );
 
-export const getPlayers = cache((leagueId: string) => getLeaguePlayers({ leagueId }));
+export const getPlayers = cache((leagueId: string) =>
+  PlayerRepository.getLeaguePlayers({ leagueId }),
+);
 
 export const updateTeam = async (val: Omit<UpdateTeamInput, "userId">) =>
-  updateTeamDb({ ...val, userId: auth().userId as string });
+  TeamRepository.updateTeam({ ...val, userId: auth().userId as string });
 
-export const getTeams = cache((leagueId: string) => getLeagueTeams({ leagueId }));
+export const getTeams = cache((leagueId: string) => TeamRepository.getLeagueTeams({ leagueId }));
 
 export const getCode = cache(({ league }: { league: LeagueOmitCode }) =>
-  getLeagueCode({ league, userId: auth().userId as string }),
+  LeagueRepository.getLeagueCode({ league, userId: auth().userId as string }),
 );
 
 export const getStats = cache((leagueId: string) =>
-  getLeagueStats({ leagueId, userId: auth().userId as string }),
+  LeagueRepository.getLeagueStats({ leagueId, userId: auth().userId as string }),
 );
 
 export const getPlayersForm = cache(async (leagueId: string) => {
-  const leaguePlayers = await getLeaguePlayersForm({
+  const leaguePlayers = await PlayerRepository.getLeaguePlayersForm({
     leagueId,
     userId: auth().userId as string,
   });
@@ -59,18 +52,18 @@ export const getPlayersForm = cache(async (leagueId: string) => {
 });
 
 export const getHasEditorAccess = cache((leagueId: string) =>
-  getHasLeagueEditorAccess({ leagueId, userId: auth().userId as string }),
+  LeagueRepository.hasLeagueEditorAccess({ leagueId, userId: auth().userId as string }),
 );
 
 export const create = async (val: Omit<CreateLeagueInput, "userId">) =>
-  createLeague({ ...val, userId: auth().userId as string });
+  LeagueRepository.createLeague({ ...val, userId: auth().userId as string });
 
 export const join = async (val: { code: string }) =>
-  joinLeague({ code: val.code, userId: auth().userId as string });
+  LeagueRepository.joinLeague({ code: val.code, userId: auth().userId as string });
 
 export const getLeagueOrRedirect = cache(async (leagueSlug: string) => {
   try {
-    return await getLeagueBySlug({
+    return await LeagueRepository.getLeagueBySlug({
       leagueSlug,
       userId: auth().userId as string,
     });

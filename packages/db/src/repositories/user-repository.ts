@@ -2,14 +2,14 @@ import { fullName } from "@scorebrawl/utils/string";
 import { db } from "../db";
 import { users } from "../schema";
 
-export const findUserById = async ({ id }: { id: string }) => {
+const findUserById = async ({ id }: { id: string }) => {
   return db.query.users.findFirst({
     where: (user, { eq }) => eq(user.id, id),
     columns: { id: true },
   });
 };
 
-export const upsertUser = async ({
+const upsertUser = async ({
   id,
   firstName,
   lastName,
@@ -48,3 +48,5 @@ export const upsertUser = async ({
       },
     });
 };
+
+export const UserRepository = { findUserById, upsertUser };

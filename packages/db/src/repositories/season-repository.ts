@@ -2,14 +2,12 @@ import type { CreateSeasonInput } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { and, asc, between, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
+  LeagueRepository,
   ScoreBrawlError,
-  canReadLeaguesCriteria,
   createCuid,
   db,
-  getByIdWhereMember,
   leagueEvents,
   leaguePlayers,
-  leagueTeamPlayerRelations,
   leagueTeamPlayers,
   leagueTeams,
   leagues,
@@ -22,6 +20,7 @@ import {
   users,
 } from "..";
 import type { SeasonCreatedEventData } from "../types";
+import { canReadLeaguesCriteria } from "./criteria-util";
 
 const findOverlappingSeason = async ({
   leagueId,
@@ -40,7 +39,7 @@ const findOverlappingSeason = async ({
     ),
   });
 
-export const getSeasonById = async ({
+const getSeasonById = async ({
   seasonId,
   userId,
 }: {
@@ -62,7 +61,7 @@ export const getSeasonById = async ({
   return result.season;
 };
 
-export const findOngoingSeason = async ({
+const findOngoingSeason = async ({
   leagueId,
   userId,
   date,
@@ -87,7 +86,7 @@ export const findOngoingSeason = async ({
   return result ? { ...result.season } : undefined;
 };
 
-export const getSeasonPlayers = async ({
+const getSeasonPlayers = async ({
   seasonId,
   userId,
 }: {
@@ -95,7 +94,7 @@ export const getSeasonPlayers = async ({
   userId: string;
 }) => {
   // verify access
-  await getSeasonById({ seasonId, userId });
+  await SeasonRepository.getSeasonById({ seasonId, userId });
   const seasonPlayerResult = await db.query.seasonPlayers.findMany({
     where: eq(seasonPlayers.seasonId, seasonId),
     extras: (_, { sql }) => ({
@@ -144,7 +143,7 @@ export const getSeasonPlayers = async ({
   }));
 };
 
-export const getAllSeasons = async ({
+const getAllSeasons = async ({
   leagueSlug,
   userId,
 }: {
@@ -167,7 +166,7 @@ export const getAllSeasons = async ({
   return result.map((r) => r.season);
 };
 
-export const createSeason = async ({
+const createSeason = async ({
   leagueId,
   userId,
   name,
@@ -183,7 +182,7 @@ export const createSeason = async ({
       message: "endDate has to be after startDate",
     });
   }
-  const league = await getByIdWhereMember({
+  const league = await LeagueRepository.getByIdWhereMember({
     leagueId,
     userId,
     allowedRoles: ["owner", "editor"],
@@ -257,36 +256,7 @@ export const createSeason = async ({
     createdAt: now,
   });
 };
-
-export const getSeasonStats = async ({
-  seasonId,
-  userId,
-}: {
-  seasonId: string;
-  userId: string;
-}) => {
-  const season = await getSeasonById({ userId, seasonId });
-
-  const [matchCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(matches)
-    .where(eq(matches.seasonId, season.id));
-  const [teamCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(seasonTeams)
-    .where(eq(seasonTeams.seasonId, season.id));
-  const [playerCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(seasonPlayers)
-    .where(eq(seasonPlayers.seasonId, season.id));
-  return {
-    matchCount: matchCount?.count || 0,
-    teamCount: teamCount?.count || 0,
-    playerCount: playerCount?.count || 0,
-  };
-};
-
-export const getSeasonPlayerLatestMatches = async ({
+const getSeasonPlayerLatestMatches = async ({
   seasonPlayerIds,
   limit = 5,
 }: {
@@ -306,7 +276,7 @@ export const getSeasonPlayerLatestMatches = async ({
   });
 };
 
-export const getSeasonTeamsLatestMatches = async ({
+const getSeasonTeamsLatestMatches = async ({
   seasonTeamIds,
   limit = 5,
 }: {
@@ -326,14 +296,14 @@ export const getSeasonTeamsLatestMatches = async ({
   });
 };
 
-export const getSeasonTeams = async ({
+const getSeasonTeams = async ({
   seasonId,
   userId,
 }: {
   seasonId: string;
   userId: string;
 }) => {
-  const season = await getSeasonById({ seasonId, userId });
+  const season = await SeasonRepository.getSeasonById({ seasonId, userId });
   const teams = await db.query.seasonTeams.findMany({
     extras: (seasonTeam, { sql }) => ({
       matchCount:
@@ -392,7 +362,7 @@ export const getSeasonTeams = async ({
   }));
 };
 
-export const getSeasonPointProgression = async ({
+const getSeasonPointProgression = async ({
   seasonId,
   userId,
 }: {
@@ -405,7 +375,7 @@ export const getSeasonPointProgression = async ({
 /**
  * used by the public endpoint that is used to show the scores for Jón Þór statue
  */
-export const getTodaysDiff = async ({
+const getTodayDiff = async ({
   leagueId,
   userId,
 }: {
@@ -461,10 +431,7 @@ export const getTodaysDiff = async ({
   return { diff: 0 };
 };
 
-export const getSeasonTopTeam = async ({
-  seasonId,
-  userId,
-}: { seasonId: string; userId: string }) => {
+const getSeasonTopTeam = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const result = await db
     .select({
       seasonTeamId: seasonTeams.id,
@@ -492,10 +459,7 @@ export const getSeasonTopTeam = async ({
   const topTeamId = result[0]?.seasonTeamId;
   return topTeamId ? result.filter((r) => r.seasonTeamId === topTeamId) : [];
 };
-export const getSeasonTopPlayer = async ({
-  seasonId,
-  userId,
-}: { seasonId: string; userId: string }) => {
+const getSeasonTopPlayer = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
   const [topPlayer] = await db
     .select({
       id: users.id,
@@ -511,4 +475,19 @@ export const getSeasonTopPlayer = async ({
     .orderBy(desc(seasonPlayers.score));
 
   return topPlayer;
+};
+
+export const SeasonRepository = {
+  getSeasonById,
+  findOngoingSeason,
+  getSeasonPlayers,
+  getAllSeasons,
+  createSeason,
+  getSeasonPlayerLatestMatches,
+  getSeasonTeamsLatestMatches,
+  getSeasonTeams,
+  getSeasonPointProgression,
+  getTodayDiff,
+  getSeasonTopTeam,
+  getSeasonTopPlayer,
 };

@@ -1,10 +1,10 @@
 import { endOfDay, startOfDay } from "date-fns";
 import { eq, gte, inArray, lte } from "drizzle-orm";
-import { getLeagueById } from ".";
 import { db } from "../db";
 import { leaguePlayers } from "../schema";
+import { LeagueRepository } from "./league-repository";
 
-export const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
+const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
   const leaguePlayerResult = await db.query.leaguePlayers.findMany({
     columns: { id: true, createdAt: true, disabled: true, userId: true },
     where: eq(leaguePlayers.leagueId, leagueId),
@@ -25,11 +25,8 @@ export const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
   }));
 };
 
-export const getLeaguePlayersForm = async ({
-  leagueId,
-  userId,
-}: { leagueId: string; userId: string }) => {
-  await getLeagueById({ leagueId, userId });
+const getLeaguePlayersForm = async ({ leagueId, userId }: { leagueId: string; userId: string }) => {
+  await LeagueRepository.getLeagueById({ leagueId, userId });
   const result = await db.query.leaguePlayers.findMany({
     columns: { id: true },
     where: eq(leaguePlayers.leagueId, leagueId),
@@ -64,7 +61,7 @@ export const getLeaguePlayersForm = async ({
   }));
 };
 
-export const getSeasonPlayersPointDiff = async ({
+const getSeasonPlayersPointDiff = async ({
   seasonPlayerIds,
   from = startOfDay(new Date()),
   to = endOfDay(new Date()),
@@ -97,4 +94,10 @@ export const getSeasonPlayersPointDiff = async ({
     pointsDiff:
       (spm.matches[spm.matches.length - 1]?.scoreAfter ?? 0) - (spm.matches[0]?.scoreBefore ?? 0),
   }));
+};
+
+export const PlayerRepository = {
+  getLeaguePlayers,
+  getLeaguePlayersForm,
+  getSeasonPlayersPointDiff,
 };
