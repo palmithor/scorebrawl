@@ -29,18 +29,9 @@ import {
 } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueOmitCode, PlayerJoinedEventData } from "../types";
+import { canReadLeaguesCriteria } from "./criteria-util";
 
-export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
-  inArray(
-    leagues.id,
-    db
-      .select({ data: leagues.id })
-      .from(leagues)
-      .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
-      .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id))),
-  );
-
-export const getUserLeagues = async ({
+const getUserLeagues = async ({
   search,
   userId,
 }: {
@@ -63,7 +54,7 @@ export const getUserLeagues = async ({
   return data.map(({ code, ...league }) => league);
 };
 
-export const getUserLeaguesPaginated = async ({
+const getUserLeaguesPaginated = async ({
   userId,
   search,
   page,
@@ -111,7 +102,7 @@ export const getUserLeaguesPaginated = async ({
   };
 };
 
-export const getLeagueBySlug = async ({
+const getLeagueBySlug = async ({
   userId,
   leagueSlug: slug,
 }: {
@@ -131,7 +122,7 @@ export const getLeagueBySlug = async ({
   return { ...league, code: undefined };
 };
 
-export const getLeagueById = async ({
+const getLeagueById = async ({
   userId,
   leagueId,
 }: {
@@ -151,7 +142,7 @@ export const getLeagueById = async ({
   return { ...league, code: undefined };
 };
 
-export const getHasLeagueEditorAccess = async ({
+const hasLeagueEditorAccess = async ({
   userId,
   leagueId,
 }: {
@@ -167,7 +158,7 @@ export const getHasLeagueEditorAccess = async ({
   return !!league;
 };
 
-export const getLeagueCode = async ({
+const getLeagueCode = async ({
   league,
   userId,
 }: {
@@ -190,7 +181,7 @@ export const getLeagueCode = async ({
   return result?.code;
 };
 
-export const getByIdWhereMember = async ({
+const getByIdWhereMember = async ({
   userId,
   leagueId,
   allowedRoles,
@@ -214,7 +205,7 @@ export const getByIdWhereMember = async ({
   return result?.league;
 };
 
-export const createLeague = async ({ name, logoUrl, userId }: CreateLeagueInput) => {
+const createLeague = async ({ name, logoUrl, userId }: CreateLeagueInput) => {
   const slug = await slugifyLeagueName({ name });
   const now = new Date();
   const [league] = await db
@@ -250,7 +241,7 @@ export const createLeague = async ({ name, logoUrl, userId }: CreateLeagueInput)
   return league;
 };
 
-export const joinLeague = async ({
+const joinLeague = async ({
   code,
   userId,
 }: {
@@ -333,7 +324,7 @@ export const joinLeague = async ({
   return league;
 };
 
-export const getLeagueStats = async ({
+const getLeagueStats = async ({
   leagueId,
   userId,
 }: {
@@ -373,4 +364,17 @@ export const getLeagueStats = async ({
     teamCount: teamCount?.count || 0,
     playerCount: playerCount?.count || 0,
   };
+};
+
+export const LeagueRepository = {
+  getUserLeagues,
+  getUserLeaguesPaginated,
+  getLeagueBySlug,
+  getLeagueById,
+  hasLeagueEditorAccess,
+  getLeagueCode,
+  getByIdWhereMember,
+  createLeague,
+  joinLeague,
+  getLeagueStats,
 };

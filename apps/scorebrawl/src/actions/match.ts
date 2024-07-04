@@ -2,16 +2,15 @@
 
 import { auth } from "@clerk/nextjs";
 import type { CreateMatchInput } from "@scorebrawl/api";
-import { createMatch, getLatestMatch } from "@scorebrawl/db";
-import { deleteMatch as repositoryDeleteMatch } from "@scorebrawl/db";
+import { MatchRepository } from "@scorebrawl/db";
 import { cache } from "react";
 
 export const create = async (val: Omit<CreateMatchInput, "userId">) =>
-  createMatch({ ...val, userId: auth().userId as string });
+  MatchRepository.createMatch({ ...val, userId: auth().userId as string });
 
 export const deleteMatch = async ({ matchId }: { matchId: string }) =>
-  repositoryDeleteMatch({ matchId, userId: auth().userId as string });
+  MatchRepository.deleteMatch({ matchId, userId: auth().userId as string });
 
 export const getLatest = cache((leagueId: string) =>
-  getLatestMatch({ userId: auth().userId as string, leagueId }),
+  MatchRepository.getLatestMatch({ userId: auth().userId as string, leagueId }),
 );

@@ -1,7 +1,7 @@
 import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
 import type { CreateMatchInput, MatchResultSymbol, PageRequest } from "@scorebrawl/api";
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { getByIdWhereMember, getLeagueById, getSeasonById } from ".";
+import { LeagueRepository, SeasonRepository } from ".";
 import {
   ScoreBrawlError,
   createCuid,
@@ -14,9 +14,9 @@ import {
   teamMatches,
 } from "..";
 import type { Match, MatchPlayer, Season } from "../types";
-import { getOrInsertTeam } from "./team-repository";
+import { TeamRepository } from "./team-repository";
 
-export const createMatch = async ({
+const createMatch = async ({
   seasonId,
   homePlayerIds,
   awayPlayerIds,
@@ -24,12 +24,12 @@ export const createMatch = async ({
   awayScore,
   userId,
 }: CreateMatchInput) => {
-  const season = await getSeasonById({
+  const season = await SeasonRepository.getSeasonById({
     seasonId: seasonId,
     userId: userId,
   });
 
-  const league = await getByIdWhereMember({
+  const league = await LeagueRepository.getByIdWhereMember({
     leagueId: season.leagueId,
     userId: userId,
     allowedRoles: ["member", "owner", "editor"],
@@ -144,16 +144,18 @@ export const createMatch = async ({
   }
 
   if (homeSeasonPlayers.length > 1 && awaySeasonPlayers.length > 1) {
-    const { seasonTeamId: homeSeasonTeamId, score: homeSeasonTeamScore } = await getOrInsertTeam({
-      season,
-      now,
-      players: homeSeasonPlayers,
-    });
-    const { seasonTeamId: awaySeasonTeamId, score: awaySeasonTeamScore } = await getOrInsertTeam({
-      season,
-      now,
-      players: awaySeasonPlayers,
-    });
+    const { seasonTeamId: homeSeasonTeamId, score: homeSeasonTeamScore } =
+      await TeamRepository.getOrInsertTeam({
+        season,
+        now,
+        players: homeSeasonPlayers,
+      });
+    const { seasonTeamId: awaySeasonTeamId, score: awaySeasonTeamScore } =
+      await TeamRepository.getOrInsertTeam({
+        season,
+        now,
+        players: awaySeasonPlayers,
+      });
 
     const teamMatchResult = calculateMatchResult({
       season,
@@ -208,13 +210,13 @@ export const createMatch = async ({
   return match;
 };
 
-export const getMatchesBySeasonId = async ({
+const getMatchesBySeasonId = async ({
   seasonId,
   userId,
   limit = 10,
   page = 1,
 }: { seasonId: string; userId: string } & PageRequest): Promise<{ data: Match[] }> => {
-  const season = await getSeasonById({
+  const season = await SeasonRepository.getSeasonById({
     seasonId: seasonId,
     userId: userId,
   });
@@ -263,11 +265,11 @@ export const getMatchesBySeasonId = async ({
   };
 };
 
-export const getLatestMatch = async ({
+const getLatestMatch = async ({
   leagueId,
   userId,
 }: { leagueId: string; userId: string }): Promise<Match | undefined> => {
-  const league = await getLeagueById({ leagueId, userId });
+  const league = await LeagueRepository.getLeagueById({ leagueId, userId });
 
   const match = await db.query.matches.findFirst({
     where: (match, { inArray }) =>
@@ -341,7 +343,7 @@ const findAndValidateSeasonPlayers = async ({
   return players;
 };
 
-export const deleteMatch = async ({ matchId, userId }: { matchId: string; userId: string }) => {
+const deleteMatch = async ({ matchId, userId }: { matchId: string; userId: string }) => {
   const match = await db.query.matches.findFirst({
     where: (match, { eq }) => eq(match.id, matchId),
     with: {
@@ -363,7 +365,7 @@ export const deleteMatch = async ({ matchId, userId }: { matchId: string; userId
     throw new ScoreBrawlError({ code: "NOT_FOUND", message: "Match not found" });
   }
   // check read access
-  await getLeagueById({
+  await LeagueRepository.getLeagueById({
     userId,
     leagueId: match.season.leagueId,
   });
@@ -537,3 +539,10 @@ const mapMatchTeam = ({
       imageUrl: p.seasonPlayer.leaguePlayer.user.imageUrl,
     }),
   );
+
+export const MatchRepository = {
+  createMatch,
+  deleteMatch,
+  getLatestMatch,
+  getMatchesBySeasonId,
+};

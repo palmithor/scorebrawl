@@ -3,9 +3,10 @@ import { db } from "../db";
 import { ScoreBrawlError } from "../errors";
 import { type LeagueMemberRole, leagueInvites, leagues } from "../schema";
 import { createCuid } from "../utils";
-import { canReadLeaguesCriteria, getHasLeagueEditorAccess } from "./league-repository";
+import { canReadLeaguesCriteria } from "./criteria-util";
+import { LeagueRepository } from "./league-repository";
 
-export const createInvite = async ({
+const createInvite = async ({
   userId,
   leagueId,
   role,
@@ -16,7 +17,7 @@ export const createInvite = async ({
   role: LeagueMemberRole;
   expiresAt?: Date;
 }) => {
-  const hasEditorAccess = await getHasLeagueEditorAccess({ userId, leagueId });
+  const hasEditorAccess = await LeagueRepository.hasLeagueEditorAccess({ userId, leagueId });
   if (!hasEditorAccess) {
     throw new ScoreBrawlError({
       code: "FORBIDDEN",
@@ -40,11 +41,10 @@ export const createInvite = async ({
       },
     ])
     .returning(getTableColumns(leagueInvites));
-  console.log("invite", invite);
   return invite;
 };
 
-export const getLeagueInvites = async ({
+const getLeagueInvites = async ({
   userId,
   leagueId,
 }: {
@@ -55,4 +55,9 @@ export const getLeagueInvites = async ({
     .select(getTableColumns(leagueInvites))
     .from(leagueInvites)
     .innerJoin(leagues, eq(leagueInvites.leagueId, leagues.id))
-    .where(and(eq(leagueInvites.leagueId, leagueId)));
+    .where(and(eq(leagueInvites.leagueId, leagueId), canReadLeaguesCriteria({ userId })));
+
+export const InviteRepository = {
+  createInvite,
+  getLeagueInvites,
+};
