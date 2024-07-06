@@ -12,7 +12,6 @@ import {
   leagueTeams,
   leagues,
   matchPlayers,
-  matches,
   seasonPlayers,
   seasonTeams,
   seasons,
@@ -270,7 +269,7 @@ const getSeasonPlayerLatestMatches = async ({
       season: { columns: { id: true } },
       matches: {
         orderBy: (match, { desc }) => [desc(match.createdAt)],
-        limit: 5,
+        limit,
       },
     },
   });
@@ -290,7 +289,7 @@ const getSeasonTeamsLatestMatches = async ({
       season: { columns: { id: true } },
       matches: {
         orderBy: (match, { desc }) => [desc(match.createdAt)],
-        limit: 5,
+        limit,
       },
     },
   });
@@ -305,7 +304,7 @@ const getSeasonTeams = async ({
 }) => {
   const season = await SeasonRepository.getSeasonById({ seasonId, userId });
   const teams = await db.query.seasonTeams.findMany({
-    extras: (seasonTeam, { sql }) => ({
+    extras: (_seasonTeam, { sql }) => ({
       matchCount:
         sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id")`.as(
           "matchCount",
@@ -362,13 +361,8 @@ const getSeasonTeams = async ({
   }));
 };
 
-const getSeasonPointProgression = async ({
-  seasonId,
-  userId,
-}: {
-  seasonId: string;
-  userId: string;
-}) => {
+const getSeasonPointProgression = async () => {
+  // todo
   return [];
 };
 

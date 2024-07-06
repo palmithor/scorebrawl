@@ -2,7 +2,7 @@
 
 import { join } from "@/actions/league";
 import { EllipsisVerticalIcon, PlusIcon, UserPlusIcon } from "@heroicons/react/24/solid";
-import type { LeagueOmitCode, Season } from "@scorebrawl/db/types";
+import type { LeagueOmitCode } from "@scorebrawl/db/types";
 import { Button } from "@scorebrawl/ui/button";
 import {
   DropdownMenu,
@@ -19,7 +19,6 @@ import { SubNav } from "../layout/sub-nav";
 
 type LeagueDetailsSubNavProps = HTMLAttributes<HTMLDivElement> & {
   league: LeagueOmitCode;
-  ongoingSeason?: Season;
   shouldShowJoin: boolean;
   inviteCode?: string;
   shouldShowAddMatch: boolean;
@@ -34,7 +33,6 @@ export const LeagueDetailsSubNav = ({
   shouldShowAddMatch,
   shouldEnableAddMatch,
   hasEditorAccess,
-  ongoingSeason,
 }: LeagueDetailsSubNavProps) => {
   const [isJoiningLeague, setIsJoiningLeague] = useState(false);
   const { push, refresh } = useRouter();

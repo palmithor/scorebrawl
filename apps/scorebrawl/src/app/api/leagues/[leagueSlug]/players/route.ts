@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs";
 import { LeagueRepository, PlayerRepository } from "@scorebrawl/db";
 
-export async function GET(request: Request, { params }: { params: { leagueSlug: string } }) {
+export async function GET(_request: Request, { params }: { params: { leagueSlug: string } }) {
   const league = await LeagueRepository.getLeagueBySlug({
     userId: auth().userId as string,
     leagueSlug: params.leagueSlug,
