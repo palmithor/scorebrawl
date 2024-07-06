@@ -102,7 +102,7 @@ const getUserLeaguesPaginated = async ({
   };
 };
 
-const getLeagueBySlug = async ({
+const findLeagueBySlug = async ({
   userId,
   leagueSlug: slug,
 }: {
@@ -113,13 +113,25 @@ const getLeagueBySlug = async ({
     where: (league, { eq }) => and(eq(league.slug, slug), canReadLeaguesCriteria({ userId })),
   });
 
+  return league ? { ...league, code: undefined } : undefined;
+};
+
+const getLeagueBySlug = async ({
+  userId,
+  leagueSlug: slug,
+}: {
+  userId: string;
+  leagueSlug: string;
+}) => {
+  const league = await findLeagueBySlug({ userId, leagueSlug: slug });
+
   if (!league) {
     throw new ScoreBrawlError({
       code: "NOT_FOUND",
       message: "League not found",
     });
   }
-  return { ...league, code: undefined };
+  return league;
 };
 
 const getLeagueById = async ({
@@ -154,7 +166,6 @@ const hasLeagueEditorAccess = async ({
     userId: userId,
     allowedRoles: ["owner", "editor"],
   });
-
   return !!league;
 };
 
@@ -368,6 +379,7 @@ const getLeagueStats = async ({
 
 export const LeagueRepository = {
   createLeague,
+  findLeagueBySlug,
   getByIdWhereMember,
   getLeagueById,
   getLeagueBySlug,

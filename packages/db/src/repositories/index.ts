@@ -1,6 +1,7 @@
 export * from "./invite-repository";
 export * from "./league-repository";
 export * from "./match-repository";
+export * from "./member-repository";
 export * from "./player-repository";
 export * from "./season-repository";
 export * from "./slug";

@@ -59,7 +59,7 @@ export const LeagueList = () => {
                 }}
               >
                 <TableCell>
-                  <AvatarName name={league.name} avatarUrl={league.logoUrl || ""} />
+                  <AvatarName name={league.name} imageUrl={league.logoUrl || ""} />
                 </TableCell>
                 <TableCell>
                   <LeaguePlayerMultiAvatar leagueSlug={league.slug} />

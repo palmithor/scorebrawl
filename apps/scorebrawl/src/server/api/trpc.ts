@@ -1,5 +1,5 @@
 import type { SignedInAuthObject, SignedOutAuthObject } from "@clerk/backend";
-import { LeagueRepository } from "@scorebrawl/db";
+import { LeagueRepository, UserRepository, db } from "@scorebrawl/db";
 /**
  * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
  * 1. You want to modify request context (see Part 1).
@@ -77,7 +77,7 @@ export const createCallerFactory = t.createCallerFactory;
  */
 export const createTRPCRouter = t.router;
 
-const isAuthed = t.middleware(({ next, ctx }) => {
+const isAuthed = t.middleware(({ next, ctx, input }) => {
   if (!ctx.auth.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
@@ -89,10 +89,14 @@ const isAuthed = t.middleware(({ next, ctx }) => {
 });
 
 const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next }) => {
-  const league = await LeagueRepository.getLeagueBySlug({
+  const league = await LeagueRepository.findLeagueBySlug({
     userId: ctx.auth.userId,
     leagueSlug: (input as { leagueSlug: string }).leagueSlug as string,
   });
+  if (!league) {
+    throw new TRPCError({ code: "NOT_FOUND" });
+  }
+
   return next({
     ctx: {
       ...ctx,
@@ -101,8 +105,29 @@ const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
   });
 });
 
+const leagueEditorAccessMiddleware = isAuthed
+  .unstable_pipe(leagueAccessMiddleware)
+  .unstable_pipe(async ({ ctx, next }) => {
+    const hasEditorAccess = await LeagueRepository.hasLeagueEditorAccess({
+      userId: ctx.auth.userId,
+      leagueId: ctx.league.id,
+    });
+    if (!hasEditorAccess) {
+      throw new TRPCError({ code: "FORBIDDEN" });
+    }
+    return next({
+      ctx: {
+        ...ctx,
+      },
+    });
+  });
+
 export const leagueProcedure = t.procedure
   .input(z.object({ leagueSlug: z.string().min(1) }))
   .use(leagueAccessMiddleware);
+
+export const leagueEditorProcedure = t.procedure
+  .input(z.object({ leagueSlug: z.string().min(1) }))
+  .use(leagueEditorAccessMiddleware);
 
 export const protectedProcedure = t.procedure.use(isAuthed);
