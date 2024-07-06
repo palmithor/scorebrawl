@@ -3,12 +3,6 @@ import { CreatedByCell } from "@/app/(leagues)/leagues/[leagueSlug]/invites/comp
 import type { Invite } from "@scorebrawl/db/types";
 import { Button } from "@scorebrawl/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@scorebrawl/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
