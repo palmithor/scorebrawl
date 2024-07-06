@@ -3,13 +3,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 export const AvatarName = ({
   name,
-  avatarUrl,
+  imageUrl,
   children,
   textClassName,
   avatarClassName,
 }: {
   name: string;
-  avatarUrl?: string;
+  imageUrl?: string;
   avatarClassName?: string;
   textClassName?: string;
   children?: ReactNode;
@@ -23,7 +23,7 @@ export const AvatarName = ({
     <div className="flex items-center">
       <div className="relative">
         <Avatar className={avatarClassName}>
-          <AvatarImage src={avatarUrl} />
+          <AvatarImage src={imageUrl} />
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </div>

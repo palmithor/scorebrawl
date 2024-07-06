@@ -1,0 +1,12 @@
+import { z } from "zod";
+
+import { createTRPCRouter, leagueEditorProcedure, leagueProcedure } from "@/server/api/trpc";
+import { MemberRepository } from "@scorebrawl/db";
+
+export const memberRouter = createTRPCRouter({
+  getMembers: leagueEditorProcedure
+    .input(z.object({ leagueSlug: z.string() }))
+    .query(({ ctx }) =>
+      MemberRepository.find({ userId: ctx.auth.userId, leagueId: ctx.league.id }),
+    ),
+});

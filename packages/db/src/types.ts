@@ -1,12 +1,18 @@
 import type { MatchResultSymbol } from "@scorebrawl/api";
-import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import type { leagueInvites, leagues, seasons } from "./schema";
+import type { InferSelectModel } from "drizzle-orm";
+import type { LeagueMemberRole, leagueInvites, leagues, seasons } from "./schema";
 
 export type League = InferSelectModel<typeof leagues>;
 export type LeagueOmitCode = Omit<League, "code">;
 export type Season = InferSelectModel<typeof seasons>;
 export type Invite = InferSelectModel<typeof leagueInvites>;
-export type SeasonInsertModel = InferInsertModel<typeof seasons>;
+export type LeagueMember = {
+  memberId: string;
+  role: LeagueMemberRole;
+  userId: string;
+  name: string;
+  imageUrl: string;
+};
 
 export type LeagueEventData = PlayerJoinedEventData | SeasonCreatedEventData;
 

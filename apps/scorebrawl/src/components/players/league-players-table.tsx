@@ -34,7 +34,7 @@ export const LeaguePlayersTable = async ({
                 <AvatarName
                   avatarClassName="h-8 w-8"
                   name={player.name}
-                  avatarUrl={player.imageUrl || ""}
+                  imageUrl={player.imageUrl || ""}
                 />
               </TableCell>
               <TableCell>

@@ -25,7 +25,7 @@ export const PlayerFormCard = ({
         {!player && <div className="text-sm">No games played in current season</div>}
         {player && (
           <div className="flex items-center">
-            <AvatarName name={player.name} avatarUrl={player.imageUrl}>
+            <AvatarName name={player.name} imageUrl={player.imageUrl}>
               <FormDots form={player.form} />
             </AvatarName>
           </div>

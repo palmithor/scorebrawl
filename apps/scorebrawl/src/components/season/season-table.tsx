@@ -37,7 +37,7 @@ const TopPlayerCell = ({ seasonId }: { seasonId: string }) => {
       textClassName={"text-xs"}
       avatarClassName={"h-8 w-8"}
       name={data.name}
-      avatarUrl={data.imageUrl}
+      imageUrl={data.imageUrl}
     />
   );
 };
