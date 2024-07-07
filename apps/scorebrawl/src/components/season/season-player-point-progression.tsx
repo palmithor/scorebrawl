@@ -1,4 +1,4 @@
-import { getById, getPlayers, getPointProgression } from "@/actions/season";
+import { getById, getPlayers } from "@/actions/season";
 import { PointProgressionChart } from "@/components/charts/PointProgression";
 import type { Season } from "@scorebrawl/db/types";
 
@@ -65,7 +65,7 @@ export const SeasonPlayerPointProgression = async ({
   seasonId: string;
 }) => {
   const season = await getById(seasonId);
-  const pointProgression = await getPointProgression(seasonId);
+  const pointProgression: Array<DataPoint> = [];
   const seasonPlayers = await getPlayers(seasonId);
   const playerNames: Record<string, string> = {};
   for (const player of seasonPlayers) {

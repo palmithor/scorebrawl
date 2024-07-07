@@ -361,8 +361,6 @@ const getSeasonTeams = async ({
   }));
 };
 
-const getSeasonPointProgression = async () => [];
-
 /**
  * used by the public endpoint that is used to show the scores for Jón Þór statue
  */
@@ -477,7 +475,6 @@ export const SeasonRepository = {
   getSeasonPlayerLatestMatches,
   getSeasonTeamsLatestMatches,
   getSeasonTeams,
-  getSeasonPointProgression,
   getTodayDiff,
   getSeasonTopTeam,
   getSeasonTopPlayer,
