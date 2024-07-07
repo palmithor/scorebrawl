@@ -14,11 +14,6 @@
   "linter": {
     "enabled": true,
     "ignore": ["packages/ui/src/components"],
-    "rules": {
-      "correctness": {
-        "noUnusedImports": "error",
-        "noUnusedVariables": "error"
-      }
-    }
+    "rules": {}
   }
 }

@@ -62,8 +62,8 @@ export const getAll = cache((leagueSlug: string) =>
   SeasonRepository.getAllSeasons({ leagueSlug, userId: auth().userId as string }),
 );
 
-export const getPointProgression = cache(async (_seasonId: string) =>
-  SeasonRepository.getSeasonPointProgression(),
+export const getPointProgression = cache((seasonId: string) =>
+  SeasonRepository.getSeasonPointProgression({ seasonId, userId: auth().userId as string }),
 );
 
 export const create = async (val: Omit<CreateSeasonInput, "userId">) =>
@@ -73,7 +73,7 @@ export const getTeams = cache(async (seasonId: string) =>
   SeasonRepository.getSeasonTeams({ seasonId, userId: auth().userId as string }),
 );
 
-export const getTeamPointDiff = cache(async (seasonTeamIds: string[]) =>
+export const getTeamPointDiff = cache((seasonTeamIds: string[]) =>
   seasonTeamIds.length > 0 ? TeamRepository.getSeasonTeamsPointDiff({ seasonTeamIds }) : [],
 );
 

@@ -9,28 +9,12 @@ export const ErrorToast = () => {
 
   useEffect(() => {
     if (errorCode) {
-      if (errorCode === "LEAGUE_PERMISSION") {
-        toast({
-          title: "Access denied",
-          description: "Insufficient league permissions",
-          variant: "destructive",
-          duration: 2000,
-        });
-      } else if (errorCode === "LEAGUE_NOT_FOUND") {
-        toast({
-          title: "Something went wrong",
-          description: "League not found",
-          variant: "destructive",
-          duration: 2000,
-        });
-      } else {
-        toast({
-          title: "Something went wrong",
-          description: `An error occurred: ${errorCode}`,
-          variant: "destructive",
-          duration: 2000,
-        });
-      }
+      toast({
+        title: "Something went wrong",
+        description: `An error occurred: ${errorCode}`,
+        variant: "destructive",
+        duration: 2000,
+      });
       setErrorCode(null).then();
     }
   }, [errorCode, setErrorCode, toast]);

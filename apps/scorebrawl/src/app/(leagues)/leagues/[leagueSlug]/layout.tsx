@@ -13,13 +13,13 @@ import type { ReactNode } from "react";
 
 export async function generateMetadata(
   { params }: { params: { leagueSlug: string } },
-  _parent: ResolvingMetadata,
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const league = { name: "" };
   try {
     const { name } = await getBySlug(params.leagueSlug);
     league.name = name;
-  } catch (_e) {
+  } catch (e) {
     // ignore
   }
 
@@ -51,6 +51,7 @@ export default async function ({
         shouldShowJoin={!!(code && !leaguePlayers.some((u) => u?.userId === userId))}
         hasEditorAccess={hasEditorAccess}
         inviteCode={code}
+        ongoingSeason={ongoingSeason}
         shouldEnableAddMatch={hasTwoPlayersOrMore && !!ongoingSeason}
         shouldShowAddMatch={leaguePlayers?.some((p) => p.userId === userId)}
       />

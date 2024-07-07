@@ -1,4 +1,4 @@
-import { and, desc, eq, getTableColumns } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns } from "drizzle-orm";
 import { db } from "../db";
 import { ScoreBrawlError } from "../errors";
 import { type LeagueMemberRole, leagueInvites, leagues } from "../schema";
