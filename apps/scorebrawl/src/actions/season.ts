@@ -62,11 +62,6 @@ export const getAll = cache((leagueSlug: string) =>
   SeasonRepository.getAllSeasons({ leagueSlug, userId: auth().userId as string }),
 );
 
-// biome-ignore lint/correctness/noUnusedVariables: <explanation>
-export const getPointProgression = cache((seasonId: string) =>
-  SeasonRepository.getSeasonPointProgression(),
-);
-
 export const create = async (val: Omit<CreateSeasonInput, "userId">) =>
   SeasonRepository.createSeason({ ...val, userId: auth().userId as string });
 
@@ -74,7 +69,7 @@ export const getTeams = cache(async (seasonId: string) =>
   SeasonRepository.getSeasonTeams({ seasonId, userId: auth().userId as string }),
 );
 
-export const getTeamPointDiff = cache((seasonTeamIds: string[]) =>
+export const getTeamPointDiff = cache(async (seasonTeamIds: string[]) =>
   seasonTeamIds.length > 0 ? TeamRepository.getSeasonTeamsPointDiff({ seasonTeamIds }) : [],
 );
 
