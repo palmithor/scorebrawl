@@ -2,7 +2,7 @@ import { SeasonRepository } from "@scorebrawl/db";
 import type { NextRequest } from "next/server";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { leagueId: string; userId: string } },
 ) {
   const result = await SeasonRepository.getTodayDiff({

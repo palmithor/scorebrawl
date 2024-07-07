@@ -34,7 +34,7 @@ export const SeasonFormElo = ({ league }: { league: LeagueOmitCode }) => {
   const { toast } = useToast();
   const { push, refresh } = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [_scoreType, setScoreType] = useQueryState(
+  const [scoreType, setScoreType] = useQueryState(
     "scoreType",
     parseAsString.withDefault("").withOptions({
       shallow: false,

@@ -1,4 +1,5 @@
 "use client";
+import { CreatedByCell } from "@/app/(leagues)/leagues/[leagueSlug]/invites/components/CreatedByCell";
 import type { LeagueMember } from "@scorebrawl/db/types";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import {

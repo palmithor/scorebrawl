@@ -1,8 +1,17 @@
 "use client";
 
 import { api } from "@/trpc/react";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 import type { Season } from "@scorebrawl/db/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
+import { Button } from "@scorebrawl/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@scorebrawl/ui/dropdown-menu";
 import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
 import {
   Table,

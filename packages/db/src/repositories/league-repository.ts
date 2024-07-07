@@ -15,13 +15,13 @@ import {
   slugifyWithCustomReplacement,
 } from "@scorebrawl/db";
 import {
-  type SQL,
   and,
   asc,
   eq,
   getTableColumns,
   gte,
   inArray,
+  isNotNull,
   isNull,
   like,
   or,
@@ -192,43 +192,6 @@ const getLeagueCode = async ({
   return result?.code;
 };
 
-const getWhereMember = async ({
-  allowedRoles,
-  userId,
-  whereCondition,
-}: {
-  allowedRoles?: LeagueMemberRole[];
-  userId: string;
-  whereCondition: SQL<unknown>;
-}) => {
-  const joinCriteria = allowedRoles
-    ? and(
-        eq(leagueMembers.leagueId, leagues.id),
-        eq(leagueMembers.userId, userId),
-        inArray(leagueMembers.role, allowedRoles),
-      )
-    : and(eq(leagueMembers.leagueId, leagues.id), eq(leagueMembers.userId, userId));
-  const [league] = await db
-    .select(getTableColumns(leagues))
-    .from(leagues)
-    .innerJoin(leagueMembers, joinCriteria)
-    .where(whereCondition);
-  return league;
-};
-
-const getBySlugWhereMember = async ({
-  userId,
-  leagueSlug,
-  allowedRoles,
-}: {
-  userId: string;
-  leagueSlug: string;
-  allowedRoles?: LeagueMemberRole[];
-}) => {
-  const whereCondition = eq(leagues.slug, leagueSlug);
-  return await getWhereMember({ allowedRoles, userId, whereCondition });
-};
-
 const getByIdWhereMember = async ({
   userId,
   leagueId,
@@ -238,20 +201,19 @@ const getByIdWhereMember = async ({
   leagueId: string;
   allowedRoles?: LeagueMemberRole[];
 }) => {
-  const whereCondition = eq(leagues.id, leagueId);
-  return await getWhereMember({ allowedRoles, userId, whereCondition });
-};
-
-const getLeagueBySlugWithMembership = async ({
-  userId,
-  leagueSlug,
-}: { userId: string; leagueSlug: string }) => {
-  const [league] = await db
-    .select({ leagueId: leagues.id, leagueSlug: leagues.slug, role: leagueMembers.role })
+  const joinCriteria = allowedRoles
+    ? and(
+        eq(leagueMembers.leagueId, leagues.id),
+        eq(leagueMembers.userId, userId),
+        inArray(leagueMembers.role, allowedRoles),
+      )
+    : and(eq(leagueMembers.leagueId, leagues.id), eq(leagueMembers.userId, userId));
+  const [result] = await db
+    .select()
     .from(leagues)
-    .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
-    .where(and(eq(leagues.slug, leagueSlug), eq(leagueMembers.userId, userId)));
-  return league;
+    .innerJoin(leagueMembers, joinCriteria)
+    .where(eq(leagues.id, leagueId));
+  return result?.league;
 };
 
 const createLeague = async ({ name, logoUrl, userId }: CreateLeagueInput) => {
@@ -419,8 +381,6 @@ export const LeagueRepository = {
   createLeague,
   findLeagueBySlug,
   getByIdWhereMember,
-  getBySlugWhereMember,
-  getLeagueBySlugWithMembership,
   getLeagueById,
   getLeagueBySlug,
   getLeagueCode,
