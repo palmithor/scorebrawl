@@ -1,8 +1,7 @@
 import { and, eq } from "drizzle-orm";
-import { getHasEditorAccess } from "scorebrawl/src/actions/league";
 import { db } from "../db";
 import { leagueMembers, leagues, users } from "../schema";
-import { canEditLeagueCriteria, canReadLeaguesCriteria } from "./criteria-util";
+import { canEditLeagueCriteria } from "./criteria-util";
 
 export const MemberRepository = {
   find: async ({ leagueId, userId }: { leagueId: string; userId: string }) => {

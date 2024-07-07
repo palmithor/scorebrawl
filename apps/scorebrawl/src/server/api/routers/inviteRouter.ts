@@ -1,12 +1,7 @@
 import { InviteRepository, leagueMemberRoles } from "@scorebrawl/db";
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  leagueEditorProcedure,
-  leagueProcedure,
-  protectedProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, leagueEditorProcedure } from "@/server/api/trpc";
 
 export const inviteRouter = createTRPCRouter({
   getInvites: leagueEditorProcedure

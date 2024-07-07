@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "../db";
-import { leagueMemberRoles, leagueMembers, leagues } from "../schema";
+import { leagueMembers, leagues } from "../schema";
 
 export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
   inArray(
@@ -25,5 +25,7 @@ export const canEditLeagueCriteria = ({ userId, leagueId }: { userId: string; le
           inArray(leagueMembers.role, ["owner", "editor"]),
         ),
       )
-      .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id))),
+      .where(
+        and(eq(leagueMembers.userId, userId), isNotNull(leagues.id), eq(leagues.id, leagueId)),
+      ),
   );
