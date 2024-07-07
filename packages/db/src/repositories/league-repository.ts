@@ -14,19 +14,7 @@ import {
   slugifyLeagueName,
   slugifyWithCustomReplacement,
 } from "@scorebrawl/db";
-import {
-  and,
-  asc,
-  eq,
-  getTableColumns,
-  gte,
-  inArray,
-  isNotNull,
-  isNull,
-  like,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, asc, eq, getTableColumns, gte, inArray, isNull, like, or, sql } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueOmitCode, PlayerJoinedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";

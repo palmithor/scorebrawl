@@ -62,8 +62,9 @@ export const getAll = cache((leagueSlug: string) =>
   SeasonRepository.getAllSeasons({ leagueSlug, userId: auth().userId as string }),
 );
 
+// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 export const getPointProgression = cache((seasonId: string) =>
-  SeasonRepository.getSeasonPointProgression({ seasonId, userId: auth().userId as string }),
+  SeasonRepository.getSeasonPointProgression(),
 );
 
 export const create = async (val: Omit<CreateSeasonInput, "userId">) =>

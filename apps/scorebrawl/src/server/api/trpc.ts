@@ -1,5 +1,5 @@
 import type { SignedInAuthObject, SignedOutAuthObject } from "@clerk/backend";
-import { LeagueRepository, UserRepository, db } from "@scorebrawl/db";
+import { LeagueRepository } from "@scorebrawl/db";
 /**
  * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
  * 1. You want to modify request context (see Part 1).
@@ -8,8 +8,7 @@ import { LeagueRepository, UserRepository, db } from "@scorebrawl/db";
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { TRPCError, experimental_standaloneMiddleware, initTRPC } from "@trpc/server";
-import type { MiddlewareFunction } from "@trpc/server/unstable-core-do-not-import";
+import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
 
@@ -77,7 +76,7 @@ export const createCallerFactory = t.createCallerFactory;
  */
 export const createTRPCRouter = t.router;
 
-const isAuthed = t.middleware(({ next, ctx, input }) => {
+const isAuthed = t.middleware(({ next, ctx }) => {
   if (!ctx.auth.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
