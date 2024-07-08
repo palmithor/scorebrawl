@@ -12,11 +12,13 @@ let offset = 0;
 const limit = 50;
 const clerk = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
 do {
-  lastResponse = await clerk.users.getUserList({
-    limit,
-    orderBy: "created_at",
-    offset,
-  });
+  lastResponse = (
+    await clerk.users.getUserList({
+      limit,
+      orderBy: "created_at",
+      offset,
+    })
+  ).data;
   clerkUsers = [...clerkUsers, ...lastResponse];
   offset = offset + lastResponse.length;
 } while (lastResponse.length > 0);

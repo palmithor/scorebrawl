@@ -10,9 +10,9 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^4.13.20",
-    "@clerk/nextjs": "^4.31.3",
-    "@clerk/themes": "1.7.17",
+    "@clerk/clerk-sdk-node": "5.0.14",
+    "@clerk/nextjs": "5.2.2",
+    "@clerk/themes": "2.1.10",
     "@heroicons/react": "2.1.1",
     "@hookform/resolvers": "3.6.0",
     "@ihs7/ts-elo": "0.3.0",

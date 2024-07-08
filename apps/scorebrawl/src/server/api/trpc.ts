@@ -1,5 +1,5 @@
 import { editorRoles } from "@/utils/permissionUtil";
-import type { SignedInAuthObject, SignedOutAuthObject } from "@clerk/backend";
+import type { AuthObject } from "@clerk/backend/internal";
 import { LeagueRepository } from "@scorebrawl/db";
 import { initTRPC } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
@@ -8,7 +8,7 @@ import { ZodError, z } from "zod";
 
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  auth: SignedOutAuthObject | SignedInAuthObject;
+  auth: AuthObject;
 }) => {
   return {
     ...opts,

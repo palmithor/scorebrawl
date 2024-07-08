@@ -1,5 +1,5 @@
 "use server";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { LeagueRepository, ScoreBrawlError } from "@scorebrawl/db";
 import type { League } from "@scorebrawl/db/types";
 import { redirect } from "next/navigation";

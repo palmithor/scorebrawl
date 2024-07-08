@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { createUploadthing } from "uploadthing/next";
 import type { FileRouter as UploadthingFileRouter } from "uploadthing/server";
 

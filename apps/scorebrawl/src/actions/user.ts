@@ -1,7 +1,7 @@
 "use server";
 
 import { env } from "@/env.mjs";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { createClerkClient } from "@clerk/nextjs/server";
 import { UserRepository } from "@scorebrawl/db";
 
