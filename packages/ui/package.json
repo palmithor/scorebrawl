@@ -13,6 +13,7 @@
     "./avatar": "./src/components/avatar.tsx",
     "./avatar-name": "./src/components/avatar-name.tsx",
     "./badge": "./src/components/badge.tsx",
+    "./breadcrumb": "./src/components/breadcrumb.tsx",
     "./button": "./src/components/button.tsx",
     "./calendar": "./src/components/calendar.tsx",
     "./card": "./src/components/card.tsx",
