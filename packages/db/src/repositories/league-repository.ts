@@ -1,6 +1,5 @@
 import type { CreateLeagueInput } from "@scorebrawl/api";
 import {
-  type LeagueMemberRole,
   createCuid,
   db,
   leagueEvents,
@@ -28,7 +27,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
-import type { LeagueOmitCode, PlayerJoinedEventData } from "../types";
+import type { LeagueMemberRole, LeagueOmitCode, PlayerJoinedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
 
 const getUserLeagues = async ({

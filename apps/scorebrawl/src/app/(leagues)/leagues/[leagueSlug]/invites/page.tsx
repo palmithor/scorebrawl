@@ -1,7 +1,13 @@
-import { InviteTable } from "@/app/(leagues)/leagues/[leagueSlug]/invites/components/InviteTable";
-import { api } from "@/trpc/server";
+import { InviteDialog } from "./components/InviteDialog";
+import { InviteTable } from "./components/InviteTable";
 
 export default async ({ params }: { params: { leagueSlug: string } }) => {
-  const invites = await api.invite.getInvites({ leagueSlug: params.leagueSlug });
-  return <InviteTable invites={invites} />;
+  return (
+    <div className={"grid"}>
+      <div className={"justify-end w-full"}>
+        <InviteDialog leagueSlug={params.leagueSlug} />
+      </div>
+      <InviteTable leagueSlug={params.leagueSlug} />
+    </div>
+  );
 };

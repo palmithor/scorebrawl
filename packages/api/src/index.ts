@@ -5,7 +5,17 @@ export type MatchResultSymbol = (typeof matchResultSymbol)[number];
 export const scoreType = ["elo", "3-1-0", "elo-individual-vs-team"] as const;
 export type ScoreType = (typeof scoreType)[number];
 export const eloType = ["team vs team", "individual vs team"] as const;
-export type EloType = (typeof eloType)[number];
+
+const leagueMemberRoleSchema = z.enum(["viewer", "member", "editor", "owner"]);
+export const createInviteSchema = z.object({
+  leagueSlug: z.string(),
+  role: leagueMemberRoleSchema,
+  // min date should be 15 minutes from now
+  expiresAt: z
+    .date()
+    .min(new Date(Date.now() + 15 * 60 * 1000))
+    .optional(),
+});
 
 export const createLeagueSchema = z.object({
   userId: z.string(),
@@ -49,5 +59,6 @@ export type PageRequest = {
   limit?: number;
 };
 
+export type LeagueMemberRole = z.output<typeof leagueMemberRoleSchema>;
 export type PlayerForm = MatchResultSymbol[];
 export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;
