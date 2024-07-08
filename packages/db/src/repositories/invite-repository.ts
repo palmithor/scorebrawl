@@ -1,7 +1,8 @@
 import { and, desc, eq, getTableColumns } from "drizzle-orm";
 import { db } from "../db";
 import { ScoreBrawlError } from "../errors";
-import { type LeagueMemberRole, leagueInvites, leagues } from "../schema";
+import { leagueInvites, leagues } from "../schema";
+import type { LeagueMemberRole } from "../types";
 import { createCuid } from "../utils";
 import { canReadLeaguesCriteria } from "./criteria-util";
 import { LeagueRepository } from "./league-repository";

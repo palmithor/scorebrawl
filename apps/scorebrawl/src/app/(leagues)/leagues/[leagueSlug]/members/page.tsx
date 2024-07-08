@@ -2,6 +2,6 @@ import { LeagueMemberTable } from "@/app/(leagues)/leagues/[leagueSlug]/members/
 import { api } from "@/trpc/server";
 
 export default async ({ params }: { params: { leagueSlug: string } }) => {
-  const members = await api.member.getMembers({ leagueSlug: params.leagueSlug });
+  const members = await api.member.getAll({ leagueSlug: params.leagueSlug });
   return <LeagueMemberTable members={members} />;
 };

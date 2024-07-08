@@ -94,8 +94,6 @@ export const leagueTeamPlayers = pgTable(
 
 export const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
-export type LeagueMemberRole = (typeof leagueMemberRoles)[number];
-
 export const leagueMembers = pgTable(
   "league_member",
   {

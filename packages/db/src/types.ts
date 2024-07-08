@@ -1,7 +1,8 @@
 import type { MatchResultSymbol } from "@scorebrawl/api";
 import type { InferSelectModel } from "drizzle-orm";
-import type { LeagueMemberRole, leagueInvites, leagues, seasons } from "./schema";
+import type { leagueInvites, leagueMemberRoles, leagues, seasons } from "./schema";
 
+export type LeagueMemberRole = (typeof leagueMemberRoles)[number];
 export type League = InferSelectModel<typeof leagues>;
 export type LeagueOmitCode = Omit<League, "code">;
 export type Season = InferSelectModel<typeof seasons>;
