@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import type { CreateMatchInput } from "@scorebrawl/api";
 import { MatchRepository } from "@scorebrawl/db";
 import { cache } from "react";

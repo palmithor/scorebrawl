@@ -2,7 +2,7 @@ import { getHasEditorAccess } from "@/actions/league";
 import { getAll } from "@/actions/season";
 import { SeasonTable } from "@/components/season/season-table";
 import { sortSeasons } from "@/utils/seasonUtils";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { LeagueRepository } from "@scorebrawl/db";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {

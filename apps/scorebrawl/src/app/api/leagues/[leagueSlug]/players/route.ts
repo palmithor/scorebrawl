@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { LeagueRepository, PlayerRepository } from "@scorebrawl/db";
 
 export async function GET(_request: Request, { params }: { params: { leagueSlug: string } }) {

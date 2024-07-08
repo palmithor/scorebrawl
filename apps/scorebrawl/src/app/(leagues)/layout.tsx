@@ -3,7 +3,7 @@ import { ErrorToast } from "@/components/error-toast";
 import { NavBar } from "@/components/layout/navbar";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { navConfig } from "@/config/nav";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { UserRepository } from "@scorebrawl/db";
 import type { ReactNode } from "react";
 

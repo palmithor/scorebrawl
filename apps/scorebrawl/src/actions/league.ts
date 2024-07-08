@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import type { CreateLeagueInput, UpdateTeamInput } from "@scorebrawl/api";
 import {
   LeagueRepository,
