@@ -11,12 +11,8 @@ const getUserAvatar = async ({ id }: { id: string }) => {
   return userAvatar;
 };
 
-const findUserById = async ({ id }: { id: string }) => {
-  return db.query.users.findFirst({
-    where: (user, { eq }) => eq(user.id, id),
-    columns: { id: true },
-  });
-};
+const findUserById = async ({ id }: { id: string }) =>
+  db.select({ id: users.id }).from(users).where(eq(users.id, id));
 
 const upsertUser = async ({
   id,

@@ -1,8 +1,8 @@
 import {
-  getBySlug,
+  findBySlug,
   getCode,
   getHasEditorAccess,
-  getLeagueOrRedirect,
+  getLeagueBySlugWithUserRoleOrRedirect,
   getPlayers,
 } from "@/actions/league";
 import { findOngoing, getPlayers as getSeasonPlayers } from "@/actions/season";
@@ -17,8 +17,8 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const league = { name: "" };
   try {
-    const { name } = await getBySlug(params.leagueSlug);
-    league.name = name;
+    const leagueBySlug = await findBySlug(params.leagueSlug);
+    league.name = leagueBySlug?.name ?? "Unknown";
   } catch (_e) {
     // ignore
   }
@@ -35,11 +35,11 @@ export default async function ({
   params: { leagueSlug: string };
   children: ReactNode;
 }) {
-  const league = await getLeagueOrRedirect(params.leagueSlug);
+  const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
   const leaguePlayers = await getPlayers(league.id);
   const ongoingSeason = await findOngoing(league.id);
   const ongoingSeasonPlayers = ongoingSeason ? await getSeasonPlayers(ongoingSeason.id) : [];
-  const code = await getCode({ league });
+  const code = await getCode(league.id);
   const hasEditorAccess = await getHasEditorAccess(league.id);
   const userId = auth().userId as string;
   const hasTwoPlayersOrMore = ongoingSeasonPlayers && ongoingSeasonPlayers.length > 1;

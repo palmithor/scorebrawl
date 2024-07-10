@@ -2,7 +2,6 @@
 
 import { join } from "@/actions/league";
 import { EllipsisVerticalIcon, PlusIcon, UserPlusIcon } from "@heroicons/react/24/solid";
-import type { LeagueOmitCode } from "@scorebrawl/db/types";
 import { Button } from "@scorebrawl/ui/button";
 import {
   DropdownMenu,
@@ -18,7 +17,7 @@ import { type HTMLAttributes, useState } from "react";
 import { SubNav } from "../layout/sub-nav";
 
 type LeagueDetailsSubNavProps = HTMLAttributes<HTMLDivElement> & {
-  league: LeagueOmitCode;
+  league: { id: string; name: string; slug: string };
   shouldShowJoin: boolean;
   inviteCode?: string;
   shouldShowAddMatch: boolean;

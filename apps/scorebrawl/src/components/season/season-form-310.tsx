@@ -1,7 +1,6 @@
 "use client";
 import { create } from "@/actions/season";
 import { createSeasonSchema } from "@scorebrawl/api";
-import type { LeagueOmitCode } from "@scorebrawl/db/types";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
@@ -22,7 +21,7 @@ const schema = createSeasonSchema
     path: ["endDate"],
   });
 
-export const SeasonForm310 = ({ league }: { league: LeagueOmitCode }) => {
+export const SeasonForm310 = ({ league }: { league: { id: string; slug: string } }) => {
   const { toast } = useToast();
   const { push } = useRouter();
   const [isLoading, setIsLoading] = useState(false);

@@ -1,4 +1,4 @@
-import { getBySlug } from "@/actions/league";
+import { getLeagueBySlugWithUserRoleOrRedirect } from "@/actions/league";
 import { getPlayersForm as getLeaguePlayersForm } from "@/actions/league";
 import { findOngoing, getMatches } from "@/actions/season";
 import { LatestMatchCard } from "@/components/league/overview/latest-match-card";
@@ -11,7 +11,7 @@ import { MatchTable } from "@/components/match/match-table";
 import { SeasonPlayerPointProgression } from "@/components/season/season-player-point-progression";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {
-  const league = await getBySlug(params.leagueSlug);
+  const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
   const ongoingSeason = await findOngoing(league.id);
 
   const seasonMatches = ongoingSeason ? await getMatches(ongoingSeason.id) : { data: [] };

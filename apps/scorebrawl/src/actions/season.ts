@@ -10,13 +10,13 @@ import {
 } from "@scorebrawl/db";
 import type { SeasonPlayer } from "@scorebrawl/db/types";
 import { cache } from "react";
-import { getBySlug } from "./league";
+import { findBySlug } from "./league";
 
 export const getByIdOrOngoing = cache(async (seasonId: string | "ongoing", leagueSlug: string) => {
   if (seasonId === "ongoing") {
-    const league = await getBySlug(leagueSlug);
+    const league = await findBySlug(leagueSlug);
     return await SeasonRepository.findOngoingSeason({
-      leagueId: league.id,
+      leagueId: league?.id ?? "",
       userId: auth().userId as string,
     });
   }

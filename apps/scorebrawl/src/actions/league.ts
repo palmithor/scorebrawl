@@ -2,18 +2,34 @@
 
 import { auth } from "@clerk/nextjs/server";
 import type { CreateLeagueInput, UpdateTeamInput } from "@scorebrawl/api";
-import {
-  LeagueRepository,
-  PlayerRepository,
-  ScoreBrawlError,
-  TeamRepository,
-} from "@scorebrawl/db";
-import type { LeagueOmitCode } from "@scorebrawl/db/types";
+import { LeagueRepository, PlayerRepository, TeamRepository } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
 
-export const getBySlug = cache((leagueSlug: string) =>
-  LeagueRepository.getLeagueBySlug({ userId: auth().userId as string, leagueSlug }),
+export const findLeagueBySlugWithUserRole = cache((leagueSlug: string) =>
+  LeagueRepository.findBySlugWithUserRole({
+    userId: auth().userId as string,
+    leagueSlug,
+  }),
+);
+
+export const getLeagueBySlugWithUserRoleOrRedirect = cache(async (leagueSlug: string) => {
+  const league = await LeagueRepository.findBySlugWithUserRole({
+    userId: auth().userId as string,
+    leagueSlug,
+  });
+  if (!league) {
+    redirect("/?errorCode=LEAGUE_NOT_FOUND", RedirectType.replace);
+  }
+  return league;
+});
+
+export const findBySlug = cache((leagueSlug: string) =>
+  LeagueRepository.findBySlug({ userId: auth().userId as string, leagueSlug }),
+);
+
+export const getBySlugOrRedirect = cache((leagueSlug: string) =>
+  LeagueRepository.findBySlug({ userId: auth().userId as string, leagueSlug }),
 );
 
 export const getById = cache((leagueId: string) =>
@@ -29,8 +45,8 @@ export const updateTeam = async (val: Omit<UpdateTeamInput, "userId">) =>
 
 export const getTeams = cache((leagueId: string) => TeamRepository.getLeagueTeams({ leagueId }));
 
-export const getCode = cache(({ league }: { league: LeagueOmitCode }) =>
-  LeagueRepository.getLeagueCode({ league, userId: auth().userId as string }),
+export const getCode = cache((leagueId: string) =>
+  LeagueRepository.getLeagueCode({ leagueId, userId: auth().userId as string }),
 );
 
 export const getStats = cache((leagueId: string) =>
@@ -60,17 +76,3 @@ export const create = async (val: Omit<CreateLeagueInput, "userId">) =>
 
 export const join = async (val: { code: string }) =>
   LeagueRepository.joinLeague({ code: val.code, userId: auth().userId as string });
-
-export const getLeagueOrRedirect = cache(async (leagueSlug: string) => {
-  try {
-    return await LeagueRepository.getLeagueBySlug({
-      leagueSlug,
-      userId: auth().userId as string,
-    });
-  } catch (e) {
-    redirect(
-      `?errorCode=${e instanceof ScoreBrawlError ? e.code : "UNKNOWN"}`,
-      RedirectType.replace,
-    );
-  }
-});

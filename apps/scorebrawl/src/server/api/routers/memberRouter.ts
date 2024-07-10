@@ -6,5 +6,5 @@ import { MemberRepository } from "@scorebrawl/db";
 export const memberRouter = createTRPCRouter({
   getAll: leagueEditorProcedure
     .input(z.object({ leagueSlug: z.string() }))
-    .query(({ ctx }) => MemberRepository.find({ leagueId: ctx.leagueInfo.leagueId })),
+    .query(({ ctx }) => MemberRepository.find({ leagueId: ctx.league.id })),
 });

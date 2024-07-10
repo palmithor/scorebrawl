@@ -49,3 +49,4 @@ for (const user of clerkUsers) {
 }
 
 console.log(`${clerkUsers.length} clerk users found and created/updated in db`);
+process.exit(0);

@@ -20,6 +20,7 @@ import {
   eq,
   getTableColumns,
   gte,
+  ilike,
   inArray,
   isNull,
   like,
@@ -27,7 +28,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
-import type { LeagueMemberRole, LeagueOmitCode, PlayerJoinedEventData } from "../types";
+import type { LeagueMemberRole, PlayerJoinedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
 
 const getUserLeagues = async ({
@@ -40,7 +41,7 @@ const getUserLeagues = async ({
   const where = search
     ? and(
         eq(leaguePlayers.userId, userId),
-        like(leagues.name, `%${slugifyWithCustomReplacement(search)}%`),
+        ilike(leagues.name, `%${slugifyWithCustomReplacement(search)}%`),
       )
     : eq(leaguePlayers.userId, userId);
 
@@ -101,7 +102,7 @@ const getUserLeaguesPaginated = async ({
   };
 };
 
-const findLeagueBySlug = async ({
+const findBySlug = async ({
   userId,
   leagueSlug: slug,
 }: {
@@ -113,24 +114,6 @@ const findLeagueBySlug = async ({
   });
 
   return league ? { ...league, code: undefined } : undefined;
-};
-
-const getLeagueBySlug = async ({
-  userId,
-  leagueSlug: slug,
-}: {
-  userId: string;
-  leagueSlug: string;
-}) => {
-  const league = await findLeagueBySlug({ userId, leagueSlug: slug });
-
-  if (!league) {
-    throw new ScoreBrawlError({
-      code: "NOT_FOUND",
-      message: "League not found",
-    });
-  }
-  return league;
 };
 
 const getLeagueById = async ({
@@ -169,14 +152,14 @@ const hasLeagueEditorAccess = async ({
 };
 
 const getLeagueCode = async ({
-  league,
+  leagueId,
   userId,
 }: {
-  league: LeagueOmitCode;
+  leagueId: string;
   userId: string;
 }) => {
   const leagueAsMember = await getByIdWhereMember({
-    leagueId: league.id,
+    leagueId: leagueId,
     userId: userId,
     allowedRoles: ["owner", "editor"],
   });
@@ -187,7 +170,7 @@ const getLeagueCode = async ({
   const [result] = await db
     .select({ code: leagues.code })
     .from(leagues)
-    .where(eq(leagues.id, league.id));
+    .where(eq(leagues.id, leagueId));
   return result?.code;
 };
 
@@ -241,12 +224,12 @@ const getByIdWhereMember = async ({
   return await getWhereMember({ allowedRoles, userId, whereCondition });
 };
 
-const getLeagueBySlugWithMembership = async ({
+const findBySlugWithUserRole = async ({
   userId,
   leagueSlug,
 }: { userId: string; leagueSlug: string }) => {
   const [league] = await db
-    .select({ leagueId: leagues.id, leagueSlug: leagues.slug, role: leagueMembers.role })
+    .select({ id: leagues.id, slug: leagues.slug, name: leagues.name, role: leagueMembers.role })
     .from(leagues)
     .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
     .where(and(eq(leagues.slug, leagueSlug), eq(leagueMembers.userId, userId)));
@@ -269,7 +252,7 @@ const createLeague = async ({ name, logoUrl, userId }: CreateLeagueInput) => {
       createdAt: now,
       updatedAt: now,
     })
-    .returning(getTableColumns(leagues));
+    .returning();
   await db.insert(leagueMembers).values({
     id: createCuid(),
     leagueId: league?.id ?? "",
@@ -416,12 +399,11 @@ const getLeagueStats = async ({
 
 export const LeagueRepository = {
   createLeague,
-  findLeagueBySlug,
+  findBySlug,
   getByIdWhereMember,
   getBySlugWhereMember,
-  getLeagueBySlugWithMembership,
+  findBySlugWithUserRole,
   getLeagueById,
-  getLeagueBySlug,
   getLeagueCode,
   getLeagueStats,
   getUserLeagues,

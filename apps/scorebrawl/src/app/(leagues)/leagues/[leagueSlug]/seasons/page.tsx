@@ -1,16 +1,11 @@
-import { getHasEditorAccess } from "@/actions/league";
+import { getHasEditorAccess, getLeagueBySlugWithUserRoleOrRedirect } from "@/actions/league";
 import { getAll } from "@/actions/season";
 import { SeasonTable } from "@/components/season/season-table";
 import { sortSeasons } from "@/utils/seasonUtils";
-import { auth } from "@clerk/nextjs/server";
-import { LeagueRepository } from "@scorebrawl/db";
 
 export default async function ({ params }: { params: { leagueSlug: string } }) {
+  const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
   const seasons = await getAll(params.leagueSlug);
-  const league = await LeagueRepository.getLeagueBySlug({
-    leagueSlug: params.leagueSlug,
-    userId: auth().userId as string,
-  });
   const sortedSeason = sortSeasons(seasons);
   const hasEditorAccess = await getHasEditorAccess(league.id);
 
