@@ -10,7 +10,7 @@ export const LatestMatchCard = async ({ leagueId }: { leagueId: string }) => {
   const match = await getLatest(leagueId);
   let season: Season | undefined;
   if (match) {
-    season = await getById(match.seasonId);
+    season = await getById(match.seasonId, leagueId);
   }
   // TODO check is league player
   const isLeaguePlayer = true;

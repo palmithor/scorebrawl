@@ -1,8 +1,7 @@
-import type { CreateSeasonInput } from "@scorebrawl/api";
+import type { CreateSeasonInput, ScoreType } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { and, asc, between, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
-  LeagueRepository,
   ScoreBrawlError,
   createCuid,
   db,
@@ -21,7 +20,7 @@ import {
 import type { SeasonCreatedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
 
-const findOverlappingSeason = async ({
+export const findOverlappingSeason = async ({
   leagueId,
   startDate,
   endDate,
@@ -41,7 +40,9 @@ const findOverlappingSeason = async ({
 const getSeasonById = async ({
   seasonId,
   userId,
+  leagueId,
 }: {
+  leagueId: string;
   seasonId: string;
   userId: string;
 }) => {
@@ -49,7 +50,9 @@ const getSeasonById = async ({
     .select()
     .from(seasons)
     .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
-    .where(and(eq(seasons.id, seasonId), canReadLeaguesCriteria({ userId })));
+    .where(
+      and(eq(seasons.id, seasonId), eq(leagues.id, leagueId), canReadLeaguesCriteria({ userId })),
+    );
 
   if (!result?.season) {
     throw new ScoreBrawlError({
@@ -86,14 +89,16 @@ const findOngoingSeason = async ({
 };
 
 const getSeasonPlayers = async ({
+  leagueId,
   seasonId,
   userId,
 }: {
+  leagueId: string;
   seasonId: string;
   userId: string;
 }) => {
   // verify access
-  await SeasonRepository.getSeasonById({ seasonId, userId });
+  await SeasonRepository.getSeasonById({ seasonId, userId, leagueId });
   const seasonPlayerResult = await db.query.seasonPlayers.findMany({
     where: eq(seasonPlayers.seasonId, seasonId),
     extras: (_, { sql }) => ({
@@ -165,7 +170,34 @@ const getAllSeasons = async ({
   return result.map((r) => r.season);
 };
 
-const createSeason = async ({
+const update = async ({
+  userId,
+  leagueId,
+  seasonId,
+  ...rest
+}: {
+  userId: string;
+  leagueId: string;
+  seasonId: string;
+  startDate?: Date;
+  endDate?: Date;
+  initialScore?: number;
+  scoreType?: ScoreType;
+  kFactor?: number;
+}) => {
+  const [season] = await db
+    .update(seasons)
+    .set({
+      updatedAt: new Date(),
+      updatedBy: userId,
+      ...rest,
+    })
+    .where(and(eq(seasons.id, seasonId), eq(seasons.leagueId, leagueId)))
+    .returning();
+  return season;
+};
+
+const create = async ({
   leagueId,
   userId,
   name,
@@ -175,36 +207,6 @@ const createSeason = async ({
   scoreType,
   kFactor,
 }: CreateSeasonInput) => {
-  if (endDate && startDate.getTime() >= endDate.getTime()) {
-    throw new ScoreBrawlError({
-      code: "BAD_REQUEST",
-      message: "endDate has to be after startDate",
-    });
-  }
-  const league = await LeagueRepository.getByIdWhereMember({
-    leagueId,
-    userId,
-    allowedRoles: ["owner", "editor"],
-  });
-
-  if (!league) {
-    throw new ScoreBrawlError({
-      code: "FORBIDDEN",
-      message: "User does not have editor access to this league",
-    });
-  }
-  const overlappingSeason = await findOverlappingSeason({
-    leagueId,
-    startDate,
-    endDate,
-  });
-  if (overlappingSeason) {
-    throw new ScoreBrawlError({
-      code: "CONFLICT",
-      message: "Season overlaps with existing season",
-    });
-  }
-
   const slug = await slugifySeasonName({ name });
 
   const now = new Date();
@@ -247,8 +249,8 @@ const createSeason = async ({
   );
 
   await db.insert(leagueEvents).values({
+    leagueId,
     id: createCuid(),
-    leagueId: league.id,
     type: "season_created_v1",
     data: { seasonId: season?.id } as SeasonCreatedEventData,
     createdBy: userId,
@@ -296,13 +298,15 @@ const getSeasonTeamsLatestMatches = async ({
 };
 
 const getSeasonTeams = async ({
+  leagueId,
   seasonId,
   userId,
 }: {
+  leagueId: string;
   seasonId: string;
   userId: string;
 }) => {
-  const season = await SeasonRepository.getSeasonById({ seasonId, userId });
+  const season = await SeasonRepository.getSeasonById({ seasonId, userId, leagueId });
   const teams = await db.query.seasonTeams.findMany({
     extras: (_seasonTeam, { sql }) => ({
       matchCount:
@@ -467,15 +471,17 @@ const getSeasonTopPlayer = async ({ seasonId, userId }: { seasonId: string; user
 };
 
 export const SeasonRepository = {
-  getSeasonById,
+  create,
   findOngoingSeason,
-  getSeasonPlayers,
+  findOverlappingSeason,
   getAllSeasons,
-  createSeason,
+  getSeasonById,
   getSeasonPlayerLatestMatches,
-  getSeasonTeamsLatestMatches,
+  getSeasonPlayers,
   getSeasonTeams,
-  getTodayDiff,
-  getSeasonTopTeam,
+  getSeasonTeamsLatestMatches,
   getSeasonTopPlayer,
+  getSeasonTopTeam,
+  getTodayDiff,
+  update,
 };

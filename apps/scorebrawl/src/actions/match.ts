@@ -5,7 +5,7 @@ import type { CreateMatchInput } from "@scorebrawl/api";
 import { MatchRepository } from "@scorebrawl/db";
 import { cache } from "react";
 
-export const create = async (val: Omit<CreateMatchInput, "userId">) =>
+export const create = async (val: Omit<CreateMatchInput, "userId"> & { leagueId: string }) =>
   MatchRepository.createMatch({ ...val, userId: auth().userId as string });
 
 export const deleteMatch = async ({ matchId }: { matchId: string }) =>

@@ -156,6 +156,7 @@ export const MatchForm = ({
     setIsLoading(true);
     try {
       await create({
+        leagueId: season.leagueId,
         seasonId: season.id,
         homeScore,
         awayScore,

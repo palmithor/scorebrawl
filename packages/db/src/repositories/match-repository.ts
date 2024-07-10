@@ -17,16 +17,18 @@ import type { Match, MatchPlayer, Season } from "../types";
 import { TeamRepository } from "./team-repository";
 
 const createMatch = async ({
+  leagueId,
   seasonId,
   homePlayerIds,
   awayPlayerIds,
   homeScore,
   awayScore,
   userId,
-}: CreateMatchInput) => {
+}: CreateMatchInput & { leagueId: string }) => {
   const season = await SeasonRepository.getSeasonById({
-    seasonId: seasonId,
-    userId: userId,
+    leagueId,
+    seasonId,
+    userId,
   });
 
   const league = await LeagueRepository.getByIdWhereMember({
@@ -211,14 +213,18 @@ const createMatch = async ({
 };
 
 const getMatchesBySeasonId = async ({
+  leagueId,
   seasonId,
   userId,
   limit = 10,
   page = 1,
-}: { seasonId: string; userId: string } & PageRequest): Promise<{ data: Match[] }> => {
+}: { leagueId: string; seasonId: string; userId: string } & PageRequest): Promise<{
+  data: Match[];
+}> => {
   const season = await SeasonRepository.getSeasonById({
-    seasonId: seasonId,
-    userId: userId,
+    leagueId,
+    seasonId,
+    userId,
   });
 
   const seasonMatches = await db.query.matches.findMany({

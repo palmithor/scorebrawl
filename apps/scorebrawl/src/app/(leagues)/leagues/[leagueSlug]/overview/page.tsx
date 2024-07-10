@@ -14,7 +14,9 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
   const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
   const ongoingSeason = await findOngoing(league.id);
 
-  const seasonMatches = ongoingSeason ? await getMatches(ongoingSeason.id) : { data: [] };
+  const seasonMatches = ongoingSeason
+    ? await getMatches(ongoingSeason.id, league.id)
+    : { data: [] };
   const leaguePlayersForm = await getLeaguePlayersForm(league.id);
   const topFormPlayer = leaguePlayersForm.reduce((max, obj) =>
     obj.formScore > max.formScore ? obj : max,
@@ -36,13 +38,13 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
         {ongoingSeason && (
           <>
             <LeagueOverviewTitleSection title="Player Standing">
-              <SeasonPlayerStanding seasonId={ongoingSeason.id} />
+              <SeasonPlayerStanding seasonId={ongoingSeason.id} leagueId={league.id} />
             </LeagueOverviewTitleSection>
             <LeagueOverviewTitleSection title="Points Progression" className="h-full">
-              <SeasonPlayerPointProgression seasonId={ongoingSeason.id} />
+              <SeasonPlayerPointProgression seasonId={ongoingSeason.id} leagueId={league.id} />
             </LeagueOverviewTitleSection>
             <LeagueOverviewTitleSection title="Team Standing">
-              <SeasonTeamStanding seasonId={ongoingSeason.id} />
+              <SeasonTeamStanding seasonId={ongoingSeason.id} leagueId={league.id} />
             </LeagueOverviewTitleSection>
             {seasonMatches.data.length > 0 && (
               <LeagueOverviewTitleSection title="Matches">
