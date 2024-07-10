@@ -1,7 +1,8 @@
 "use server";
 
+import type { AppRouter } from "@/server/api/root";
+import { api } from "@/trpc/server";
 import { auth } from "@clerk/nextjs/server";
-import type { CreateSeasonInput } from "@scorebrawl/api";
 import {
   MatchRepository,
   PlayerRepository,
@@ -9,30 +10,31 @@ import {
   TeamRepository,
 } from "@scorebrawl/db";
 import type { SeasonPlayer } from "@scorebrawl/db/types";
+import type { inferRouterInputs } from "@trpc/server";
 import { cache } from "react";
 import { findBySlug } from "./league";
 
 export const getByIdOrOngoing = cache(async (seasonId: string | "ongoing", leagueSlug: string) => {
+  const league = await findBySlug(leagueSlug);
   if (seasonId === "ongoing") {
-    const league = await findBySlug(leagueSlug);
     return await SeasonRepository.findOngoingSeason({
       leagueId: league?.id ?? "",
       userId: auth().userId as string,
     });
   }
-  return getById(seasonId);
+  return getById(seasonId, league?.id ?? "");
 });
 
 export const findOngoing = cache((leagueId: string) =>
   SeasonRepository.findOngoingSeason({ leagueId, userId: auth().userId as string }),
 );
 
-export const getById = cache((seasonId: string) =>
-  SeasonRepository.getSeasonById({ seasonId, userId: auth().userId as string }),
+export const getById = cache((seasonId: string, leagueId: string) =>
+  SeasonRepository.getSeasonById({ seasonId, leagueId, userId: auth().userId as string }),
 );
 
-export const getPlayers = cache(async (seasonId: string) =>
-  SeasonRepository.getSeasonPlayers({ seasonId, userId: auth().userId as string }),
+export const getPlayers = cache(async (seasonId: string, leagueId: string) =>
+  SeasonRepository.getSeasonPlayers({ leagueId, seasonId, userId: auth().userId as string }),
 );
 
 export const getPlayerPointDiff = cache((seasonPlayerIds: string[]) =>
@@ -54,19 +56,19 @@ export const getPlayersForm = cache(
   },
 );
 
-export const getMatches = cache((seasonId: string) =>
-  MatchRepository.getMatchesBySeasonId({ seasonId, userId: auth().userId as string }),
+export const getMatches = cache((seasonId: string, leagueId: string) =>
+  MatchRepository.getMatchesBySeasonId({ leagueId, seasonId, userId: auth().userId as string }),
 );
 
 export const getAll = cache((leagueSlug: string) =>
   SeasonRepository.getAllSeasons({ leagueSlug, userId: auth().userId as string }),
 );
 
-export const create = async (val: Omit<CreateSeasonInput, "userId">) =>
-  SeasonRepository.createSeason({ ...val, userId: auth().userId as string });
+export const create = async (val: inferRouterInputs<AppRouter>["season"]["create"]) =>
+  api.season.create(val);
 
-export const getTeams = cache(async (seasonId: string) =>
-  SeasonRepository.getSeasonTeams({ seasonId, userId: auth().userId as string }),
+export const getTeams = cache(async (seasonId: string, leagueId: string) =>
+  SeasonRepository.getSeasonTeams({ leagueId, seasonId, userId: auth().userId as string }),
 );
 
 export const getTeamPointDiff = cache(async (seasonTeamIds: string[]) =>

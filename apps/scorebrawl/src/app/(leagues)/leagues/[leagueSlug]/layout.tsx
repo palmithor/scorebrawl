@@ -38,7 +38,9 @@ export default async function ({
   const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
   const leaguePlayers = await getPlayers(league.id);
   const ongoingSeason = await findOngoing(league.id);
-  const ongoingSeasonPlayers = ongoingSeason ? await getSeasonPlayers(ongoingSeason.id) : [];
+  const ongoingSeasonPlayers = ongoingSeason
+    ? await getSeasonPlayers(ongoingSeason.id, league.id)
+    : [];
   const code = await getCode(league.id);
   const hasEditorAccess = await getHasEditorAccess(league.id);
   const userId = auth().userId as string;

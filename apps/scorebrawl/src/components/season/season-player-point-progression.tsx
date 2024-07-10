@@ -60,13 +60,15 @@ function generateDataForPeriod(
 }
 
 export const SeasonPlayerPointProgression = async ({
+  leagueId,
   seasonId,
 }: {
+  leagueId: string;
   seasonId: string;
 }) => {
-  const season = await getById(seasonId);
+  const season = await getById(seasonId, leagueId);
   const pointProgression: Array<DataPoint> = [];
-  const seasonPlayers = await getPlayers(seasonId);
+  const seasonPlayers = await getPlayers(seasonId, leagueId);
   const playerNames: Record<string, string> = {};
   for (const player of seasonPlayers) {
     playerNames[player.id] = player.name;

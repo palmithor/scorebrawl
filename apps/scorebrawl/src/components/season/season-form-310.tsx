@@ -41,9 +41,8 @@ export const SeasonForm310 = ({ league }: { league: { id: string; slug: string }
     try {
       await create({
         ...val,
-        kFactor: 0,
+        leagueSlug: league.slug,
         initialScore: 0,
-        leagueId: league.id,
         scoreType: "3-1-0" as const,
       });
       push(`/leagues/${league.slug}/overview`);

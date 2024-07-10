@@ -49,7 +49,7 @@ export const SeasonFormElo = ({ league }: { league: { id: string; slug: string }
       await create({
         ...val,
         endDate: val.endDate ? endOfDay(val.endDate) : undefined,
-        leagueId: league.id,
+        leagueSlug: league.slug,
         scoreType: val.eloType === "team vs team" ? "elo" : "elo-individual-vs-team",
         initialScore: val.initialScore,
       });
