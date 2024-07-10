@@ -41,7 +41,7 @@ const createInvite = async ({
         expiresAt,
       },
     ])
-    .returning(getTableColumns(leagueInvites));
+    .returning();
   return invite;
 };
 

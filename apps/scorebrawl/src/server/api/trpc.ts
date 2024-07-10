@@ -51,18 +51,19 @@ const isAuthed = t.middleware(({ next, ctx }) => {
 });
 
 const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next }) => {
-  const leagueInfo = await LeagueRepository.getLeagueBySlugWithMembership({
+  const leagueWithUserRole = await LeagueRepository.findBySlugWithUserRole({
     userId: ctx.auth.userId,
     leagueSlug: (input as { leagueSlug: string }).leagueSlug ?? "",
   });
-  if (!leagueInfo) {
+  if (!leagueWithUserRole) {
     throw new TRPCError({ code: "NOT_FOUND" });
   }
 
   return next({
     ctx: {
       ...ctx,
-      leagueInfo,
+      league: { id: leagueWithUserRole.id, slug: leagueWithUserRole.slug },
+      role: leagueWithUserRole.role,
     },
   });
 });
@@ -70,7 +71,7 @@ const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
 const leagueEditorAccessMiddleware = isAuthed
   .unstable_pipe(leagueAccessMiddleware)
   .unstable_pipe(async ({ ctx, next }) => {
-    if (!editorRoles.includes(ctx.leagueInfo.role)) {
+    if (!editorRoles.includes(ctx.role)) {
       throw new TRPCError({ code: "FORBIDDEN" });
     }
     return next({

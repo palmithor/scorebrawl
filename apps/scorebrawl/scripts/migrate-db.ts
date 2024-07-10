@@ -1,4 +1,4 @@
-import { db } from "@scorebrawl/db";
-import { migrate } from "drizzle-orm/neon-http/migrator";
+import { migrateDb } from "@scorebrawl/db";
 
-await migrate(db, { migrationsFolder: "./migrations" });
+await migrateDb();
+process.exit(0);

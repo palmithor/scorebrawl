@@ -1,7 +1,6 @@
 "use client";
 import { create } from "@/actions/season";
 import { createSeasonSchema, eloType } from "@scorebrawl/api";
-import type { LeagueOmitCode } from "@scorebrawl/db/types";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
@@ -30,7 +29,7 @@ const schema = createSeasonSchema
     path: ["endDate"],
   });
 
-export const SeasonFormElo = ({ league }: { league: LeagueOmitCode }) => {
+export const SeasonFormElo = ({ league }: { league: { id: string; slug: string } }) => {
   const { toast } = useToast();
   const { push, refresh } = useRouter();
   const [isLoading, setIsLoading] = useState(false);
