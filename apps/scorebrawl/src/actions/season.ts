@@ -14,23 +14,29 @@ import type { inferRouterInputs } from "@trpc/server";
 import { cache } from "react";
 import { findBySlug } from "./league";
 
-export const getByIdOrOngoing = cache(async (seasonId: string | "ongoing", leagueSlug: string) => {
-  const league = await findBySlug(leagueSlug);
-  if (seasonId === "ongoing") {
-    return await SeasonRepository.findOngoingSeason({
+export const getBySlugOrOngoing = cache(
+  async (seasonSlug: string | "ongoing", leagueSlug: string) => {
+    const league = await findBySlug(leagueSlug);
+    if (seasonSlug === "ongoing") {
+      return await SeasonRepository.findOngoingSeason({
+        leagueId: league?.id ?? "",
+        userId: auth().userId as string,
+      });
+    }
+    return SeasonRepository.getBySlug({
+      seasonSlug,
       leagueId: league?.id ?? "",
       userId: auth().userId as string,
     });
-  }
-  return getById(seasonId, league?.id ?? "");
-});
+  },
+);
 
 export const findOngoing = cache((leagueId: string) =>
   SeasonRepository.findOngoingSeason({ leagueId, userId: auth().userId as string }),
 );
 
 export const getById = cache((seasonId: string, leagueId: string) =>
-  SeasonRepository.getSeasonById({ seasonId, leagueId, userId: auth().userId as string }),
+  SeasonRepository.getById({ seasonId, leagueId, userId: auth().userId as string }),
 );
 
 export const getPlayers = cache(async (seasonId: string, leagueId: string) =>
@@ -57,7 +63,7 @@ export const getPlayersForm = cache(
 );
 
 export const getMatches = cache((seasonId: string, leagueId: string) =>
-  MatchRepository.getMatchesBySeasonId({ leagueId, seasonId, userId: auth().userId as string }),
+  MatchRepository.getBySeasonId({ leagueId, seasonId, userId: auth().userId as string }),
 );
 
 export const getAll = cache((leagueSlug: string) =>
