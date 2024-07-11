@@ -93,10 +93,10 @@ export const seasonRouter = createTRPCRouter({
           },
         ),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ ctx, input }) => {
       validateStartBeforeEnd(input);
       await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
-      const season = await SeasonRepository.getSeasonById({
+      const season = await SeasonRepository.getById({
         seasonId: input.seasonId,
         leagueId: ctx.league.id,
         userId: ctx.auth.userId,
