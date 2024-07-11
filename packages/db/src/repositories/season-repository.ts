@@ -219,7 +219,6 @@ const create = async ({
       leagueId,
       startDate,
       endDate,
-      initialElo: initialScore,
       initialScore,
       scoreType,
       kFactor,
@@ -238,7 +237,6 @@ const create = async ({
       db.insert(seasonPlayers).values({
         id: createCuid(),
         disabled: false,
-        elo: season?.initialElo ?? 0,
         score: season?.initialScore ?? 0,
         leaguePlayerId: lp.id,
         seasonId: season?.id ?? "",
