@@ -11,12 +11,14 @@ export const inviteRouter = createTRPCRouter({
       userId: ctx.auth.userId,
     }),
   ),
-  create: leagueEditorProcedure.input(createInviteSchema).mutation(({ input, ctx }) =>
-    InviteRepository.createInvite({
-      leagueId: ctx.league.id,
-      userId: ctx.auth.userId,
-      role: input.role,
-      expiresAt: input.expiresAt,
-    }),
-  ),
+  create: leagueEditorProcedure
+    .input(createInviteSchema)
+    .mutation(({ input: { role, expiresAt }, ctx }) =>
+      InviteRepository.createInvite({
+        leagueId: ctx.league.id,
+        userId: ctx.auth.userId,
+        role: role,
+        expiresAt: expiresAt,
+      }),
+    ),
 });

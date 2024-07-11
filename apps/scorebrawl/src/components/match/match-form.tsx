@@ -181,6 +181,7 @@ export const MatchForm = ({
     }
   };
   const remainingPlayers = seasonPlayers.filter((player) => !selectedPlayerIds.includes(player.id));
+
   return (
     <div>
       <TitleLayout
