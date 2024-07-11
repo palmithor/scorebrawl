@@ -37,7 +37,7 @@ export const findOverlappingSeason = async ({
     ),
   });
 
-const getSeasonById = async ({
+const getById = async ({
   seasonId,
   userId,
   leagueId,
@@ -52,6 +52,36 @@ const getSeasonById = async ({
     .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
     .where(
       and(eq(seasons.id, seasonId), eq(leagues.id, leagueId), canReadLeaguesCriteria({ userId })),
+    );
+
+  if (!result?.season) {
+    throw new ScoreBrawlError({
+      code: "NOT_FOUND",
+      message: "Season not found",
+    });
+  }
+  return result.season;
+};
+
+const getBySlug = async ({
+  seasonSlug,
+  userId,
+  leagueId,
+}: {
+  seasonSlug: string;
+  leagueId: string;
+  userId: string;
+}) => {
+  const [result] = await db
+    .select()
+    .from(seasons)
+    .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
+    .where(
+      and(
+        eq(seasons.slug, seasonSlug),
+        eq(leagues.id, leagueId),
+        canReadLeaguesCriteria({ userId }),
+      ),
     );
 
   if (!result?.season) {
@@ -98,7 +128,7 @@ const getSeasonPlayers = async ({
   userId: string;
 }) => {
   // verify access
-  await SeasonRepository.getSeasonById({ seasonId, userId, leagueId });
+  await SeasonRepository.getById({ seasonId, userId, leagueId });
   const seasonPlayerResult = await db.query.seasonPlayers.findMany({
     where: eq(seasonPlayers.seasonId, seasonId),
     extras: (_, { sql }) => ({
@@ -304,7 +334,7 @@ const getSeasonTeams = async ({
   seasonId: string;
   userId: string;
 }) => {
-  const season = await SeasonRepository.getSeasonById({ seasonId, userId, leagueId });
+  const season = await SeasonRepository.getById({ seasonId, userId, leagueId });
   const teams = await db.query.seasonTeams.findMany({
     extras: (_seasonTeam, { sql }) => ({
       matchCount:
@@ -473,7 +503,8 @@ export const SeasonRepository = {
   findOngoingSeason,
   findOverlappingSeason,
   getAllSeasons,
-  getSeasonById,
+  getById,
+  getBySlug,
   getSeasonPlayerLatestMatches,
   getSeasonPlayers,
   getSeasonTeams,

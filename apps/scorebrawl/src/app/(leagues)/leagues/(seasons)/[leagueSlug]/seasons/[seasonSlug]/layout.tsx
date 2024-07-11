@@ -1,5 +1,5 @@
 import { getById as getLeagueById } from "@/actions/league";
-import { getByIdOrOngoing } from "@/actions/season";
+import { getBySlugOrOngoing } from "@/actions/season";
 import { FullPageSpinner } from "@/components/full-page-spinner";
 import { ScoreBrawlError } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
@@ -22,7 +22,7 @@ const getRedirectUrl = async ({
   seasonId,
 }: { leagueSlug: string; seasonId: string }) => {
   try {
-    const season = await getByIdOrOngoing(seasonId, leagueSlug);
+    const season = await getBySlugOrOngoing(seasonId, leagueSlug);
     if (!season) {
       return `/leagues/${leagueSlug}/overview?errorCode=${
         seasonId === "ongoing" ? "NOT_FOUND" : "FORBIDDEN"
