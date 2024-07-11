@@ -1,34 +1,26 @@
-import { getLatest } from "@/actions/match";
+"use client";
+import { api } from "@/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
-
-import { getById } from "@/actions/season";
-import type { Season } from "@scorebrawl/db/types";
-import { MonitorPlay } from "lucide-react";
+import { Skeleton } from "@scorebrawl/ui/skeleton";
+import { ListStart } from "lucide-react";
 import { LatestMatchCardContent } from "./latest-match-card-content";
 
-export const LatestMatchCard = async ({ leagueId }: { leagueId: string }) => {
-  const match = await getLatest(leagueId);
-  let season: Season | undefined;
-  if (match) {
-    season = await getById(match.seasonId, leagueId);
-  }
-  // TODO check is league player
-  const isLeaguePlayer = true;
+export const LatestMatchCard = ({
+  leagueSlug,
+  seasonSlug,
+}: { leagueSlug: string; seasonSlug: string }) => {
+  const { data, isLoading } = api.match.getLatest.useQuery({ seasonSlug, leagueSlug });
+
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-sm font-medium">Latest Match</CardTitle>
-        <MonitorPlay className="h-6 w-6" />
+        <ListStart className="h-6 w-6" />
       </CardHeader>
       <CardContent>
-        {match ? (
-          <>
-            {season && <p className="text-xs text-muted-foreground mb-4">Season {season?.name}</p>}
-            <LatestMatchCardContent match={match} isLeaguePlayer={isLeaguePlayer} />
-          </>
-        ) : (
-          <div>no match</div>
-        )}
+        {isLoading && <Skeleton className={"gap-2 h-14 w-full"} />}
+        {data && <LatestMatchCardContent match={data} />}
+        {!data && !isLoading && <div className={"gap-2 text-sm"}>No matches</div>}
       </CardContent>
     </Card>
   );
