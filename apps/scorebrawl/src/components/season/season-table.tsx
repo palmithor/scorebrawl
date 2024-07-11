@@ -72,77 +72,75 @@ export const SeasonTable = ({
   hasEditorAccess?: boolean;
   showTopPlayerAndTeam?: boolean;
   seasons: (Season & { matchCount?: number; hasTeams?: boolean })[];
-}) => {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Status</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Start Date</TableHead>
-          <TableHead>End Date</TableHead>
-          {seasons[0]?.matchCount && <TableHead>Matches</TableHead>}
-          {showTopPlayerAndTeam && <TableHead>Top Player</TableHead>}
-          {showTopPlayerAndTeam && <TableHead>Top Team</TableHead>}
-          {hasEditorAccess && <TableHead>Actions</TableHead>}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {seasons.map((season) => {
-          const periodStatus = getPeriodStatus(season);
-          let StatusIcon = null;
-          if (periodStatus === "ongoing") {
-            StatusIcon = CirclePlay;
-          } else if (periodStatus === "finished") {
-            StatusIcon = CircleCheck;
-          } else {
-            StatusIcon = FastForward;
-          }
-          return (
-            <TableRow key={season.id}>
-              <TableCell>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <StatusIcon className={"h-6 w-6"} />
-                  </TooltipTrigger>
-                  <TooltipContent className="capitalize">{periodStatus}</TooltipContent>
-                </Tooltip>
-              </TableCell>
-              <TableCell>
-                <p className="text-xs w-4/5"> {season.name}</p>
-              </TableCell>
-              <TableCell>
-                <p className={"text-xs"}>
-                  {season.startDate.toLocaleDateString(window.navigator.language)}
-                </p>
-              </TableCell>
-              <TableCell>
-                <p className={"text-xs"}>
-                  {season.endDate
-                    ? season.endDate.toLocaleDateString(window.navigator.language)
-                    : "-"}
-                </p>
-              </TableCell>
-              {showTopPlayerAndTeam && (
-                <>
-                  <TableCell>
-                    <TopPlayerCell seasonId={season.id} />
-                  </TableCell>
-                  <TableCell>
-                    <TopTeamCell seasonId={season.id} />
-                  </TableCell>
-                </>
-              )}
-              {seasons[0]?.matchCount && <TableCell>{season.matchCount}</TableCell>}
-              {/*{hasEditorAccess && leagueSlug && (
-              <TableCell>
-                <ActionMenu leagueSlug={leagueSlug} seasonId={season.id} />
-              </TableCell>
-            )}*/}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
-  );
-};
+}) => (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead>Status</TableHead>
+        <TableHead>Name</TableHead>
+        <TableHead>Start Date</TableHead>
+        <TableHead>End Date</TableHead>
+        {seasons[0]?.matchCount && <TableHead>Matches</TableHead>}
+        {showTopPlayerAndTeam && <TableHead>Top Player</TableHead>}
+        {showTopPlayerAndTeam && <TableHead>Top Team</TableHead>}
+        {hasEditorAccess && <TableHead>Actions</TableHead>}
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {seasons.map((season) => {
+        const periodStatus = getPeriodStatus(season);
+        let StatusIcon = null;
+        if (periodStatus === "ongoing") {
+          StatusIcon = CirclePlay;
+        } else if (periodStatus === "finished") {
+          StatusIcon = CircleCheck;
+        } else {
+          StatusIcon = FastForward;
+        }
+        return (
+          <TableRow key={season.id}>
+            <TableCell>
+              <Tooltip>
+                <TooltipTrigger>
+                  <StatusIcon className={"h-6 w-6"} />
+                </TooltipTrigger>
+                <TooltipContent className="capitalize">{periodStatus}</TooltipContent>
+              </Tooltip>
+            </TableCell>
+            <TableCell>
+              <p className="text-xs w-4/5"> {season.name}</p>
+            </TableCell>
+            <TableCell>
+              <p className={"text-xs"}>
+                {season.startDate.toLocaleDateString(window.navigator.language)}
+              </p>
+            </TableCell>
+            <TableCell>
+              <p className={"text-xs"}>
+                {season.endDate
+                  ? season.endDate.toLocaleDateString(window.navigator.language)
+                  : "-"}
+              </p>
+            </TableCell>
+            {showTopPlayerAndTeam && (
+              <>
+                <TableCell>
+                  <TopPlayerCell seasonId={season.id} />
+                </TableCell>
+                <TableCell>
+                  <TopTeamCell seasonId={season.id} />
+                </TableCell>
+              </>
+            )}
+            {seasons[0]?.matchCount && <TableCell>{season.matchCount}</TableCell>}
+            {/*{hasEditorAccess && leagueSlug && (
+                <TableCell>
+                  <ActionMenu leagueSlug={leagueSlug} seasonId={season.id} />
+                </TableCell>
+              )}*/}
+          </TableRow>
+        );
+      })}
+    </TableBody>
+  </Table>
+);

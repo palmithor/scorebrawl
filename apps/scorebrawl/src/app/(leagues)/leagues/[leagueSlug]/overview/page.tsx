@@ -31,7 +31,9 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
         <PlayerFormCard player={topFormPlayer} state="top" />
         <PlayerFormCard player={bottomFormPlayer} state="bottom" />
         <LeagueStatsCard leagueId={league.id} />
-        <LatestMatchCard leagueId={league.id} />
+        {ongoingSeason && (
+          <LatestMatchCard leagueSlug={params.leagueSlug} seasonSlug={ongoingSeason.slug} />
+        )}
       </div>
       {/* todo no ongoing season view */}
       <div className="grid gap-4 m:grid-cols-1 lg:grid-cols-2 items-start">
