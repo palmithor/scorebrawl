@@ -141,7 +141,7 @@ const createMatch = async ({
   ]) {
     await db
       .update(seasonPlayers)
-      .set({ elo: playerResult.scoreAfter, score: playerResult.scoreAfter })
+      .set({ score: playerResult.scoreAfter })
       .where(eq(seasonPlayers.id, playerResult.id));
   }
 
@@ -173,9 +173,6 @@ const createMatch = async ({
         matchId: match?.id ?? "",
         seasonTeamId: homeSeasonTeamId,
         scoreBefore: homeSeasonTeamScore,
-        eloBefore: homeSeasonTeamScore,
-        eloAfter: teamMatchResult.homeTeam.players.find((r) => r.id === homeSeasonTeamId)
-          ?.scoreAfter as number,
         scoreAfter: teamMatchResult.homeTeam.players.find((r) => r.id === homeSeasonTeamId)
           ?.scoreAfter as number,
         result: homeTeamResult,
@@ -186,10 +183,7 @@ const createMatch = async ({
         id: createCuid(),
         matchId: match?.id ?? "",
         seasonTeamId: awaySeasonTeamId,
-        eloBefore: awaySeasonTeamScore,
         scoreBefore: awaySeasonTeamScore,
-        eloAfter: teamMatchResult.awayTeam.players.find((r) => r.id === awaySeasonTeamId)
-          ?.scoreAfter as number,
         scoreAfter: teamMatchResult.awayTeam.players.find((r) => r.id === awaySeasonTeamId)
           ?.scoreAfter as number,
         result: awayTeamResult,
@@ -204,7 +198,7 @@ const createMatch = async ({
     ]) {
       await db
         .update(seasonTeams)
-        .set({ elo: teamResult.scoreAfter, score: teamResult.scoreAfter })
+        .set({ score: teamResult.scoreAfter })
         .where(eq(seasonTeams.id, teamResult.id));
     }
   }
@@ -403,13 +397,13 @@ const deleteMatch = async ({ matchId, userId }: { matchId: string; userId: strin
   for (const matchPlayer of match.matchPlayers) {
     await db
       .update(seasonPlayers)
-      .set({ elo: matchPlayer.scoreBefore, score: matchPlayer.scoreBefore })
+      .set({ score: matchPlayer.scoreBefore })
       .where(eq(seasonPlayers.id, matchPlayer.seasonPlayer.id));
   }
   for (const teamMatch of match.teamMatches) {
     await db
       .update(seasonTeams)
-      .set({ elo: teamMatch.scoreBefore, score: teamMatch.scoreBefore })
+      .set({ score: teamMatch.scoreBefore })
       .where(eq(seasonTeams.id, teamMatch.seasonTeamId));
   }
   await db.delete(matchPlayers).where(eq(matchPlayers.matchId, match.id));

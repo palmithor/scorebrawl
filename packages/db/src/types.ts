@@ -50,7 +50,7 @@ export type MatchPlayer = {
 export type MatchTeam = {
   score: number;
   result: MatchResultSymbol;
-  expectedElo: number;
+  expectedElo: number | null;
   players: MatchPlayer[];
 };
 

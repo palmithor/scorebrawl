@@ -329,7 +329,6 @@ const joinLeague = async ({
         .values({
           id: createCuid(),
           leaguePlayerId: leaguePlayer?.id ?? "",
-          elo: season.initialScore,
           score: season.initialScore,
           seasonId: season.id,
           createdAt: now,
