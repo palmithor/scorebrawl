@@ -1,25 +1,35 @@
 import { editorRoles } from "@/utils/permissionUtil";
 import type { AuthObject } from "@clerk/backend/internal";
-import { LeagueRepository } from "@scorebrawl/db";
+import { LeagueRepository, ScoreBrawlError } from "@scorebrawl/db";
 import { initTRPC } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
+import { TRPC_ERROR_CODES_BY_KEY } from "@trpc/server/rpc";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
 
 export const createTRPCContext = async (opts: {
   headers: Headers;
   auth: AuthObject;
-}) => {
-  return {
-    ...opts,
-  };
-};
+}) => ({
+  ...opts,
+});
 
 type Context = Awaited<ReturnType<typeof createTRPCContext>>;
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    if (error.cause instanceof ScoreBrawlError) {
+      return {
+        message: error.message,
+        // Todo map error codes
+        code: TRPC_ERROR_CODES_BY_KEY.NOT_FOUND,
+        data: {
+          code: "NOT_FOUND",
+          httpStatus: 404,
+        },
+      };
+    }
     return {
       ...shape,
       data: {

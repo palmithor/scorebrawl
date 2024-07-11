@@ -1,13 +1,15 @@
 import { getLeagueBySlugWithUserRoleOrRedirect } from "@/actions/league";
-import { getByIdOrOngoing, getPlayers } from "@/actions/season";
+import { getBySlugOrOngoing, getPlayers } from "@/actions/season";
 import { SeasonPlayerStanding } from "@/components/league/overview/season-player-standing";
 import { MatchForm } from "@/components/match/match-form";
 import { Title } from "@/components/title";
 import type { Season } from "@scorebrawl/db/types";
 
-export default async function ({ params }: { params: { leagueSlug: string; seasonId: string } }) {
+export default async function ({ params }: { params: { leagueSlug: string; seasonSlug: string } }) {
   const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
-  const season = (await getByIdOrOngoing(params.seasonId, params.leagueSlug)) as Season;
+
+  const season = (await getBySlugOrOngoing(params.seasonSlug, params.leagueSlug)) as Season;
+
   if (!season) {
     return null;
   }

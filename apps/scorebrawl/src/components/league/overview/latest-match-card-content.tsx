@@ -9,10 +9,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export const LatestMatchCardContent = ({
-  isLeaguePlayer,
   match,
 }: {
-  isLeaguePlayer: boolean;
   match: Match;
 }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -39,28 +37,23 @@ export const LatestMatchCardContent = ({
   return (
     <div className="flex items-center gap-2">
       <MatchResult match={match} />
-      {isLeaguePlayer && (
-        <>
-          {!confirmDelete ? (
-            <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
-              <Undo2Icon size={20} />
+
+      <>
+        {!confirmDelete ? (
+          <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
+            <Undo2Icon size={20} />
+          </Button>
+        ) : (
+          <>
+            <Button variant={"outline"} className={"px-2"} onClick={() => setConfirmDelete(false)}>
+              <XIcon size={20} className={"text-red-500"} />
             </Button>
-          ) : (
-            <>
-              <Button
-                variant={"outline"}
-                className={"px-2"}
-                onClick={() => setConfirmDelete(false)}
-              >
-                <XIcon size={20} className={"text-red-500"} />
-              </Button>
-              <Button variant={"outline"} className={"px-2"} onClick={onClickConfirmDelete}>
-                <CheckIcon size={20} className={"text-green-500"} />
-              </Button>
-            </>
-          )}
-        </>
-      )}
+            <Button variant={"outline"} className={"px-2"} onClick={onClickConfirmDelete}>
+              <CheckIcon size={20} className={"text-green-500"} />
+            </Button>
+          </>
+        )}
+      </>
     </div>
   );
 };

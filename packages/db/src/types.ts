@@ -1,4 +1,3 @@
-import type { MatchResultSymbol } from "@scorebrawl/api";
 import type { InferSelectModel } from "drizzle-orm";
 import type { leagueInvites, leagueMemberRoles, leagues, seasons } from "./schema";
 
@@ -39,26 +38,16 @@ export type SeasonPlayer = {
 
 export type MatchPlayer = {
   userId: string;
-  id: string;
-  seasonPlayerId: string;
-  leaguePlayerId: string;
-  score: number;
   name: string;
   imageUrl: string;
-};
-
-export type MatchTeam = {
-  score: number;
-  result: MatchResultSymbol;
-  expectedElo: number | null;
-  players: MatchPlayer[];
 };
 
 export type Match = {
   id: string;
   seasonId: string;
-  homeTeam: MatchTeam;
-  awayTeam: MatchTeam;
+  homeScore: number;
+  awayScore: number;
+  homeTeam: MatchPlayer[];
+  awayTeam: MatchPlayer[];
   createdAt: Date;
-  createdBy: string;
 };

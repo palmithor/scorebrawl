@@ -3,11 +3,11 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { users } from "../schema";
 
-const getUserAvatar = async ({ id }: { id: string }) => {
+const getUserAvatar = async ({ userId }: { userId: string }) => {
   const [userAvatar] = await db
     .select({ name: users.name, imageUrl: users.imageUrl })
     .from(users)
-    .where(eq(users.id, id));
+    .where(eq(users.id, userId));
   return userAvatar;
 };
 

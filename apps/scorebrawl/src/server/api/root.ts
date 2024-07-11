@@ -1,5 +1,6 @@
 import { inviteRouter } from "@/server/api/routers/inviteRouter";
 import { leagueRouter } from "@/server/api/routers/leagueRouter";
+import { matchRouter } from "@/server/api/routers/matchRouter";
 import { memberRouter } from "@/server/api/routers/memberRouter";
 import { playerRouter } from "@/server/api/routers/playerRouter";
 import { seasonRouter } from "@/server/api/routers/seasonRouter";
@@ -15,6 +16,7 @@ import { userRouter } from "./routers/userRouter";
 export const appRouter = createTRPCRouter({
   invite: inviteRouter,
   league: leagueRouter,
+  match: matchRouter,
   member: memberRouter,
   player: playerRouter,
   season: seasonRouter,
