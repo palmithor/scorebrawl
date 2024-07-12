@@ -1,5 +1,6 @@
 "use client";
-import { StatsCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/StatsCard";
+import { CardContentText } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/CardContentText";
+import { DashboardCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/DashboardCard";
 import { MatchResult } from "@/components/match/match-result";
 import { api } from "@/trpc/react";
 import type { Match } from "@scorebrawl/db/types";
@@ -16,13 +17,13 @@ export const LatestMatchCard = ({
   const { data, isLoading } = api.match.getLatest.useQuery({ seasonSlug, leagueSlug });
 
   return (
-    <StatsCard Icon={CalendarCheck2} title={"Latest Match"}>
+    <DashboardCard Icon={CalendarCheck2} title={"Latest Match"}>
       {isLoading && <Skeleton className={"gap-2 h-14 w-full"} />}
       {data && (
         <LatestMatchCardContent match={data} leagueSlug={leagueSlug} seasonSlug={seasonSlug} />
       )}
-      {!data && !isLoading && <div className={"gap-2 text-sm"}>No matches</div>}
-    </StatsCard>
+      {!data && !isLoading && <CardContentText>No Matches</CardContentText>}
+    </DashboardCard>
   );
 };
 
@@ -62,17 +63,6 @@ const LatestMatchCardContent = ({
         },
       },
     );
-    /*try {
-      await deleteMatch({ matchId: match.id });
-      refresh();
-      setConfirmDelete(false);
-    } catch (err) {
-      toast({
-        title: "Error creating league",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-    }*/
   };
   return (
     <div className="flex items-center gap-2">

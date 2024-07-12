@@ -299,7 +299,7 @@ const findLatest = async ({ leagueId, seasonSlug }: { leagueId: string; seasonSl
       awayTeam: players.filter((p) => !p.homeTeam),
     };
   }
-  throw new ScoreBrawlError({ code: "NOT_FOUND", message: "No matches found" });
+  return undefined;
 };
 
 const getLatestMatchDepr = async ({
