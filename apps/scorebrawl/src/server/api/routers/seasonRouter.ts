@@ -1,7 +1,7 @@
 import { SeasonRepository } from "@scorebrawl/db";
 import { z } from "zod";
 
-import { createTRPCRouter, leagueEditorProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, leagueEditorProcedure, leagueProcedure } from "@/server/api/trpc";
 import { scoreType } from "@scorebrawl/api";
 import { TRPCError } from "@trpc/server";
 
@@ -128,4 +128,7 @@ export const seasonRouter = createTRPCRouter({
       }
       return updatedSeason;
     }),
+  getCountInfo: leagueProcedure
+    .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
+    .query(async ({ input: { seasonSlug } }) => SeasonRepository.getCountInfo({ seasonSlug })),
 });
