@@ -8,7 +8,7 @@ type Props = {
   children: ReactNode;
 };
 
-export const StatsCard = ({ title, Icon, children }: Props) => (
+export const DashboardCard = ({ title, Icon, children }: Props) => (
   <Card>
     <CardHeader className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-md font-medium">{title}</CardTitle>
