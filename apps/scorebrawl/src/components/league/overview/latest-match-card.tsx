@@ -19,7 +19,7 @@ export const LatestMatchCard = ({
       </CardHeader>
       <CardContent>
         {isLoading && <Skeleton className={"gap-2 h-14 w-full"} />}
-        {data && <LatestMatchCardContent match={data} />}
+        {data?.[0] && <LatestMatchCardContent match={data[0]} />}
         {!data && !isLoading && <div className={"gap-2 text-sm"}>No matches</div>}
       </CardContent>
     </Card>
