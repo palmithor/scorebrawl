@@ -11,6 +11,7 @@ import {
   leagueTeams,
   leagues,
   matchPlayers,
+  matches,
   seasonPlayers,
   seasonTeams,
   seasons,
@@ -36,6 +37,29 @@ export const findOverlappingSeason = async ({
       endDate ? lte(seasons.startDate, endDate) : sql`true`,
     ),
   });
+
+const getCountInfo = async ({ seasonSlug }: { seasonSlug: string }) => {
+  const [matchCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(matches)
+    .innerJoin(seasons, and(eq(matches.seasonId, seasons.id), eq(seasons.slug, seasonSlug)));
+
+  const [teamCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(seasonTeams)
+    .innerJoin(seasons, and(eq(seasonTeams.seasonId, seasons.id), eq(seasons.slug, seasonSlug)));
+
+  const [playerCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(seasonPlayers)
+    .innerJoin(seasons, and(eq(seasonPlayers.seasonId, seasons.id), eq(seasons.slug, seasonSlug)));
+
+  return {
+    matchCount: matchCount?.count || 0,
+    teamCount: teamCount?.count || 0,
+    playerCount: playerCount?.count || 0,
+  };
+};
 
 const getById = async ({
   seasonId,
@@ -500,6 +524,7 @@ const getSeasonTopPlayer = async ({ seasonId, userId }: { seasonId: string; user
 
 export const SeasonRepository = {
   create,
+  getCountInfo,
   findOngoingSeason,
   findOverlappingSeason,
   getAllSeasons,
