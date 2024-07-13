@@ -35,7 +35,7 @@ export const leagues = pgTable(
 );
 
 const leagueEventType = [
-  "match_created_v1",
+  "mgit staatch_created_v1",
   "player_joined_v1",
   "season_created_v1",
   "match_undo_v1",
