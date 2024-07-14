@@ -1,10 +1,16 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, leagueProcedure, protectedProcedure } from "@/server/api/trpc";
 import { UserRepository } from "@scorebrawl/db";
 
 export const userRouter = createTRPCRouter({
+  me: protectedProcedure.query(({ ctx }) => UserRepository.findUserById({ id: ctx.auth.userId })),
   getAvatar: protectedProcedure
     .input(z.object({ userId: z.string() }))
-    .query(({ input }) => UserRepository.getUserAvatar({ id: input.userId })),
+    .query(({ input: { userId } }) => UserRepository.getUserAvatar({ id: userId })),
+  setDefaultLeague: leagueProcedure
+    .input(z.object({ leagueSlug: z.string() }))
+    .query(({ ctx }) =>
+      UserRepository.setDefaultLeague({ leagueId: ctx.league.id, userId: ctx.auth.userId }),
+    ),
 });
