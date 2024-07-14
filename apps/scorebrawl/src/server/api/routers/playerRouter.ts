@@ -1,12 +1,16 @@
-import { SeasonRepository } from "@scorebrawl/db";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, leagueProcedure } from "@/server/api/trpc";
+import { SeasonPlayerRepository } from "@scorebrawl/db";
 
 export const playerRouter = createTRPCRouter({
-  getTopPlayer: protectedProcedure
-    .input(z.object({ seasonId: z.string() }))
-    .query(({ ctx, input: { seasonId } }) =>
-      SeasonRepository.getSeasonTopPlayer({ seasonId, userId: ctx.auth.userId }),
-    ),
+  getTop: leagueProcedure
+    .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
+    .query(({ input: { seasonSlug } }) => SeasonPlayerRepository.getTopPlayer({ seasonSlug })),
+  getStruggling: leagueProcedure
+    .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
+    .query(({ input: { seasonSlug } }) => SeasonPlayerRepository.getStruggling({ seasonSlug })),
+  getOnFire: leagueProcedure
+    .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
+    .query(({ input: { seasonSlug } }) => SeasonPlayerRepository.getOnFire({ seasonSlug })),
 });
