@@ -7,8 +7,6 @@ import {
   db,
   leagueEvents,
   leaguePlayers,
-  leagueTeamPlayers,
-  leagueTeams,
   leagues,
   matchPlayers,
   matches,
@@ -16,7 +14,6 @@ import {
   seasonTeams,
   seasons,
   slugifySeasonName,
-  users,
 } from "..";
 import type { SeasonCreatedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
@@ -329,94 +326,6 @@ const getSeasonPlayerLatestMatches = async ({
   });
 };
 
-const getSeasonTeamsLatestMatches = async ({
-  seasonTeamIds,
-  limit = 5,
-}: {
-  seasonTeamIds: string[];
-  limit?: number;
-}) => {
-  return db.query.seasonTeams.findMany({
-    columns: { id: true },
-    where: inArray(seasonTeams.id, seasonTeamIds),
-    with: {
-      season: { columns: { id: true } },
-      matches: {
-        orderBy: (match, { desc }) => [desc(match.createdAt)],
-        limit,
-      },
-    },
-  });
-};
-
-const getSeasonTeams = async ({
-  leagueId,
-  seasonId,
-  userId,
-}: {
-  leagueId: string;
-  seasonId: string;
-  userId: string;
-}) => {
-  const season = await SeasonRepository.getById({ seasonId, userId, leagueId });
-  const teams = await db.query.seasonTeams.findMany({
-    extras: (_seasonTeam, { sql }) => ({
-      matchCount:
-        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id")`.as(
-          "matchCount",
-        ),
-      winCount:
-        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = 'W')`.as(
-          "winCount",
-        ),
-      lossCount:
-        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = 'L')`.as(
-          "lossCount",
-        ),
-      drawCount:
-        sql<number>`(SELECT COUNT(*) FROM season_team_match stm WHERE stm.season_team_id = "seasonTeams"."id" and result = 'D')`.as(
-          "drawCount",
-        ),
-    }),
-    where: eq(seasonTeams.seasonId, season.id),
-    columns: { id: true, score: true, createdAt: true, updatedAt: true },
-    orderBy: desc(seasonTeams.score),
-    with: {
-      leagueTeam: {
-        columns: { id: true, name: true },
-        with: {
-          players: {
-            columns: { id: true },
-            with: {
-              leaguePlayer: {
-                columns: { id: true },
-                with: { user: { columns: { name: true, imageUrl: true } } },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-  return teams.map((team) => ({
-    id: team.id,
-    leagueTeamId: team.leagueTeam.id,
-    name: team.leagueTeam.name,
-    score: team.score,
-    players: team.leagueTeam.players.map((p) => ({
-      id: p.leaguePlayer.id,
-      name: p.leaguePlayer.user.name,
-      imageUrl: p.leaguePlayer.user.imageUrl,
-    })),
-    matchCount: team.matchCount,
-    winCount: team.winCount,
-    lossCount: team.lossCount,
-    drawCount: team.drawCount,
-    createdAt: team.createdAt,
-    updatedAt: team.updatedAt,
-  }));
-};
-
 /**
  * used by the public endpoint that is used to show the scores for Jón Þór statue
  */
@@ -476,52 +385,6 @@ const getTodayDiff = async ({
   return { diff: 0 };
 };
 
-const getSeasonTopTeam = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
-  const result = await db
-    .select({
-      seasonTeamId: seasonTeams.id,
-      id: users.id,
-      teamName: leagueTeams.name,
-      name: users.name,
-      imageUrl: users.imageUrl,
-    })
-    .from(seasonTeams)
-    .where(
-      and(
-        eq(seasonTeams.seasonId, seasonId),
-
-        canReadLeaguesCriteria({ userId }),
-      ),
-    )
-    .innerJoin(seasons, eq(seasons.id, seasonTeams.seasonId))
-    .innerJoin(leagues, eq(seasons.leagueId, leagues.id))
-    .innerJoin(leagueTeams, eq(leagueTeams.id, seasonTeams.teamId))
-    .innerJoin(leagueTeamPlayers, eq(leagueTeamPlayers.teamId, leagueTeams.id))
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, leagueTeamPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .orderBy(desc(seasonTeams.score));
-
-  const topTeamId = result[0]?.seasonTeamId;
-  return topTeamId ? result.filter((r) => r.seasonTeamId === topTeamId) : [];
-};
-const getSeasonTopPlayer = async ({ seasonId, userId }: { seasonId: string; userId: string }) => {
-  const [topPlayer] = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      imageUrl: users.imageUrl,
-    })
-    .from(seasonPlayers)
-    .where(and(eq(seasonPlayers.seasonId, seasonId), canReadLeaguesCriteria({ userId })))
-    .innerJoin(seasons, eq(seasons.id, seasonPlayers.seasonId))
-    .innerJoin(leagues, eq(seasons.leagueId, leagues.id))
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .orderBy(desc(seasonPlayers.score));
-
-  return topPlayer;
-};
-
 export const SeasonRepository = {
   create,
   getCountInfo,
@@ -532,10 +395,6 @@ export const SeasonRepository = {
   getBySlug,
   getSeasonPlayerLatestMatches,
   getSeasonPlayers,
-  getSeasonTeams,
-  getSeasonTeamsLatestMatches,
-  getSeasonTopPlayer,
-  getSeasonTopTeam,
   getTodayDiff,
   update,
 };

@@ -16,8 +16,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip"
 import { getPeriodStatus } from "@scorebrawl/utils/date";
 import { CircleCheck, CirclePlay, FastForward } from "lucide-react";
 
-const TopPlayerCell = ({ seasonId }: { seasonId: string }) => {
-  const { data } = api.player.getTopPlayer.useQuery({ seasonId });
+const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlug: string }) => {
+  const { data } = api.player.getTop.useQuery({ leagueSlug, seasonSlug });
 
   if (!data) {
     return null;
@@ -32,8 +32,8 @@ const TopPlayerCell = ({ seasonId }: { seasonId: string }) => {
   );
 };
 
-const TopTeamCell = ({ seasonId }: { seasonId: string }) => {
-  const { data } = api.team.getTopTeam.useQuery({ seasonId });
+const TopTeamCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlug: string }) => {
+  const { data } = api.team.getTop.useQuery({ leagueSlug, seasonSlug });
   if (!data) {
     return null;
   }
@@ -65,10 +65,12 @@ const TopTeamCell = ({ seasonId }: { seasonId: string }) => {
 };*/
 
 export const SeasonTable = ({
+  leagueSlug,
   hasEditorAccess,
   showTopPlayerAndTeam,
   seasons,
 }: {
+  leagueSlug: string;
   hasEditorAccess?: boolean;
   showTopPlayerAndTeam?: boolean;
   seasons: (Season & { matchCount?: number; hasTeams?: boolean })[];
@@ -125,19 +127,14 @@ export const SeasonTable = ({
             {showTopPlayerAndTeam && (
               <>
                 <TableCell>
-                  <TopPlayerCell seasonId={season.id} />
+                  <TopPlayerCell seasonSlug={season.slug} leagueSlug={leagueSlug} />
                 </TableCell>
                 <TableCell>
-                  <TopTeamCell seasonId={season.id} />
+                  <TopTeamCell seasonSlug={season.slug} leagueSlug={leagueSlug} />
                 </TableCell>
               </>
             )}
             {seasons[0]?.matchCount && <TableCell>{season.matchCount}</TableCell>}
-            {/*{hasEditorAccess && leagueSlug && (
-                <TableCell>
-                  <ActionMenu leagueSlug={leagueSlug} seasonId={season.id} />
-                </TableCell>
-              )}*/}
           </TableRow>
         );
       })}

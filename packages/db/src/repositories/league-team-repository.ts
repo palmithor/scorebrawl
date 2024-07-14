@@ -1,6 +1,5 @@
 import type { UpdateTeamInput } from "@scorebrawl/api";
-import { endOfDay, startOfDay } from "date-fns";
-import { asc, eq, gte, inArray, lte, sql } from "drizzle-orm";
+import { asc, eq, inArray, sql } from "drizzle-orm";
 import {
   LeagueRepository,
   ScoreBrawlError,
@@ -8,7 +7,6 @@ import {
   leagueTeamPlayers,
   leagueTeams,
   seasonTeams,
-  teamMatches,
 } from "..";
 import { db } from "../db";
 
@@ -108,40 +106,6 @@ const getOrInsertTeam = async ({
   return { seasonTeamId: seasonTeam.id, score: seasonTeam.score };
 };
 
-const getSeasonTeamsPointDiff = async ({
-  seasonTeamIds,
-  from = startOfDay(new Date()),
-  to = endOfDay(new Date()),
-}: { seasonTeamIds: string[]; from?: Date; to?: Date }) => {
-  const result = await db.query.teamMatches.findMany({
-    where: (matchPlayer, { and }) =>
-      and(
-        inArray(teamMatches.seasonTeamId, seasonTeamIds),
-        gte(matchPlayer.createdAt, from),
-        lte(matchPlayer.createdAt, to),
-      ),
-    orderBy: (matchPlayer, { asc }) => [asc(matchPlayer.createdAt)],
-  });
-  if (result.length === 0) {
-    return [];
-  }
-  type MatchTeamType = (typeof result)[0];
-  type SeasonTeamMatches = { seasonTeamId: string; matches: MatchTeamType[] };
-
-  const seasonTeamMatches = result.reduce((acc: SeasonTeamMatches[], curr: MatchTeamType) => {
-    const { seasonTeamId } = curr;
-    const index = acc.findIndex((item: SeasonTeamMatches) => item.seasonTeamId === seasonTeamId);
-    index !== -1 ? acc[index]?.matches.push(curr) : acc.push({ seasonTeamId, matches: [curr] });
-    return acc;
-  }, []);
-
-  return seasonTeamMatches.map((spm) => ({
-    seasonTeamId: spm.seasonTeamId,
-    pointsDiff:
-      (spm.matches[spm.matches.length - 1]?.scoreAfter ?? 0) - (spm.matches[0]?.scoreBefore ?? 0),
-  }));
-};
-
 const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamInput) => {
   const league = await LeagueRepository.getByIdWhereMember({
     leagueId: leagueId,
@@ -178,9 +142,8 @@ const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamInput) =
     .returning();
 };
 
-export const TeamRepository = {
+export const LeagueTeamRepository = {
   getLeagueTeams,
   getOrInsertTeam,
-  getSeasonTeamsPointDiff,
   updateTeam,
 };
