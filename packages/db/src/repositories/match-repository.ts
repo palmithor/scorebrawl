@@ -17,7 +17,7 @@ import {
   users,
 } from "..";
 import type { Match, MatchPlayer, Season } from "../types";
-import { TeamRepository } from "./team-repository";
+import { LeagueTeamRepository } from "./league-team-repository";
 
 const create = async ({
   leagueId,
@@ -150,13 +150,13 @@ const create = async ({
 
   if (homeSeasonPlayers.length > 1 && awaySeasonPlayers.length > 1) {
     const { seasonTeamId: homeSeasonTeamId, score: homeSeasonTeamScore } =
-      await TeamRepository.getOrInsertTeam({
+      await LeagueTeamRepository.getOrInsertTeam({
         season,
         now,
         players: homeSeasonPlayers,
       });
     const { seasonTeamId: awaySeasonTeamId, score: awaySeasonTeamScore } =
-      await TeamRepository.getOrInsertTeam({
+      await LeagueTeamRepository.getOrInsertTeam({
         season,
         now,
         players: awaySeasonPlayers,

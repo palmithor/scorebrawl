@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 export default async function ({
   params,
   children,
-}: { params: { leagueSlug: string; seasonId: string }; children: ReactNode }) {
+}: { params: { leagueSlug: string; seasonSlug: string }; children: ReactNode }) {
   const redirectUrl = await getRedirectUrl(params);
   if (redirectUrl) {
     redirect(redirectUrl, RedirectType.replace);
@@ -19,13 +19,13 @@ export default async function ({
 
 const getRedirectUrl = async ({
   leagueSlug,
-  seasonId,
-}: { leagueSlug: string; seasonId: string }) => {
+  seasonSlug,
+}: { leagueSlug: string; seasonSlug: string }) => {
   try {
-    const season = await getBySlugOrOngoing(seasonId, leagueSlug);
+    const season = await getBySlugOrOngoing(seasonSlug, leagueSlug);
     if (!season) {
       return `/leagues/${leagueSlug}/overview?errorCode=${
-        seasonId === "ongoing" ? "NOT_FOUND" : "FORBIDDEN"
+        seasonSlug === "ongoing" ? "NOT_FOUND" : "FORBIDDEN"
       }`;
     }
     const league = await getLeagueById(season.leagueId);

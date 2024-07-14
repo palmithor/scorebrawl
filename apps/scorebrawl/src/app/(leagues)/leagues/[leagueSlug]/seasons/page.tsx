@@ -3,9 +3,9 @@ import { getAll } from "@/actions/season";
 import { SeasonTable } from "@/components/season/season-table";
 import { sortSeasons } from "@/utils/seasonUtils";
 
-export default async function ({ params }: { params: { leagueSlug: string } }) {
-  const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
-  const seasons = await getAll(params.leagueSlug);
+export default async function ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) {
+  const league = await getLeagueBySlugWithUserRoleOrRedirect(leagueSlug);
+  const seasons = await getAll(leagueSlug);
   const sortedSeason = sortSeasons(seasons);
   const hasEditorAccess = await getHasEditorAccess(league.id);
 
@@ -14,6 +14,7 @@ export default async function ({ params }: { params: { leagueSlug: string } }) {
       <div className="flex flex-col gap-2">
         <h1 className="font-bold">Seasons</h1>
         <SeasonTable
+          leagueSlug={leagueSlug}
           seasons={sortedSeason}
           hasEditorAccess={hasEditorAccess}
           showTopPlayerAndTeam={true}

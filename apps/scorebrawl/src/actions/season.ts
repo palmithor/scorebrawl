@@ -7,7 +7,7 @@ import {
   MatchRepository,
   PlayerRepository,
   SeasonRepository,
-  TeamRepository,
+  SeasonTeamRepository,
 } from "@scorebrawl/db";
 import type { SeasonPlayer } from "@scorebrawl/db/types";
 import type { inferRouterInputs } from "@trpc/server";
@@ -74,16 +74,16 @@ export const create = async (val: inferRouterInputs<AppRouter>["season"]["create
   api.season.create(val);
 
 export const getTeams = cache(async (seasonId: string, leagueId: string) =>
-  SeasonRepository.getSeasonTeams({ leagueId, seasonId, userId: auth().userId as string }),
+  SeasonTeamRepository.getTeams({ leagueId, seasonId, userId: auth().userId as string }),
 );
 
 export const getTeamPointDiff = cache(async (seasonTeamIds: string[]) =>
-  seasonTeamIds.length > 0 ? TeamRepository.getSeasonTeamsPointDiff({ seasonTeamIds }) : [],
+  seasonTeamIds.length > 0 ? SeasonTeamRepository.getTeamsPointDiff({ seasonTeamIds }) : [],
 );
 
 export const getTeamsForm = cache(async (seasonTeams: { id: string }[]) => {
   if (seasonTeams.length < 1) return [];
-  const latestMatches = await SeasonRepository.getSeasonTeamsLatestMatches({
+  const latestMatches = await SeasonTeamRepository.getTeamsLatestMatches({
     seasonTeamIds: seasonTeams.map((sp) => sp.id),
   });
   return seasonTeams.map((sp) => {
