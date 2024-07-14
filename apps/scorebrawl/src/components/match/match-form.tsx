@@ -184,7 +184,7 @@ export const MatchForm = ({
       setSelectedPlayerIds([]);
     } catch (err) {
       toast({
-        title: "Error creating league",
+        title: "Error creating match",
         description: err instanceof Error ? err.message : "Unknown error",
         variant: "destructive",
       });
