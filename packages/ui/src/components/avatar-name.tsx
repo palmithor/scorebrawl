@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Skeleton } from "./skeleton";
 
 export const AvatarName = ({
   name,
@@ -34,3 +35,19 @@ export const AvatarName = ({
     </div>
   );
 };
+
+export const AvatarNameSkeleton = ({
+  textClassName,
+  avatarClassName,
+  children,
+}: { avatarClassName?: string; textClassName?: string; children?: ReactNode }) => (
+  <div className="flex items-center">
+    <div className="relative">
+      <Skeleton className={avatarClassName ?? "h-10 w-10"} />
+    </div>
+    <div className="ml-2">
+      <Skeleton className={textClassName ?? "h-4 w-32"} />
+      {children}
+    </div>
+  </div>
+);
