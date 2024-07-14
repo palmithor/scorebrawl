@@ -7,7 +7,7 @@ export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(({ ctx }) => UserRepository.findUserById({ id: ctx.auth.userId })),
   getAvatar: protectedProcedure
     .input(z.object({ userId: z.string() }))
-    .query(({ input: { userId } }) => UserRepository.getUserAvatar({ id: userId })),
+    .query(({ input: { userId } }) => UserRepository.getUserAvatar({ userId })),
   setDefaultLeague: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
     .query(({ ctx }) =>
