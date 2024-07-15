@@ -1,10 +1,11 @@
+import { avatarRouter } from "@/server/api/routers/avatarRouter";
 import { inviteRouter } from "@/server/api/routers/inviteRouter";
 import { leagueRouter } from "@/server/api/routers/leagueRouter";
 import { matchRouter } from "@/server/api/routers/matchRouter";
 import { memberRouter } from "@/server/api/routers/memberRouter";
 import { seasonPlayerRouter } from "@/server/api/routers/seasonPlayerRouter";
 import { seasonRouter } from "@/server/api/routers/seasonRouter";
-import { teamRouter } from "@/server/api/routers/teamRouter";
+import { seasonTeamRouter } from "@/server/api/routers/seasonTeamRouter";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { userRouter } from "./routers/userRouter";
 
@@ -14,13 +15,14 @@ import { userRouter } from "./routers/userRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  avatar: avatarRouter,
   invite: inviteRouter,
   league: leagueRouter,
   match: matchRouter,
   member: memberRouter,
   seasonPlayer: seasonPlayerRouter,
   season: seasonRouter,
-  team: teamRouter,
+  seasonTeam: seasonTeamRouter,
   user: userRouter,
 });
 

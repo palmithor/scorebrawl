@@ -6,6 +6,7 @@ import {
   createCuid,
   db,
   leagueEvents,
+  leagueMembers,
   leaguePlayers,
   leagues,
   matchPlayers,
@@ -385,6 +386,28 @@ const getTodayDiff = async ({
   return { diff: 0 };
 };
 
+export const findSeasonAndLeagueBySlug = async ({
+  leagueSlug,
+  seasonSlug,
+  userId,
+}: { leagueSlug: string; seasonSlug: string; userId: string }) => {
+  const [league] = await db
+    .select({
+      leagueId: leagues.id,
+      leagueSlug: leagues.slug,
+      leagueName: leagues.name,
+      role: leagueMembers.role,
+      seasonName: seasons.name,
+      seasonId: seasons.id,
+      seasonSlug: seasons.slug,
+    })
+    .from(seasons)
+    .innerJoin(leagues, and(eq(leagues.slug, leagueSlug), eq(leagues.id, seasons.leagueId)))
+    .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
+    .where(and(eq(seasons.slug, seasonSlug), eq(leagueMembers.userId, userId)));
+  return league;
+};
+
 export const SeasonRepository = {
   create,
   getCountInfo,
@@ -397,4 +420,5 @@ export const SeasonRepository = {
   getSeasonPlayers,
   getTodayDiff,
   update,
+  findSeasonAndLeagueBySlug,
 };

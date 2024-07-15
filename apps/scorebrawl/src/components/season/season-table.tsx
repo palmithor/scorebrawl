@@ -33,7 +33,7 @@ const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueS
 };
 
 const TopTeamCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlug: string }) => {
-  const { data } = api.team.getTop.useQuery({ leagueSlug, seasonSlug });
+  const { data } = api.seasonTeam.getTop.useQuery({ leagueSlug, seasonSlug });
   if (!data) {
     return null;
   }
