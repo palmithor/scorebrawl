@@ -48,7 +48,8 @@ const LatestMatchCardContent = ({
         onSuccess: () => {
           // todo invalidate season standing and more
           utils.match.getLatest.invalidate();
-          utils.player.getTop.invalidate();
+          utils.seasonPlayer.getTop.invalidate();
+          utils.seasonPlayer.getStanding.invalidate();
           toast({
             title: "Match reverted",
             description: "Latest match has now been deleted",

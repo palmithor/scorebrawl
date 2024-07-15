@@ -11,7 +11,7 @@ export const StrugglingCard = ({
   leagueSlug,
   seasonSlug,
 }: { leagueSlug: string; seasonSlug: string }) => {
-  const { data, isLoading } = api.player.getStruggling.useQuery({ leagueSlug, seasonSlug });
+  const { data, isLoading } = api.seasonPlayer.getStruggling.useQuery({ leagueSlug, seasonSlug });
   return <PlayerFormCard title={"Struggling"} player={data} isLoading={isLoading} />;
 };
 
@@ -19,7 +19,7 @@ export const OnFireCard = ({
   leagueSlug,
   seasonSlug,
 }: { leagueSlug: string; seasonSlug: string }) => {
-  const { data, isLoading } = api.player.getOnFire.useQuery({ leagueSlug, seasonSlug });
+  const { data, isLoading } = api.seasonPlayer.getOnFire.useQuery({ leagueSlug, seasonSlug });
   return <PlayerFormCard title={"On Fire"} player={data} isLoading={isLoading} />;
 };
 

@@ -17,7 +17,7 @@ import { getPeriodStatus } from "@scorebrawl/utils/date";
 import { CircleCheck, CirclePlay, FastForward } from "lucide-react";
 
 const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlug: string }) => {
-  const { data } = api.player.getTop.useQuery({ leagueSlug, seasonSlug });
+  const { data } = api.seasonPlayer.getTop.useQuery({ leagueSlug, seasonSlug });
 
   if (!data) {
     return null;
