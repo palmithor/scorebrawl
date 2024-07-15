@@ -10,7 +10,7 @@ export const SeasonPlayerStanding = ({
   const { data, isLoading } = api.seasonPlayer.getStanding.useQuery({ leagueSlug, seasonSlug });
   return (
     <>
-      {isLoading && <Skeleton className={"w-full"} />}
+      {isLoading && <Skeleton className={"w-full h-80"} />}
       {!isLoading && data && (
         <Standing
           items={data?.map((sp) => ({
