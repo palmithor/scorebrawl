@@ -1,7 +1,7 @@
 import { fullName } from "@scorebrawl/utils/string";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { users } from "../schema";
+import { leaguePlayers, leagueTeamPlayers, leagueTeams, seasonTeams, users } from "../schema";
 
 const getUserAvatar = async ({ userId }: { userId: string }) => {
   const [userAvatar] = await db
@@ -9,6 +9,41 @@ const getUserAvatar = async ({ userId }: { userId: string }) => {
     .from(users)
     .where(eq(users.id, userId));
   return userAvatar;
+};
+
+const getTeamAvatars = async ({ seasonTeamIds }: { seasonTeamIds: string[] }) => {
+  const rawResults = await db
+    .select({
+      teamId: seasonTeams.id,
+      userId: users.id,
+      imageUrl: users.imageUrl,
+      name: users.name,
+    })
+    .from(leagueTeamPlayers)
+    .innerJoin(leagueTeams, eq(leagueTeams.id, leagueTeamPlayers.teamId))
+    .innerJoin(leaguePlayers, eq(leaguePlayers.id, leagueTeamPlayers.leaguePlayerId))
+    .innerJoin(users, eq(users.id, leaguePlayers.userId))
+    .innerJoin(seasonTeams, eq(seasonTeams.teamId, leagueTeams.id))
+    .where(inArray(seasonTeams.id, seasonTeamIds));
+
+  // Process the results to group players by team
+  const resultMap = new Map<
+    string,
+    { teamId: string; players: { userId: string; imageUrl: string; name: string }[] }
+  >();
+
+  for (const row of rawResults) {
+    if (!resultMap.has(row.teamId)) {
+      resultMap.set(row.teamId, { teamId: row.teamId, players: [] });
+    }
+    resultMap.get(row.teamId)?.players.push({
+      userId: row.userId,
+      imageUrl: row.imageUrl,
+      name: row.name,
+    });
+  }
+
+  return Array.from(resultMap.values());
 };
 
 const findUserById = async ({ id }: { id: string }) =>
@@ -68,4 +103,5 @@ export const UserRepository = {
   getUserAvatar,
   setDefaultLeague,
   upsertUser,
+  getTeamAvatars,
 };
