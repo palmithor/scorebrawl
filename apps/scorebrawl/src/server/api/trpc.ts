@@ -1,6 +1,6 @@
 import { editorRoles } from "@/utils/permissionUtil";
 import type { AuthObject } from "@clerk/backend/internal";
-import { LeagueRepository, ScoreBrawlError } from "@scorebrawl/db";
+import { LeagueRepository, ScoreBrawlError, SeasonRepository } from "@scorebrawl/db";
 import { initTRPC } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
 import { TRPC_ERROR_CODES_BY_KEY } from "@trpc/server/rpc";
@@ -78,6 +78,28 @@ const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
   });
 });
 
+const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next }) => {
+  const { leagueSlug, seasonSlug } = input as { leagueSlug: string; seasonSlug: string };
+  const seasonWithLeagueAndRole = await SeasonRepository.findSeasonAndLeagueBySlug({
+    userId: ctx.auth.userId,
+    leagueSlug,
+    seasonSlug,
+  });
+
+  if (!seasonWithLeagueAndRole) {
+    throw new TRPCError({ code: "NOT_FOUND" });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      league: { id: seasonWithLeagueAndRole.leagueId, slug: seasonWithLeagueAndRole.leagueSlug },
+      season: { id: seasonWithLeagueAndRole.seasonId, slug: seasonWithLeagueAndRole.seasonSlug },
+      role: seasonWithLeagueAndRole.role,
+    },
+  });
+});
+
 const leagueEditorAccessMiddleware = isAuthed
   .unstable_pipe(leagueAccessMiddleware)
   .unstable_pipe(async ({ ctx, next }) => {
@@ -94,6 +116,10 @@ const leagueEditorAccessMiddleware = isAuthed
 export const leagueProcedure = t.procedure
   .input(z.object({ leagueSlug: z.string().min(1) }))
   .use(leagueAccessMiddleware);
+
+export const seasonProcedure = t.procedure
+  .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
+  .use(seasonAccessMiddleware);
 
 export const leagueEditorProcedure = t.procedure
   .input(z.object({ leagueSlug: z.string().min(1) }))

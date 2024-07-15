@@ -6,6 +6,7 @@ export * from "./player-repository";
 export * from "./season-player-repository";
 export * from "./season-repository";
 export * from "./season-team-repository";
+export * from "./season-team-repository-v1";
 export * from "./slug";
 export * from "./league-team-repository";
 export * from "./user-repository";
