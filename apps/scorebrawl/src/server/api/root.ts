@@ -2,7 +2,7 @@ import { inviteRouter } from "@/server/api/routers/inviteRouter";
 import { leagueRouter } from "@/server/api/routers/leagueRouter";
 import { matchRouter } from "@/server/api/routers/matchRouter";
 import { memberRouter } from "@/server/api/routers/memberRouter";
-import { playerRouter } from "@/server/api/routers/playerRouter";
+import { seasonPlayerRouter } from "@/server/api/routers/seasonPlayerRouter";
 import { seasonRouter } from "@/server/api/routers/seasonRouter";
 import { teamRouter } from "@/server/api/routers/teamRouter";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
@@ -18,7 +18,7 @@ export const appRouter = createTRPCRouter({
   league: leagueRouter,
   match: matchRouter,
   member: memberRouter,
-  player: playerRouter,
+  seasonPlayer: seasonPlayerRouter,
   season: seasonRouter,
   team: teamRouter,
   user: userRouter,
