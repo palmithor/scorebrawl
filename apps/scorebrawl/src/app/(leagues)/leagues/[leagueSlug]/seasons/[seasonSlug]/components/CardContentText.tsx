@@ -1,5 +1,9 @@
+import { cn } from "@scorebrawl/ui/lib";
 import type { ReactNode } from "react";
 
-export const CardContentText = ({ children }: { children: ReactNode }) => (
-  <p className="text-xs font-medium text-gray-800 dark:text-white">{children}</p>
+export const CardContentText = ({
+  className,
+  children,
+}: { className?: string; children: ReactNode }) => (
+  <p className={cn("text-xs font-medium text-gray-800 dark:text-white", className)}>{children}</p>
 );

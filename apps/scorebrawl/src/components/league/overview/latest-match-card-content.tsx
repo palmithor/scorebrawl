@@ -1,7 +1,6 @@
 "use client";
 import { deleteMatch } from "@/actions/match";
-import { MatchResult } from "@/components/match/match-result";
-import type { Match } from "@scorebrawl/db/types";
+import type { MatchDepr } from "@scorebrawl/db/types";
 import { Button } from "@scorebrawl/ui/button";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { CheckIcon, Undo2Icon, XIcon } from "lucide-react";
@@ -11,7 +10,7 @@ import { useState } from "react";
 export const LatestMatchCardContent = ({
   match,
 }: {
-  match: Match;
+  match: MatchDepr;
 }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
@@ -36,8 +35,6 @@ export const LatestMatchCardContent = ({
   };
   return (
     <div className="flex items-center gap-2">
-      <MatchResult match={match} />
-
       <>
         {!confirmDelete ? (
           <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
