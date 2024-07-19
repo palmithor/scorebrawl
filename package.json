@@ -21,6 +21,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "dependencies": {
     "postcss": "^8.4.39",
+    "react-resizable-panels": "^2.0.20",
     "swr": "^2.2.5"
   },
   "trustedDependencies": ["@biomejs/biome", "@vercel/speed-insights"]

@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+import { redirectToLeagueOrOnboarding } from "@/actions/navigation-actions";
+import type { Metadata } from "next";
 
-export default () => {
-  redirect("/");
+export const metadata: Metadata = {
+  title: "Leagues",
 };
+
+export default async function LeagueListPage() {
+  await redirectToLeagueOrOnboarding();
+  return null;
+}

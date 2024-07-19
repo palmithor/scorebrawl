@@ -1,44 +1,79 @@
 "use client";
 
-import type { MainNavItem } from "@/components/layout/types";
-import useScroll from "@/hooks/useScroll";
-import { UserButton } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
-import { useTheme } from "next-themes";
-import type { ReactNode } from "react";
-import { MainNav } from "./main-nav";
+import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 
-interface NavBarProps {
-  userId: string | null;
-  items?: MainNavItem[];
-  children?: ReactNode;
-  rightElements?: ReactNode;
-  scroll?: boolean;
+import { buttonVariants } from "@scorebrawl/ui/button";
+import { cn } from "@scorebrawl/ui/lib";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
+
+interface NavProps {
+  isCollapsed: boolean;
+  links: {
+    title: string;
+    href: string;
+    label?: string;
+    icon: LucideIcon;
+    variant: "default" | "ghost";
+  }[];
 }
 
-export function NavBar({ userId, items, children, rightElements, scroll = false }: NavBarProps) {
-  const scrolled = useScroll(50);
-  const { theme, systemTheme } = useTheme();
-  const themeInUse = theme === "system" ? systemTheme : theme;
-
+export function Nav({ links, isCollapsed }: NavProps) {
   return (
-    <header
-      className={`sticky top-0 z-40 flex w-full justify-center bg-background/60 backdrop-blur-xl transition-all ${
-        scroll ? (scrolled ? "border-b" : "bg-background/0") : "border-b"
-      }`}
+    <div
+      data-collapsed={isCollapsed}
+      className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
     >
-      <div className="w-full p-4 flex h-12 items-center justify-between">
-        <MainNav items={items}>{children}</MainNav>
-
-        <div className="flex items-center space-x-3">
-          {rightElements}
-          {userId ? (
-            <UserButton appearance={{ baseTheme: themeInUse === "dark" ? dark : undefined }} />
+      <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+        {links.map((link) =>
+          isCollapsed ? (
+            <Tooltip key={`tooltip-link-${link.title}`} delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={link.href}
+                  className={cn(
+                    buttonVariants({ variant: link.variant, size: "icon" }),
+                    "h-9 w-9",
+                    link.variant === "default" &&
+                      "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
+                  )}
+                >
+                  <link.icon className="h-4 w-4" />
+                  <span className="sr-only">{link.title}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="flex items-center gap-4">
+                {link.title}
+                {link.label && <span className="ml-auto text-muted-foreground">{link.label}</span>}
+              </TooltipContent>
+            </Tooltip>
           ) : (
-            <>{/*sign in button?*/}</>
-          )}
-        </div>
-      </div>
-    </header>
+            <Link
+              key={`link-${link.title}`}
+              href={link.href}
+              className={cn(
+                buttonVariants({ variant: link.variant, size: "sm" }),
+                link.variant === "default" &&
+                  "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
+                "justify-start",
+              )}
+            >
+              <link.icon className="mr-2 h-4 w-4" />
+              {link.title}
+              {link.label && (
+                <span
+                  className={cn(
+                    "ml-auto",
+                    link.variant === "default" && "text-background dark:text-white",
+                  )}
+                >
+                  {link.label}
+                </span>
+              )}
+            </Link>
+          ),
+        )}
+      </nav>
+    </div>
   );
 }

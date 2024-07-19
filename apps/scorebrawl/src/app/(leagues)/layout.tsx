@@ -1,13 +1,18 @@
 import { upsertAuthenticatedUser } from "@/actions/user";
 import { ErrorToast } from "@/components/error-toast";
-import { NavBar } from "@/components/layout/navbar";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { navConfig } from "@/config/nav";
+import { NavLayout } from "@/components/layout/main-nav";
+import { api } from "@/trpc/server";
+import { cookies } from "next/headers";
+
 import { auth } from "@clerk/nextjs/server";
 import { UserRepository } from "@scorebrawl/db";
 import type { ReactNode } from "react";
 
-export default async function LeaguesLayout({ children }: { children: ReactNode }) {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export default async function Layout({ children }: LayoutProps) {
   const { userId } = auth();
   if (userId) {
     const user = await UserRepository.findUserById({ id: userId });
@@ -15,13 +20,28 @@ export default async function LeaguesLayout({ children }: { children: ReactNode 
       await upsertAuthenticatedUser();
     }
   }
-
+  let defaultLayout: number[] | undefined;
+  try {
+    const cookiesValue = cookies().get("react-resizable-panels:layout")?.value;
+    if (cookiesValue) {
+      const parsed = JSON.parse(cookiesValue).map(Number);
+      if (parsed.length === 2) {
+        defaultLayout = parsed;
+      }
+    }
+  } catch (_e) {
+    //do nothing and use default
+  }
   return (
-    <div className="flex min-h-screen flex-col">
-      <NavBar userId={userId} items={navConfig.mainNav} />
-      <main className="flex-1 container relative">{children}</main>
-      <SiteFooter />
-      <ErrorToast />
-    </div>
+    <NavLayout
+      leagues={await api.league.getAll({})}
+      defaultLayout={defaultLayout}
+      defaultCollapsed={cookies().get("react-resizable-panels:collapsed")?.value === "true"}
+    >
+      <>
+        {children}
+        <ErrorToast />
+      </>
+    </NavLayout>
   );
 }
