@@ -16,5 +16,5 @@ export default async function ({ params }: { params: { code: string } }) {
       `/leagues?errorCode=${e instanceof ScoreBrawlError ? e.code : "INTERNAL_SERVER_ERROR"}`,
     );
   }
-  redirect(`/leagues/${league.slug}/overview`);
+  redirect(`/leagues/${league.slug}`);
 }
