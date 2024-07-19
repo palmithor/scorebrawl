@@ -1,7 +1,14 @@
 import { fullName } from "@scorebrawl/utils/string";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { leaguePlayers, leagueTeamPlayers, leagueTeams, seasonTeams, users } from "../schema";
+import {
+  leaguePlayers,
+  leagueTeamPlayers,
+  leagueTeams,
+  seasonPlayers,
+  seasonTeams,
+  users,
+} from "../schema";
 
 const getUserAvatar = async ({ userId }: { userId: string }) => {
   const [userAvatar] = await db
@@ -44,6 +51,19 @@ const getTeamAvatars = async ({ seasonTeamIds }: { seasonTeamIds: string[] }) =>
   }
 
   return Array.from(resultMap.values());
+};
+
+const getSeasonPlayerAvatars = ({ seasonPlayerIds }: { seasonPlayerIds: Array<string> }) => {
+  return db
+    .select({
+      userId: users.id,
+      imageUrl: users.imageUrl,
+      name: users.name,
+    })
+    .from(seasonPlayers)
+    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
+    .innerJoin(users, eq(users.id, leaguePlayers.userId))
+    .where(inArray(seasonPlayers.id, seasonPlayerIds));
 };
 
 const findUserById = async ({ id }: { id: string }) =>
@@ -104,4 +124,5 @@ export const UserRepository = {
   setDefaultLeague,
   upsertUser,
   getTeamAvatars,
+  getSeasonPlayerAvatars,
 };

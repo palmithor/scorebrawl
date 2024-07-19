@@ -42,12 +42,21 @@ export type MatchPlayer = {
   imageUrl: string;
 };
 
-export type Match = {
+export type MatchDepr = {
   id: string;
   seasonId: string;
   homeScore: number;
   awayScore: number;
   homeTeam: MatchPlayer[];
   awayTeam: MatchPlayer[];
+  createdAt: Date;
+};
+
+export type Match = {
+  id: string;
+  homeScore: number;
+  awayScore: number;
+  homeTeamSeasonPlayerIds: string[];
+  awayTeamSeasonPlayerIds: string[];
   createdAt: Date;
 };

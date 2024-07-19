@@ -1,0 +1,49 @@
+"use client";
+import EmptyStateSvg from "@/../public/img/empty-state.svg";
+import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
+import { MatchTable } from "@/components/match/match-table";
+import { api } from "@/trpc/react";
+import { Button } from "@scorebrawl/ui/button";
+import { CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
+import Image from "next/image";
+
+// TODO Jón save me, this is a mess and doesn't get centered!
+const _EmptyState = () => (
+  <>
+    <CardHeader>
+      <CardTitle className="text-md font-medium">No matches</CardTitle>
+    </CardHeader>
+    <CardContent className={"text-center items-center justify-center p-0 h-60"}>
+      <div className={"flex justify-center items-center mb-4"}>
+        <Image className="h-32 w-32" alt="empty-state" src={EmptyStateSvg} />
+      </div>
+      <Button variant={"outline"}>Add Match</Button>
+    </CardContent>
+  </>
+);
+
+export const LatestMatches = ({
+  leagueSlug,
+  seasonSlug,
+}: { leagueSlug: string; seasonSlug: string }) => {
+  const { data, isLoading } = api.match.getAll.useQuery({ leagueSlug, seasonSlug, limit: 5 });
+  const _showEmptyState = !isLoading && data && data.length < 1;
+  const showMatches = !isLoading && data && data.length > 0;
+
+  return (
+    <OverviewCard title={"Latest Matches"}>
+      <div>
+        {showMatches && (
+          <MatchTable leagueSlug={leagueSlug} seasonSlug={seasonSlug} matches={data} />
+        )}
+      </div>
+      <div className="flex items-center justify-end space-x-2 pt-4">
+        <div className="space-x-2">
+          <Button variant="outline" size="sm">
+            Show all
+          </Button>
+        </div>
+      </div>
+    </OverviewCard>
+  );
+};
