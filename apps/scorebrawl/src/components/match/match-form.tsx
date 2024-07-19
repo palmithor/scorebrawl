@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Season, SeasonPlayer } from "@scorebrawl/db/types";
+import type { SeasonPlayer } from "@scorebrawl/db/types";
 import type { badgeVariants } from "@scorebrawl/ui/badge";
 import { Button } from "@scorebrawl/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@scorebrawl/ui/card";
@@ -60,7 +60,11 @@ export const MatchForm = ({
   season,
   leagueSlug,
   seasonPlayers,
-}: { leagueSlug: string; season: Season; seasonPlayers: SeasonPlayer[] }) => {
+}: {
+  leagueSlug: string;
+  season: { id: string; leagueId: string; name: string };
+  seasonPlayers: SeasonPlayer[];
+}) => {
   const { toast } = useToast();
   const { refresh } = useRouter();
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);

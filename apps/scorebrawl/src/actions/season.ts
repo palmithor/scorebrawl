@@ -12,28 +12,6 @@ import {
 import type { SeasonPlayer } from "@scorebrawl/db/types";
 import type { inferRouterInputs } from "@trpc/server";
 import { cache } from "react";
-import { findBySlug } from "./league";
-
-export const getBySlugOrOngoing = cache(
-  async (seasonSlug: string | "ongoing", leagueSlug: string) => {
-    const league = await findBySlug(leagueSlug);
-    if (seasonSlug === "ongoing") {
-      return await SeasonRepository.findOngoingSeason({
-        leagueId: league?.id ?? "",
-        userId: auth().userId as string,
-      });
-    }
-    return SeasonRepository.getBySlug({
-      seasonSlug,
-      leagueId: league?.id ?? "",
-      userId: auth().userId as string,
-    });
-  },
-);
-
-export const findOngoing = cache((leagueId: string) =>
-  SeasonRepository.findOngoingSeason({ leagueId, userId: auth().userId as string }),
-);
 
 export const getById = cache((seasonId: string, leagueId: string) =>
   SeasonRepository.getById({ seasonId, leagueId, userId: auth().userId as string }),
