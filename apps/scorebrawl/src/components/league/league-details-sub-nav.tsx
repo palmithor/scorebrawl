@@ -20,7 +20,7 @@ type LeagueDetailsSubNavProps = HTMLAttributes<HTMLDivElement> & {
   league: { id: string; name: string; slug: string };
   shouldShowJoin: boolean;
   inviteCode?: string;
-  ongoingSeason?: { slug: string };
+  ongoingSeason?: { slug: string; name: string };
   hasTwoPlayersOrMore: boolean;
   hasEditorAccess: boolean;
 };
@@ -36,10 +36,9 @@ export const LeagueDetailsSubNav = ({
   const [isJoiningLeague, setIsJoiningLeague] = useState(false);
   const { push, refresh } = useRouter();
   const { toast } = useToast();
-  const links = constructLinks(league);
 
   return (
-    <SubNav links={links}>
+    <SubNav seasonName={ongoingSeason?.name}>
       {shouldShowJoin && (
         <LoadingButton
           variant="ghost"
@@ -124,13 +123,3 @@ export const LeagueDetailsSubNav = ({
     </SubNav>
   );
 };
-const constructLinks = ({ slug }: { slug: string }) => [
-  {
-    name: "Seasons",
-    href: `/leagues/${slug}/seasons`,
-  },
-  {
-    name: "Players",
-    href: `/leagues/${slug}/players`,
-  },
-];
