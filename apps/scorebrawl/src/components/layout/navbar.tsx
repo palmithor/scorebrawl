@@ -3,12 +3,15 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
+import { api } from "@/trpc/react";
+import { sortSeasons } from "@/utils/seasonUtils";
 import { buttonVariants } from "@scorebrawl/ui/button";
 import { cn } from "@scorebrawl/ui/lib";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
 
 interface NavProps {
   isCollapsed: boolean;
+  leagueSlug: string;
   links: {
     title: string;
     href: string;
@@ -18,7 +21,11 @@ interface NavProps {
   }[];
 }
 
-export function Nav({ links, isCollapsed }: NavProps) {
+export const Nav = ({ leagueSlug, links, isCollapsed }: NavProps) => {
+  const { data } = api.season.getAll.useQuery({ leagueSlug });
+  // todo create collapsible seasons menu
+  const _sortedSeasons = data ? sortSeasons(data) : [];
+
   return (
     <div
       data-collapsed={isCollapsed}
@@ -76,4 +83,4 @@ export function Nav({ links, isCollapsed }: NavProps) {
       </nav>
     </div>
   );
-}
+};
