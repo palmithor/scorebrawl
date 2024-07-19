@@ -45,7 +45,7 @@ export const getMatches = cache((seasonId: string, leagueId: string) =>
 );
 
 export const getAll = cache((leagueSlug: string) =>
-  SeasonRepository.getAllSeasons({ leagueSlug, userId: auth().userId as string }),
+  SeasonRepository.getAllSeasonsDepr({ leagueSlug, userId: auth().userId as string }),
 );
 
 export const create = async (val: inferRouterInputs<AppRouter>["season"]["create"]) =>
