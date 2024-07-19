@@ -20,8 +20,8 @@ type LeagueDetailsSubNavProps = HTMLAttributes<HTMLDivElement> & {
   league: { id: string; name: string; slug: string };
   shouldShowJoin: boolean;
   inviteCode?: string;
-  shouldShowAddMatch: boolean;
-  shouldEnableAddMatch: boolean;
+  ongoingSeason?: { slug: string };
+  hasTwoPlayersOrMore: boolean;
   hasEditorAccess: boolean;
 };
 
@@ -29,8 +29,8 @@ export const LeagueDetailsSubNav = ({
   league,
   inviteCode,
   shouldShowJoin,
-  shouldShowAddMatch,
-  shouldEnableAddMatch,
+  ongoingSeason,
+  hasTwoPlayersOrMore,
   hasEditorAccess,
 }: LeagueDetailsSubNavProps) => {
   const [isJoiningLeague, setIsJoiningLeague] = useState(false);
@@ -63,20 +63,21 @@ export const LeagueDetailsSubNav = ({
           Join League
         </LoadingButton>
       )}
-      {shouldShowAddMatch && (
+      {hasTwoPlayersOrMore && ongoingSeason && (
         <Tooltip>
           <TooltipTrigger>
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => void push(`/leagues/${league.slug}/seasons/ongoing/matches/create`)}
-              disabled={!shouldEnableAddMatch}
+              onClick={() =>
+                void push(`/leagues/${league.slug}/seasons/${ongoingSeason.slug}/matches/create`)
+              }
             >
               <PlusIcon className="mr-2 h-4 w-4" />
               Add Match
             </Button>
           </TooltipTrigger>
-          {!shouldEnableAddMatch && (
+          {!(hasTwoPlayersOrMore && ongoingSeason) && (
             <TooltipContent side="bottom">
               <p className="w-52">
                 An ongoing season or at least two players required for adding match
@@ -124,10 +125,6 @@ export const LeagueDetailsSubNav = ({
   );
 };
 const constructLinks = ({ slug }: { slug: string }) => [
-  {
-    name: "Overview",
-    href: `/leagues/${slug}/overview`,
-  },
   {
     name: "Seasons",
     href: `/leagues/${slug}/seasons`,

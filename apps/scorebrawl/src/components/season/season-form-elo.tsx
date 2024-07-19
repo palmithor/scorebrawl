@@ -46,7 +46,7 @@ export const SeasonFormElo = ({ league }: { league: { id: string; slug: string }
   const onSubmit = async (val: FormValues) => {
     setIsLoading(true);
     try {
-      await create({
+      const season = await create({
         ...val,
         endDate: val.endDate ? endOfDay(val.endDate) : undefined,
         leagueSlug: league.slug,
@@ -54,7 +54,7 @@ export const SeasonFormElo = ({ league }: { league: { id: string; slug: string }
         initialScore: val.initialScore,
       });
       refresh();
-      push(`/leagues/${league.slug}/overview`);
+      push(`/leagues/${league.slug}/seasons/${season.slug}`);
     } catch (err) {
       toast({
         title: "Error creating season",

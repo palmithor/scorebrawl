@@ -72,7 +72,11 @@ const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
   return next({
     ctx: {
       ...ctx,
-      league: { id: leagueWithUserRole.id, slug: leagueWithUserRole.slug },
+      league: {
+        id: leagueWithUserRole.id,
+        slug: leagueWithUserRole.slug,
+        name: leagueWithUserRole.name,
+      },
       role: leagueWithUserRole.role,
     },
   });
@@ -93,8 +97,17 @@ const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
   return next({
     ctx: {
       ...ctx,
-      league: { id: seasonWithLeagueAndRole.leagueId, slug: seasonWithLeagueAndRole.leagueSlug },
-      season: { id: seasonWithLeagueAndRole.seasonId, slug: seasonWithLeagueAndRole.seasonSlug },
+      league: {
+        id: seasonWithLeagueAndRole.leagueId,
+        slug: seasonWithLeagueAndRole.leagueSlug,
+        name: seasonWithLeagueAndRole.leagueName,
+      },
+      season: {
+        id: seasonWithLeagueAndRole.seasonId,
+        slug: seasonWithLeagueAndRole.seasonSlug,
+        leagueId: seasonWithLeagueAndRole.leagueId,
+        name: seasonWithLeagueAndRole.seasonName,
+      },
       role: seasonWithLeagueAndRole.role,
     },
   });

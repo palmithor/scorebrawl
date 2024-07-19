@@ -39,13 +39,13 @@ export const SeasonForm310 = ({ league }: { league: { id: string; slug: string }
   const onSubmit = async (val: FormValues) => {
     setIsLoading(true);
     try {
-      await create({
+      const season = await create({
         ...val,
         leagueSlug: league.slug,
         initialScore: 0,
         scoreType: "3-1-0" as const,
       });
-      push(`/leagues/${league.slug}/overview`);
+      push(`/leagues/${league.slug}/seasons/${season.slug}`);
     } catch (err) {
       toast({
         title: "Error creating season",
