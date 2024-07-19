@@ -1,7 +1,12 @@
 import { SeasonRepository } from "@scorebrawl/db";
 import { z } from "zod";
 
-import { createTRPCRouter, leagueEditorProcedure, seasonProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  leagueEditorProcedure,
+  leagueProcedure,
+  seasonProcedure,
+} from "@/server/api/trpc";
 import { scoreType } from "@scorebrawl/api";
 import { TRPCError } from "@trpc/server";
 
@@ -35,6 +40,15 @@ const validateNoOverlappingSeason = async ({
 };
 
 export const seasonRouter = createTRPCRouter({
+  getCountInfo: seasonProcedure
+    .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
+    .query(async ({ input: { seasonSlug } }) => SeasonRepository.getCountInfo({ seasonSlug })),
+  findOngoing: leagueProcedure
+    .input(z.object({ leagueSlug: z.string() }))
+    .query(async ({ ctx }) => SeasonRepository.findOngoingSeason({ leagueId: ctx.league.id })),
+  findBySlug: seasonProcedure
+    .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
+    .query(async ({ ctx: { season } }) => season),
   create: leagueEditorProcedure
     .input(
       z
@@ -48,7 +62,6 @@ export const seasonRouter = createTRPCRouter({
           kFactor: z.number().optional().default(32),
         })
         .refine((data) => {
-          console.log("data", data);
           return (
             (data.scoreType === "elo" || data.scoreType === "elo-individual-vs-team") && {
               message: "Elo score type requires kFactor to be provided",
@@ -60,7 +73,7 @@ export const seasonRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       validateStartBeforeEnd(input);
       await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
-      return await SeasonRepository.create({
+      return SeasonRepository.create({
         userId: ctx.auth.userId,
         leagueId: ctx.league.id,
         ...input,
@@ -128,7 +141,4 @@ export const seasonRouter = createTRPCRouter({
       }
       return updatedSeason;
     }),
-  getCountInfo: seasonProcedure
-    .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
-    .query(async ({ input: { seasonSlug } }) => SeasonRepository.getCountInfo({ seasonSlug })),
 });
