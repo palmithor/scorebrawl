@@ -15,7 +15,7 @@ export const LatestMatchCard = ({
   seasonSlug,
 }: { leagueSlug: string; seasonSlug: string }) => {
   const { data, isLoading } = api.match.getLatest.useQuery({ seasonSlug, leagueSlug });
-
+  console.log("latest", data);
   return (
     <DashboardCard Icon={CalendarCheck2} title={"Latest Match"}>
       {isLoading && <Skeleton className={"gap-2 h-14 w-full"} />}
@@ -46,10 +46,11 @@ const LatestMatchCardContent = ({
       { seasonSlug, leagueSlug, matchId: match.id },
       {
         onSuccess: () => {
-          // todo invalidate season standing and more
           utils.match.getLatest.invalidate();
           utils.seasonPlayer.getTop.invalidate();
           utils.seasonPlayer.getStanding.invalidate();
+          utils.seasonTeam.getStanding.invalidate();
+          utils.match.getAll.invalidate();
           toast({
             title: "Match reverted",
             description: "Latest match has now been deleted",
@@ -66,8 +67,8 @@ const LatestMatchCardContent = ({
     );
   };
   return (
-    <div className="flex items-center gap-2">
-      <MatchResult match={match} />
+    <div className="flex gap-4">
+      <MatchResult match={match} leagueSlug={leagueSlug} seasonSlug={seasonSlug} />
 
       <>
         {!confirmDelete ? (

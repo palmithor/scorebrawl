@@ -2,6 +2,7 @@
 import { Standing } from "@/components/standing/standing";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
+import { OverviewCard } from "./OverviewCard";
 
 export const SeasonPlayerStanding = ({
   leagueSlug,
@@ -12,20 +13,22 @@ export const SeasonPlayerStanding = ({
     <>
       {isLoading && <Skeleton className={"w-full h-80"} />}
       {!isLoading && data && (
-        <Standing
-          items={data?.map((sp) => ({
-            id: sp.seasonPlayerId,
-            name: sp.name,
-            score: sp.score,
-            form: sp.form,
-            matchCount: sp.matchCount,
-            winCount: sp.winCount,
-            drawCount: sp.drawCount,
-            lossCount: sp.lossCount,
-            pointDiff: sp.pointDiff,
-            avatars: [{ id: sp.seasonPlayerId, imageUrl: sp.imageUrl, name: sp.name }],
-          }))}
-        />
+        <OverviewCard title="Player Standing">
+          <Standing
+            items={data?.map((sp) => ({
+              id: sp.seasonPlayerId,
+              name: sp.name,
+              score: sp.score,
+              form: sp.form,
+              matchCount: sp.matchCount,
+              winCount: sp.winCount,
+              drawCount: sp.drawCount,
+              lossCount: sp.lossCount,
+              pointDiff: sp.pointDiff,
+              avatars: [{ id: sp.seasonPlayerId, imageUrl: sp.imageUrl, name: sp.name }],
+            }))}
+          />
+        </OverviewCard>
       )}
     </>
   );
