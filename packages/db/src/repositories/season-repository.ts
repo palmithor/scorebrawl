@@ -1,6 +1,21 @@
 import type { CreateSeasonInput, ScoreType } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
-import { and, asc, between, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  between,
+  desc,
+  eq,
+  getTableColumns,
+  gt,
+  gte,
+  inArray,
+  isNull,
+  lt,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 import {
   ScoreBrawlError,
   createCuid,
@@ -117,27 +132,22 @@ const getBySlug = async ({
 
 const findOngoingSeason = async ({
   leagueId,
-  userId,
-  date,
 }: {
   leagueId: string;
-  userId: string;
-  date?: Date;
 }) => {
-  const dateParam = date ?? endOfDay(new Date());
-  const [result] = await db
-    .select()
+  const now = new Date();
+  const [season] = await db
+    .select(getTableColumns(seasons))
     .from(seasons)
     .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
     .where(
       and(
         eq(seasons.leagueId, leagueId),
-        lte(seasons.startDate, dateParam),
-        or(isNull(seasons.endDate), gte(seasons.endDate, dateParam)),
-        canReadLeaguesCriteria({ userId }),
+        lt(seasons.startDate, now),
+        or(isNull(seasons.endDate), gt(seasons.endDate, now)),
       ),
     );
-  return result ? { ...result.season } : undefined;
+  return season;
 };
 
 const getSeasonPlayers = async ({
@@ -306,6 +316,7 @@ const create = async ({
     createdBy: userId,
     createdAt: now,
   });
+  return season as typeof seasons.$inferSelect;
 };
 const getSeasonPlayerLatestMatches = async ({
   seasonPlayerIds,
