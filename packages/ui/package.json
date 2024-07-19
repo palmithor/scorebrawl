@@ -48,6 +48,7 @@
     "./toaster": "./src/components/toaster.tsx",
     "./toggle": "./src/components/toggle.tsx",
     "./tooltip": "./src/components/tooltip.tsx",
+    "./resizable": "./src/components/resizable.tsx",
     "./use-toast": "./src/components/use-toast.ts"
   },
   "scripts": {
