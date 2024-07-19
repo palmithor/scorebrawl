@@ -63,7 +63,7 @@ export const getPlayersForm = cache(
 );
 
 export const getMatches = cache((seasonId: string, leagueId: string) =>
-  MatchRepository.getBySeasonId({ leagueId, seasonId, userId: auth().userId as string }),
+  MatchRepository.getBySeasonIdDepr({ leagueId, seasonId, userId: auth().userId as string }),
 );
 
 export const getAll = cache((leagueSlug: string) =>

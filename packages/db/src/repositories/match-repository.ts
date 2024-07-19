@@ -6,17 +6,14 @@ import {
   ScoreBrawlError,
   createCuid,
   db,
-  leaguePlayers,
-  leagues,
   matchPlayers,
   matches,
   seasonPlayers,
   seasonTeams,
   seasons,
   teamMatches,
-  users,
 } from "..";
-import type { Match, MatchPlayer, Season } from "../types";
+import type { MatchDepr, MatchPlayer, Season } from "../types";
 import { LeagueTeamRepository } from "./league-team-repository";
 
 const create = async ({
@@ -210,13 +207,44 @@ const create = async ({
 };
 
 const getBySeasonId = async ({
+  seasonId,
+  page = 1,
+  limit = 30,
+}: { seasonId: string; page?: number; limit?: number }) => {
+  const result = await db.query.matches.findMany({
+    where: (match, { eq }) => eq(match.seasonId, seasonId),
+    with: {
+      matchPlayers: {
+        columns: { homeTeam: true, seasonPlayerId: true },
+      },
+    },
+    offset: (page - 1) * limit,
+    limit,
+    orderBy: (match, { desc }) => [desc(match.createdAt)],
+  });
+
+  return result.map((match) => ({
+    id: match.id,
+    homeScore: match.homeScore,
+    awayScore: match.awayScore,
+    createdAt: match.createdAt,
+    homeTeamSeasonPlayerIds: match.matchPlayers
+      .filter((p) => p.homeTeam)
+      .map((p) => p.seasonPlayerId),
+    awayTeamSeasonPlayerIds: match.matchPlayers
+      .filter((p) => !p.homeTeam)
+      .map((p) => p.seasonPlayerId),
+  }));
+};
+
+const getBySeasonIdDepr = async ({
   leagueId,
   seasonId,
   userId,
   limit = 10,
   page = 1,
 }: { leagueId: string; seasonId: string; userId: string } & PageRequest): Promise<{
-  data: Match[];
+  data: MatchDepr[];
 }> => {
   const season = await SeasonRepository.getById({
     leagueId,
@@ -260,52 +288,35 @@ const getBySeasonId = async ({
   };
 };
 
-const findLatest = async ({ leagueId, seasonSlug }: { leagueId: string; seasonSlug: string }) => {
-  const [match] = await db
-    .select({
-      id: matches.id,
-      homeScore: matches.homeScore,
-      awayScore: matches.awayScore,
-      seasonId: matches.seasonId,
-      createdAt: matches.createdAt,
-    })
-    .from(matches)
-    .innerJoin(
-      seasons,
-      and(
-        eq(seasons.leagueId, leagueId),
-        eq(seasons.id, matches.seasonId),
-        eq(seasons.slug, seasonSlug),
-      ),
-    )
-    .limit(1)
-    .orderBy(desc(matches.createdAt));
-  if (match) {
-    const players = await db
-      .select({
-        homeTeam: matchPlayers.homeTeam,
-        userId: users.id,
-        name: users.name,
-        imageUrl: users.imageUrl,
-      })
-      .from(matchPlayers)
-      .innerJoin(seasonPlayers, eq(matchPlayers.seasonPlayerId, seasonPlayers.id))
-      .innerJoin(leaguePlayers, eq(seasonPlayers.leaguePlayerId, leaguePlayers.id))
-      .innerJoin(users, eq(leaguePlayers.userId, users.id))
-      .where(eq(matchPlayers.matchId, match.id));
-    return {
-      ...match,
-      homeTeam: players.filter((p) => p.homeTeam),
-      awayTeam: players.filter((p) => !p.homeTeam),
-    };
-  }
-  return undefined;
+const findLatest = async ({ seasonId }: { seasonId: string }) => {
+  const match = await db.query.matches.findFirst({
+    with: {
+      matchPlayers: { columns: { seasonPlayerId: true, homeTeam: true } },
+    },
+    where: (match, { eq }) => eq(match.seasonId, seasonId),
+    orderBy: desc(matches.createdAt),
+  });
+
+  return (
+    match && {
+      id: match.id,
+      homeScore: match.homeScore,
+      awayScore: match.awayScore,
+      createdAt: match.createdAt,
+      homeTeamSeasonPlayerIds: match.matchPlayers
+        .filter((p) => p.homeTeam)
+        .map((p) => p.seasonPlayerId),
+      awayTeamSeasonPlayerIds: match.matchPlayers
+        .filter((p) => !p.homeTeam)
+        .map((p) => p.seasonPlayerId),
+    }
+  );
 };
 
 const getLatestMatchDepr = async ({
   leagueId,
   userId,
-}: { leagueId: string; userId: string }): Promise<Match | undefined> => {
+}: { leagueId: string; userId: string }): Promise<MatchDepr | undefined> => {
   const league = await LeagueRepository.getLeagueById({ leagueId, userId });
 
   const match = await db.query.matches.findFirst({
@@ -371,25 +382,20 @@ const findAndValidateSeasonPlayers = async ({
   return players;
 };
 
-const remove = async ({
-  matchId,
-  seasonSlug,
-  leagueSlug,
-}: { matchId: string; seasonSlug: string; leagueSlug: string }) => {
+const remove = async ({ matchId, seasonId }: { matchId: string; seasonId: string }) => {
   const [match] = await db
     .select({
       ...getTableColumns(matches),
       isLatest: sql`CASE WHEN ${matches.id} = ${db
         .select({ id: matches.id })
         .from(matches)
-        .innerJoin(seasons, and(eq(seasons.id, matches.seasonId), eq(seasons.slug, seasonSlug)))
+        .innerJoin(seasons, eq(seasons.id, matches.seasonId))
+        .where(eq(matches.seasonId, seasonId))
         .orderBy(desc(matches.createdAt))
         .limit(1)} THEN true ELSE false END`.as("isLatest"),
     })
     .from(matches)
-    .innerJoin(seasons, and(eq(seasons.id, matches.seasonId), eq(seasons.slug, seasonSlug)))
-    .innerJoin(leagues, and(eq(leagues.id, seasons.leagueId), eq(leagues.slug, leagueSlug)))
-    .where(eq(matches.id, matchId))
+    .where(and(eq(matches.id, matchId), eq(matches.seasonId, seasonId)))
     .limit(1);
   if (!match) {
     throw new ScoreBrawlError({ code: "NOT_FOUND", message: "Match not found" });
@@ -626,8 +632,9 @@ const mapMatchTeam = ({
 export const MatchRepository = {
   create,
   remove,
+  getBySeasonId,
   removeDepr,
   getLatestMatchDepr,
   findLatest,
-  getBySeasonId,
+  getBySeasonIdDepr,
 };
