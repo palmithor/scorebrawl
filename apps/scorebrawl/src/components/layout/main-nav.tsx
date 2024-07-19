@@ -36,6 +36,7 @@ const constructLinks = ({ slug }: { slug: string }) => [
     icon: Users,
   },
 ];
+
 export function NavLayout({
   leagues,
   defaultCollapsed = false,
@@ -64,7 +65,7 @@ export function NavLayout({
           collapsedSize={4}
           collapsible={true}
           minSize={10}
-          maxSize={20}
+          maxSize={16}
           onExpand={() => {
             setIsCollapsed(false);
             document.cookie = "react-resizable-panels:collapsed=false";
@@ -94,6 +95,7 @@ export function NavLayout({
           <Separator />
           <div className="flex flex-col justify-between">
             <Nav
+              leagueSlug={selectedLeague?.slug ?? ""}
               isCollapsed={isCollapsed}
               links={links.map((link) => ({
                 title: link.name,
