@@ -1,26 +1,24 @@
-import { getLeagueBySlugWithUserRoleOrRedirect } from "@/actions/league";
-import { getBySlugOrOngoing, getPlayers } from "@/actions/season";
+import { getPlayers } from "@/actions/season";
 import { SeasonPlayerStanding } from "@/components/league/overview/season-player-standing";
 import { MatchForm } from "@/components/match/match-form";
 import { Title } from "@/components/title";
-import type { Season } from "@scorebrawl/db/types";
+import { api } from "@/trpc/server";
 
-export default async function ({ params }: { params: { leagueSlug: string; seasonSlug: string } }) {
-  const league = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
-
-  const season = (await getBySlugOrOngoing(params.seasonSlug, params.leagueSlug)) as Season;
-
+export default async function ({
+  params: { leagueSlug, seasonSlug },
+}: { params: { leagueSlug: string; seasonSlug: string } }) {
+  const season = await api.season.findBySlug({ leagueSlug, seasonSlug });
   if (!season) {
     return null;
   }
-  const players = await getPlayers(season.id, league.id);
+  const players = await getPlayers(season.id, season.leagueId);
 
   return (
     <div className="grid gap-8">
-      <MatchForm leagueSlug={params.leagueSlug} season={season} seasonPlayers={players} />
+      <MatchForm leagueSlug={leagueSlug} season={season} seasonPlayers={players} />
       <div className="container">
         <Title className="mb-4" title="Season Standing" />
-        <SeasonPlayerStanding seasonId={season.id} leagueId={league.id} />
+        <SeasonPlayerStanding seasonId={season.id} leagueId={season.leagueId} />
       </div>
     </div>
   );
