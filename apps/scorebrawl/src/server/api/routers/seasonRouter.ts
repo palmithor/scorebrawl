@@ -49,6 +49,9 @@ export const seasonRouter = createTRPCRouter({
   findBySlug: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
     .query(async ({ ctx: { season } }) => season),
+  getAll: leagueProcedure
+    .input(z.object({ leagueSlug: z.string() }))
+    .query(async ({ ctx }) => SeasonRepository.getAll({ leagueId: ctx.league.id })),
   create: leagueEditorProcedure
     .input(
       z

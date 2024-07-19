@@ -209,7 +209,14 @@ const getSeasonPlayers = async ({
   }));
 };
 
-const getAllSeasons = async ({
+const getAll = async ({ leagueId }: { leagueId: string }) =>
+  db
+    .select(getTableColumns(seasons))
+    .from(seasons)
+    .where(eq(seasons.leagueId, leagueId))
+    .orderBy(desc(seasons.startDate));
+
+const getAllSeasonsDepr = async ({
   leagueSlug,
   userId,
 }: {
@@ -424,7 +431,8 @@ export const SeasonRepository = {
   getCountInfo,
   findOngoingSeason,
   findOverlappingSeason,
-  getAllSeasons,
+  getAllSeasonsDepr,
+  getAll,
   getById,
   getBySlug,
   getSeasonPlayerLatestMatches,
