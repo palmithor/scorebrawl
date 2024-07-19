@@ -48,7 +48,7 @@ export const Standing = ({
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md ">
       <Table>
         <TableHeader className="text-xs">
           <TableRow>

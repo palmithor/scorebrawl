@@ -3,7 +3,6 @@ import { api } from "@/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
 import { ListStart } from "lucide-react";
-import { LatestMatchCardContent } from "./latest-match-card-content";
 
 export const LatestMatchCard = ({
   leagueSlug,
@@ -19,7 +18,6 @@ export const LatestMatchCard = ({
       </CardHeader>
       <CardContent>
         {isLoading && <Skeleton className={"gap-2 h-14 w-full"} />}
-        {data && <LatestMatchCardContent match={data} />}
         {!data && !isLoading && <div className={"gap-2 text-sm"}>No matches</div>}
       </CardContent>
     </Card>

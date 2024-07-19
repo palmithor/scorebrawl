@@ -1,6 +1,7 @@
 import { getInitialsFromString } from "@scorebrawl/utils/string";
 import { cn } from "../lib";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Skeleton } from "./skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 export type AvatarProps = { id: string; name: string; imageUrl: string };
@@ -43,8 +44,24 @@ export const MultiAvatar = (
   };
 
   return (
-    <div className="flex -space-x-4">
+    <div className={cn(users.length > 1 ? "flex -space-x-4" : "")}>
       {users.length <= visibleCount ? users.map(avatarAndName) : withRemainingCount()}
     </div>
   );
+};
+
+export const MultiAvatarWithSkeletonLoading = ({
+  users,
+  visibleCount = 3,
+}: { users?: Array<AvatarProps>; visibleCount?: number }) => {
+  if (!users) {
+    return (
+      <div className="flex -space-x-4">
+        {Array.from({ length: visibleCount }).map((_, i) => (
+          <Skeleton className="h-8 w-8" />
+        ))}
+      </div>
+    );
+  }
+  return <MultiAvatar visibleCount={visibleCount} users={users} />;
 };
