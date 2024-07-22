@@ -18,7 +18,7 @@ const getUserAvatar = async ({ userId }: { userId: string }) => {
   return userAvatar;
 };
 
-const getTeamAvatars = async ({ seasonTeamIds }: { seasonTeamIds: string[] }) => {
+const getSeasonTeamAvatars = async ({ seasonTeamIds }: { seasonTeamIds: string[] }) => {
   const rawResults = await db
     .select({
       teamId: seasonTeams.id,
@@ -123,6 +123,6 @@ export const UserRepository = {
   getUserAvatar,
   setDefaultLeague,
   upsertUser,
-  getTeamAvatars,
+  getSeasonTeamAvatars,
   getSeasonPlayerAvatars,
 };
