@@ -5,9 +5,7 @@ import {
   leagueEvents,
   leagueMembers,
   leaguePlayers,
-  leagueTeams,
   leagues,
-  matches,
   seasonPlayers,
   seasons,
   slugifyLeagueName,
@@ -23,9 +21,7 @@ import {
   ilike,
   inArray,
   isNull,
-  like,
   or,
-  sql,
 } from "drizzle-orm";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueMemberRole, PlayerJoinedEventData } from "../types";
@@ -53,55 +49,6 @@ const getUserLeagues = async ({
     .orderBy(asc(leagues.slug));
   return data.map(({ code, ...league }) => league);
 };
-
-const getUserLeaguesPaginated = async ({
-  userId,
-  search,
-  page,
-  limit,
-}: {
-  userId: string;
-  search?: string;
-  page: number;
-  limit: number;
-}) => {
-  const where = search
-    ? and(
-        eq(leaguePlayers.userId, userId),
-        like(leagues.name, `%${slugifyWithCustomReplacement(search)}%`),
-      )
-    : eq(leaguePlayers.userId, userId);
-
-  const data = await db
-    .select({
-      id: leagues.id,
-      name: leagues.name,
-      logoUrl: leagues.logoUrl,
-      slug: leagues.slug,
-      archived: leagues.archived,
-      createdAt: leagues.createdAt,
-      updatedAt: leagues.updatedAt,
-      createdBy: leagues.createdBy,
-    })
-    .from(leagues)
-    .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id))
-    .where(where)
-    .limit(limit)
-    .offset((page > 0 ? page - 1 : 0) * limit)
-    .orderBy(asc(leagues.slug));
-  const [result] = await db
-    .select({
-      totalCount: sql<number>`cast(count(${leaguePlayers.id}) as int)`,
-    })
-    .from(leagues)
-    .where(where)
-    .innerJoin(leaguePlayers, eq(leaguePlayers.leagueId, leagues.id));
-  return {
-    data: data.map((league) => ({ ...league, code: undefined })),
-    meta: { totalCount: result?.totalCount ?? 0, page, limit },
-  };
-};
-
 const findBySlug = async ({
   userId,
   leagueSlug: slug,
@@ -197,20 +144,6 @@ const getWhereMember = async ({
     .where(whereCondition);
   return league;
 };
-
-const getBySlugWhereMember = async ({
-  userId,
-  leagueSlug,
-  allowedRoles,
-}: {
-  userId: string;
-  leagueSlug: string;
-  allowedRoles?: LeagueMemberRole[];
-}) => {
-  const whereCondition = eq(leagues.slug, leagueSlug);
-  return await getWhereMember({ allowedRoles, userId, whereCondition });
-};
-
 const getByIdWhereMember = async ({
   userId,
   leagueId,
@@ -354,59 +287,14 @@ const joinLeague = async ({
   return league;
 };
 
-const getLeagueStats = async ({
-  leagueId,
-  userId,
-}: {
-  leagueId: string;
-  userId: string;
-}) => {
-  // verify access
-  await getLeagueById({ userId, leagueId });
-
-  const [matchCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(matches)
-    .where(
-      inArray(
-        matches.seasonId,
-        db.select({ id: seasons.id }).from(seasons).where(eq(seasons.leagueId, leagueId)),
-      ),
-    );
-
-  const [teamCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(leagueTeams)
-    .where(eq(leagueTeams.leagueId, leagueId));
-  const [seasonCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(seasons)
-    .where(eq(seasons.leagueId, leagueId));
-
-  const [playerCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(leaguePlayers)
-    .where(eq(leaguePlayers.leagueId, leagueId));
-
-  return {
-    seasonCount: seasonCount?.count || 0,
-    matchCount: matchCount?.count || 0,
-    teamCount: teamCount?.count || 0,
-    playerCount: playerCount?.count || 0,
-  };
-};
-
 export const LeagueRepository = {
   createLeague,
   findBySlug,
   getByIdWhereMember,
-  getBySlugWhereMember,
   findBySlugWithUserRole,
   getLeagueById,
   getLeagueCode,
-  getLeagueStats,
   getUserLeagues,
-  getUserLeaguesPaginated,
   hasLeagueEditorAccess,
   joinLeague,
 };
