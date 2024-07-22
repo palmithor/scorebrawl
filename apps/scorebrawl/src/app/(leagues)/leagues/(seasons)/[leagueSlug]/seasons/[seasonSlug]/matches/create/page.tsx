@@ -1,6 +1,6 @@
 import { getPlayers } from "@/actions/season";
-import { SeasonPlayerStanding } from "@/components/league/overview/season-player-standing";
 import { MatchForm } from "@/components/match/match-form";
+import { SeasonPlayerStanding } from "@/components/players/season-player-standing";
 import { Title } from "@/components/title";
 import { api } from "@/trpc/server";
 
