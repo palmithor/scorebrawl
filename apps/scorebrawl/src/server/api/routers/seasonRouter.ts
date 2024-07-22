@@ -48,7 +48,6 @@ export const seasonRouter = createTRPCRouter({
           kFactor: z.number().optional().default(32),
         })
         .refine((data) => {
-          console.log("data", data);
           return (
             (data.scoreType === "elo" || data.scoreType === "elo-individual-vs-team") && {
               message: "Elo score type requires kFactor to be provided",

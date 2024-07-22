@@ -9,7 +9,7 @@ import { Spinner } from "@scorebrawl/ui/spinner";
 import { TailwindIndicator } from "@scorebrawl/ui/tailwind-indicator";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { AnalyticsProvider } from "@/analytics/AnalyticsProvider";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@scorebrawl/ui/toaster";
 import type { Metadata } from "next";
