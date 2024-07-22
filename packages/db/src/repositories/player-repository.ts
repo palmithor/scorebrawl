@@ -2,7 +2,6 @@ import { endOfDay, startOfDay } from "date-fns";
 import { eq, gte, inArray, lte } from "drizzle-orm";
 import { db } from "../db";
 import { leaguePlayers } from "../schema";
-import { LeagueRepository } from "./league-repository";
 
 const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
   const leaguePlayerResult = await db.query.leaguePlayers.findMany({
@@ -22,42 +21,6 @@ const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
     imageUrl: lp.user.imageUrl,
     joinedAt: lp.createdAt,
     disabled: lp.disabled,
-  }));
-};
-
-const getLeaguePlayersForm = async ({ leagueId, userId }: { leagueId: string; userId: string }) => {
-  await LeagueRepository.getLeagueById({ leagueId, userId });
-  const result = await db.query.leaguePlayers.findMany({
-    columns: { id: true },
-    where: eq(leaguePlayers.leagueId, leagueId),
-    with: {
-      user: {
-        columns: { id: true, name: true, imageUrl: true },
-      },
-      seasonPlayers: {
-        columns: { id: true },
-        with: {
-          season: { columns: { id: true } },
-          matches: {
-            columns: { result: true, createdAt: true },
-            orderBy: (match, { desc }) => [desc(match.createdAt)],
-            limit: 5,
-          },
-        },
-      },
-    },
-  });
-  return result.map((lp) => ({
-    id: lp.id,
-    userId: lp.user.id,
-    name: lp.user.name,
-    imageUrl: lp.user.imageUrl,
-    form: lp.seasonPlayers
-      .flatMap((season) => season.matches)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(0, Math.min(5, lp.seasonPlayers.flatMap((season) => season.matches).length))
-      .map((m) => m.result)
-      .reverse(),
   }));
 };
 
@@ -98,6 +61,5 @@ const getSeasonPlayersPointDiff = async ({
 
 export const PlayerRepository = {
   getLeaguePlayers,
-  getLeaguePlayersForm,
   getSeasonPlayersPointDiff,
 };

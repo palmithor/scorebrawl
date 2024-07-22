@@ -1,5 +1,5 @@
 import { getPlayers } from "@/actions/league";
-import { DateCell } from "@/components/players/date-cell";
+import { DateCell } from "@/components/date-cell";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { cn } from "@scorebrawl/ui/lib";
 import {
