@@ -1,4 +1,4 @@
-import { redirectToLeagueOrOnboarding } from "@/actions/navigation-actions";
+import { redirectToLeagueOrOnboarding } from "@/actions/navigationActions";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -99,37 +99,6 @@ const getById = async ({
   }
   return result.season;
 };
-
-const getBySlug = async ({
-  seasonSlug,
-  userId,
-  leagueId,
-}: {
-  seasonSlug: string;
-  leagueId: string;
-  userId: string;
-}) => {
-  const [result] = await db
-    .select()
-    .from(seasons)
-    .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
-    .where(
-      and(
-        eq(seasons.slug, seasonSlug),
-        eq(leagues.id, leagueId),
-        canReadLeaguesCriteria({ userId }),
-      ),
-    );
-
-  if (!result?.season) {
-    throw new ScoreBrawlError({
-      code: "NOT_FOUND",
-      message: "Season not found",
-    });
-  }
-  return result.season;
-};
-
 const findOngoingSeason = async ({
   leagueId,
 }: {
@@ -215,29 +184,6 @@ const getAll = async ({ leagueId }: { leagueId: string }) =>
     .from(seasons)
     .where(eq(seasons.leagueId, leagueId))
     .orderBy(desc(seasons.startDate));
-
-const getAllSeasonsDepr = async ({
-  leagueSlug,
-  userId,
-}: {
-  leagueSlug: string;
-  userId: string;
-}) => {
-  const result = await db
-    .select()
-    .from(seasons)
-    .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
-    .where(
-      and(
-        eq(seasons.leagueId, leagues.id),
-        eq(leagues.slug, leagueSlug),
-        canReadLeaguesCriteria({ userId }),
-      ),
-    )
-    .orderBy(desc(seasons.startDate));
-
-  return result.map((r) => r.season);
-};
 
 const update = async ({
   userId,
@@ -431,10 +377,8 @@ export const SeasonRepository = {
   getCountInfo,
   findOngoingSeason,
   findOverlappingSeason,
-  getAllSeasonsDepr,
   getAll,
   getById,
-  getBySlug,
   getSeasonPlayerLatestMatches,
   getSeasonPlayers,
   getTodayDiff,

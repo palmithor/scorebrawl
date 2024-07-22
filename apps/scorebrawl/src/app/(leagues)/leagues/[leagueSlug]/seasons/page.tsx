@@ -1,11 +1,11 @@
 import { getHasEditorAccess, getLeagueBySlugWithUserRoleOrRedirect } from "@/actions/league";
-import { getAll } from "@/actions/season";
 import { SeasonTable } from "@/components/season/season-table";
+import { api } from "@/trpc/server";
 import { sortSeasons } from "@/utils/seasonUtils";
 
 export default async function ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) {
   const league = await getLeagueBySlugWithUserRoleOrRedirect(leagueSlug);
-  const seasons = await getAll(leagueSlug);
+  const seasons = await api.season.getAll({ leagueSlug });
   const sortedSeason = sortSeasons(seasons);
   const hasEditorAccess = await getHasEditorAccess(league.id);
 

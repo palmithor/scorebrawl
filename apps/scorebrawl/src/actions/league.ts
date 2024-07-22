@@ -28,14 +28,6 @@ export const findBySlug = cache((leagueSlug: string) =>
   LeagueRepository.findBySlug({ userId: auth().userId as string, leagueSlug }),
 );
 
-export const getBySlugOrRedirect = cache((leagueSlug: string) =>
-  LeagueRepository.findBySlug({ userId: auth().userId as string, leagueSlug }),
-);
-
-export const getById = cache((leagueId: string) =>
-  LeagueRepository.getLeagueById({ userId: auth().userId as string, leagueId }),
-);
-
 export const getPlayers = cache((leagueId: string) =>
   PlayerRepository.getLeaguePlayers({ leagueId }),
 );
@@ -50,24 +42,6 @@ export const getTeams = cache((leagueId: string) =>
 export const getCode = cache((leagueId: string) =>
   LeagueRepository.getLeagueCode({ leagueId, userId: auth().userId as string }),
 );
-
-export const getStats = cache((leagueId: string) =>
-  LeagueRepository.getLeagueStats({ leagueId, userId: auth().userId as string }),
-);
-
-export const getPlayersForm = cache(async (leagueId: string) => {
-  const leaguePlayers = await PlayerRepository.getLeaguePlayersForm({
-    leagueId,
-    userId: auth().userId as string,
-  });
-  return leaguePlayers.map((lp) => {
-    const formScore = lp.form.reduce(
-      (sum, result) => sum + (result === "W" ? 3 : result === "D" ? 1 : 0),
-      0,
-    );
-    return { ...lp, formScore };
-  });
-});
 
 export const getHasEditorAccess = cache((leagueId: string) =>
   LeagueRepository.hasLeagueEditorAccess({ leagueId, userId: auth().userId as string }),
