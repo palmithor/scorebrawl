@@ -20,7 +20,9 @@ import { CircleEqual, Shuffle } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { create } from "@/actions/match";
+import { events } from "@/analytics/counters";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
+import { trackEvent } from "@openpanel/nextjs";
 import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { Separator } from "@scorebrawl/ui/separator";
@@ -83,6 +85,11 @@ export const MatchForm = ({
   };
 
   const shuffleTeams = () => {
+    trackEvent(events.createMatch.evenTeams, {
+      leagueSlug,
+      homeTeamPlayerCount: form.getValues().homePlayers.length,
+      awayTeamPlayerCount: form.getValues().awayPlayers.length,
+    });
     const homePlayers = form.getValues().homePlayers;
     const awayPlayers = form.getValues().awayPlayers;
     const allPlayers = [...homePlayers, ...awayPlayers];
@@ -92,11 +99,16 @@ export const MatchForm = ({
       // @ts-ignore
       [allPlayers[i], allPlayers[j]] = [allPlayers[j], allPlayers[i]];
     }
-    form.setValue("homePlayers", allPlayers.slice(0, homePlayers.length));
-    form.setValue("awayPlayers", allPlayers.slice(homePlayers.length));
+    form.setValue("homePlayers", allPlayers.slice(0, allPlayers.length / 2));
+    form.setValue("awayPlayers", allPlayers.slice(allPlayers.length / 2, allPlayers.length));
   };
 
   const evenTeams = () => {
+    trackEvent(events.createMatch.evenTeams, {
+      leagueSlug,
+      homeTeamPlayerCount: form.getValues().homePlayers.length,
+      awayTeamPlayerCount: form.getValues().awayPlayers.length,
+    });
     const homePlayers = form.getValues().homePlayers;
     const awayPlayers = form.getValues().awayPlayers;
     const allPlayers = [...homePlayers, ...awayPlayers].sort((u1, u2) =>
