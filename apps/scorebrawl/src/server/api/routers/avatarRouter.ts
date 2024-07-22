@@ -16,7 +16,9 @@ export const avatarRouter = createTRPCRouter({
         seasonTeamIds: z.array(z.string()).min(1),
       }),
     )
-    .query(({ input: { seasonTeamIds } }) => UserRepository.getTeamAvatars({ seasonTeamIds })),
+    .query(({ input: { seasonTeamIds } }) =>
+      UserRepository.getSeasonTeamAvatars({ seasonTeamIds }),
+    ),
   getBySeasonPlayerIds: seasonProcedure
     .input(
       z.object({

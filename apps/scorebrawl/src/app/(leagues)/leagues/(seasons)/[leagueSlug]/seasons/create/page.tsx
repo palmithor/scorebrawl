@@ -1,22 +1,22 @@
 import { findLeagueBySlugWithUserRole } from "@/actions/league";
-import { getAll } from "@/actions/season";
 import { TitleLayout } from "@/components/layout/title-layout";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonTable } from "@/components/season/season-table";
+import { api } from "@/trpc/server";
 import type { ScoreType } from "@scorebrawl/api";
 import { Label } from "@scorebrawl/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
 import { RedirectType, redirect } from "next/navigation";
 
 export default async function ({
-  params,
+  params: { leagueSlug },
   searchParams,
 }: { params: { leagueSlug: string }; searchParams: { scoreType: ScoreType } }) {
   const league =
-    (await findLeagueBySlugWithUserRole(params.leagueSlug)) ??
+    (await findLeagueBySlugWithUserRole(leagueSlug)) ??
     redirect("/?errorCode=LEAGUE_NOT_FOUND", RedirectType.replace);
-  const seasons = await getAll(params.leagueSlug);
+  const seasons = await api.season.getAll({ leagueSlug });
 
   const scoreType = searchParams.scoreType ?? "elo";
   return (

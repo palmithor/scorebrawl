@@ -1,5 +1,5 @@
 import { getHasEditorAccess, getTeams } from "@/actions/league";
-import { DateCell } from "@/components/players/date-cell";
+import { DateCell } from "@/components/date-cell";
 import { UpdateTeamDialog } from "@/components/players/update-team-dialog";
 import { auth } from "@clerk/nextjs/server";
 import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
