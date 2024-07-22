@@ -43,7 +43,9 @@ const leagueEventType = [
 
 export const leagueEvents = pgTable("league_event", {
   id: varchar("id", cuidConfig).primaryKey(),
-  leagueId: varchar("league_id", cuidConfig).notNull(),
+  leagueId: varchar("league_id", cuidConfig)
+    .notNull()
+    .references(() => leagues.id),
   type: varchar("type", {
     enum: leagueEventType,
   }).notNull(),
@@ -56,8 +58,12 @@ export const leaguePlayers = pgTable(
   "league_player",
   {
     id: varchar("id", cuidConfig).primaryKey(),
-    userId: varchar("user_id", defaultVarcharConfig).notNull(),
-    leagueId: varchar("league_id", cuidConfig).notNull(),
+    userId: varchar("user_id", defaultVarcharConfig)
+      .notNull()
+      .references(() => users.id),
+    leagueId: varchar("league_id", cuidConfig)
+      .notNull()
+      .references(() => leagues.id),
     disabled: boolean("disabled").default(false).notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -70,7 +76,9 @@ export const leaguePlayers = pgTable(
 export const leagueTeams = pgTable("league_team", {
   id: varchar("id", cuidConfig).primaryKey(),
   name: varchar("name", defaultVarcharConfig).notNull(),
-  leagueId: varchar("league_id", cuidConfig).notNull(),
+  leagueId: varchar("league_id", cuidConfig)
+    .notNull()
+    .references(() => leagues.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -79,8 +87,12 @@ export const leagueTeamPlayers = pgTable(
   "league_team_player",
   {
     id: varchar("id", cuidConfig).primaryKey(),
-    leaguePlayerId: varchar("league_player_id", cuidConfig).notNull(),
-    teamId: varchar("team_id", cuidConfig).notNull(),
+    leaguePlayerId: varchar("league_player_id", cuidConfig)
+      .notNull()
+      .references(() => leaguePlayers.id),
+    teamId: varchar("team_id", cuidConfig)
+      .notNull()
+      .references(() => leagueTeams.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -99,7 +111,9 @@ export const leagueMembers = pgTable(
   {
     id: varchar("id", cuidConfig).primaryKey(),
     userId: varchar("user_id", defaultVarcharConfig).notNull(),
-    leagueId: varchar("league_id", cuidConfig).notNull(),
+    leagueId: varchar("league_id", cuidConfig)
+      .notNull()
+      .references(() => leagues.id),
     role: varchar("role", {
       enum: leagueMemberRoles,
     }).notNull(),
@@ -124,7 +138,9 @@ export const seasons = pgTable(
     kFactor: integer("k_factor").notNull(),
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date"),
-    leagueId: varchar("league_id", cuidConfig).notNull(),
+    leagueId: varchar("league_id", cuidConfig)
+      .notNull()
+      .references(() => leagues.id),
     createdBy: varchar("created_by").notNull(),
     updatedBy: varchar("updated_by").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -139,8 +155,12 @@ export const seasonTeams = pgTable(
   "season_team",
   {
     id: varchar("id", cuidConfig).primaryKey(),
-    seasonId: varchar("season_id", cuidConfig).notNull(),
-    teamId: varchar("team_id", cuidConfig).notNull(),
+    seasonId: varchar("season_id", cuidConfig)
+      .notNull()
+      .references(() => seasons.id),
+    teamId: varchar("team_id", cuidConfig)
+      .notNull()
+      .references(() => leagueTeams.id),
     score: integer("score").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -154,8 +174,12 @@ const matchResult = ["W", "L", "D"] as const;
 
 export const teamMatches = pgTable("season_team_match", {
   id: varchar("id", cuidConfig).primaryKey(),
-  seasonTeamId: varchar("season_team_id", cuidConfig).notNull(),
-  matchId: varchar("match_id", cuidConfig).notNull(),
+  seasonTeamId: varchar("season_team_id", cuidConfig)
+    .notNull()
+    .references(() => seasonTeams.id),
+  matchId: varchar("match_id", cuidConfig)
+    .notNull()
+    .references(() => matches.id),
   scoreBefore: integer("score_before").notNull().default(-1),
   scoreAfter: integer("score_after").notNull().default(-1),
   result: varchar("result", { enum: matchResult }).notNull(),
@@ -167,8 +191,12 @@ export const seasonPlayers = pgTable(
   "season_player",
   {
     id: varchar("id", cuidConfig).primaryKey(),
-    seasonId: varchar("season_id", cuidConfig).notNull(),
-    leaguePlayerId: varchar("league_player_id", cuidConfig).notNull(),
+    seasonId: varchar("season_id", cuidConfig)
+      .notNull()
+      .references(() => seasons.id),
+    leaguePlayerId: varchar("league_player_id", cuidConfig)
+      .notNull()
+      .references(() => leaguePlayers.id),
     score: integer("score").notNull(),
     disabled: boolean("disabled").default(false).notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -181,7 +209,9 @@ export const seasonPlayers = pgTable(
 
 export const matches = pgTable("match", {
   id: varchar("id", cuidConfig).primaryKey(),
-  seasonId: varchar("season_id", cuidConfig).notNull(),
+  seasonId: varchar("season_id", cuidConfig)
+    .notNull()
+    .references(() => seasons.id),
   homeScore: integer("home_score").notNull(),
   awayScore: integer("away_score").notNull(),
   homeExpectedElo: real("home_expected_elo"),
@@ -194,9 +224,13 @@ export const matches = pgTable("match", {
 
 export const matchPlayers = pgTable("match_player", {
   id: varchar("id", cuidConfig).primaryKey(),
-  seasonPlayerId: varchar("season_player_id", cuidConfig).notNull(),
+  seasonPlayerId: varchar("season_player_id", cuidConfig)
+    .notNull()
+    .references(() => seasonPlayers.id),
   homeTeam: boolean("home_team").notNull(),
-  matchId: varchar("match_id", cuidConfig).notNull(),
+  matchId: varchar("match_id", cuidConfig)
+    .notNull()
+    .references(() => matches.id),
   scoreBefore: integer("score_before").notNull().default(-1),
   scoreAfter: integer("score_after").notNull().default(-1),
   result: varchar("result", { enum: matchResult }).notNull(),
@@ -226,6 +260,7 @@ export const users = pgTable("user", {
   id: varchar("id", { length: 100 }).primaryKey(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
   name: varchar("name").notNull(),
+  defaultLeagueId: varchar("defaultLeagueId", cuidConfig).references(() => leagues.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

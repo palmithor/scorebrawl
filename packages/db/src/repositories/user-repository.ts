@@ -12,7 +12,16 @@ const getUserAvatar = async ({ id }: { id: string }) => {
 };
 
 const findUserById = async ({ id }: { id: string }) =>
-  db.select({ id: users.id }).from(users).where(eq(users.id, id));
+  db.select().from(users).where(eq(users.id, id));
+
+const setDefaultLeague = async ({ leagueId, userId }: { leagueId: string; userId: string }) => {
+  const [user] = await db
+    .update(users)
+    .set({ defaultLeagueId: leagueId })
+    .where(eq(users.id, userId))
+    .returning();
+  return user;
+};
 
 const upsertUser = async ({
   id,
@@ -54,4 +63,9 @@ const upsertUser = async ({
     });
 };
 
-export const UserRepository = { findUserById, upsertUser, getUserAvatar };
+export const UserRepository = {
+  findUserById,
+  getUserAvatar,
+  setDefaultLeague,
+  upsertUser,
+};
