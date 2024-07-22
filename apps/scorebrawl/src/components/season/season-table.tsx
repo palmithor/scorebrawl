@@ -15,6 +15,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
 import { getPeriodStatus } from "@scorebrawl/utils/date";
 import { CircleCheck, CirclePlay, FastForward } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlug: string }) => {
   const { data } = api.seasonPlayer.getTop.useQuery({ leagueSlug, seasonSlug });
@@ -74,70 +75,77 @@ export const SeasonTable = ({
   hasEditorAccess?: boolean;
   showTopPlayerAndTeam?: boolean;
   seasons: (Season & { matchCount?: number; hasTeams?: boolean })[];
-}) => (
-  <Table>
-    <TableHeader>
-      <TableRow>
-        <TableHead>Status</TableHead>
-        <TableHead>Name</TableHead>
-        <TableHead>Start Date</TableHead>
-        <TableHead>End Date</TableHead>
-        {seasons[0]?.matchCount && <TableHead>Matches</TableHead>}
-        {showTopPlayerAndTeam && <TableHead>Top Player</TableHead>}
-        {showTopPlayerAndTeam && <TableHead>Top Team</TableHead>}
-        {hasEditorAccess && <TableHead>Actions</TableHead>}
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {seasons.map((season) => {
-        const periodStatus = getPeriodStatus(season);
-        let StatusIcon = null;
-        if (periodStatus === "ongoing") {
-          StatusIcon = CirclePlay;
-        } else if (periodStatus === "finished") {
-          StatusIcon = CircleCheck;
-        } else {
-          StatusIcon = FastForward;
-        }
-        return (
-          <TableRow key={season.id}>
-            <TableCell>
-              <Tooltip>
-                <TooltipTrigger>
-                  <StatusIcon className={"h-6 w-6"} />
-                </TooltipTrigger>
-                <TooltipContent className="capitalize">{periodStatus}</TooltipContent>
-              </Tooltip>
-            </TableCell>
-            <TableCell>
-              <p className="text-xs w-4/5"> {season.name}</p>
-            </TableCell>
-            <TableCell>
-              <p className={"text-xs"}>
-                {season.startDate.toLocaleDateString(window.navigator.language)}
-              </p>
-            </TableCell>
-            <TableCell>
-              <p className={"text-xs"}>
-                {season.endDate
-                  ? season.endDate.toLocaleDateString(window.navigator.language)
-                  : "-"}
-              </p>
-            </TableCell>
-            {showTopPlayerAndTeam && (
-              <>
-                <TableCell>
-                  <TopPlayerCell seasonSlug={season.slug} leagueSlug={leagueSlug} />
-                </TableCell>
-                <TableCell>
-                  <TopTeamCell seasonSlug={season.slug} leagueSlug={leagueSlug} />
-                </TableCell>
-              </>
-            )}
-            {seasons[0]?.matchCount && <TableCell>{season.matchCount}</TableCell>}
-          </TableRow>
-        );
-      })}
-    </TableBody>
-  </Table>
-);
+}) => {
+  const { push } = useRouter();
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Status</TableHead>
+          <TableHead>Name</TableHead>
+          <TableHead>Start Date</TableHead>
+          <TableHead>End Date</TableHead>
+          {seasons[0]?.matchCount && <TableHead>Matches</TableHead>}
+          {showTopPlayerAndTeam && <TableHead>Top Player</TableHead>}
+          {showTopPlayerAndTeam && <TableHead>Top Team</TableHead>}
+          {hasEditorAccess && <TableHead>Actions</TableHead>}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {seasons.map((season) => {
+          const periodStatus = getPeriodStatus(season);
+          let StatusIcon = null;
+          if (periodStatus === "ongoing") {
+            StatusIcon = CirclePlay;
+          } else if (periodStatus === "finished") {
+            StatusIcon = CircleCheck;
+          } else {
+            StatusIcon = FastForward;
+          }
+          return (
+            <TableRow
+              key={season.id}
+              className="cursor-pointer"
+              onClick={() => push(`/leagues/${leagueSlug}/seasons/${season.slug}`)}
+            >
+              <TableCell>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <StatusIcon className={"h-6 w-6 pointer-events-none"} />
+                  </TooltipTrigger>
+                  <TooltipContent className="capitalize">{periodStatus}</TooltipContent>
+                </Tooltip>
+              </TableCell>
+              <TableCell>
+                <p className="text-xs w-4/5"> {season.name}</p>
+              </TableCell>
+              <TableCell>
+                <p className={"text-xs"}>
+                  {season.startDate.toLocaleDateString(window.navigator.language)}
+                </p>
+              </TableCell>
+              <TableCell>
+                <p className={"text-xs"}>
+                  {season.endDate
+                    ? season.endDate.toLocaleDateString(window.navigator.language)
+                    : "-"}
+                </p>
+              </TableCell>
+              {showTopPlayerAndTeam && (
+                <>
+                  <TableCell>
+                    <TopPlayerCell seasonSlug={season.slug} leagueSlug={leagueSlug} />
+                  </TableCell>
+                  <TableCell>
+                    <TopTeamCell seasonSlug={season.slug} leagueSlug={leagueSlug} />
+                  </TableCell>
+                </>
+              )}
+              {seasons[0]?.matchCount && <TableCell>{season.matchCount}</TableCell>}
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
+  );
+};
