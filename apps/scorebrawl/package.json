@@ -16,6 +16,7 @@
     "@heroicons/react": "2.1.1",
     "@hookform/resolvers": "3.6.0",
     "@ihs7/ts-elo": "0.3.0",
+    "@openpanel/nextjs": "^0.0.10-beta",
     "@scorebrawl/ui": "workspace:*",
     "@t3-oss/env-nextjs": "0.7.1",
     "@tanstack/react-query": "^5.49.2",
