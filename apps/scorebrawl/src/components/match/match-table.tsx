@@ -1,4 +1,5 @@
 "use client";
+import { useSeason } from "@/context/SeasonContext";
 import {
   Table,
   TableBody,
@@ -10,13 +11,9 @@ import {
 import { MatchResult } from "./match-result";
 
 export const MatchTable = ({
-  leagueSlug,
-  seasonSlug,
   matches,
   className,
 }: {
-  leagueSlug: string;
-  seasonSlug: string;
   matches: Array<{
     id: string;
     homeScore: number;
@@ -27,6 +24,8 @@ export const MatchTable = ({
   }>;
   className?: string;
 }) => {
+  const { leagueSlug, seasonSlug } = useSeason();
+
   return (
     <Table className={className}>
       <TableHeader>

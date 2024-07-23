@@ -23,6 +23,15 @@ export const MatchResult = ({
     seasonSlug,
     seasonPlayerIds: awayTeamSeasonPlayerIds,
   });
+  const { data: homeTeam } = api.leagueTeam.getBySeasonPlayerIds.useQuery(
+    {
+      leagueSlug,
+      seasonSlug,
+      seasonPlayerIds: homeTeamSeasonPlayerIds,
+    },
+    { enabled: homeTeamSeasonPlayerIds.length > 1 },
+  );
+  console.log("hometeam", homeTeam);
   return (
     <div className="flex items-center justify-between gap-3">
       <MultiAvatarWithSkeletonLoading
