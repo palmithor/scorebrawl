@@ -1,6 +1,7 @@
 import { avatarRouter } from "@/server/api/routers/avatarRouter";
 import { inviteRouter } from "@/server/api/routers/inviteRouter";
 import { leagueRouter } from "@/server/api/routers/leagueRouter";
+import { leagueTeamRouter } from "@/server/api/routers/leagueTeamRouter";
 import { matchRouter } from "@/server/api/routers/matchRouter";
 import { memberRouter } from "@/server/api/routers/memberRouter";
 import { seasonPlayerRouter } from "@/server/api/routers/seasonPlayerRouter";
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   league: leagueRouter,
   match: matchRouter,
   member: memberRouter,
+  leagueTeam: leagueTeamRouter,
   seasonPlayer: seasonPlayerRouter,
   season: seasonRouter,
   seasonTeam: seasonTeamRouter,

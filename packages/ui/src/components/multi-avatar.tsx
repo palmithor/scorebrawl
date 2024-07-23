@@ -57,7 +57,7 @@ export const MultiAvatarWithSkeletonLoading = ({
   if (!users) {
     return (
       <div className="flex -space-x-4">
-        {Array.from({ length: visibleCount }).map((_, i) => (
+        {Array.from({ length: visibleCount }).map((_) => (
           <Skeleton className="h-8 w-8" />
         ))}
       </div>

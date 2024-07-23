@@ -6,8 +6,6 @@ import * as React from "react";
 import { Nav } from "@/components/layout/navbar";
 
 import { LeagueSwitcher } from "@/components/layout/league-switcher";
-
-import { ErrorToast } from "@/components/error-toast";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
@@ -112,9 +110,8 @@ export function NavLayout({
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]}>
           <div className="flex min-h-screen flex-col">
-            <main className="flex-1 container relative">{children}</main>
+            <main className="flex-1 container relative flex flex-col">{children}</main>
             <SiteFooter />
-            <ErrorToast />
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
