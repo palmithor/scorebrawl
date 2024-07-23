@@ -1,11 +1,12 @@
 import type { UpdateTeamInput } from "@scorebrawl/api";
-import { asc, eq, inArray, sql } from "drizzle-orm";
+import { asc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import {
   LeagueRepository,
   ScoreBrawlError,
   createCuid,
   leagueTeamPlayers,
   leagueTeams,
+  seasonPlayers,
   seasonTeams,
 } from "..";
 import { db } from "../db";
@@ -142,8 +143,20 @@ const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamInput) =
     .returning();
 };
 
+const getBySeasonPlayerIds = async ({ seasonPlayerIds }: { seasonPlayerIds: string[] }) => {
+  const [team] = await db
+    .select(getTableColumns(leagueTeams))
+    .from(leagueTeamPlayers)
+    .innerJoin(leagueTeams, eq(leagueTeams.id, leagueTeamPlayers.teamId))
+    .innerJoin(seasonTeams, eq(seasonTeams.teamId, leagueTeams.id))
+    .innerJoin(seasonPlayers, eq(seasonPlayers.seasonId, seasonTeams.seasonId))
+    .where(inArray(seasonPlayers.id, seasonPlayerIds));
+  return team;
+};
+
 export const LeagueTeamRepository = {
   getLeagueTeams,
   getOrInsertTeam,
   updateTeam,
+  getBySeasonPlayerIds,
 };

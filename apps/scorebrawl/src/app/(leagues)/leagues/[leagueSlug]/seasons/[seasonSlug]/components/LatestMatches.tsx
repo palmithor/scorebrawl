@@ -6,6 +6,7 @@ import { api } from "@/trpc/react";
 import { Button } from "@scorebrawl/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // TODO Jón save me, this is a mess and doesn't get centered!
 const _EmptyState = () => (
@@ -26,20 +27,21 @@ export const LatestMatches = ({
   leagueSlug,
   seasonSlug,
 }: { leagueSlug: string; seasonSlug: string }) => {
+  const { push } = useRouter();
   const { data, isLoading } = api.match.getAll.useQuery({ leagueSlug, seasonSlug, limit: 5 });
-  const _showEmptyState = !isLoading && data && data.length < 1;
-  const showMatches = !isLoading && data && data.length > 0;
+  const _showEmptyState = !isLoading && data && data.matches.length < 1;
+  const showMatches = !isLoading && data && data.matches.length > 0;
 
   return (
     <OverviewCard title={"Latest Matches"}>
-      <div>
-        {showMatches && (
-          <MatchTable leagueSlug={leagueSlug} seasonSlug={seasonSlug} matches={data} />
-        )}
-      </div>
+      <div>{showMatches && <MatchTable matches={data.matches} />}</div>
       <div className="flex items-center justify-end space-x-2 pt-4">
         <div className="space-x-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches`)}
+          >
             Show all
           </Button>
         </div>

@@ -9,10 +9,8 @@ export const metadata: Metadata = {
   description: "",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
-  return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
-  );
-}
+export default ({ children }: { children: React.ReactNode }): JSX.Element => (
+  <html lang="en">
+    <body className={inter.className}>{children}</body>
+  </html>
+);
