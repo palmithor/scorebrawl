@@ -1,6 +1,6 @@
 import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
 import type { CreateMatchInput, MatchResultSymbol } from "@scorebrawl/api";
-import { type SQL, and, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import { type SQL, and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { LeagueRepository, SeasonRepository } from ".";
 import {
   ScoreBrawlError,
@@ -211,30 +211,39 @@ const getBySeasonId = async ({
   page = 1,
   limit = 30,
 }: { seasonId: string; page?: number; limit?: number }) => {
-  const result = await db.query.matches.findMany({
-    where: (match, { eq }) => eq(match.seasonId, seasonId),
-    with: {
-      matchPlayers: {
-        columns: { homeTeam: true, seasonPlayerId: true },
+  const [result, [countResult]] = await Promise.all([
+    db.query.matches.findMany({
+      where: (match, { eq }) => eq(match.seasonId, seasonId),
+      with: {
+        matchPlayers: {
+          columns: { homeTeam: true, seasonPlayerId: true },
+        },
       },
-    },
-    offset: (page - 1) * limit,
-    limit,
-    orderBy: (match, { desc }) => [desc(match.createdAt)],
-  });
+      offset: (page - 1) * limit,
+      limit,
+      orderBy: (match, { desc }) => [desc(match.createdAt)],
+    }),
+    db.select({ count: count() }).from(matches).where(eq(matches.seasonId, seasonId)),
+  ]);
 
-  return result.map((match) => ({
-    id: match.id,
-    homeScore: match.homeScore,
-    awayScore: match.awayScore,
-    createdAt: match.createdAt,
-    homeTeamSeasonPlayerIds: match.matchPlayers
-      .filter((p) => p.homeTeam)
-      .map((p) => p.seasonPlayerId),
-    awayTeamSeasonPlayerIds: match.matchPlayers
-      .filter((p) => !p.homeTeam)
-      .map((p) => p.seasonPlayerId),
-  }));
+  return {
+    matches: result.map((match) => ({
+      id: match.id,
+      homeScore: match.homeScore,
+      awayScore: match.awayScore,
+      createdAt: match.createdAt,
+      homeTeamSeasonPlayerIds: match.matchPlayers
+        .filter((p) => p.homeTeam)
+        .map((p) => p.seasonPlayerId),
+      awayTeamSeasonPlayerIds: match.matchPlayers
+        .filter((p) => !p.homeTeam)
+        .map((p) => p.seasonPlayerId),
+    })),
+    totalCount: countResult?.count ?? 0,
+    page,
+    limit,
+    totalPages: Math.ceil((countResult?.count ?? 0) / limit),
+  };
 };
 const findLatest = async ({ seasonId }: { seasonId: string }) => {
   const match = await db.query.matches.findFirst({
