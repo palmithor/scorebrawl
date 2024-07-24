@@ -1,5 +1,6 @@
 import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
-import type { CreateMatchInput, MatchResultSymbol } from "@scorebrawl/api";
+import type { MatchResultSymbol } from "@scorebrawl/model";
+import type { MatchInput } from "@scorebrawl/model";
 import { type SQL, and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { LeagueRepository, SeasonRepository } from ".";
 import {
@@ -13,22 +14,18 @@ import {
   seasons,
   teamMatches,
 } from "..";
-import type { Season } from "../types";
 import { LeagueTeamRepository } from "./league-team-repository";
 
 const create = async ({
-  leagueId,
   seasonId,
   homePlayerIds,
   awayPlayerIds,
   homeScore,
   awayScore,
   userId,
-}: CreateMatchInput & { leagueId: string }) => {
+}: MatchInput) => {
   const season = await SeasonRepository.getById({
-    leagueId,
     seasonId,
-    userId,
   });
 
   const league = await LeagueRepository.getByIdWhereMember({
@@ -210,7 +207,11 @@ const getBySeasonId = async ({
   seasonId,
   page = 1,
   limit = 30,
-}: { seasonId: string; page?: number; limit?: number }) => {
+}: {
+  seasonId: string;
+  page?: number;
+  limit?: number;
+}) => {
   const [result, [countResult]] = await Promise.all([
     db.query.matches.findMany({
       where: (match, { eq }) => eq(match.seasonId, seasonId),
@@ -294,7 +295,13 @@ const findAndValidateSeasonPlayers = async ({
   return players;
 };
 
-const remove = async ({ matchId, seasonId }: { matchId: string; seasonId: string }) => {
+const remove = async ({
+  matchId,
+  seasonId,
+}: {
+  matchId: string;
+  seasonId: string;
+}) => {
   const [match] = await db
     .select({
       ...getTableColumns(matches),
@@ -310,10 +317,16 @@ const remove = async ({ matchId, seasonId }: { matchId: string; seasonId: string
     .where(and(eq(matches.id, matchId), eq(matches.seasonId, seasonId)))
     .limit(1);
   if (!match) {
-    throw new ScoreBrawlError({ code: "NOT_FOUND", message: "Match not found" });
+    throw new ScoreBrawlError({
+      code: "NOT_FOUND",
+      message: "Match not found",
+    });
   }
   if (!match.isLatest) {
-    throw new ScoreBrawlError({ code: "FORBIDDEN", message: "Only the last match can be deleted" });
+    throw new ScoreBrawlError({
+      code: "FORBIDDEN",
+      message: "Only the last match can be deleted",
+    });
   }
 
   await revertScores({ matchId });
@@ -359,7 +372,7 @@ const calculateMatchResult = ({
   homePlayers,
   awayPlayers,
 }: {
-  season: Season;
+  season: typeof seasons.$inferSelect;
   homeScore: number;
   awayScore: number;
   homePlayers: { id: string; score: number }[];
@@ -376,11 +389,14 @@ const calculateMatchResult = ({
     return calculate310(homePlayers, homeScore, awayScore, awayPlayers);
   }
 
-  throw new ScoreBrawlError({ message: "Oh my lord!", code: "INTERNAL_SERVER_ERROR" });
+  throw new ScoreBrawlError({
+    message: "Oh my lord!",
+    code: "INTERNAL_SERVER_ERROR",
+  });
 };
 
 const calculateElo = (
-  season: Season,
+  season: typeof seasons.$inferSelect,
   homeScore: number,
   homePlayers: {
     id: string;

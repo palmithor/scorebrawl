@@ -4,7 +4,7 @@ import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonTable } from "@/components/season/season-table";
 import { api } from "@/trpc/server";
-import type { ScoreType } from "@scorebrawl/api";
+import type { ScoreType } from "@scorebrawl/model";
 import { Label } from "@scorebrawl/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
 import { RedirectType, redirect } from "next/navigation";

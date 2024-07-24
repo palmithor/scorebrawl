@@ -1,9 +1,10 @@
 import { FormDots } from "@/components/league/player-form";
 import { api } from "@/trpc/react";
-import type { PlayerForm } from "@scorebrawl/api";
+import type { SeasonPlayerStandingDTO } from "@scorebrawl/api";
 import { AvatarName, AvatarNameSkeleton } from "@scorebrawl/ui/avatar-name";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
 import { Flame, Snowflake } from "lucide-react";
+import type { z } from "zod";
 import { CardContentText } from "./CardContentText";
 import { DashboardCard } from "./DashboardCard";
 
@@ -28,7 +29,7 @@ const PlayerFormCard = ({
   isLoading,
   player,
 }: {
-  player?: { name: string; imageUrl: string; form: PlayerForm };
+  player?: z.infer<typeof SeasonPlayerStandingDTO>;
   isLoading?: boolean;
   title: "On Fire" | "Struggling";
 }) => {
@@ -43,7 +44,7 @@ const PlayerFormCard = ({
       )}
       {player && (
         <div className="flex items-center">
-          <AvatarName name={player.name} imageUrl={player.imageUrl}>
+          <AvatarName name={player.user.name} imageUrl={player.user.imageUrl}>
             <FormDots form={player.form} />
           </AvatarName>
         </div>
