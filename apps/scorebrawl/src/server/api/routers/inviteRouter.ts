@@ -8,7 +8,6 @@ export const inviteRouter = createTRPCRouter({
   getAll: leagueEditorProcedure.input(z.object({ leagueSlug: z.string() })).query(({ ctx }) =>
     InviteRepository.getLeagueInvites({
       leagueId: ctx.league.id,
-      userId: ctx.auth.userId,
     }),
   ),
   create: leagueEditorProcedure

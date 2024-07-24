@@ -1,4 +1,3 @@
-import type { CreateLeagueInput } from "@scorebrawl/api";
 import {
   createCuid,
   db,
@@ -23,6 +22,7 @@ import {
   isNull,
   or,
 } from "drizzle-orm";
+import type { LeagueInput } from "../../../model/src/league";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueMemberRole, PlayerJoinedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
@@ -160,16 +160,24 @@ const getByIdWhereMember = async ({
 const findBySlugWithUserRole = async ({
   userId,
   leagueSlug,
-}: { userId: string; leagueSlug: string }) => {
+}: {
+  userId: string;
+  leagueSlug: string;
+}) => {
   const [league] = await db
-    .select({ id: leagues.id, slug: leagues.slug, name: leagues.name, role: leagueMembers.role })
+    .select({
+      id: leagues.id,
+      slug: leagues.slug,
+      name: leagues.name,
+      role: leagueMembers.role,
+    })
     .from(leagues)
     .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
     .where(and(eq(leagues.slug, leagueSlug), eq(leagueMembers.userId, userId)));
   return league;
 };
 
-const createLeague = async ({ name, logoUrl, userId }: CreateLeagueInput) => {
+const createLeague = async ({ name, logoUrl, userId }: LeagueInput) => {
   const slug = await slugifyLeagueName({ name });
   const now = new Date();
   const [league] = await db

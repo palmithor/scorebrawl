@@ -10,10 +10,27 @@ import {
   users,
 } from "../schema";
 
+export const getAll = async ({ seasonSlug }: { seasonSlug: string }) =>
+  db
+    .select({
+      seasonPlayerId: seasonPlayers.id,
+      leaguePlayerId: seasonPlayers.leaguePlayerId,
+      userId: users.id,
+      name: users.name,
+      imageUrl: users.imageUrl,
+    })
+    .from(seasonPlayers)
+    .innerJoin(seasons, eq(seasons.id, seasonPlayers.seasonId))
+    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
+    .innerJoin(users, eq(users.id, leaguePlayers.userId))
+    .where(eq(seasons.slug, seasonSlug));
+
 const matchesSubqueryBuilder = ({ seasonSlug }: { seasonSlug: string }) =>
   db
     .select({
       seasonPlayerId: matchPlayers.seasonPlayerId,
+      leaguePlayerId: seasonPlayers.leaguePlayerId,
+      score: seasonPlayers.score,
       matchId: matchPlayers.matchId,
       result: matchPlayers.result,
       createdAt: matches.createdAt,
@@ -35,9 +52,9 @@ const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
   const pointDiffSubquery = db
     .select({
       seasonPlayerId: matchPlayers.seasonPlayerId,
-      pointDiff: sql<number>`MAX(${matchPlayers.scoreAfter}) - MIN(${matchPlayers.scoreBefore})`.as(
-        "pointDiff",
-      ),
+      pointDiff: sql<number>`MAX(${matchPlayers.scoreAfter}) - MIN(${matchPlayers.scoreBefore})`
+        .mapWith(Number)
+        .as("pointDiff"),
     })
     .from(matchPlayers)
     .innerJoin(matches, eq(matches.id, matchPlayers.matchId))
@@ -49,16 +66,16 @@ const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
   const playerStats = await db
     .select({
       seasonPlayerId: matchesSubquery.seasonPlayerId,
-      totalGames: sql<number>`COUNT(*)`.as("totalGames"),
-      wins: sql<number>`SUM(CASE WHEN ${matchesSubquery.result} = 'W' THEN 1 ELSE 0 END)`.as(
-        "wins",
-      ),
-      losses: sql<number>`SUM(CASE WHEN ${matchesSubquery.result} = 'L' THEN 1 ELSE 0 END)`.as(
-        "losses",
-      ),
-      draws: sql<number>`SUM(CASE WHEN ${matchesSubquery.result} = 'D' THEN 1 ELSE 0 END)`.as(
-        "draws",
-      ),
+      totalGames: sql<number>`COUNT(*)`.mapWith(Number).as("totalGames"),
+      wins: sql<number>`SUM(CASE WHEN ${matchesSubquery.result} = 'W' THEN 1 ELSE 0 END)`
+        .mapWith(Number)
+        .as("wins"),
+      losses: sql<number>`SUM(CASE WHEN ${matchesSubquery.result} = 'L' THEN 1 ELSE 0 END)`
+        .mapWith(Number)
+        .as("losses"),
+      draws: sql<number>`SUM(CASE WHEN ${matchesSubquery.result} = 'D' THEN 1 ELSE 0 END)`
+        .mapWith(Number)
+        .as("draws"),
       recentResults:
         sql`STRING_AGG(${matchesSubquery.result}, ',' ORDER BY ${matchesSubquery.createdAt} DESC)`.as(
           "recentResults",
@@ -70,6 +87,7 @@ const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
   const players = await db
     .select({
       seasonPlayerId: seasonPlayers.id,
+      leaguePlayerId: seasonPlayers.leaguePlayerId,
       score: seasonPlayers.score,
       userId: users.id,
       name: users.name,
@@ -89,15 +107,15 @@ const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
 
     return {
       seasonPlayerId: p.seasonPlayerId,
-      name: p.name,
-      imageUrl: p.imageUrl,
+      leaguePlayerId: p.leaguePlayerId,
       score: p.score,
       matchCount: stats?.totalGames ?? 0,
       winCount: stats?.wins ?? 0,
       lossCount: stats?.losses ?? 0,
       drawCount: stats?.draws ?? 0,
       form: (form as ("W" | "D" | "L")[]).reverse(),
-      pointDiff: p.pointDiff ?? 0, // Add this line to include the point difference
+      pointDiff: p.pointDiff ?? 0,
+      user: { userId: p.userId, name: p.name, imageUrl: p.imageUrl },
     };
   });
 };
@@ -105,6 +123,9 @@ const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
 const getTopPlayer = async ({ seasonSlug }: { seasonSlug: string }) => {
   const [topPlayer] = await db
     .select({
+      seasonPlayerId: seasonPlayers.id,
+      leaguePlayerId: leaguePlayers.id,
+      score: seasonPlayers.score,
       userId: users.id,
       name: users.name,
       imageUrl: users.imageUrl,
@@ -116,7 +137,16 @@ const getTopPlayer = async ({ seasonSlug }: { seasonSlug: string }) => {
     .innerJoin(users, eq(users.id, leaguePlayers.userId))
     .orderBy(desc(seasonPlayers.score));
 
-  return topPlayer;
+  return {
+    seasonPlayerId: topPlayer?.seasonPlayerId,
+    leaguePlayerId: topPlayer?.leaguePlayerId,
+    score: topPlayer?.score,
+    user: {
+      userId: topPlayer?.userId,
+      name: topPlayer?.name,
+      imageUrl: topPlayer?.imageUrl,
+    },
+  };
 };
 
 const onFireStrugglingQuery = async ({
@@ -136,23 +166,29 @@ const onFireStrugglingQuery = async ({
   const [playerStats] = await db
     .select({
       seasonPlayerId: last5MatchesSubquery.seasonPlayerId,
-      totalGames: sql<number>`COUNT(*)`.as("totalGames"),
-      wins: sql<number>`SUM(CASE WHEN ${last5MatchesSubquery.result} = 'W' THEN 1 ELSE 0 END)`.as(
-        "wins",
-      ),
-      losses: sql<number>`SUM(CASE WHEN ${last5MatchesSubquery.result} = 'L' THEN 1 ELSE 0 END)`.as(
-        "losses",
-      ),
-      draws: sql<number>`SUM(CASE WHEN ${last5MatchesSubquery.result} = 'D' THEN 1 ELSE 0 END)`.as(
-        "draws",
-      ),
+      leaguePlayerId: last5MatchesSubquery.leaguePlayerId,
+      score: last5MatchesSubquery.score,
+      totalGames: sql<number>`COUNT(*)`.mapWith(Number).as("totalGames"),
+      wins: sql<number>`SUM(CASE WHEN ${last5MatchesSubquery.result} = 'W' THEN 1 ELSE 0 END)`
+        .mapWith(Number)
+        .as("wins"),
+      losses: sql<number>`SUM(CASE WHEN ${last5MatchesSubquery.result} = 'L' THEN 1 ELSE 0 END)`
+        .mapWith(Number)
+        .as("losses"),
+      draws: sql<number>`SUM(CASE WHEN ${last5MatchesSubquery.result} = 'D' THEN 1 ELSE 0 END)`
+        .mapWith(Number)
+        .as("draws"),
       recentResults:
         sql`STRING_AGG(${last5MatchesSubquery.result}, ',' ORDER BY ${last5MatchesSubquery.createdAt} DESC)`.as(
           "recentResults",
         ),
     })
     .from(last5MatchesSubquery)
-    .groupBy(last5MatchesSubquery.seasonPlayerId)
+    .groupBy(
+      last5MatchesSubquery.seasonPlayerId,
+      last5MatchesSubquery.leaguePlayerId,
+      last5MatchesSubquery.score,
+    )
     .orderBy(
       desc(onFire ? sql`wins` : sql`losses`),
       desc(sql`draws`),
@@ -164,7 +200,7 @@ const onFireStrugglingQuery = async ({
     return undefined;
   }
 
-  const [playerOnFire] = await db
+  const [userInfo] = await db
     .select({
       userId: users.id,
       name: users.name,
@@ -177,9 +213,19 @@ const onFireStrugglingQuery = async ({
 
   const form = (playerStats?.recentResults as string)?.split(",")?.slice(0, 5) ?? [];
   return {
-    name: playerOnFire?.name as string,
-    imageUrl: playerOnFire?.imageUrl as string,
+    seasonPlayerId: playerStats?.seasonPlayerId,
+    leaguePlayerId: playerStats?.leaguePlayerId,
+    score: playerStats?.score,
+    matchCount: playerStats?.totalGames,
+    winCount: playerStats?.wins,
+    lossCount: playerStats?.losses,
+    drawCount: playerStats?.draws,
     form: (form as ("W" | "D" | "L")[]).reverse(),
+    user: {
+      userId: userInfo?.userId,
+      name: userInfo?.name,
+      imageUrl: userInfo?.imageUrl,
+    },
   };
 };
 
@@ -190,6 +236,7 @@ export const getStruggling = async ({ seasonSlug }: { seasonSlug: string }) =>
   onFireStrugglingQuery({ seasonSlug, onFire: false });
 
 export const SeasonPlayerRepository = {
+  getAll,
   getStanding,
   getOnFire,
   getStruggling,

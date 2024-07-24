@@ -1,12 +1,13 @@
 "use client";
-import { create } from "@/actions/season";
-import { createSeasonSchema } from "@scorebrawl/api";
+import { api } from "@/trpc/react";
+import { SeasonCreateDTOSchema } from "@scorebrawl/api";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
+import { endOfDay, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type FormValues = {
   name: string;
@@ -14,17 +15,21 @@ type FormValues = {
   endDate?: Date;
 };
 
-const schema = createSeasonSchema
-  .omit({ userId: true, leagueId: true, kFactor: true, initialScore: true, scoreType: true })
-  .refine((data) => data.endDate && data.endDate > data.startDate, {
-    message: "End date cannot be earlier than start date.",
-    path: ["endDate"],
-  });
+const schema = SeasonCreateDTOSchema.omit({
+  leagueSlug: true,
+  kFactor: true,
+  initialScore: true,
+  scoreType: true,
+}).refine((data) => data.endDate && endOfDay(data.endDate) > startOfDay(data.startDate), {
+  message: "End date cannot be earlier than start date.",
+  path: ["endDate"],
+});
 
 export const SeasonForm310 = ({ league }: { league: { id: string; slug: string } }) => {
   const { toast } = useToast();
   const { push } = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const utils = api.useUtils();
+  const { mutate, isPending } = api.season.create.useMutation();
   const [_scoreType, setScoreType] = useQueryState(
     "scoreType",
     parseAsString.withDefault("").withOptions({
@@ -37,23 +42,26 @@ export const SeasonForm310 = ({ league }: { league: { id: string; slug: string }
   }, [setScoreType]);
 
   const onSubmit = async (val: FormValues) => {
-    setIsLoading(true);
-    try {
-      const season = await create({
-        ...val,
-        leagueSlug: league.slug,
-        initialScore: 0,
-        scoreType: "3-1-0" as const,
-      });
-      push(`/leagues/${league.slug}/seasons/${season.slug}`);
-    } catch (err) {
-      toast({
-        title: "Error creating season",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
+    mutate(
+      { ...val, initialScore: 0, scoreType: "3-1-0", leagueSlug: league.slug },
+      {
+        onSettled: (data) => {
+          if (data) {
+            push(`/leagues/${league.slug}/seasons/${data.slug}`);
+          }
+        },
+        onSuccess: () => {
+          utils.season.getAll.invalidate();
+        },
+        onError: (err) => {
+          toast({
+            title: "Error creating season",
+            description: err instanceof Error ? err.message : "Unknown error",
+            variant: "destructive",
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -64,7 +72,7 @@ export const SeasonForm310 = ({ league }: { league: { id: string; slug: string }
         simple match outcomes.
       </p>
       <AutoForm className="flex-1" formSchema={schema} onSubmit={onSubmit}>
-        <LoadingButton loading={isLoading} type="submit">
+        <LoadingButton loading={isPending} type="submit">
           Create Season
         </LoadingButton>
       </AutoForm>
