@@ -143,7 +143,11 @@ const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamInput) =
     .returning();
 };
 
-const getBySeasonPlayerIds = async ({ seasonPlayerIds }: { seasonPlayerIds: string[] }) => {
+const getBySeasonPlayerIds = async ({
+  seasonPlayerIds,
+}: {
+  seasonPlayerIds: string[];
+}) => {
   const [team] = await db
     .select(getTableColumns(leagueTeams))
     .from(leagueTeamPlayers)

@@ -1,0 +1,38 @@
+import { ScoreTypeSchema } from "@scorebrawl/model";
+import { z } from "zod";
+
+export const SeasonCreateDTOSchema = z.object({
+  name: z.string().min(0, "Name is required"),
+  scoreType: ScoreTypeSchema.default("elo"),
+  leagueSlug: z.string(),
+  startDate: z.date().optional().default(new Date()),
+  endDate: z.date().optional(),
+  initialScore: z.coerce.number().int().min(0).default(1200),
+  kFactor: z.coerce.number().int().min(10).max(50).optional().default(32),
+});
+export type SeasonCreateDTO = z.infer<typeof SeasonCreateDTOSchema>;
+
+export const SeasonEditDTOSchema = z
+  .object({
+    leagueSlug: z.string(),
+    seasonSlug: z.string(),
+    name: z.string().optional(),
+    startDate: z.date().optional(),
+    endDate: z.date().optional(),
+    initialScore: z.number().optional(),
+    scoreType: ScoreTypeSchema.optional(),
+    kFactor: z.number().optional(),
+  })
+  .refine(
+    (data) =>
+      data.name !== undefined ||
+      data.startDate !== undefined ||
+      data.endDate !== undefined ||
+      data.initialScore !== undefined ||
+      data.scoreType !== undefined ||
+      data.kFactor !== undefined,
+    {
+      message: "At least one of startDate, endDate, initialScore, or kFactor must be provided",
+      path: ["name", "startDate", "endDate", "initialScore", "scoreType", "kFactor"], // This will mark all these fields as the source of the error
+    },
+  );

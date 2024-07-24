@@ -21,29 +21,28 @@ export const SeasonStanding = ({
   return (
     <>
       {isLoading && <Skeleton className={"w-full h-80"} />}
-      {!isLoading && data && data.length < 1 && (
-        <div className={"w-full h-80 justify-center"}>No team matches</div>
-      )}
       {!isLoading && data && (
         <OverviewCard title="Team Standing">
-          <Standing
-            items={data?.map((st) => ({
-              id: st.seasonTeamId,
-              name: st.name,
-              score: st.score,
-              form: st.form,
-              matchCount: st.matchCount,
-              winCount: st.winCount,
-              drawCount: st.drawCount,
-              lossCount: st.lossCount,
-              pointDiff: st.pointDiff,
-              avatars:
-                avatars
-                  ?.find((t) => t.teamId === st.seasonTeamId)
-                  ?.players.map((p) => ({ id: p.userId, name: p.name, imageUrl: p.imageUrl })) ??
-                [],
-            }))}
-          />
+          {data.length > 0 && (
+            <Standing
+              items={data?.map((st) => ({
+                id: st.seasonTeamId,
+                name: st.name,
+                score: st.score,
+                form: st.form,
+                matchCount: st.matchCount,
+                winCount: st.winCount,
+                drawCount: st.drawCount,
+                lossCount: st.lossCount,
+                pointDiff: st.pointDiff,
+                avatars:
+                  avatars
+                    ?.find((t) => t.teamId === st.seasonTeamId)
+                    ?.players.map((p) => ({ id: p.userId, name: p.name, imageUrl: p.imageUrl })) ??
+                  [],
+              }))}
+            />
+          )}
         </OverviewCard>
       )}
     </>
