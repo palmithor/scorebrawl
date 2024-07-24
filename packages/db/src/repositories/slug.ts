@@ -16,7 +16,7 @@ export const slugifyWithCustomReplacement = (text: string) => {
   });
 };
 export const slugifyLeagueName = async ({ name }: { name: string }) => {
-  const doesLeagueSlugExists = async (slug: string) =>
+  const doesLeagueSlugExists = async (_slug: string) =>
     db.select().from(leagues).where(eq(leagues.slug, slug)).limit(1);
   const rootSlug = slugifyWithCustomReplacement(name);
   let slug = rootSlug;
@@ -31,7 +31,7 @@ export const slugifyLeagueName = async ({ name }: { name: string }) => {
 };
 
 export const slugifySeasonName = async ({ name }: { name: string }) => {
-  const doesLeagueSlugExists = async (slug: string) =>
+  const doesLeagueSlugExists = async (_slug: string) =>
     db.select().from(seasons).where(eq(seasons.slug, slug)).limit(1);
 
   const rootSlug = slugifyWithCustomReplacement(name);

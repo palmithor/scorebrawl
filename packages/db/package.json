@@ -10,11 +10,12 @@
   "dependencies": {
     "@neondatabase/serverless": "^0.9.4",
     "@paralleldrive/cuid2": "2.2.2",
-    "@scorebrawl/api": "workspace:*",
+    "@scorebrawl/model": "workspace:*",
     "@scorebrawl/utils": "workspace:*",
     "date-fns": "^3.6.0",
     "drizzle-orm": "0.31.0",
-    "postgres": "3.3.5"
+    "postgres": "3.3.5",
+    "zod": "3.23.8"
   },
   "devDependencies": {
     "@scorebrawl/typescript-config": "workspace:*",

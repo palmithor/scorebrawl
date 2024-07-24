@@ -69,7 +69,9 @@ export const LeagueDetailsSubNav = ({
               variant="secondary"
               size="sm"
               onClick={() =>
-                void push(`/leagues/${league.slug}/seasons/${ongoingSeason.slug}/matches/create`)
+                void push(
+                  `/leagues/${league.slug}/seasons/${ongoingSeason.slug}/matches/create-deprecated`,
+                )
               }
             >
               <PlusIcon className="mr-2 h-4 w-4" />

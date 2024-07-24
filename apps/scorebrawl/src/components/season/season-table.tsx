@@ -27,8 +27,8 @@ const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueS
     <AvatarName
       textClassName={"text-xs"}
       avatarClassName={"h-8 w-8"}
-      name={data.name}
-      imageUrl={data.imageUrl}
+      name={data.user.name}
+      imageUrl={data.user.imageUrl}
     />
   );
 };
