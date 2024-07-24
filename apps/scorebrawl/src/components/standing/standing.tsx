@@ -1,7 +1,7 @@
 "use client";
 
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import type { PlayerForm } from "@scorebrawl/api";
+import type { PlayerForm } from "@scorebrawl/model";
 import { cn } from "@scorebrawl/ui/lib";
 import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
 import {
@@ -32,7 +32,7 @@ export const Standing = ({
     drawCount: number;
     lossCount: number;
     avatars: { id: string; name: string; imageUrl: string }[];
-    pointDiff: number;
+    pointDiff: number | undefined;
     form: PlayerForm;
   }[];
 }) => {

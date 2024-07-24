@@ -18,7 +18,11 @@ const getUserAvatar = async ({ userId }: { userId: string }) => {
   return userAvatar;
 };
 
-const getSeasonTeamAvatars = async ({ seasonTeamIds }: { seasonTeamIds: string[] }) => {
+const getSeasonTeamAvatars = async ({
+  seasonTeamIds,
+}: {
+  seasonTeamIds: string[];
+}) => {
   const rawResults = await db
     .select({
       teamId: seasonTeams.id,
@@ -36,7 +40,10 @@ const getSeasonTeamAvatars = async ({ seasonTeamIds }: { seasonTeamIds: string[]
   // Process the results to group players by team
   const resultMap = new Map<
     string,
-    { teamId: string; players: { userId: string; imageUrl: string; name: string }[] }
+    {
+      teamId: string;
+      players: { userId: string; imageUrl: string; name: string }[];
+    }
   >();
 
   for (const row of rawResults) {
@@ -53,7 +60,11 @@ const getSeasonTeamAvatars = async ({ seasonTeamIds }: { seasonTeamIds: string[]
   return Array.from(resultMap.values());
 };
 
-const getSeasonPlayerAvatars = ({ seasonPlayerIds }: { seasonPlayerIds: Array<string> }) => {
+const getSeasonPlayerAvatars = ({
+  seasonPlayerIds,
+}: {
+  seasonPlayerIds: Array<string>;
+}) => {
   return db
     .select({
       userId: users.id,
@@ -69,7 +80,13 @@ const getSeasonPlayerAvatars = ({ seasonPlayerIds }: { seasonPlayerIds: Array<st
 const findUserById = async ({ id }: { id: string }) =>
   db.select().from(users).where(eq(users.id, id));
 
-const setDefaultLeague = async ({ leagueId, userId }: { leagueId: string; userId: string }) => {
+const setDefaultLeague = async ({
+  leagueId,
+  userId,
+}: {
+  leagueId: string;
+  userId: string;
+}) => {
   const [user] = await db
     .update(users)
     .set({ defaultLeagueId: leagueId })

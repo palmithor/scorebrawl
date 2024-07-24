@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import type { CreateLeagueInput, UpdateTeamInput } from "@scorebrawl/api";
+import type { UpdateTeamInput } from "@scorebrawl/api";
 import { LeagueRepository, LeagueTeamRepository, PlayerRepository } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
@@ -46,9 +46,6 @@ export const getCode = cache((leagueId: string) =>
 export const getHasEditorAccess = cache((leagueId: string) =>
   LeagueRepository.hasLeagueEditorAccess({ leagueId, userId: auth().userId as string }),
 );
-
-export const create = async (val: Omit<CreateLeagueInput, "userId">) =>
-  LeagueRepository.createLeague({ ...val, userId: auth().userId as string });
 
 export const join = async (val: { code: string }) =>
   LeagueRepository.joinLeague({ code: val.code, userId: auth().userId as string });

@@ -53,7 +53,7 @@ const schema = z.object({
   awayScore: z.coerce.number().min(0),
 });
 
-type FormValues = z.output<typeof schema>;
+type FormValues = z.infer<typeof schema>;
 
 type SeasonPlayerType = z.infer<typeof seasonPlayerSchema>;
 export const MatchForm = ({
