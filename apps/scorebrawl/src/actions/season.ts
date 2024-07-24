@@ -1,15 +1,15 @@
 "use server";
-
-import type { AppRouter } from "@/server/api/root";
-import { api } from "@/trpc/server";
 import { auth } from "@clerk/nextjs/server";
 import { PlayerRepository, SeasonRepository } from "@scorebrawl/db";
 import type { SeasonPlayer } from "@scorebrawl/db/types";
-import type { inferRouterInputs } from "@trpc/server";
 import { cache } from "react";
 
 export const getPlayers = cache(async (seasonId: string, leagueId: string) =>
-  SeasonRepository.getSeasonPlayers({ leagueId, seasonId, userId: auth().userId as string }),
+  SeasonRepository.getSeasonPlayers({
+    leagueId,
+    seasonId,
+    userId: auth().userId as string,
+  }),
 );
 
 export const getPlayerPointDiff = cache((seasonPlayerIds: string[]) =>
@@ -30,6 +30,3 @@ export const getPlayersForm = cache(
     });
   },
 );
-
-export const create = async (val: inferRouterInputs<AppRouter>["season"]["create"]) =>
-  api.season.create(val);

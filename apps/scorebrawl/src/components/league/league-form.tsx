@@ -1,9 +1,9 @@
 "use client";
 
-import { create } from "@/actions/league";
 import { TitleLayout } from "@/components/layout/title-layout";
 import { UploadButton } from "@/components/uploadthing";
-import { createLeagueSchema } from "@scorebrawl/api";
+import { api } from "@/trpc/react";
+import { LeagueInputDTOSchema } from "@scorebrawl/api/src/league";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
@@ -29,35 +29,36 @@ export const LeagueForm = ({
 }) => {
   const { toast } = useToast();
   const { push } = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate, isPending } = api.league.create.useMutation();
   const [uploadError, setUploadError] = useState<string | undefined>();
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [logo, setLogo] = useState<string>(DEFAULT_LEAGUE_LOGO);
 
-  const onSubmit = async (val: FormValues) => {
-    setIsLoading(true);
-    try {
-      const league = await create({ ...val, logoUrl: logo });
-      push(`/leagues/${league?.slug}`);
-    } catch (err) {
-      toast({
-        title: "Error creating league",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
+  const onSubmit = (val: FormValues) => {
+    mutate(
+      { ...val, logoUrl: logo },
+      {
+        onSettled: (data) => push(`/leagues/${data?.slug}`),
+        onError: (err) => {
+          toast({
+            title: "Error creating league",
+            description: err instanceof Error ? err.message : "Unknown error",
+            variant: "destructive",
+          });
+        },
+      },
+    );
   };
 
   return (
     <TitleLayout title={title}>
       <div className="grid grid-rows-2 gap-8 sm:grid-cols-2">
         <AutoForm
-          formSchema={createLeagueSchema.omit({ logoUrl: true, userId: true, visibility: true })}
+          formSchema={LeagueInputDTOSchema.omit({ logoUrl: true })}
           values={league}
           onSubmit={onSubmit}
         >
-          <LoadingButton loading={isLoading} type="submit" disabled={uploadInProgress}>
+          <LoadingButton loading={isPending} type="submit" disabled={uploadInProgress}>
             {buttonTitle}
           </LoadingButton>
         </AutoForm>

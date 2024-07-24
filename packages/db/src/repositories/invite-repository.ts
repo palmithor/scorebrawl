@@ -1,11 +1,8 @@
-import { and, desc, eq, getTableColumns } from "drizzle-orm";
+import { desc, eq, getTableColumns } from "drizzle-orm";
 import { db } from "../db";
-import { ScoreBrawlError } from "../errors";
 import { leagueInvites, leagues } from "../schema";
 import type { LeagueMemberRole } from "../types";
 import { createCuid } from "../utils";
-import { canReadLeaguesCriteria } from "./criteria-util";
-import { LeagueRepository } from "./league-repository";
 
 const createInvite = async ({
   userId,
@@ -18,13 +15,6 @@ const createInvite = async ({
   role: LeagueMemberRole;
   expiresAt?: Date;
 }) => {
-  const hasEditorAccess = await LeagueRepository.hasLeagueEditorAccess({ userId, leagueId });
-  if (!hasEditorAccess) {
-    throw new ScoreBrawlError({
-      code: "FORBIDDEN",
-      message: "league access denied",
-    });
-  }
   const now = new Date();
   const [invite] = await db
     .insert(leagueInvites)
@@ -46,17 +36,15 @@ const createInvite = async ({
 };
 
 const getLeagueInvites = async ({
-  userId,
   leagueId,
 }: {
-  userId: string;
   leagueId: string;
 }) =>
   db
     .select(getTableColumns(leagueInvites))
     .from(leagueInvites)
     .innerJoin(leagues, eq(leagueInvites.leagueId, leagues.id))
-    .where(and(eq(leagueInvites.leagueId, leagueId), canReadLeaguesCriteria({ userId })))
+    .where(eq(leagueInvites.leagueId, leagueId))
     .orderBy(desc(leagueInvites.expiresAt));
 
 export const InviteRepository = {

@@ -15,7 +15,9 @@ export const db = process.env.VERCEL
 
 export const migrateDb = async () => {
   if (process.env.VERCEL) {
-    await migrate(drizzle(neon(databaseUrl)), { migrationsFolder: "./migrations" });
+    await migrate(drizzle(neon(databaseUrl)), {
+      migrationsFolder: "./migrations",
+    });
   } else {
     const migrateDrizzle = localDrizzle(postgres(databaseUrl, { max: 1 }));
     await localMigrator(migrateDrizzle, { migrationsFolder: "./migrations" });

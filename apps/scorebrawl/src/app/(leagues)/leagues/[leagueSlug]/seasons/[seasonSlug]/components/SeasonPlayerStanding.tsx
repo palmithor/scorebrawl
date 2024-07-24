@@ -17,7 +17,7 @@ export const SeasonPlayerStanding = ({
           <Standing
             items={data?.map((sp) => ({
               id: sp.seasonPlayerId,
-              name: sp.name,
+              name: sp.user.name,
               score: sp.score,
               form: sp.form,
               matchCount: sp.matchCount,
@@ -25,7 +25,7 @@ export const SeasonPlayerStanding = ({
               drawCount: sp.drawCount,
               lossCount: sp.lossCount,
               pointDiff: sp.pointDiff,
-              avatars: [{ id: sp.seasonPlayerId, imageUrl: sp.imageUrl, name: sp.name }],
+              avatars: [{ id: sp.user.userId, imageUrl: sp.user.imageUrl, name: sp.user.name }],
             }))}
           />
         </OverviewCard>

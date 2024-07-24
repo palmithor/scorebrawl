@@ -15,7 +15,7 @@ export const LatestMatchCard = ({
   seasonSlug,
 }: { leagueSlug: string; seasonSlug: string }) => {
   const { data, isLoading } = api.match.getLatest.useQuery({ seasonSlug, leagueSlug });
-  console.log("latest", data);
+
   return (
     <DashboardCard Icon={CalendarCheck2} title={"Latest Match"}>
       {isLoading && <Skeleton className={"gap-2 h-14 w-full"} />}
