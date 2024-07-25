@@ -1,5 +1,6 @@
 "use client";
 import { useSeason } from "@/context/SeasonContext";
+import type { MatchDTO } from "@scorebrawl/api";
 import {
   Table,
   TableBody,
@@ -8,20 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@scorebrawl/ui/table";
+import type { z } from "zod";
 import { MatchResult } from "./match-result";
 
 export const MatchTable = ({
   matches,
   className,
 }: {
-  matches: Array<{
-    id: string;
-    homeScore: number;
-    awayScore: number;
-    createdAt: Date;
-    homeTeamSeasonPlayerIds: Array<string>;
-    awayTeamSeasonPlayerIds: Array<string>;
-  }>;
+  matches: z.infer<typeof MatchDTO>[];
   className?: string;
 }) => {
   const { leagueSlug, seasonSlug } = useSeason();
