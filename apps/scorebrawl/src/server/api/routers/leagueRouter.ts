@@ -1,11 +1,15 @@
 import { LeagueRepository } from "@scorebrawl/db";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, leagueProcedure, protectedProcedure } from "@/server/api/trpc";
+import { editorRoles } from "@/utils/permissionUtil";
 import { LeagueInputDTOSchema } from "@scorebrawl/api/src/league";
 import { LeagueInputSchema } from "@scorebrawl/model";
 
 export const leagueRouter = createTRPCRouter({
+  hasEditorAccess: leagueProcedure
+    .input(z.object({ leagueSlug: z.string() }))
+    .query(({ ctx }) => editorRoles.some((role) => ctx.role === role)),
   getAll: protectedProcedure
     .input(z.object({ search: z.string().optional() }))
     .query(({ ctx, input: { search } }) =>
