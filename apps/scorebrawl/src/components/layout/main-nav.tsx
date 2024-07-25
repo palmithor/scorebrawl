@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleCheck, Users } from "lucide-react";
+import { Home, Users } from "lucide-react";
 import * as React from "react";
 
 import { Nav } from "@/components/layout/navbar";
@@ -22,15 +22,15 @@ interface MailProps {
   defaultLayout?: number[];
   children: React.ReactNode;
 }
-const constructLinks = ({ slug }: { slug: string }) => [
+const constructLinks = ({ leagueSlug }: { leagueSlug: string }) => [
   {
-    name: "Seasons",
-    href: `/leagues/${slug}/seasons`,
-    icon: CircleCheck,
+    name: "Home",
+    href: `/leagues/${leagueSlug}`,
+    icon: Home,
   },
   {
     name: "Players",
-    href: `/leagues/${slug}/players`,
+    href: `/leagues/${leagueSlug}/players`,
     icon: Users,
   },
 ];
@@ -48,7 +48,7 @@ export function NavLayout({
   const params = useParams<{ leagueSlug: string }>();
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const selectedLeague = leagues.find((league) => league.slug === params.leagueSlug) ?? leagues[0];
-  const links = constructLinks({ slug: params.leagueSlug });
+  const links = constructLinks({ leagueSlug: params.leagueSlug });
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
