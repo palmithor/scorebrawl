@@ -1,7 +1,14 @@
 "use client";
 
+import { events } from "@/analytics/counters";
+import { AvatarBadge } from "@/components/user/avatar-badge";
+import { useSeason } from "@/context/SeasonContext";
+import { api } from "@/trpc/react";
+import { MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { SeasonPlayer } from "@scorebrawl/db/types";
+import { trackEvent } from "@openpanel/nextjs";
+import { type SeasonPlayerDTO, SeasonPlayerStandingDTO } from "@scorebrawl/api";
+import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
 import type { badgeVariants } from "@scorebrawl/ui/badge";
 import { Button } from "@scorebrawl/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@scorebrawl/ui/card";
@@ -16,60 +23,36 @@ import {
 } from "@scorebrawl/ui/drawer";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@scorebrawl/ui/form";
 import { cn } from "@scorebrawl/ui/lib";
-import { CircleEqual, Shuffle } from "lucide-react";
-import { useForm } from "react-hook-form";
-
-import { create } from "@/actions/match";
-import { events } from "@/analytics/counters";
-import { MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
-import { trackEvent } from "@openpanel/nextjs";
-import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { Separator } from "@scorebrawl/ui/separator";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { capitalize, getInitialsFromString } from "@scorebrawl/utils/string";
 import type { VariantProps } from "class-variance-authority";
-import { useRouter } from "next/navigation";
+import { CircleEqual, Shuffle } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { TitleLayout } from "../layout/title-layout";
-import { AvatarBadge } from "../user/avatar-badge";
 
-const seasonPlayerSchema = z.object({
-  id: z.string(),
-  leaguePlayerId: z.string(),
-  userId: z.string(),
-  name: z.string(),
-  imageUrl: z.string(),
-  score: z.number(),
-  joinedAt: z.date(),
-  disabled: z.boolean(),
-  matchCount: z.number(),
-});
 const schema = z.object({
-  awayPlayers: seasonPlayerSchema.array().min(1),
-  homePlayers: seasonPlayerSchema.array().min(1),
+  awayPlayers: SeasonPlayerStandingDTO.array().min(1),
+  homePlayers: SeasonPlayerStandingDTO.array().min(1),
   homeScore: z.coerce.number().min(0),
   awayScore: z.coerce.number().min(0),
 });
 
 type FormValues = z.infer<typeof schema>;
 
-type SeasonPlayerType = z.infer<typeof seasonPlayerSchema>;
-export const MatchForm = ({
-  season,
-  leagueSlug,
-  seasonPlayers,
-}: {
-  leagueSlug: string;
-  season: { id: string; leagueId: string; name: string };
-  seasonPlayers: SeasonPlayer[];
-}) => {
+type SeasonPlayerType = z.infer<typeof SeasonPlayerStandingDTO>;
+
+export const MatchForm = () => {
+  const { leagueSlug, seasonSlug } = useSeason();
+  const { data: season } = api.season.getBySlug.useQuery({ leagueSlug, seasonSlug });
+  const { data: seasonPlayers } = api.seasonPlayer.getStanding.useQuery({ leagueSlug, seasonSlug });
   const { toast } = useToast();
-  const { refresh } = useRouter();
+  const utils = api.useUtils();
+  const { mutate, isPending } = api.match.create.useMutation();
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<"home" | "away">("home");
-  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
@@ -168,174 +151,191 @@ export const MatchForm = ({
     form.setValue("homePlayers", bestTeams[0]);
     form.setValue("awayPlayers", bestTeams[1]);
   };
+
   const onSubmit = async ({ homeScore, homePlayers, awayPlayers, awayScore }: FormValues) => {
-    setIsLoading(true);
-    try {
-      await create({
-        leagueId: season.leagueId,
-        seasonId: season.id,
+    console.log(homePlayers);
+    console.log(awayPlayers);
+    mutate(
+      {
+        leagueSlug,
+        seasonSlug,
         homeScore,
         awayScore,
-        homePlayerIds: homePlayers.map((p) => p.id) as [string, ...string[]],
-        awayPlayerIds: awayPlayers.map((p) => p.id) as [string, ...string[]],
-      });
-      toast({
-        title: "Match created",
-        description: "Match has been created successfully",
-      });
-      form.reset();
-      refresh();
-      setSelectedPlayerIds([]);
-    } catch (err) {
-      toast({
-        title: "Error creating match",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+        homeTeamSeasonPlayerIds: homePlayers.map((p) => p.seasonPlayerId) as [string, ...string[]],
+        awayTeamSeasonPlayerIds: awayPlayers.map((p) => p.seasonPlayerId) as [string, ...string[]],
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          setSelectedPlayerIds([]);
+          utils.seasonPlayer.getStanding.invalidate();
+          utils.seasonPlayer.getAll.invalidate();
+          utils.seasonPlayer.getTop.invalidate();
+          utils.seasonPlayer.getStruggling.invalidate();
+          utils.seasonPlayer.getOnFire.invalidate();
+          utils.match.getAll.invalidate();
+          utils.match.getLatest.invalidate();
+          toast({
+            title: "Match created",
+            description: "Match has been created successfully",
+          });
+        },
+        onError: (err) => {
+          toast({
+            title: "Error creating match",
+            description: err instanceof Error ? err.message : "Unknown error",
+            variant: "destructive",
+          });
+        },
+      },
+    );
   };
-  const remainingPlayers = seasonPlayers.filter((player) => !selectedPlayerIds.includes(player.id));
+  if (!season || !seasonPlayers) {
+    return null;
+  }
+
+  const remainingPlayers = seasonPlayers.filter(
+    (player) => !selectedPlayerIds.includes(player.seasonPlayerId),
+  );
 
   return (
-    <div>
-      <TitleLayout
-        title="Create Match"
-        subtitle={`In season "${season.name}"`}
-        backLink={`/leagues/${leagueSlug}`}
-      >
-        <Form {...form}>
-          <form noValidate className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
-            <Drawer>
-              <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                <FormField
-                  control={form.control}
-                  name="homeScore"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-center">
-                      <FormControl>
-                        <ScoreStepper
-                          team={"home"}
-                          score={field.value}
-                          min={0}
-                          onClickMinus={() => {
-                            field.onChange(field.value - 1);
-                          }}
-                          onClickPlus={() => {
-                            field.onChange(field.value + 1);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="awayScore"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-center">
-                      <FormControl>
-                        <ScoreStepper
-                          team={"away"}
-                          score={field.value}
-                          min={0}
-                          onClickMinus={() => {
-                            field.onChange(field.value - 1);
-                          }}
-                          onClickPlus={() => {
-                            field.onChange(field.value + 1);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="homePlayers"
-                  render={({ field }) => (
-                    <FormItem className="flex-grow">
-                      <FormControl>
-                        <PlayerListCard
-                          team="home"
-                          teamPlayers={field.value}
-                          selectedTeam={selectedTeam}
-                          remainingPlayers={remainingPlayers}
-                          onClickAddPlayers={setSelectedTeam}
-                          onSelect={(player) => {
-                            field.onChange([...field.value, player]);
-                            setSelectedPlayerIds((prev) => [...prev, player.id]);
-                          }}
-                          onDeselect={(player) => {
-                            field.onChange(field.value.filter((p) => p.id !== player.id));
-                            setSelectedPlayerIds((prev) => prev.filter((pId) => pId !== player.id));
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="awayPlayers"
-                  render={({ field }) => (
-                    <FormItem className="flex-grow">
-                      <FormControl>
-                        <PlayerListCard
-                          team="away"
-                          selectedTeam={selectedTeam}
-                          teamPlayers={field.value}
-                          remainingPlayers={remainingPlayers}
-                          onClickAddPlayers={setSelectedTeam}
-                          onSelect={(player) => {
-                            field.onChange([...field.value, player]);
-                            setSelectedPlayerIds((prev) => [...prev, player.id]);
-                          }}
-                          onDeselect={(player) => {
-                            field.onChange(field.value.filter((p) => p.id !== player.id));
-                            setSelectedPlayerIds((prev) => prev.filter((pId) => pId !== player.id));
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex justify-between">
-                <div>
-                  <Button
-                    disabled={!enableReorder}
-                    className="text-xs"
-                    variant="outline"
-                    type="button"
-                    onClick={shuffleTeams}
-                  >
-                    <Shuffle className="mr-2 h-4 w-4" /> Shuffle
-                  </Button>
-                  <Button
-                    className="ml-2 text-xs"
-                    disabled={!enableReorder}
-                    variant="outline"
-                    type="button"
-                    onClick={evenTeams}
-                  >
-                    <CircleEqual className="mr-2 h-4 w-4" /> Even
-                  </Button>
-                </div>
-                <LoadingButton loading={isLoading} type="submit">
-                  Create Match
-                </LoadingButton>
-              </div>
-            </Drawer>
-          </form>
-        </Form>
-      </TitleLayout>
-    </div>
+    <Form {...form}>
+      <form noValidate className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+        <Drawer>
+          <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+            <FormField
+              control={form.control}
+              name="homeScore"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-center">
+                  <FormControl>
+                    <ScoreStepper
+                      team={"home"}
+                      score={field.value}
+                      min={0}
+                      onClickMinus={() => {
+                        field.onChange(field.value - 1);
+                      }}
+                      onClickPlus={() => {
+                        field.onChange(field.value + 1);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="awayScore"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-center">
+                  <FormControl>
+                    <ScoreStepper
+                      team={"away"}
+                      score={field.value}
+                      min={0}
+                      onClickMinus={() => {
+                        field.onChange(field.value - 1);
+                      }}
+                      onClickPlus={() => {
+                        field.onChange(field.value + 1);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="homePlayers"
+              render={({ field }) => (
+                <FormItem className="flex-grow">
+                  <FormControl>
+                    <PlayerListCard
+                      team="home"
+                      teamPlayers={field.value}
+                      selectedTeam={selectedTeam}
+                      remainingPlayers={remainingPlayers}
+                      onClickAddPlayers={setSelectedTeam}
+                      onSelect={(player) => {
+                        field.onChange([...field.value, player]);
+                        setSelectedPlayerIds((prev) => [...prev, player.seasonPlayerId]);
+                      }}
+                      onDeselect={(player) => {
+                        field.onChange(
+                          field.value.filter((p) => p.seasonPlayerId !== player.seasonPlayerId),
+                        );
+                        setSelectedPlayerIds((prev) =>
+                          prev.filter((pId) => pId !== player.seasonPlayerId),
+                        );
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="awayPlayers"
+              render={({ field }) => (
+                <FormItem className="flex-grow">
+                  <FormControl>
+                    <PlayerListCard
+                      team="away"
+                      selectedTeam={selectedTeam}
+                      teamPlayers={field.value}
+                      remainingPlayers={remainingPlayers}
+                      onClickAddPlayers={setSelectedTeam}
+                      onSelect={(player) => {
+                        field.onChange([...field.value, player]);
+                        setSelectedPlayerIds((prev) => [...prev, player.seasonPlayerId]);
+                      }}
+                      onDeselect={(player) => {
+                        field.onChange(
+                          field.value.filter((p) => p.seasonPlayerId !== player.seasonPlayerId),
+                        );
+                        setSelectedPlayerIds((prev) =>
+                          prev.filter((pId) => pId !== player.seasonPlayerId),
+                        );
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex justify-between">
+            <div>
+              <Button
+                disabled={!enableReorder}
+                className="text-xs"
+                variant="outline"
+                type="button"
+                onClick={shuffleTeams}
+              >
+                <Shuffle className="mr-2 h-4 w-4" /> Shuffle
+              </Button>
+              <Button
+                className="ml-2 text-xs"
+                disabled={!enableReorder}
+                variant="outline"
+                type="button"
+                onClick={evenTeams}
+              >
+                <CircleEqual className="mr-2 h-4 w-4" /> Even
+              </Button>
+            </div>
+            <LoadingButton loading={isPending} type="submit">
+              Create Match
+            </LoadingButton>
+          </div>
+        </Drawer>
+      </form>
+    </Form>
   );
 };
 
@@ -350,11 +350,11 @@ const PlayerListCard = ({
 }: {
   team: "home" | "away";
   selectedTeam: "home" | "away";
-  teamPlayers: SeasonPlayer[];
-  remainingPlayers: SeasonPlayer[];
+  teamPlayers: z.infer<typeof SeasonPlayerDTO>[];
+  remainingPlayers: z.infer<typeof SeasonPlayerDTO>[];
   onClickAddPlayers: (team: "home" | "away") => void;
-  onSelect: (player: SeasonPlayer) => void;
-  onDeselect: (player: SeasonPlayer) => void;
+  onSelect: (player: z.infer<typeof SeasonPlayerDTO>) => void;
+  onDeselect: (player: z.infer<typeof SeasonPlayerDTO>) => void;
 }) => (
   <Card className={"p-0"}>
     <CardHeader>
@@ -362,13 +362,13 @@ const PlayerListCard = ({
     </CardHeader>
     <CardContent className="grid h-40 overflow-y-scroll">
       {teamPlayers.map((p) => (
-        <div className="flex gap-2" key={p.id}>
+        <div className="flex gap-2" key={p.user.userId}>
           <Avatar className="h-6 w-6">
-            <AvatarImage src={p.imageUrl} />
-            <AvatarFallback>{getInitialsFromString(p.name)}</AvatarFallback>
+            <AvatarImage src={p.user.imageUrl} />
+            <AvatarFallback>{getInitialsFromString(p.user.name)}</AvatarFallback>
           </Avatar>
           <div className="grid auto-rows-min">
-            <p className="text-xs font-medium truncate">{p.name}</p>
+            <p className="text-xs font-medium truncate">{p.user.name}</p>
             <p className="text-xs text-muted-foreground">{p.score}</p>
           </div>
         </div>
@@ -402,10 +402,10 @@ const TeamDrawerContent = ({
   onDeselect,
 }: {
   team: "home" | "away";
-  teamPlayers: SeasonPlayer[];
-  remainingPlayers: SeasonPlayer[];
-  onSelect: (player: SeasonPlayer) => void;
-  onDeselect: (player: SeasonPlayer) => void;
+  teamPlayers: z.infer<typeof SeasonPlayerDTO>[];
+  remainingPlayers: z.infer<typeof SeasonPlayerDTO>[];
+  onSelect: (player: z.infer<typeof SeasonPlayerDTO>) => void;
+  onDeselect: (player: z.infer<typeof SeasonPlayerDTO>) => void;
 }) => {
   return (
     <DrawerContent>
@@ -451,8 +451,8 @@ const PlayerList = ({
   className,
 }: {
   title: string;
-  players: SeasonPlayer[];
-  onSelect: (player: SeasonPlayer) => void;
+  players: z.infer<typeof SeasonPlayerDTO>[];
+  onSelect: (player: z.infer<typeof SeasonPlayerDTO>) => void;
   className?: string;
 } & VariantProps<typeof badgeVariants>) => (
   <div className={cn("flex-col items-center justify-center", className)}>
@@ -462,10 +462,10 @@ const PlayerList = ({
     <div className="flex flex-wrap overflow-y-auto h-24 items-center">
       {players.map((player) => (
         <AvatarBadge
-          key={player.id}
+          key={player.user.userId}
           className="truncate"
           variant={variant}
-          item={{ ...player, name: player.name }}
+          item={{ id: player.user.userId, ...player.user }}
           onClick={() => {
             onSelect(player);
           }}

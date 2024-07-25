@@ -3,12 +3,13 @@ import { CardContentText } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[s
 import { DashboardCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/DashboardCard";
 import { MatchResult } from "@/components/match/match-result";
 import { api } from "@/trpc/react";
-import type { Match } from "@scorebrawl/db/types";
+import type { MatchDTO } from "@scorebrawl/api";
 import { Button } from "@scorebrawl/ui/button";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { CalendarCheck2, CheckIcon, Undo2Icon, XIcon } from "lucide-react";
 import { useState } from "react";
+import type { z } from "zod";
 
 export const LatestMatchCard = ({
   leagueSlug,
@@ -34,7 +35,7 @@ const LatestMatchCardContent = ({
 }: {
   leagueSlug: string;
   seasonSlug: string;
-  match: Match;
+  match: z.infer<typeof MatchDTO>;
 }) => {
   const { mutate } = api.match.remove.useMutation();
   const utils = api.useUtils();
