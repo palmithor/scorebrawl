@@ -1,13 +1,12 @@
 "use client";
 import { Standing } from "@/components/standing/standing";
+import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
 import { OverviewCard } from "./OverviewCard";
 
-export const SeasonPlayerStanding = ({
-  leagueSlug,
-  seasonSlug,
-}: { leagueSlug: string; seasonSlug: string }) => {
+export const SeasonPlayerStanding = () => {
+  const { leagueSlug, seasonSlug } = useSeason();
   const { data, isLoading } = api.seasonPlayer.getStanding.useQuery({ leagueSlug, seasonSlug });
   return (
     <>

@@ -1,8 +1,9 @@
 "use client";
 import { api } from "@/trpc/react";
-import type { Match } from "@scorebrawl/db/types";
+import type { MatchDTO } from "@scorebrawl/api";
 import { Badge } from "@scorebrawl/ui/badge";
 import { MultiAvatarWithSkeletonLoading } from "@scorebrawl/ui/multi-avatar";
+import type { z } from "zod";
 
 export const MatchResult = ({
   leagueSlug,
@@ -11,7 +12,7 @@ export const MatchResult = ({
 }: {
   leagueSlug: string;
   seasonSlug: string;
-  match: Match;
+  match: z.infer<typeof MatchDTO>;
 }) => {
   const { data: homeTeamAvatars } = api.avatar.getBySeasonPlayerIds.useQuery({
     leagueSlug,

@@ -4,7 +4,7 @@ import { Standing } from "@/components/standing/standing";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
 
-export const SeasonStanding = ({
+export const SeasonTeamStanding = ({
   leagueSlug,
   seasonSlug,
 }: { leagueSlug: string; seasonSlug: string }) => {
