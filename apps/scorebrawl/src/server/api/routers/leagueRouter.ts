@@ -17,5 +17,7 @@ export const leagueRouter = createTRPCRouter({
     ),
   create: protectedProcedure
     .input(LeagueInputDTOSchema)
-    .mutation(({ input }) => LeagueRepository.createLeague(LeagueInputSchema.parse(input))),
+    .mutation(({ ctx, input }) =>
+      LeagueRepository.createLeague(LeagueInputSchema.parse({ ...input, userId: ctx.auth.userId })),
+    ),
 });
