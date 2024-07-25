@@ -3,7 +3,7 @@ export * from "./league-repository";
 export * from "./match-repository";
 export * from "./member-repository";
 export * from "./player-repository";
-export * from "./season-player-repository";
+export * from "./seasonPlayerRepository";
 export * from "./season-repository";
 export * from "./season-team-repository";
 export * from "./slug";

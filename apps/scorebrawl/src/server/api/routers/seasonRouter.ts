@@ -51,6 +51,9 @@ const validateNoOverlappingSeason = async ({
 };
 
 export const seasonRouter = createTRPCRouter({
+  getBySlug: seasonProcedure
+    .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
+    .query(({ ctx: { season } }) => season),
   getCountInfo: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
     .query(async ({ input: { seasonSlug } }) => SeasonRepository.getCountInfo({ seasonSlug })),

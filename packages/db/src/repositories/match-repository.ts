@@ -1,8 +1,7 @@
 import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
-import type { MatchResultSymbol } from "@scorebrawl/model";
-import type { MatchInput } from "@scorebrawl/model";
+import type { Match, MatchInput, MatchResultSymbol } from "@scorebrawl/model";
 import { type SQL, and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
-import { LeagueRepository, SeasonRepository } from ".";
+import type z from "zod";
 import {
   ScoreBrawlError,
   createCuid,
@@ -18,35 +17,18 @@ import { LeagueTeamRepository } from "./league-team-repository";
 
 const create = async ({
   seasonId,
-  homePlayerIds,
-  awayPlayerIds,
+  homeTeamSeasonPlayerIds,
+  awayTeamSeasonPlayerIds,
   homeScore,
   awayScore,
   userId,
-}: MatchInput) => {
-  const season = await SeasonRepository.getById({
-    seasonId,
-  });
-
-  const league = await LeagueRepository.getByIdWhereMember({
-    leagueId: season.leagueId,
-    userId: userId,
-    allowedRoles: ["member", "owner", "editor"],
-  });
-  if (!league) {
-    throw new ScoreBrawlError({
-      code: "FORBIDDEN",
-      message: "league access denied",
-    });
-  }
-  if (league.archived) {
-    throw new ScoreBrawlError({
-      code: "CONFLICT",
-      message: "league is archived",
-    });
-  }
-
-  if (homePlayerIds.length !== awayPlayerIds.length) {
+}: z.infer<typeof MatchInput>) => {
+  const [seasonById] = await db
+    .select(getTableColumns(seasons))
+    .from(seasons)
+    .where(eq(seasons.id, seasonId));
+  const season = seasonById as typeof seasons.$inferSelect;
+  if (homeTeamSeasonPlayerIds.length !== awayTeamSeasonPlayerIds.length) {
     throw new ScoreBrawlError({
       code: "BAD_REQUEST",
       message: "Team sizes must be equal",
@@ -54,12 +36,12 @@ const create = async ({
   }
 
   const homeSeasonPlayers = await findAndValidateSeasonPlayers({
-    seasonId: season.id,
-    seasonPlayerIds: homePlayerIds,
+    seasonId,
+    seasonPlayerIds: homeTeamSeasonPlayerIds,
   });
   const awaySeasonPlayers = await findAndValidateSeasonPlayers({
-    seasonId: season.id,
-    seasonPlayerIds: awayPlayerIds,
+    seasonId,
+    seasonPlayerIds: awayTeamSeasonPlayerIds,
   });
 
   const now = new Date();
@@ -80,7 +62,7 @@ const create = async ({
       awayScore: awayScore,
       homeExpectedElo: individualMatchResult.homeTeam.winningOdds,
       awayExpectedElo: individualMatchResult.awayTeam.winningOdds,
-      seasonId: season.id,
+      seasonId,
       createdBy: userId,
       updatedBy: userId,
       createdAt: now,
@@ -200,7 +182,14 @@ const create = async ({
     }
   }
 
-  return match;
+  return {
+    id: match?.id ?? "",
+    homeScore: homeScore,
+    awayScore: awayScore,
+    createdAt: now,
+    homeTeamSeasonPlayerIds,
+    awayTeamSeasonPlayerIds,
+  } satisfies z.infer<typeof Match>;
 };
 
 const getBySeasonId = async ({
@@ -228,18 +217,21 @@ const getBySeasonId = async ({
   ]);
 
   return {
-    matches: result.map((match) => ({
-      id: match.id,
-      homeScore: match.homeScore,
-      awayScore: match.awayScore,
-      createdAt: match.createdAt,
-      homeTeamSeasonPlayerIds: match.matchPlayers
-        .filter((p) => p.homeTeam)
-        .map((p) => p.seasonPlayerId),
-      awayTeamSeasonPlayerIds: match.matchPlayers
-        .filter((p) => !p.homeTeam)
-        .map((p) => p.seasonPlayerId),
-    })),
+    matches: result.map(
+      (match) =>
+        ({
+          id: match.id,
+          homeScore: match.homeScore,
+          awayScore: match.awayScore,
+          createdAt: match.createdAt,
+          homeTeamSeasonPlayerIds: match.matchPlayers
+            .filter((p) => p.homeTeam)
+            .map((p) => p.seasonPlayerId),
+          awayTeamSeasonPlayerIds: match.matchPlayers
+            .filter((p) => !p.homeTeam)
+            .map((p) => p.seasonPlayerId),
+        }) satisfies z.infer<typeof Match>,
+    ),
     totalCount: countResult?.count ?? 0,
     page,
     limit,
