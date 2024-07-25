@@ -5,7 +5,6 @@ import {
   getLeagueBySlugWithUserRoleOrRedirect,
   getPlayers,
 } from "@/actions/league";
-import { getPlayers as getSeasonPlayers } from "@/actions/season";
 import { LeagueDetailsSubNav } from "@/components/league/league-details-sub-nav";
 import { api } from "@/trpc/server";
 import { auth } from "@clerk/nextjs/server";
@@ -40,7 +39,7 @@ export default async function ({
   const leaguePlayers = await getPlayers(league.id);
   const ongoingSeason = await api.season.findOngoing({ leagueSlug });
   const ongoingSeasonPlayers = ongoingSeason
-    ? await getSeasonPlayers(ongoingSeason.id, league.id)
+    ? await api.seasonPlayer.getAll({ leagueSlug, seasonSlug: ongoingSeason.slug })
     : [];
   const code = await getCode(league.id);
   const hasEditorAccess = await getHasEditorAccess(league.id);

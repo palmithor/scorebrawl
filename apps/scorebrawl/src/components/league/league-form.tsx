@@ -25,7 +25,7 @@ export const LeagueForm = ({
 }: {
   title: string;
   buttonTitle: string;
-  league?: { name: string; visibility: "public" | "private"; logoUrl: string };
+  league?: { name: string; logoUrl: string };
 }) => {
   const { toast } = useToast();
   const { push } = useRouter();
@@ -38,7 +38,11 @@ export const LeagueForm = ({
     mutate(
       { ...val, logoUrl: logo },
       {
-        onSettled: (data) => push(`/leagues/${data?.slug}`),
+        onSettled: (data) => {
+          if (data) {
+            push(`/leagues/${data?.slug}`);
+          }
+        },
         onError: (err) => {
           toast({
             title: "Error creating league",
