@@ -10,6 +10,7 @@ import {
   slugifyLeagueName,
   slugifyWithCustomReplacement,
 } from "@scorebrawl/db";
+import type { LeagueInput } from "@scorebrawl/model";
 import {
   type SQL,
   and,
@@ -22,7 +23,6 @@ import {
   isNull,
   or,
 } from "drizzle-orm";
-import type { LeagueInput } from "../../../model/src/league";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueMemberRole, PlayerJoinedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";

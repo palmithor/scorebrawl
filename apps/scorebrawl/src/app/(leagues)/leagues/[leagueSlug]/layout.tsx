@@ -1,9 +1,8 @@
 import {
-  findBySlug,
+  findLeagueBySlugWithUserRole,
   getCode,
   getHasEditorAccess,
   getLeagueBySlugWithUserRoleOrRedirect,
-  getPlayers,
 } from "@/actions/league";
 import { LeagueDetailsSubNav } from "@/components/league/league-details-sub-nav";
 import { api } from "@/trpc/server";
@@ -17,7 +16,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const league = { name: "" };
   try {
-    const leagueBySlug = await findBySlug(leagueSlug);
+    const leagueBySlug = await findLeagueBySlugWithUserRole(leagueSlug);
     league.name = leagueBySlug?.name ?? "Unknown";
   } catch (_e) {
     // ignore
@@ -36,7 +35,7 @@ export default async function ({
   children: ReactNode;
 }) {
   const league = await getLeagueBySlugWithUserRoleOrRedirect(leagueSlug);
-  const leaguePlayers = await getPlayers(league.id);
+  const leaguePlayers = await api.leaguePlayer.getAll({ leagueSlug });
   const ongoingSeason = await api.season.findOngoing({ leagueSlug });
   const ongoingSeasonPlayers = ongoingSeason
     ? await api.seasonPlayer.getAll({ leagueSlug, seasonSlug: ongoingSeason.slug })
@@ -50,7 +49,7 @@ export default async function ({
     <>
       <LeagueDetailsSubNav
         league={league}
-        shouldShowJoin={!!(code && !leaguePlayers.some((u) => u?.userId === userId))}
+        shouldShowJoin={!!(code && !leaguePlayers.some((lp) => lp?.user.userId === userId))}
         hasEditorAccess={hasEditorAccess}
         inviteCode={code}
         ongoingSeason={ongoingSeason}

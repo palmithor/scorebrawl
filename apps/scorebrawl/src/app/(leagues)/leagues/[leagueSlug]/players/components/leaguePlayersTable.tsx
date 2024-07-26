@@ -1,5 +1,6 @@
-import { getPlayers } from "@/actions/league";
+"use client";
 import { DateCell } from "@/components/date-cell";
+import { api } from "@/trpc/react";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import { cn } from "@scorebrawl/ui/lib";
 import {
@@ -12,11 +13,11 @@ import {
 } from "@scorebrawl/ui/table";
 
 export const LeaguePlayersTable = async ({
-  leagueId,
+  leagueSlug,
 }: {
-  leagueId: string;
+  leagueSlug: string;
 }) => {
-  const players = await getPlayers(leagueId);
+  const { data } = api.leaguePlayer.getAll.useQuery({ leagueSlug });
   return (
     <div className="rounded-md border px-2">
       <Table>
@@ -28,13 +29,13 @@ export const LeaguePlayersTable = async ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {players?.map((player) => (
-            <TableRow key={player.id}>
+          {data?.map((player) => (
+            <TableRow key={player.leaguePlayerId}>
               <TableCell>
                 <AvatarName
                   avatarClassName="h-8 w-8"
-                  name={player.name}
-                  imageUrl={player.imageUrl || ""}
+                  name={player.user.name}
+                  imageUrl={player.user.imageUrl || ""}
                 />
               </TableCell>
               <TableCell>

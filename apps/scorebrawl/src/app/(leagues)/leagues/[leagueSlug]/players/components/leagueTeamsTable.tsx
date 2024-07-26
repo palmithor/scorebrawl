@@ -14,6 +14,7 @@ import {
 import { EditIcon } from "lucide-react";
 
 export const LeagueTeamsTable = async ({ leagueId }: { leagueId: string }) => {
+  // todo convert to client component
   const user = auth();
   const teams = await getTeams(leagueId);
   const hasEditorAccess = await getHasEditorAccess(leagueId);
