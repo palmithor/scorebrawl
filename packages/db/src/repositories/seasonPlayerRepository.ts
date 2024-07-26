@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { type SQL, and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import {
   leaguePlayers,
@@ -10,7 +10,77 @@ import {
   users,
 } from "../schema";
 
-export const getAll = async ({ seasonSlug }: { seasonSlug: string }) =>
+const getPointDifference = async ({
+  seasonId,
+  condition,
+}: {
+  seasonId: string;
+  condition?: SQL<unknown>;
+}) => {
+  const subQuery = db
+    .select({
+      seasonPlayerId: matchPlayers.seasonPlayerId,
+      matchDate: sql<string>`DATE(${matchPlayers.createdAt})`.mapWith(String).as("match_date"),
+      scoreBefore: matchPlayers.scoreBefore,
+      scoreAfter: matchPlayers.scoreAfter,
+      /*rnAsc:
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId} ORDER BY ${matchPlayers.createdAt}, ${matchPlayers.id})`
+          .mapWith(Number)
+          .as("rn_asc"),
+      rnDesc:
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId} ORDER BY ${matchPlayers.createdAt} DESC, ${matchPlayers.id} DESC)`
+          .mapWith(Number)
+          .as("rn_desc"),*/
+      rnAsc:
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId}, DATE(${matchPlayers.createdAt}) ORDER BY ${matchPlayers.createdAt}, ${matchPlayers.id})`
+          .mapWith(Number)
+          .as("rn_asc"),
+      rnDesc:
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId}, DATE(${matchPlayers.createdAt}) ORDER BY ${matchPlayers.createdAt} DESC, ${matchPlayers.id} DESC)`
+          .mapWith(Number)
+          .as("rn_desc"),
+    })
+    .from(matchPlayers)
+    .innerJoin(seasonPlayers, eq(matchPlayers.seasonPlayerId, seasonPlayers.id))
+    .where(
+      condition
+        ? and(eq(seasonPlayers.seasonId, seasonId), condition)
+        : eq(seasonPlayers.seasonId, seasonId),
+    );
+  const rankedMatches = db.$with("ranked_matches").as(subQuery);
+  const firstMatchAlias = sql`${rankedMatches} "first_match"`;
+  const firstMatch = subQuery.as("first_match");
+  const lastMatchAlias = sql`${rankedMatches} "last_match"`;
+  const lastMatch = subQuery.as("last_match");
+
+  return db
+    .with(rankedMatches)
+    .select({
+      seasonPlayerId: seasonPlayers.id,
+      matchDate: sql`"first_match"."match_date"`,
+      pointDiff: sql<number>`${lastMatch.scoreAfter} - ${firstMatch.scoreBefore}`.mapWith(Number),
+    })
+    .from(firstMatchAlias)
+    .innerJoin(
+      lastMatchAlias,
+      and(
+        eq(firstMatch.seasonPlayerId, lastMatch.seasonPlayerId),
+        eq(sql`"first_match"."match_date"`, sql`"last_match"."match_date"`),
+        eq(sql`"first_match"."rn_asc"`, 1),
+        eq(sql`"last_match"."rn_desc"`, 1),
+      ),
+    )
+    .innerJoin(seasonPlayers, eq(seasonPlayers.id, firstMatch.seasonPlayerId))
+    .where(eq(seasonPlayers.seasonId, seasonId))
+    .groupBy(
+      seasonPlayers.id,
+      lastMatch.scoreAfter,
+      firstMatch.scoreBefore,
+      sql`"first_match"."match_date"`,
+    );
+};
+
+export const getAll = async ({ seasonId }: { seasonId: string }) =>
   db
     .select({
       seasonPlayerId: seasonPlayers.id,
@@ -23,9 +93,9 @@ export const getAll = async ({ seasonSlug }: { seasonSlug: string }) =>
     .innerJoin(seasons, eq(seasons.id, seasonPlayers.seasonId))
     .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
     .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .where(eq(seasons.slug, seasonSlug));
+    .where(eq(seasons.id, seasonId));
 
-const matchesSubqueryBuilder = ({ seasonSlug }: { seasonSlug: string }) =>
+const matchesSubqueryBuilder = ({ seasonId }: { seasonId: string }) =>
   db
     .select({
       seasonPlayerId: matchPlayers.seasonPlayerId,
@@ -42,26 +112,11 @@ const matchesSubqueryBuilder = ({ seasonSlug }: { seasonSlug: string }) =>
     .from(matchPlayers)
     .innerJoin(matches, eq(matches.id, matchPlayers.matchId))
     .innerJoin(seasonPlayers, eq(seasonPlayers.id, matchPlayers.seasonPlayerId))
-    .innerJoin(seasons, and(eq(seasons.slug, seasonSlug), eq(seasonPlayers.seasonId, seasons.id)))
+    .where(eq(seasonPlayers.seasonId, seasonId))
     .as("recent_matches");
 
-const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
-  const matchesSubquery = matchesSubqueryBuilder({ seasonSlug });
-
-  // New subquery to calculate point difference for the current day
-  const pointDiffSubquery = db
-    .select({
-      seasonPlayerId: matchPlayers.seasonPlayerId,
-      pointDiff: sql<number>`MAX(${matchPlayers.scoreAfter}) - MIN(${matchPlayers.scoreBefore})`
-        .mapWith(Number)
-        .as("pointDiff"),
-    })
-    .from(matchPlayers)
-    .innerJoin(matches, eq(matches.id, matchPlayers.matchId))
-    .innerJoin(seasons, eq(seasons.id, matches.seasonId))
-    .where(and(eq(seasons.slug, seasonSlug), sql`DATE(${matches.createdAt}) = CURRENT_DATE`))
-    .groupBy(matchPlayers.seasonPlayerId)
-    .as("point_diff");
+const getStanding = async ({ seasonId }: { seasonId: string }) => {
+  const matchesSubquery = matchesSubqueryBuilder({ seasonId });
 
   const playerStats = await db
     .select({
@@ -92,14 +147,17 @@ const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
       userId: users.id,
       name: users.name,
       imageUrl: users.imageUrl,
-      pointDiff: pointDiffSubquery.pointDiff,
     })
     .from(seasonPlayers)
-    .innerJoin(seasons, and(eq(seasons.id, seasonPlayers.seasonId), eq(seasons.slug, seasonSlug)))
     .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
     .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .leftJoin(pointDiffSubquery, eq(pointDiffSubquery.seasonPlayerId, seasonPlayers.id))
+    .where(eq(seasonPlayers.seasonId, seasonId))
     .orderBy(desc(seasonPlayers.score));
+
+  const pointDiff = await getPointDifference({
+    seasonId,
+    condition: eq(sql`DATE(${matchPlayers.createdAt})`, sql`CURRENT_DATE`),
+  });
 
   return players.map((p) => {
     const stats = playerStats.find((ps) => ps.seasonPlayerId === p.seasonPlayerId);
@@ -114,13 +172,13 @@ const getStanding = async ({ seasonSlug }: { seasonSlug: string }) => {
       lossCount: stats?.losses ?? 0,
       drawCount: stats?.draws ?? 0,
       form: (form as ("W" | "D" | "L")[]).reverse(),
-      pointDiff: p.pointDiff ?? 0,
+      pointDiff: pointDiff.find((pd) => pd.seasonPlayerId === p.seasonPlayerId)?.pointDiff ?? 0,
       user: { userId: p.userId, name: p.name, imageUrl: p.imageUrl },
     };
   });
 };
 
-const getTopPlayer = async ({ seasonSlug }: { seasonSlug: string }) => {
+const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
   const [topPlayer] = await db
     .select({
       seasonPlayerId: seasonPlayers.id,
@@ -131,10 +189,11 @@ const getTopPlayer = async ({ seasonSlug }: { seasonSlug: string }) => {
       imageUrl: users.imageUrl,
     })
     .from(seasonPlayers)
-    .innerJoin(seasons, and(eq(seasons.id, seasonPlayers.seasonId), eq(seasons.slug, seasonSlug)))
+    .innerJoin(seasons, and(eq(seasons.id, seasonPlayers.seasonId)))
     .innerJoin(leagues, eq(seasons.leagueId, leagues.id))
     .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
     .innerJoin(users, eq(users.id, leaguePlayers.userId))
+    .where(eq(seasonPlayers.seasonId, seasonId))
     .orderBy(desc(seasonPlayers.score));
 
   return {
@@ -150,13 +209,13 @@ const getTopPlayer = async ({ seasonSlug }: { seasonSlug: string }) => {
 };
 
 const onFireStrugglingQuery = async ({
-  seasonSlug,
+  seasonId,
   onFire,
 }: {
   onFire: boolean;
-  seasonSlug: string;
+  seasonId: string;
 }) => {
-  const recentMatchesSubquery = matchesSubqueryBuilder({ seasonSlug });
+  const recentMatchesSubquery = matchesSubqueryBuilder({ seasonId });
   const last5MatchesSubquery = db
     .select()
     .from(recentMatchesSubquery)
@@ -229,11 +288,11 @@ const onFireStrugglingQuery = async ({
   };
 };
 
-export const getOnFire = async ({ seasonSlug }: { seasonSlug: string }) =>
-  onFireStrugglingQuery({ seasonSlug, onFire: true });
+export const getOnFire = async ({ seasonId }: { seasonId: string }) =>
+  onFireStrugglingQuery({ seasonId, onFire: true });
 
-export const getStruggling = async ({ seasonSlug }: { seasonSlug: string }) =>
-  onFireStrugglingQuery({ seasonSlug, onFire: false });
+export const getStruggling = async ({ seasonId }: { seasonId: string }) =>
+  onFireStrugglingQuery({ seasonId, onFire: false });
 
 export const SeasonPlayerRepository = {
   getAll,
