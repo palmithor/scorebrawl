@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import type { UpdateTeamInput } from "@scorebrawl/api";
-import { LeagueRepository, LeagueTeamRepository, PlayerRepository } from "@scorebrawl/db";
+import { LeagueRepository, LeagueTeamRepository } from "@scorebrawl/db";
 import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
 
@@ -23,14 +23,6 @@ export const getLeagueBySlugWithUserRoleOrRedirect = cache(async (leagueSlug: st
   }
   return league;
 });
-
-export const findBySlug = cache((leagueSlug: string) =>
-  LeagueRepository.findBySlug({ userId: auth().userId as string, leagueSlug }),
-);
-
-export const getPlayers = cache((leagueId: string) =>
-  PlayerRepository.getLeaguePlayers({ leagueId }),
-);
 
 export const updateTeam = async (val: Omit<UpdateTeamInput, "userId">) =>
   LeagueTeamRepository.updateTeam({ ...val, userId: auth().userId as string });
