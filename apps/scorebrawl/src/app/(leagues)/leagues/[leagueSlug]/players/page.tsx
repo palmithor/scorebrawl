@@ -1,14 +1,14 @@
 import { getLeagueBySlugWithUserRoleOrRedirect } from "@/actions/league";
-import { LeaguePlayersTable } from "@/components/players/league-players-table";
-import { LeagueTeamsTable } from "@/components/players/league-teams-table";
+import { LeaguePlayersTable } from "./components/leaguePlayersTable";
+import { LeagueTeamsTable } from "./components/leagueTeamsTable";
 
-export default async function ({ params }: { params: { leagueSlug: string } }) {
-  const { id } = await getLeagueBySlugWithUserRoleOrRedirect(params.leagueSlug);
+export default async function ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) {
+  const { id } = await getLeagueBySlugWithUserRoleOrRedirect(leagueSlug);
   return (
     <div className="grid grid-flow-row md:grid-flow-col gap-8 pt-4">
       <div className="flex flex-col gap-2">
         <h1 className="font-bold">Players</h1>
-        <LeaguePlayersTable leagueId={id} />
+        <LeaguePlayersTable leagueSlug={leagueSlug} />
       </div>
       <div className="flex flex-col gap-2">
         <h1 className="font-bold">Teams</h1>

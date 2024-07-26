@@ -13,7 +13,7 @@ import {
   seasons,
   teamMatches,
 } from "..";
-import { LeagueTeamRepository } from "./league-team-repository";
+import { LeagueTeamRepository } from "./leagueTeamRepository";
 
 const create = async ({
   seasonId,
@@ -112,6 +112,7 @@ const create = async ({
       updatedAt: now,
     })),
   ];
+  console.log("matchPlayerValues", matchPlayerValues);
   await db.insert(matchPlayers).values(matchPlayerValues);
 
   for (const playerResult of [
