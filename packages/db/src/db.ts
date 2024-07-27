@@ -11,7 +11,7 @@ export const db = process.env.VERCEL
   ? drizzle(neon(databaseUrl), {
       schema,
     })
-  : localDrizzle(postgres(databaseUrl), { schema, logger: true });
+  : localDrizzle(postgres(databaseUrl), { schema, logger: false });
 
 export const migrateDb = async () => {
   if (process.env.VERCEL) {
