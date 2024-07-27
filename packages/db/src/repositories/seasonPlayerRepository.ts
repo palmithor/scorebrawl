@@ -23,14 +23,6 @@ const getPointDifference = async ({
       matchDate: sql<string>`DATE(${matchPlayers.createdAt})`.mapWith(String).as("match_date"),
       scoreBefore: matchPlayers.scoreBefore,
       scoreAfter: matchPlayers.scoreAfter,
-      /*rnAsc:
-        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId} ORDER BY ${matchPlayers.createdAt}, ${matchPlayers.id})`
-          .mapWith(Number)
-          .as("rn_asc"),
-      rnDesc:
-        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId} ORDER BY ${matchPlayers.createdAt} DESC, ${matchPlayers.id} DESC)`
-          .mapWith(Number)
-          .as("rn_desc"),*/
       rnAsc:
         sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId}, DATE(${matchPlayers.createdAt}) ORDER BY ${matchPlayers.createdAt}, ${matchPlayers.id})`
           .mapWith(Number)
@@ -208,6 +200,36 @@ const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
   };
 };
 
+const getPointProgression = async ({ seasonId }: { seasonId: string }) => {
+  const rankedScores = db.$with("ranked_scores").as(
+    db
+      .select({
+        seasonPlayerId: matchPlayers.seasonPlayerId,
+        seasonId: seasonPlayers.seasonId,
+        score: matchPlayers.scoreAfter,
+        createdAt: matchPlayers.createdAt,
+        rowNumber:
+          sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId} ORDER BY ${matchPlayers.createdAt})`
+            .mapWith(Number)
+            .as("rowNumber"),
+      })
+      .from(matchPlayers)
+      .innerJoin(seasonPlayers, eq(seasonPlayers.id, matchPlayers.seasonPlayerId))
+      .where(eq(seasonPlayers.seasonId, seasonId)),
+  );
+
+  return db
+    .with(rankedScores)
+    .select({
+      seasonPlayerId: rankedScores.seasonPlayerId,
+      score: rankedScores.score,
+      createdAt: rankedScores.createdAt,
+    })
+    .from(rankedScores)
+    .where(and(eq(rankedScores.rowNumber, 1), eq(rankedScores.seasonId, seasonId)))
+    .orderBy(rankedScores.seasonPlayerId, rankedScores.createdAt);
+};
+
 const onFireStrugglingQuery = async ({
   seasonId,
   onFire,
@@ -296,6 +318,8 @@ export const getStruggling = async ({ seasonId }: { seasonId: string }) =>
 
 export const SeasonPlayerRepository = {
   getAll,
+  getPointDifference,
+  getPointProgression,
   getStanding,
   getOnFire,
   getStruggling,
