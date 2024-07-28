@@ -28,7 +28,7 @@ export const LatestMatches = ({
   seasonSlug,
 }: { leagueSlug: string; seasonSlug: string }) => {
   const { push } = useRouter();
-  const { data, isLoading } = api.match.getAll.useQuery({ leagueSlug, seasonSlug, limit: 5 });
+  const { data, isLoading } = api.match.getAll.useQuery({ leagueSlug, seasonSlug, limit: 6 });
   const _showEmptyState = !isLoading && data && data.matches.length < 1;
   const showMatches = !isLoading && data && data.matches.length > 0;
 
