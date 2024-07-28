@@ -1,4 +1,6 @@
+import type { SeasonPlayerDTO } from "@scorebrawl/api";
 import { type SQL, and, desc, eq, sql } from "drizzle-orm";
+import type z from "zod";
 import { db } from "../db";
 import {
   leaguePlayers,
@@ -72,11 +74,12 @@ const getPointDifference = async ({
     );
 };
 
-export const getAll = async ({ seasonId }: { seasonId: string }) =>
-  db
+export const getAll = async ({ seasonId }: { seasonId: string }) => {
+  const result = await db
     .select({
       seasonPlayerId: seasonPlayers.id,
       leaguePlayerId: seasonPlayers.leaguePlayerId,
+      score: seasonPlayers.score,
       userId: users.id,
       name: users.name,
       imageUrl: users.imageUrl,
@@ -86,6 +89,17 @@ export const getAll = async ({ seasonId }: { seasonId: string }) =>
     .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
     .innerJoin(users, eq(users.id, leaguePlayers.userId))
     .where(eq(seasons.id, seasonId));
+
+  return result.map(
+    (sp) =>
+      ({
+        seasonPlayerId: sp.seasonPlayerId,
+        leaguePlayerId: sp.leaguePlayerId,
+        score: sp.score,
+        user: { userId: sp.userId, name: sp.name, imageUrl: sp.imageUrl },
+      }) satisfies z.infer<typeof SeasonPlayerDTO>,
+  );
+};
 
 const matchesSubqueryBuilder = ({ seasonId }: { seasonId: string }) =>
   db
