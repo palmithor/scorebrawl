@@ -9,7 +9,6 @@ export const seasonPlayerRouter = createTRPCRouter({
     .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
     .query(async ({ ctx: { season } }) => {
       const seasonPlayers = await SeasonPlayerRepository.getAll({ seasonId: season.id });
-      console.log("seasonPlayers", seasonPlayers);
       return z.array(SeasonPlayerDTO).parse(seasonPlayers);
     }),
   getTop: seasonProcedure
@@ -36,4 +35,9 @@ export const seasonPlayerRouter = createTRPCRouter({
       const standing = await SeasonPlayerRepository.getStanding({ seasonId: season.id });
       return z.array(SeasonPlayerStandingDTO).parse(standing);
     }),
+  getPointProgression: seasonProcedure
+    .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
+    .query(async ({ ctx: { season } }) =>
+      SeasonPlayerRepository.getPointProgression({ seasonId: season.id }),
+    ),
 });

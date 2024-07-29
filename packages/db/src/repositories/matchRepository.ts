@@ -112,7 +112,6 @@ const create = async ({
       updatedAt: now,
     })),
   ];
-  console.log("matchPlayerValues", matchPlayerValues);
   await db.insert(matchPlayers).values(matchPlayerValues);
 
   for (const playerResult of [

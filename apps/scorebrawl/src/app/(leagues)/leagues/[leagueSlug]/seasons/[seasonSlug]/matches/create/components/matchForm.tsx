@@ -153,8 +153,6 @@ export const MatchForm = () => {
   };
 
   const onSubmit = async ({ homeScore, homePlayers, awayPlayers, awayScore }: FormValues) => {
-    console.log(homePlayers);
-    console.log(awayPlayers);
     mutate(
       {
         leagueSlug,
