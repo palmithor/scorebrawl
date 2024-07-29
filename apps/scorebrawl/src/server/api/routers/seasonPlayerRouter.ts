@@ -40,4 +40,9 @@ export const seasonPlayerRouter = createTRPCRouter({
     .query(async ({ ctx: { season } }) =>
       SeasonPlayerRepository.getPointProgression({ seasonId: season.id }),
     ),
+  getPointDiffProgression: seasonProcedure
+    .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
+    .query(async ({ ctx: { season } }) =>
+      SeasonPlayerRepository.getPointDiffProgression({ seasonId: season.id }),
+    ),
 });
