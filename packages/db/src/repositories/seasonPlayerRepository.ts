@@ -12,7 +12,7 @@ import {
   users,
 } from "../schema";
 
-const getPointDifference = async ({
+const getPointDiffProgression = async ({
   seasonId,
   condition,
 }: {
@@ -51,7 +51,7 @@ const getPointDifference = async ({
     .with(rankedMatches)
     .select({
       seasonPlayerId: seasonPlayers.id,
-      matchDate: sql`"first_match"."match_date"`,
+      matchDate: sql`"first_match"."match_date"`.mapWith(String),
       pointDiff: sql<number>`${lastMatch.scoreAfter} - ${firstMatch.scoreBefore}`.mapWith(Number),
     })
     .from(firstMatchAlias)
@@ -160,7 +160,7 @@ const getStanding = async ({ seasonId }: { seasonId: string }) => {
     .where(eq(seasonPlayers.seasonId, seasonId))
     .orderBy(desc(seasonPlayers.score));
 
-  const pointDiff = await getPointDifference({
+  const pointDiff = await getPointDiffProgression({
     seasonId,
     condition: eq(sql`DATE(${matchPlayers.createdAt})`, sql`CURRENT_DATE`),
   });
@@ -332,7 +332,7 @@ export const getStruggling = async ({ seasonId }: { seasonId: string }) =>
 
 export const SeasonPlayerRepository = {
   getAll,
-  getPointDifference,
+  getPointDiffProgression,
   getPointProgression,
   getStanding,
   getOnFire,
