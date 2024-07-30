@@ -1,6 +1,7 @@
 "use client";
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
 import { Standing } from "@/components/standing/standing";
+import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
 
@@ -21,7 +22,7 @@ export const SeasonTeamStanding = ({
   return (
     <>
       {isLoading && <Skeleton className={"w-full h-80"} />}
-      {!isLoading && data && (
+      {!isLoading && (
         <OverviewCard title="Team Standing">
           {data.length > 0 && (
             <Standing
@@ -42,6 +43,9 @@ export const SeasonTeamStanding = ({
                   [],
               }))}
             />
+          )}
+          {data.length === 0 && (
+            <EmptyCardContentText>No team matches registered</EmptyCardContentText>
           )}
         </OverviewCard>
       )}

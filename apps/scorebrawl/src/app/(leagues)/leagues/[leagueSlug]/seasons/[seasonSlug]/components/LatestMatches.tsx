@@ -2,6 +2,7 @@
 import EmptyStateSvg from "@/../public/img/empty-state.svg";
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
 import { MatchTable } from "@/components/match/match-table";
+import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
 import { api } from "@/trpc/react";
 import { Button } from "@scorebrawl/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
@@ -29,23 +30,28 @@ export const LatestMatches = ({
 }: { leagueSlug: string; seasonSlug: string }) => {
   const { push } = useRouter();
   const { data, isLoading } = api.match.getAll.useQuery({ leagueSlug, seasonSlug, limit: 6 });
-  const _showEmptyState = !isLoading && data && data.matches.length < 1;
+  const showEmptyState = !isLoading && data && data.matches.length < 1;
   const showMatches = !isLoading && data && data.matches.length > 0;
 
   return (
     <OverviewCard title={"Latest Matches"}>
-      <div>{showMatches && <MatchTable matches={data.matches} />}</div>
-      <div className="flex items-center justify-end space-x-2 pt-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches`)}
-          >
-            Show all
-          </Button>
-        </div>
-      </div>
+      {showMatches && (
+        <>
+          <MatchTable matches={data.matches} />
+          <div className="flex items-center justify-end space-x-2 pt-4">
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches`)}
+              >
+                Show all
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+      {showEmptyState && <EmptyCardContentText>No registered matches</EmptyCardContentText>}
     </OverviewCard>
   );
 };

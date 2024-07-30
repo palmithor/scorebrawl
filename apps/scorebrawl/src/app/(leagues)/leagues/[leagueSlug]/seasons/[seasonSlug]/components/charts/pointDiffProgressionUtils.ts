@@ -60,7 +60,9 @@ function transformWeeklyData(input: PointDiffInputData[]): ChartData[] {
 
     const entry: ChartData = {
       label: weekKey,
-      labelDescription: `${weekStart.toISOString().split("T")[0]} - ${weekEnd.toISOString().split("T")[0]}`,
+      labelDescription: `${weekStart.toISOString().split("T")[0]} - ${
+        weekEnd.toISOString().split("T")[0]
+      }`,
     };
 
     for (const [playerId, pointDiffs] of Object.entries(playerData)) {
@@ -74,7 +76,10 @@ function transformWeeklyData(input: PointDiffInputData[]): ChartData[] {
   return output;
 }
 
-export function transformData(input: PointDiffInputData[]): ChartData[] {
+export function transformData(input?: PointDiffInputData[]): ChartData[] {
+  if (input === undefined || input.length === 0) {
+    return [];
+  }
   // Sort the input data by date
   input.sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
 
