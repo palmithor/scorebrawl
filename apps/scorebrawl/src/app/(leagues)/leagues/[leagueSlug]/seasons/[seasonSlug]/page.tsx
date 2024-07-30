@@ -1,6 +1,7 @@
 import { DashboardCards } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/DashboardCards";
 import { LatestMatches } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/LatestMatches";
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
+import { PointDiffProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointDiffProgression";
 import { PointProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointProgression";
 import { SeasonPlayerStanding } from "./components/SeasonPlayerStanding";
 import { SeasonTeamStanding } from "./components/SeasonTeamStanding";
@@ -32,7 +33,7 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
         </div>
         <div className={"grid gap-2"}>
           <OverviewCard title={"Daily Point +/-"}>
-            <PointProgression />
+            <PointDiffProgression />
           </OverviewCard>
         </div>
       </div>
