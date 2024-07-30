@@ -1,4 +1,5 @@
 "use client";
+import { transformData } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/charts/pointDiffProgressionUtils";
 import {
   createChartConfig,
   getAllChartKeys,
@@ -8,14 +9,13 @@ import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@scorebrawl/ui/charts";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
-import { transformData } from "./charts/pointProgressionUtils";
 
-export const PointProgression = () => {
+export const PointDiffProgression = () => {
   const { seasonSlug, leagueSlug } = useSeason();
   const { data: seasonPlayers } = api.seasonPlayer.getAll.useQuery({ leagueSlug, seasonSlug });
-  const { data } = api.seasonPlayer.getPointProgression.useQuery({ leagueSlug, seasonSlug });
+  const { data } = api.seasonPlayer.getPointDiffProgression.useQuery({ leagueSlug, seasonSlug });
 
-  if (seasonPlayers === undefined || data === undefined) return null; // possibly loading state?
+  if (seasonPlayers === undefined || !data) return null; // possibly loading state?
   const chartData = transformData(data);
   if (chartData.length < 2) {
     return <ChartEmptyState />;
