@@ -1,14 +1,11 @@
 "use client";
 import { transformData } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/charts/pointDiffProgressionUtils";
-import {
-  createChartConfig,
-  getAllChartKeys,
-} from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/charts/utils";
-import { ChartEmptyState } from "@/components/charts/ChartEmptyState";
+import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
 import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@scorebrawl/ui/charts";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { createChartConfig, getAllChartKeys } from "./charts/utils";
 
 export const PointDiffProgression = () => {
   const { seasonSlug, leagueSlug } = useSeason();
@@ -18,7 +15,7 @@ export const PointDiffProgression = () => {
   if (seasonPlayers === undefined || !data) return null; // possibly loading state?
   const chartData = transformData(data);
   if (chartData.length < 2) {
-    return <ChartEmptyState />;
+    return <EmptyCardContentText>Not enough data to display chart</EmptyCardContentText>;
   }
   const chartKeys = getAllChartKeys(chartData);
 
