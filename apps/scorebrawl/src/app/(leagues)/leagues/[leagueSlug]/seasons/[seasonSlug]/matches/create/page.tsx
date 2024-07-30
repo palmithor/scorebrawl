@@ -1,5 +1,5 @@
 import { SeasonPlayerStanding } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/SeasonPlayerStanding";
-import { MatchForm } from "./components/matchForm";
+import { MatchForm } from "./components/MatchForm";
 
 export default async function () {
   return (
