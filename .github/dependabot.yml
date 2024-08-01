@@ -8,10 +8,10 @@ updates:
     reviewers:
       - 'palmithor'
 
-  - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'monthly'
-    open-pull-requests-limit: 5
-    reviewers:
-      - 'palmithor'
+#  - package-ecosystem: 'npm'
+#    directory: '/'
+#    schedule:
+#      interval: 'monthly'
+#    open-pull-requests-limit: 5
+#    reviewers:
+#      - 'palmithor'

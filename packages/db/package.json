@@ -13,7 +13,7 @@
     "@scorebrawl/api": "workspace:*",
     "@scorebrawl/utils": "workspace:*",
     "date-fns": "^3.6.0",
-    "drizzle-orm": "0.31.0",
+    "drizzle-orm": "^0.32.1",
     "postgres": "3.3.5"
   },
   "devDependencies": {
