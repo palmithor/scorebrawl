@@ -79,7 +79,7 @@
     "@scorebrawl/utils": "workspace:*",
     "@sindresorhus/slugify": "2.2.1",
     "@vercel/analytics": "1.1.1",
-    "@vercel/og": "0.5.20",
+    "@vercel/og": "0.6.2",
     "class-variance-authority": "0.7.0",
     "clsx": "2.1.0",
     "cmdk": "0.2.1",
