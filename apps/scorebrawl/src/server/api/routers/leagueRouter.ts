@@ -11,9 +11,9 @@ export const leagueRouter = createTRPCRouter({
     .input(z.object({ leagueSlug: z.string() }))
     .query(({ ctx }) => editorRoles.some((role) => ctx.role === role)),
   getAll: protectedProcedure
-    .input(z.object({ search: z.string().optional() }))
-    .query(({ ctx, input: { search } }) =>
-      LeagueRepository.getUserLeagues({ userId: ctx.auth.userId, search }),
+    .input(z.object({ search: z.string().optional() }).optional())
+    .query(({ ctx, input }) =>
+      LeagueRepository.getUserLeagues({ userId: ctx.auth.userId, search: input?.search }),
     ),
   create: protectedProcedure
     .input(LeagueInputDTOSchema)
