@@ -3,7 +3,6 @@ import { TitleLayout } from "@/components/layout/title-layout";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonTable } from "@/components/season/season-table";
-import { api } from "@/trpc/server";
 import type { ScoreType } from "@scorebrawl/model";
 import { Label } from "@scorebrawl/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
@@ -16,7 +15,6 @@ export default async function ({
   const league =
     (await findLeagueBySlugWithUserRole(leagueSlug)) ??
     redirect("/?errorCode=LEAGUE_NOT_FOUND", RedirectType.replace);
-  const seasons = await api.season.getAll({ leagueSlug });
 
   const scoreType = searchParams.scoreType ?? "elo";
   return (
@@ -46,16 +44,14 @@ export default async function ({
             </div>
           </TabsContent>
         </Tabs>
-        {seasons.length > 0 && (
-          <div className={"flex-1"}>
-            <div className="pb-3">
-              <Label className="text-sm font-medium">All seasons</Label>
-            </div>
-            <div className="rounded-md border">
-              <SeasonTable leagueSlug={league.slug} seasons={seasons} />
-            </div>
+        <div className={"flex-1"}>
+          <div className="pb-3">
+            <Label className="text-sm font-medium">All seasons</Label>
           </div>
-        )}
+          <div className="rounded-md border">
+            <SeasonTable leagueSlug={league.slug} />
+          </div>
+        </div>
       </div>
     </TitleLayout>
   );
