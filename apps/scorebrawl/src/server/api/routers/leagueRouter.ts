@@ -10,6 +10,12 @@ export const leagueRouter = createTRPCRouter({
   hasEditorAccess: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
     .query(({ ctx }) => editorRoles.some((role) => ctx.role === role)),
+  getLeagueBySlugAndRole: leagueProcedure
+    .input(z.object({ leagueSlug: z.string() }))
+    .query(({ ctx: { league, role } }) => ({
+      ...league,
+      role,
+    })),
   getAll: protectedProcedure
     .input(z.object({ search: z.string().optional() }).optional())
     .query(({ ctx, input }) =>
