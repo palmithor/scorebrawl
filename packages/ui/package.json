@@ -52,6 +52,7 @@
     "./toggle": "./src/components/toggle.tsx",
     "./tooltip": "./src/components/tooltip.tsx",
     "./resizable": "./src/components/resizable.tsx",
+    "./breadcrumbs": "./src/components/breadcrumbs.tsx",
     "./use-toast": "./src/components/use-toast.ts"
   },
   "scripts": {
