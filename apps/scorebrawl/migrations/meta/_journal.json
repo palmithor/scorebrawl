@@ -1,40 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1718287061525,
-      "tag": "0000_sparkling_fenris",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1719906585049,
-      "tag": "0001_rainy_gabe_jones",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1720090456338,
-      "tag": "0002_elite_bug",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1720681893491,
-      "tag": "0003_omniscient_wrecking_crew",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1720947232172,
-      "tag": "0004_cold_nick_fury",
+      "version": "6",
+      "when": 1723153516034,
+      "tag": "0000_even_loa",
       "breakpoints": true
     }
   ]

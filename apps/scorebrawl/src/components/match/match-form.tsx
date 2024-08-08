@@ -76,7 +76,7 @@ export const MatchForm = ({
       awayPlayers: [],
     },
   });
-
+  console.log("errors", form.formState.errors);
   const enableReorder = () => {
     return (
       form.getValues().homePlayers.length > 1 &&

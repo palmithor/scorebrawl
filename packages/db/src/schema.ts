@@ -1,32 +1,27 @@
-import { relations } from "drizzle-orm";
-import {
-  boolean,
-  integer,
-  json,
-  pgTable,
-  real,
-  timestamp,
-  uniqueIndex,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import type { LeagueEventData } from "./types";
 
-const defaultVarcharConfig = { length: 100 };
+const defaultTextConfig = { length: 100 };
 export const cuidConfig = { length: 32 };
 
-export const leagues = pgTable(
+export const leagues = sqliteTable(
   "league",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    name: varchar("name", defaultVarcharConfig).notNull(),
-    slug: varchar("name_slug", defaultVarcharConfig).notNull(),
-    logoUrl: varchar("logo_url", defaultVarcharConfig),
-    code: varchar("code", cuidConfig).notNull(),
-    archived: boolean("archived").default(false).notNull(),
-    createdBy: varchar("created_by").notNull(),
-    updatedBy: varchar("updated_by").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    id: text("id", cuidConfig).primaryKey(),
+    name: text("name", defaultTextConfig).notNull(),
+    slug: text("name_slug", defaultTextConfig).notNull(),
+    logoUrl: text("logo_url", defaultTextConfig),
+    code: text("code", cuidConfig).notNull(),
+    archived: integer("archived", { mode: "boolean" }).default(false).notNull(),
+    createdBy: text("created_by").notNull(),
+    updatedBy: text("updated_by").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (league) => ({
     slugIdx: uniqueIndex("league_name_slug_uq_idx").on(league.slug),
@@ -41,60 +36,74 @@ const leagueEventType = [
   "match_undo_v1",
 ] as const;
 
-export const leagueEvents = pgTable("league_event", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  leagueId: varchar("league_id", cuidConfig)
+export const leagueEvents = sqliteTable("league_event", {
+  id: text("id", cuidConfig).primaryKey(),
+  leagueId: text("league_id", cuidConfig)
     .notNull()
     .references(() => leagues.id),
-  type: varchar("type", {
+  type: text("type", {
     enum: leagueEventType,
   }).notNull(),
-  data: json("data").$type<LeagueEventData>(),
-  createdBy: varchar("created_by", defaultVarcharConfig).notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  data: text("text", { mode: "json" }).$type<LeagueEventData>(),
+  createdBy: text("created_by", defaultTextConfig).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
 });
 
-export const leaguePlayers = pgTable(
+export const leaguePlayers = sqliteTable(
   "league_player",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    userId: varchar("user_id", defaultVarcharConfig)
+    id: text("id", cuidConfig).primaryKey(),
+    userId: text("user_id", defaultTextConfig)
       .notNull()
       .references(() => users.id),
-    leagueId: varchar("league_id", cuidConfig)
+    leagueId: text("league_id", cuidConfig)
       .notNull()
       .references(() => leagues.id),
-    disabled: boolean("disabled").default(false).notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    disabled: integer("disabled", { mode: "boolean" }).default(false).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (player) => ({
     leaguePlayerIdx: uniqueIndex("league_player_uq_idx").on(player.leagueId, player.userId),
   }),
 );
 
-export const leagueTeams = pgTable("league_team", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  name: varchar("name", defaultVarcharConfig).notNull(),
-  leagueId: varchar("league_id", cuidConfig)
+export const leagueTeams = sqliteTable("league_team", {
+  id: text("id", cuidConfig).primaryKey(),
+  name: text("name", defaultTextConfig).notNull(),
+  leagueId: text("league_id", cuidConfig)
     .notNull()
     .references(() => leagues.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
 });
 
-export const leagueTeamPlayers = pgTable(
+export const leagueTeamPlayers = sqliteTable(
   "league_team_player",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    leaguePlayerId: varchar("league_player_id", cuidConfig)
+    id: text("id", cuidConfig).primaryKey(),
+    leaguePlayerId: text("league_player_id", cuidConfig)
       .notNull()
       .references(() => leaguePlayers.id),
-    teamId: varchar("team_id", cuidConfig)
+    teamId: text("team_id", cuidConfig)
       .notNull()
       .references(() => leagueTeams.id),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (leagueTeamPlayer) => ({
     leagueTeamPlayerIdx: uniqueIndex("league_team_player_uq_idx").on(
@@ -106,19 +115,23 @@ export const leagueTeamPlayers = pgTable(
 
 export const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
-export const leagueMembers = pgTable(
+export const leagueMembers = sqliteTable(
   "league_member",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    userId: varchar("user_id", defaultVarcharConfig).notNull(),
-    leagueId: varchar("league_id", cuidConfig)
+    id: text("id", cuidConfig).primaryKey(),
+    userId: text("user_id", defaultTextConfig).notNull(),
+    leagueId: text("league_id", cuidConfig)
       .notNull()
       .references(() => leagues.id),
-    role: varchar("role", {
+    role: text("role", {
       enum: leagueMemberRoles,
     }).notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (player) => ({
     leaguePlayerIdx: uniqueIndex("league_member_uq_idx").on(player.leagueId, player.userId),
@@ -127,43 +140,51 @@ export const leagueMembers = pgTable(
 
 const scoreType = ["elo", "3-1-0", "elo-individual-vs-team"] as const;
 
-export const seasons = pgTable(
+export const seasons = sqliteTable(
   "season",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    name: varchar("name", defaultVarcharConfig).notNull(),
-    slug: varchar("name_slug", defaultVarcharConfig).notNull(),
+    id: text("id", cuidConfig).primaryKey(),
+    name: text("name", defaultTextConfig).notNull(),
+    slug: text("name_slug", defaultTextConfig).notNull(),
     initialScore: integer("initial_score").notNull(),
-    scoreType: varchar("score_type", { enum: scoreType }).notNull(),
+    scoreType: text("score_type", { enum: scoreType }).notNull(),
     kFactor: integer("k_factor").notNull(),
-    startDate: timestamp("start_date").notNull(),
-    endDate: timestamp("end_date"),
-    leagueId: varchar("league_id", cuidConfig)
+    startDate: integer("start_date", { mode: "timestamp_ms" }).notNull(),
+    endDate: integer("end_date", { mode: "timestamp_ms" }).notNull(),
+    leagueId: text("league_id", cuidConfig)
       .notNull()
       .references(() => leagues.id),
-    createdBy: varchar("created_by").notNull(),
-    updatedBy: varchar("updated_by").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdBy: text("created_by").notNull(),
+    updatedBy: text("updated_by").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (season) => ({
     slugIdx: uniqueIndex("season_name_slug_uq_idx").on(season.slug),
   }),
 );
 
-export const seasonTeams = pgTable(
+export const seasonTeams = sqliteTable(
   "season_team",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    seasonId: varchar("season_id", cuidConfig)
+    id: text("id", cuidConfig).primaryKey(),
+    seasonId: text("season_id", cuidConfig)
       .notNull()
       .references(() => seasons.id),
-    teamId: varchar("team_id", cuidConfig)
+    teamId: text("team_id", cuidConfig)
       .notNull()
       .references(() => leagueTeams.id),
     score: integer("score").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (seasonTeam) => ({
     seasonTeamIdx: uniqueIndex("season_team_uq_idx").on(seasonTeam.seasonId, seasonTeam.teamId),
@@ -172,97 +193,121 @@ export const seasonTeams = pgTable(
 
 const matchResult = ["W", "L", "D"] as const;
 
-export const teamMatches = pgTable("season_team_match", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  seasonTeamId: varchar("season_team_id", cuidConfig)
+export const teamMatches = sqliteTable("season_team_match", {
+  id: text("id", cuidConfig).primaryKey(),
+  seasonTeamId: text("season_team_id", cuidConfig)
     .notNull()
     .references(() => seasonTeams.id),
-  matchId: varchar("match_id", cuidConfig)
+  matchId: text("match_id", cuidConfig)
     .notNull()
     .references(() => matches.id),
   scoreBefore: integer("score_before").notNull().default(-1),
   scoreAfter: integer("score_after").notNull().default(-1),
-  result: varchar("result", { enum: matchResult }).notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  result: text("result", { enum: matchResult }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
 });
 
-export const seasonPlayers = pgTable(
+export const seasonPlayers = sqliteTable(
   "season_player",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    seasonId: varchar("season_id", cuidConfig)
+    id: text("id", cuidConfig).primaryKey(),
+    seasonId: text("season_id", cuidConfig)
       .notNull()
       .references(() => seasons.id),
-    leaguePlayerId: varchar("league_player_id", cuidConfig)
+    leaguePlayerId: text("league_player_id", cuidConfig)
       .notNull()
       .references(() => leaguePlayers.id),
     score: integer("score").notNull(),
-    disabled: boolean("disabled").default(false).notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    disabled: integer("disabled", { mode: "boolean" }).default(false).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (season) => ({
     seasonPlayerIdx: uniqueIndex("season_player_uq_idx").on(season.seasonId, season.leaguePlayerId),
   }),
 );
 
-export const matches = pgTable("match", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  seasonId: varchar("season_id", cuidConfig)
+export const matches = sqliteTable("match", {
+  id: text("id", cuidConfig).primaryKey(),
+  seasonId: text("season_id", cuidConfig)
     .notNull()
     .references(() => seasons.id),
   homeScore: integer("home_score").notNull(),
   awayScore: integer("away_score").notNull(),
   homeExpectedElo: real("home_expected_elo"),
   awayExpectedElo: real("away_expected_elo"),
-  createdBy: varchar("created_by").notNull(),
-  updatedBy: varchar("updated_by").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdBy: text("created_by").notNull(),
+  updatedBy: text("updated_by").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
 });
 
-export const matchPlayers = pgTable("match_player", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  seasonPlayerId: varchar("season_player_id", cuidConfig)
+export const matchPlayers = sqliteTable("match_player", {
+  id: text("id", cuidConfig).primaryKey(),
+  seasonPlayerId: text("season_player_id", cuidConfig)
     .notNull()
     .references(() => seasonPlayers.id),
-  homeTeam: boolean("home_team").notNull(),
-  matchId: varchar("match_id", cuidConfig)
+  homeTeam: integer("home_team", { mode: "boolean" }).default(false).notNull(),
+  matchId: text("match_id", cuidConfig)
     .notNull()
     .references(() => matches.id),
   scoreBefore: integer("score_before").notNull().default(-1),
   scoreAfter: integer("score_after").notNull().default(-1),
-  result: varchar("result", { enum: matchResult }).notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  result: text("result", { enum: matchResult }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
 });
 
-export const leagueInvites = pgTable(
+export const leagueInvites = sqliteTable(
   "league_invite",
   {
-    id: varchar("id", cuidConfig).primaryKey(),
-    leagueId: varchar("league_id").references(() => leagues.id),
-    role: varchar("role", { enum: leagueMemberRoles }).notNull(),
-    code: varchar("code", cuidConfig).notNull(),
-    expiresAt: timestamp("expires_at"),
-    createdBy: varchar("created_by").notNull(),
-    updatedBy: varchar("updated_by").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    id: text("id", cuidConfig).primaryKey(),
+    leagueId: text("league_id").references(() => leagues.id),
+    role: text("role", { enum: leagueMemberRoles }).notNull(),
+    code: text("code", cuidConfig).notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }),
+    createdBy: text("created_by").notNull(),
+    updatedBy: text("updated_by").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
   },
   (invite) => ({
     codeIdx: uniqueIndex("league_invite_code_uq_idx").on(invite.code),
   }),
 );
 
-export const users = pgTable("user", {
-  id: varchar("id", { length: 100 }).primaryKey(),
-  imageUrl: varchar("image_url", { length: 255 }).notNull(),
-  name: varchar("name").notNull(),
-  defaultLeagueId: varchar("defaultLeagueId", cuidConfig).references(() => leagues.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+export const users = sqliteTable("user", {
+  id: text("id", { length: 100 }).primaryKey(),
+  imageUrl: text("image_url", { length: 255 }).notNull(),
+  name: text("name").notNull(),
+  defaultLeagueId: text("defaultLeagueId", cuidConfig).references(() => leagues.id),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
 });
 
 export const leaguesRelations = relations(leagues, ({ many }) => ({

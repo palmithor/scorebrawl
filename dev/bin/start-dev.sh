@@ -3,11 +3,9 @@ set -e
 
 repository_root="$(git rev-parse --show-toplevel)"
 
-# Function to execute docker compose down
 cleanup() {
-    echo "Stopping Docker containers..."
-    cd "${repository_root}/dev/docker"
-    docker compose down >/dev/null 2>&1
+    echo "Stopping database..."
+    "${repository_root}"/dev/bin/stop-db.sh
 }
 
 handle_error() {
@@ -19,15 +17,13 @@ handle_error() {
 trap cleanup SIGINT
 trap handle_error ERR
 
-# Start infrastructure using docker compose
-cd "${repository_root}/dev/docker"
-docker compose up -d --wait >/dev/null 2>&1
+"${repository_root}"/dev/bin/start-db.sh
 
 cd "${repository_root}/apps/scorebrawl"
 
-bun run ./scripts/migrate-db.ts >/dev/null 2>&1
+bun run ./scripts/migrate-db.ts
 echo "Running migrations and populating clerk users"
-bun run ./scripts/populate-user-table.ts >/dev/null 2>&1
+bun run ./scripts/populate-user-table.ts
 
 echo "Ran migrations and populated clerk users"
 
