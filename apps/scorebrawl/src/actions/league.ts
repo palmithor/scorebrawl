@@ -26,10 +26,6 @@ export const getTeams = cache((leagueId: string) =>
   LeagueTeamRepository.getLeagueTeams({ leagueId }),
 );
 
-export const getCode = cache((leagueId: string) =>
-  LeagueRepository.getLeagueCode({ leagueId, userId: auth().userId as string }),
-);
-
 export const getHasEditorAccess = cache((leagueId: string) =>
   LeagueRepository.hasLeagueEditorAccess({ leagueId, userId: auth().userId as string }),
 );

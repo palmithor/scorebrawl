@@ -1,12 +1,30 @@
 import { findLeagueBySlugWithUserRole } from "@/actions/league";
-import { TitleLayout } from "@/components/layout/title-layout";
+import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonTable } from "@/components/season/season-table";
 import type { ScoreType } from "@scorebrawl/model";
 import { Label } from "@scorebrawl/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
+import type { Metadata, ResolvingMetadata } from "next";
 import { RedirectType, redirect } from "next/navigation";
+
+export async function generateMetadata(
+  { params: { leagueSlug } }: { params: { leagueSlug: string } },
+  _parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const league = { name: "" };
+  try {
+    const leagueBySlug = await findLeagueBySlugWithUserRole(leagueSlug);
+    league.name = leagueBySlug?.name ?? "Unknown";
+  } catch (_e) {
+    // ignore
+  }
+
+  return {
+    title: `${league.name} | Create Season`,
+  };
+}
 
 export default async function ({
   params: { leagueSlug },
@@ -18,11 +36,13 @@ export default async function ({
 
   const scoreType = searchParams.scoreType ?? "elo";
   return (
-    <TitleLayout
-      title="Create a season"
-      subtitle={league ? `In league "${league.name}"` : undefined}
-      backLink={`/leagues/${league.slug}`}
-    >
+    <>
+      <BreadcrumbsHeader
+        breadcrumbs={[
+          { name: "Seasons", href: `/leagues/${leagueSlug}/seasons` },
+          { name: "Create" },
+        ]}
+      />
       <div className="flex flex-col gap-6 md:flex-row">
         <Tabs defaultValue={scoreType} className="flex-1 flex flex-col">
           <TabsList className="flex">
@@ -53,6 +73,6 @@ export default async function ({
           </div>
         </div>
       </div>
-    </TitleLayout>
+    </>
   );
 }
