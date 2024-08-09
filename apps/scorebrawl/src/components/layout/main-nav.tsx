@@ -1,12 +1,13 @@
 "use client";
 
-import { Home, Users } from "lucide-react";
+import { ChartNoAxesGantt, Home, Inbox, Settings, UserCog, Users } from "lucide-react";
 import * as React from "react";
 
 import { Nav } from "@/components/layout/navbar";
 
 import { LeagueSwitcher } from "@/components/layout/league-switcher";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { api } from "@/trpc/react";
 import { UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { cn } from "@scorebrawl/ui/lib";
@@ -22,17 +23,51 @@ interface MailProps {
   defaultLayout?: number[];
   children: React.ReactNode;
 }
-const constructLinks = ({ leagueSlug }: { leagueSlug: string }) => [
+const constructLinks = ({
+  leagueSlug,
+  hasEditorAccess,
+}: { leagueSlug: string; hasEditorAccess?: boolean }) => [
   {
-    name: "Home",
+    name: "Active Season",
     href: `/leagues/${leagueSlug}`,
+    regex: new RegExp(`^/leagues/${leagueSlug}$`),
     icon: Home,
+  },
+  {
+    name: "Seasons",
+    href: `/leagues/${leagueSlug}/seasons`,
+    regex: new RegExp(`^/leagues/${leagueSlug}/seasons`),
+    icon: ChartNoAxesGantt,
   },
   {
     name: "Players",
     href: `/leagues/${leagueSlug}/players`,
+    regex: new RegExp(`^/leagues/${leagueSlug}/players`),
     icon: Users,
   },
+  // add editor access links
+  ...(hasEditorAccess
+    ? [
+        {
+          name: "Members",
+          href: `/leagues/${leagueSlug}/members`,
+          regex: new RegExp(`^/leagues/${leagueSlug}/members`),
+          icon: UserCog,
+        },
+        {
+          name: "Invites",
+          href: `/leagues/${leagueSlug}/invites`,
+          regex: new RegExp(`^/leagues/${leagueSlug}/invites`),
+          icon: Inbox,
+        },
+        {
+          name: "Settings",
+          href: `/leagues/${leagueSlug}/settings`,
+          regex: new RegExp(`^/leagues/${leagueSlug}/settings`),
+          icon: Settings,
+        },
+      ]
+    : []),
 ];
 
 export function NavLayout({
@@ -48,7 +83,11 @@ export function NavLayout({
   const params = useParams<{ leagueSlug: string }>();
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const selectedLeague = leagues.find((league) => league.slug === params.leagueSlug) ?? leagues[0];
-  const links = constructLinks({ leagueSlug: params.leagueSlug });
+  const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
+    { leagueSlug: selectedLeague?.slug as string },
+    { enabled: !!selectedLeague?.slug },
+  );
+  const links = constructLinks({ leagueSlug: params.leagueSlug, hasEditorAccess });
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
@@ -98,7 +137,7 @@ export function NavLayout({
               links={links.map((link) => ({
                 title: link.name,
                 icon: link.icon,
-                variant: pathname.includes(link.href) ? "default" : "ghost",
+                variant: link.regex.test(pathname) ? "default" : "ghost",
                 href: link.href,
               }))}
             />
