@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  index,
   integer,
   json,
   pgTable,
@@ -167,25 +168,34 @@ export const seasonTeams = pgTable(
   },
   (seasonTeam) => ({
     seasonTeamIdx: uniqueIndex("season_team_uq_idx").on(seasonTeam.seasonId, seasonTeam.teamId),
+    seasonIdIdx: index("season_team_season_id_idx").on(seasonTeam.seasonId),
   }),
 );
 
 const matchResult = ["W", "L", "D"] as const;
 
-export const teamMatches = pgTable("season_team_match", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  seasonTeamId: varchar("season_team_id", cuidConfig)
-    .notNull()
-    .references(() => seasonTeams.id),
-  matchId: varchar("match_id", cuidConfig)
-    .notNull()
-    .references(() => matches.id),
-  scoreBefore: integer("score_before").notNull().default(-1),
-  scoreAfter: integer("score_after").notNull().default(-1),
-  result: varchar("result", { enum: matchResult }).notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const teamMatches = pgTable(
+  "season_team_match",
+  {
+    id: varchar("id", cuidConfig).primaryKey(),
+    seasonTeamId: varchar("season_team_id", cuidConfig)
+      .notNull()
+      .references(() => seasonTeams.id),
+    matchId: varchar("match_id", cuidConfig)
+      .notNull()
+      .references(() => matches.id),
+    scoreBefore: integer("score_before").notNull().default(-1),
+    scoreAfter: integer("score_after").notNull().default(-1),
+    result: varchar("result", { enum: matchResult }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (teamMatch) => ({
+    seasonTeamIdIdx: index("team_matches_season_team_id_idx").on(teamMatch.seasonTeamId),
+    matchIdIdx: index("team_matches_match_id_idx").on(teamMatch.matchId),
+    createdAtIdx: index("team_matches_created_at_idx").on(teamMatch.createdAt),
+  }),
+);
 
 export const seasonPlayers = pgTable(
   "season_player",
@@ -204,39 +214,53 @@ export const seasonPlayers = pgTable(
   },
   (season) => ({
     seasonPlayerIdx: uniqueIndex("season_player_uq_idx").on(season.seasonId, season.leaguePlayerId),
+    seasonIdIdx: index("season_player_season_id_idx").on(season.seasonId),
   }),
 );
 
-export const matches = pgTable("match", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  seasonId: varchar("season_id", cuidConfig)
-    .notNull()
-    .references(() => seasons.id),
-  homeScore: integer("home_score").notNull(),
-  awayScore: integer("away_score").notNull(),
-  homeExpectedElo: real("home_expected_elo"),
-  awayExpectedElo: real("away_expected_elo"),
-  createdBy: varchar("created_by").notNull(),
-  updatedBy: varchar("updated_by").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const matches = pgTable(
+  "match",
+  {
+    id: varchar("id", cuidConfig).primaryKey(),
+    seasonId: varchar("season_id", cuidConfig)
+      .notNull()
+      .references(() => seasons.id),
+    homeScore: integer("home_score").notNull(),
+    awayScore: integer("away_score").notNull(),
+    homeExpectedElo: real("home_expected_elo"),
+    awayExpectedElo: real("away_expected_elo"),
+    createdBy: varchar("created_by").notNull(),
+    updatedBy: varchar("updated_by").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (match) => ({
+    matchCreatedAtIdx: index("match_created_at_idx").on(match.createdAt),
+  }),
+);
 
-export const matchPlayers = pgTable("match_player", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  seasonPlayerId: varchar("season_player_id", cuidConfig)
-    .notNull()
-    .references(() => seasonPlayers.id),
-  homeTeam: boolean("home_team").notNull(),
-  matchId: varchar("match_id", cuidConfig)
-    .notNull()
-    .references(() => matches.id),
-  scoreBefore: integer("score_before").notNull().default(-1),
-  scoreAfter: integer("score_after").notNull().default(-1),
-  result: varchar("result", { enum: matchResult }).notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const matchPlayers = pgTable(
+  "match_player",
+  {
+    id: varchar("id", cuidConfig).primaryKey(),
+    seasonPlayerId: varchar("season_player_id", cuidConfig)
+      .notNull()
+      .references(() => seasonPlayers.id),
+    homeTeam: boolean("home_team").notNull(),
+    matchId: varchar("match_id", cuidConfig)
+      .notNull()
+      .references(() => matches.id),
+    scoreBefore: integer("score_before").notNull().default(-1),
+    scoreAfter: integer("score_after").notNull().default(-1),
+    result: varchar("result", { enum: matchResult }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (matchPlayer) => ({
+    seasonPlayerIdx: index("match_player_season_player_id_idx").on(matchPlayer.seasonPlayerId),
+    matchIdIdx: index("match_player_match_id_idx").on(matchPlayer.matchId),
+  }),
+);
 
 export const leagueInvites = pgTable(
   "league_invite",
