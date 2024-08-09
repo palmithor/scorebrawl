@@ -21,13 +21,13 @@ trap handle_error ERR
 
 # Start infrastructure using docker compose
 cd "${repository_root}/dev/docker"
-docker compose up -d --wait >/dev/null 2>&1
+docker compose up -d --wait
 
 cd "${repository_root}/apps/scorebrawl"
 
-bun run ./scripts/migrate-db.ts >/dev/null 2>&1
+bun run ./scripts/migrate-db.ts
 echo "Running migrations and populating clerk users"
-bun run ./scripts/populate-user-table.ts >/dev/null 2>&1
+bun run ./scripts/populate-user-table.ts
 
 echo "Ran migrations and populated clerk users"
 
