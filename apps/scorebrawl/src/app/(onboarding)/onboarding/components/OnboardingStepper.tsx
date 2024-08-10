@@ -12,6 +12,7 @@ const steps = [
   { label: "Profile", component: <ProfileStep /> },
   { label: "Get Started", component: <GetStartedStep /> },
 ] satisfies (StepItem & { component: ReactNode })[];
+
 export const OnboardingStepper = () => {
   return (
     <Stepper initialStep={0} steps={steps}>
