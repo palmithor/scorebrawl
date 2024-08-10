@@ -33,9 +33,11 @@ export const Footer = () => {
                 Prev
               </Button>
             )}
-            <Button size="sm" onClick={nextStep}>
-              {isLastStep ? "Finish" : isOptionalStep ? "Skip" : "Next"}
-            </Button>
+            {!isLastStep && (
+              <Button size="sm" onClick={nextStep}>
+                {isOptionalStep ? "Skip" : "Next"}
+              </Button>
+            )}
           </>
         )}
       </div>
