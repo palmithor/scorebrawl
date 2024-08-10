@@ -1,7 +1,7 @@
 "use client";
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { Button } from "@scorebrawl/ui/button";
 import { Separator } from "@scorebrawl/ui/separator";
+import { ArrowLeftIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { Title } from "../title";

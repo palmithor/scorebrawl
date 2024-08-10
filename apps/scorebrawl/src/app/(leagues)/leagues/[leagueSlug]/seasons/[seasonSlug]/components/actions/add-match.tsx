@@ -1,7 +1,7 @@
 "use client";
+import { LayoutActionButton } from "@/components/layout/LayoutActionButton";
 import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
-import { Button } from "@scorebrawl/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -18,15 +18,11 @@ export const AddMatchButton = () => {
   return (
     <Tooltip>
       <TooltipTrigger>
-        <Button
-          size="sm"
-          className="h-8 gap-1"
-          variant="outline"
+        <LayoutActionButton
+          text={"Match"}
           onClick={() => void push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches/create`)}
-        >
-          <PlusIcon className="h-3.5 w-3.5" />
-          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add Match</span>
-        </Button>
+          Icon={PlusIcon}
+        />
       </TooltipTrigger>
       {!(hasTwoPlayersOrMore && season) && (
         <TooltipContent side="bottom">

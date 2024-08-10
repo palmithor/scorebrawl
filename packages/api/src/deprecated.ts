@@ -11,12 +11,4 @@ export const createInviteSchema = z.object({
     .optional(),
 });
 
-export const updateTeamSchema = z.object({
-  teamId: z.string(),
-  leagueId: z.string(),
-  userId: z.string(),
-  name: z.string().min(0, { message: "Name is required" }),
-});
-
 export type LeagueMemberRole = z.infer<typeof leagueMemberRoleSchema>;
-export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;
