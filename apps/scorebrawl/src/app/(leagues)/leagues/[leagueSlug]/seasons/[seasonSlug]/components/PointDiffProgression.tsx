@@ -40,7 +40,6 @@ export const PointDiffProgression = () => {
         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
         {chartData.length > 0 &&
           chartKeys.map((key) => {
-            console.log("key", key);
             return (
               <Line
                 key={key}

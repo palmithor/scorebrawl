@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartNoAxesGantt, Home, Inbox, Settings, UserCog, Users } from "lucide-react";
+import { ChartNoAxesGantt, Home, Inbox, Settings, User2, UserCog, Users } from "lucide-react";
 import * as React from "react";
 
 import { Nav } from "@/components/layout/navbar";
@@ -43,6 +43,12 @@ const constructLinks = ({
     name: "Players",
     href: `/leagues/${leagueSlug}/players`,
     regex: new RegExp(`^/leagues/${leagueSlug}/players`),
+    icon: User2,
+  },
+  {
+    name: "Teams",
+    href: `/leagues/${leagueSlug}/teams`,
+    regex: new RegExp(`^/leagues/${leagueSlug}/teams`),
     icon: Users,
   },
   // add editor access links

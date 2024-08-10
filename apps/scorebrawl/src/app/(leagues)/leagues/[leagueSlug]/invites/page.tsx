@@ -1,20 +1,23 @@
 import { findLeagueBySlugWithUserRole } from "@/actions/league";
 import { validateMembership } from "@/actions/permissions";
+import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { RedirectType, redirect } from "next/navigation";
 import { InviteDialog } from "./components/InviteDialog";
 import { InviteTable } from "./components/InviteTable";
 
-export default async ({ params }: { params: { leagueSlug: string } }) => {
+export default async ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) => {
   const leagueWithMembership =
-    (await findLeagueBySlugWithUserRole(params.leagueSlug)) ??
+    (await findLeagueBySlugWithUserRole(leagueSlug)) ??
     redirect("/?errorCode=LEAGUE_NOT_FOUND", RedirectType.replace);
   await validateMembership({ leagueWithMembership, allowedRoles: ["owner", "editor"] });
   return (
-    <div className={"grid"}>
-      <div className={"justify-end w-full"}>
-        <InviteDialog leagueSlug={params.leagueSlug} />
+    <>
+      <BreadcrumbsHeader breadcrumbs={[{ name: "Invites" }]}>
+        <InviteDialog leagueSlug={leagueSlug} />
+      </BreadcrumbsHeader>
+      <div className={"grid"}>
+        <InviteTable leagueSlug={leagueSlug} />
       </div>
-      <InviteTable leagueSlug={params.leagueSlug} />
-    </div>
+    </>
   );
 };

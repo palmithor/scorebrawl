@@ -1,6 +1,6 @@
 "use client";
 import { InviteForm } from "@/app/(leagues)/leagues/[leagueSlug]/invites/components/InviteForm";
-import { Button } from "@scorebrawl/ui/button";
+import { LayoutActionButton } from "@/components/layout/LayoutActionButton";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@scorebrawl/ui/dialog";
+import { UserPlus } from "lucide-react";
 import { useState } from "react";
 
 export const InviteDialog = ({ leagueSlug }: { leagueSlug: string }) => {
@@ -20,9 +21,7 @@ export const InviteDialog = ({ leagueSlug }: { leagueSlug: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setOpen(true)}>
-          Create Invite
-        </Button>
+        <LayoutActionButton text={"Invite"} onClick={() => setOpen(true)} Icon={UserPlus} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
