@@ -19,43 +19,41 @@ export const LeaguePlayersTable = async ({
 }) => {
   const { data } = api.leaguePlayer.getAll.useQuery({ leagueSlug });
   return (
-    <div className="rounded-md border px-2">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Joined</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data?.map((player) => (
-            <TableRow key={player.leaguePlayerId}>
-              <TableCell>
-                <AvatarName
-                  avatarClassName="h-8 w-8"
-                  name={player.user.name}
-                  imageUrl={player.user.imageUrl || ""}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Joined</TableHead>
+          <TableHead>Status</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data?.map((player) => (
+          <TableRow key={player.leaguePlayerId}>
+            <TableCell>
+              <AvatarName
+                avatarClassName="h-8 w-8"
+                name={player.user.name}
+                imageUrl={player.user.imageUrl || ""}
+              />
+            </TableCell>
+            <TableCell>
+              <DateCell date={player.joinedAt} />
+            </TableCell>
+            <TableCell>
+              <div className="flex gap-2 items-center">
+                <div
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    player.disabled ? "bg-rose-900" : "bg-green-400",
+                  )}
                 />
-              </TableCell>
-              <TableCell>
-                <DateCell date={player.joinedAt} />
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2 items-center">
-                  <div
-                    className={cn(
-                      "h-2 w-2 rounded-full",
-                      player.disabled ? "bg-rose-900" : "bg-green-400",
-                    )}
-                  />
-                  <div>{player.disabled ? "Inactive" : "Active"}</div>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+                <div>{player.disabled ? "Inactive" : "Active"}</div>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };

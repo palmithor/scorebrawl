@@ -1,13 +1,16 @@
-import type { UpdateTeamInput } from "@scorebrawl/api";
-import { asc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import type { LeagueTeamInput } from "@scorebrawl/model";
+import { and, asc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import type { z } from "zod";
 import {
-  LeagueRepository,
   ScoreBrawlError,
   createCuid,
+  leaguePlayers,
   leagueTeamPlayers,
   leagueTeams,
+  leagues,
   seasonPlayers,
   seasonTeams,
+  users,
 } from "..";
 import { db } from "../db";
 
@@ -107,39 +110,49 @@ const getOrInsertTeam = async ({
   return { seasonTeamId: seasonTeam.id, score: seasonTeam.score };
 };
 
-const updateTeam = async ({ leagueId, userId, teamId, name }: UpdateTeamInput) => {
-  const league = await LeagueRepository.getByIdWhereMember({
-    leagueId: leagueId,
-    userId: userId,
-    allowedRoles: ["owner", "editor"],
-  });
-
-  const team = await db.query.leagueTeams.findFirst({
-    where: (team, { eq, and }) => and(eq(team.id, teamId), eq(team.leagueId, leagueId)),
-    with: {
-      players: {
-        columns: { id: true },
-        with: {
-          leaguePlayer: {
-            columns: { id: true },
-            with: { user: { columns: { id: true } } },
-          },
-        },
-      },
-    },
-  });
-  if (!league && !team?.players.map((p) => p.leaguePlayer.user.id).includes(userId)) {
+const update = async ({
+  leagueSlug,
+  teamId,
+  name,
+  userId,
+  isEditor,
+}: z.infer<typeof LeagueTeamInput>) => {
+  console.log("1");
+  const [leagueTeam] = await db
+    .select({ id: leagueTeams.id })
+    .from(leagueTeams)
+    .innerJoin(leagues, eq(leagues.id, leagueTeams.leagueId))
+    .where(and(eq(leagueTeams.id, teamId), eq(leagues.slug, leagueSlug)));
+  if (!leagueTeam) {
     throw new ScoreBrawlError({
-      code: "FORBIDDEN",
-      message: "You are not authorized to update this team",
+      code: "NOT_FOUND",
+      message: "Team not found in league",
     });
+  }
+  console.log("1");
+  if (!isEditor) {
+    const [result] = await db
+      .select({ id: leagueTeams.id })
+      .from(leagueTeams)
+      .innerJoin(leagues, eq(leagues.id, leagueTeams.leagueId))
+      .innerJoin(leagueTeamPlayers, eq(leagueTeamPlayers.teamId, leagueTeams.id))
+      .innerJoin(leaguePlayers, eq(leaguePlayers.id, leagueTeamPlayers.leaguePlayerId))
+      .innerJoin(users, eq(users.id, leaguePlayers.userId))
+      .where(and(eq(leagues.slug, leagueSlug), eq(leagueTeams.id, teamId), eq(users.id, userId)));
+    if (!result) {
+      throw new ScoreBrawlError({
+        code: "FORBIDDEN",
+        message: "User is not authorized to update team",
+      });
+    }
   }
   return db
     .update(leagueTeams)
     .set({
       name: name,
+      updatedAt: new Date(),
     })
-    .where(eq(leagueTeams.id, teamId))
+    .where(and(eq(leagueTeams.id, teamId)))
     .returning();
 };
 
@@ -161,6 +174,6 @@ const getBySeasonPlayerIds = async ({
 export const LeagueTeamRepository = {
   getLeagueTeams,
   getOrInsertTeam,
-  updateTeam,
+  update,
   getBySeasonPlayerIds,
 };

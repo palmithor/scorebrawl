@@ -1,5 +1,6 @@
 "use client";
-import type { LeagueMember } from "@scorebrawl/db/types";
+import { FullPageSpinner } from "@/components/full-page-spinner";
+import { api } from "@/trpc/react";
 import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import {
   Table,
@@ -11,8 +12,9 @@ import {
 } from "@scorebrawl/ui/table";
 import { capitalize } from "@scorebrawl/utils/string";
 
-export const LeagueMemberTable = ({ members }: { members: LeagueMember[] }) => (
-  <div className="rounded-md border">
+export const LeagueMemberTable = ({ leagueSlug }: { leagueSlug: string }) => {
+  const { data, isLoading } = api.member.getAll.useQuery({ leagueSlug });
+  return (
     <Table>
       <TableHeader className="text-xs">
         <TableRow>
@@ -21,7 +23,8 @@ export const LeagueMemberTable = ({ members }: { members: LeagueMember[] }) => (
         </TableRow>
       </TableHeader>
       <TableBody className={"text-sm"}>
-        {members.map((member) => (
+        {isLoading && <FullPageSpinner />}
+        {data?.map((member) => (
           <TableRow key={member.memberId}>
             <TableCell>
               <AvatarName
@@ -36,5 +39,5 @@ export const LeagueMemberTable = ({ members }: { members: LeagueMember[] }) => (
         ))}
       </TableBody>
     </Table>
-  </div>
-);
+  );
+};

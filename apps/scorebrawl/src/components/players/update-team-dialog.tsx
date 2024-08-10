@@ -1,6 +1,6 @@
 "use client";
 
-import { updateTeam } from "@/actions/league";
+import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
@@ -21,7 +21,6 @@ import {
 import { Input } from "@scorebrawl/ui/input";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
-import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -31,48 +30,52 @@ const formSchema = z.object({
 });
 
 export const UpdateTeamDialog = ({
-  leagueId,
+  leagueSlug,
   team,
   children,
 }: {
-  leagueId: string;
+  leagueSlug: string;
   team: { id: string; name: string };
   children: ReactNode;
 }) => {
-  const { refresh } = useRouter();
+  const { mutate, isPending } = api.leagueTeam.update.useMutation();
+  const { leagueTeam } = api.useUtils();
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: team.name,
     },
   });
-  const { toast } = useToast();
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-    try {
-      await updateTeam({ leagueId, teamId: team.id, name: values.name });
-      toast({
-        title: "Team updated",
-        description: (
-          <span>
-            Team <strong>{team.name}</strong> name changed to <strong>{values.name}</strong>
-          </span>
-        ),
-      });
-      refresh();
-      setOpen(false);
-    } catch (err) {
-      toast({
-        title: "Error updating team",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    mutate(
+      { leagueSlug, teamId: team.id, name: values.name },
+      {
+        onSuccess: () => {
+          leagueTeam.getAll.invalidate({ leagueSlug });
+          leagueTeam.getBySeasonPlayerIds.invalidate({ leagueSlug });
+          setOpen(false);
+          toast({
+            title: "Team updated",
+            description: (
+              <span>
+                Team <strong>{team.name}</strong> name changed to <strong>{values.name}</strong>
+              </span>
+            ),
+          });
+          setOpen(false);
+        },
+        onError: (err) => {
+          toast({
+            title: "Error updating team",
+            description: err instanceof Error ? err.message : "Unknown error",
+            variant: "destructive",
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -105,7 +108,7 @@ export const UpdateTeamDialog = ({
               )}
             />
             <DialogFooter>
-              <LoadingButton loading={isLoading} type="submit">
+              <LoadingButton loading={isPending} type="submit">
                 Save
               </LoadingButton>
             </DialogFooter>

@@ -1,6 +1,5 @@
 "use client";
 
-import { PlusIcon } from "@heroicons/react/24/solid";
 import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
 import { cn } from "@scorebrawl/ui/lib";
 import {
@@ -13,6 +12,7 @@ import {
   SelectValue,
 } from "@scorebrawl/ui/select";
 import { Separator } from "@scorebrawl/ui/separator";
+import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface LeagueSwitcherProps {

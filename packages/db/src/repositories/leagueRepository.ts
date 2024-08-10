@@ -23,6 +23,7 @@ import {
   isNull,
   or,
 } from "drizzle-orm";
+import type { z } from "zod";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueMemberRole, PlayerJoinedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
@@ -177,7 +178,7 @@ const findBySlugWithUserRole = async ({
   return league;
 };
 
-const createLeague = async ({ name, logoUrl, userId }: LeagueInput) => {
+const createLeague = async ({ name, logoUrl, userId }: z.infer<typeof LeagueInput>) => {
   const slug = await slugifyLeagueName({ name });
   const now = new Date();
   const [league] = await db

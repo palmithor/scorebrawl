@@ -13,7 +13,6 @@
     "@clerk/clerk-sdk-node": "^5.0.20",
     "@clerk/nextjs": "5.2.8",
     "@clerk/themes": "2.1.14",
-    "@heroicons/react": "2.1.5",
     "@hookform/resolvers": "3.9.0",
     "@ihs7/ts-elo": "0.3.0",
     "@openpanel/nextjs": "^0.0.10-beta",
