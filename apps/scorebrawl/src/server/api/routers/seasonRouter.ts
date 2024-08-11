@@ -7,7 +7,7 @@ import {
   leagueProcedure,
   seasonProcedure,
 } from "@/server/api/trpc";
-import { SeasonCreateDTOSchema, SeasonEditDTOSchema } from "@scorebrawl/api";
+import { SeasonCreateDTO, SeasonEditDTOSchema } from "@scorebrawl/api";
 import { SeasonCreateSchema, SeasonEditSchema } from "@scorebrawl/model";
 import { TRPCError } from "@trpc/server";
 
@@ -66,7 +66,7 @@ export const seasonRouter = createTRPCRouter({
   getAll: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
     .query(async ({ ctx }) => SeasonRepository.getAll({ leagueId: ctx.league.id })),
-  create: leagueEditorProcedure.input(SeasonCreateDTOSchema).mutation(async ({ input, ctx }) => {
+  create: leagueEditorProcedure.input(SeasonCreateDTO).mutation(async ({ input, ctx }) => {
     validateStartBeforeEnd(input);
     await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
     return SeasonRepository.create(

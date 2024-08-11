@@ -1,7 +1,7 @@
 "use client";
 import { UploadButton } from "@/components/uploadthing";
 import { api } from "@/trpc/react";
-import { LeagueInputDTOSchema } from "@scorebrawl/api/src/league";
+import { LeagueCreateDTO } from "@scorebrawl/api/src/league";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
@@ -54,7 +54,7 @@ export const LeagueForm = ({
   return (
     <div className="grid grid-rows-2 gap-8 sm:grid-cols-2">
       <AutoForm
-        formSchema={LeagueInputDTOSchema.omit({ logoUrl: true })}
+        formSchema={LeagueCreateDTO.omit({ logoUrl: true })}
         values={league}
         onSubmit={onSubmit}
       >

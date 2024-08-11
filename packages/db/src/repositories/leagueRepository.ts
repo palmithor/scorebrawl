@@ -10,7 +10,6 @@ import {
   slugifyLeagueName,
   slugifyWithCustomReplacement,
 } from "@scorebrawl/db";
-import type { LeagueInput } from "@scorebrawl/model";
 import {
   type SQL,
   and,
@@ -24,6 +23,7 @@ import {
   or,
 } from "drizzle-orm";
 import type { z } from "zod";
+import type { LeagueCreate, LeagueEdit } from "../../../model";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueMemberRole, PlayerJoinedEventData } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
@@ -170,6 +170,7 @@ const findBySlugWithUserRole = async ({
       id: leagues.id,
       slug: leagues.slug,
       name: leagues.name,
+      logoUrl: leagues.logoUrl,
       role: leagueMembers.role,
     })
     .from(leagues)
@@ -178,7 +179,7 @@ const findBySlugWithUserRole = async ({
   return league;
 };
 
-const createLeague = async ({ name, logoUrl, userId }: z.infer<typeof LeagueInput>) => {
+const create = async ({ name, logoUrl, userId }: z.infer<typeof LeagueCreate>) => {
   const slug = await slugifyLeagueName({ name });
   const now = new Date();
   const [league] = await db
@@ -212,6 +213,23 @@ const createLeague = async ({ name, logoUrl, userId }: z.infer<typeof LeagueInpu
     updatedAt: now,
   });
   return league;
+};
+
+const update = async ({ name, logoUrl, id, userId }: z.infer<typeof LeagueEdit>) => {
+  const slug = name ? await slugifyLeagueName({ name }) : undefined;
+  const now = new Date();
+  await db
+    .update(leagues)
+    .set({
+      slug,
+      name,
+      logoUrl,
+      updatedBy: userId,
+      updatedAt: now,
+    })
+    .where(eq(leagues.id, id));
+
+  return db.query.leagues.findFirst({ where: eq(leagues.id, id) });
 };
 
 const joinLeague = async ({
@@ -297,7 +315,8 @@ const joinLeague = async ({
 };
 
 export const LeagueRepository = {
-  createLeague,
+  create,
+  update,
   findBySlug,
   getByIdWhereMember,
   findBySlugWithUserRole,
