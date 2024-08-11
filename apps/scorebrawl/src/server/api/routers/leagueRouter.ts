@@ -1,10 +1,15 @@
 import { LeagueRepository } from "@scorebrawl/db";
 import { z } from "zod";
 
-import { createTRPCRouter, leagueProcedure, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  leagueEditorProcedure,
+  leagueProcedure,
+  protectedProcedure,
+} from "@/server/api/trpc";
 import { editorRoles } from "@/utils/permissionUtil";
-import { LeagueInputDTOSchema } from "@scorebrawl/api/src/league";
-import { LeagueInput } from "@scorebrawl/model";
+import { LeagueCreateDTO, LeagueEditDTO } from "@scorebrawl/api/src/league";
+import { LeagueCreate, LeagueEdit } from "@scorebrawl/model";
 
 export const leagueRouter = createTRPCRouter({
   hasEditorAccess: leagueProcedure
@@ -25,8 +30,13 @@ export const leagueRouter = createTRPCRouter({
       }),
     ),
   create: protectedProcedure
-    .input(LeagueInputDTOSchema)
+    .input(LeagueCreateDTO)
     .mutation(({ ctx, input }) =>
-      LeagueRepository.createLeague(LeagueInput.parse({ ...input, userId: ctx.auth.userId })),
+      LeagueRepository.create(LeagueCreate.parse({ ...input, userId: ctx.auth.userId })),
+    ),
+  update: leagueEditorProcedure
+    .input(LeagueEditDTO)
+    .mutation(({ ctx: { league, auth }, input }) =>
+      LeagueRepository.update(LeagueEdit.parse({ ...input, userId: auth.userId, id: league.id })),
     ),
 });

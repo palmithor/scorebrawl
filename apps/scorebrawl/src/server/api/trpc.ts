@@ -75,6 +75,7 @@ const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
       league: {
         id: leagueWithUserRole.id,
         slug: leagueWithUserRole.slug,
+        logoUrl: leagueWithUserRole.logoUrl,
         name: leagueWithUserRole.name,
       },
       role: leagueWithUserRole.role,

@@ -1,6 +1,6 @@
 "use client";
 import { api } from "@/trpc/react";
-import { SeasonCreateDTOSchema } from "@scorebrawl/api";
+import { SeasonCreateDTO } from "@scorebrawl/api";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { useToast } from "@scorebrawl/ui/use-toast";
@@ -15,7 +15,7 @@ type FormValues = {
   endDate?: Date;
 };
 
-const schema = SeasonCreateDTOSchema.omit({
+const schema = SeasonCreateDTO.omit({
   leagueSlug: true,
   kFactor: true,
   initialScore: true,

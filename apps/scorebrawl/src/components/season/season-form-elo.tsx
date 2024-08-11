@@ -1,6 +1,6 @@
 "use client";
 import { api } from "@/trpc/react";
-import { SeasonCreateDTOSchema } from "@scorebrawl/api";
+import { SeasonCreateDTO } from "@scorebrawl/api";
 import { EloTypeEnumSchema } from "@scorebrawl/model";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
@@ -20,7 +20,7 @@ type FormValues = {
   kFactor: number;
 };
 
-const schema = SeasonCreateDTOSchema.extend({
+const schema = SeasonCreateDTO.extend({
   eloType: EloTypeEnumSchema.default("team vs team"),
 })
   .omit({ scoreType: true, leagueSlug: true, kFactor: true, initialScore: true })

@@ -1,7 +1,11 @@
-export default () => {
+import { LeagueSettings } from "@/app/(leagues)/leagues/[leagueSlug]/settings/components/LeagueSettings";
+import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
+
+export default async ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) => {
   return (
-    <div>
-      <h1>Settings</h1>
-    </div>
+    <>
+      <BreadcrumbsHeader breadcrumbs={[{ name: "Settings" }]} />
+      <LeagueSettings leagueSlug={leagueSlug} />
+    </>
   );
 };

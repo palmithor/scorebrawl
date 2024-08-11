@@ -1,4 +1,5 @@
 export * from "./deprecated";
+export * from "./league";
 export * from "./leaguePlayer";
 export * from "./leagueTeam";
 export * from "./match";

@@ -1,7 +1,7 @@
 import { ScoreTypeSchema } from "@scorebrawl/model";
 import { z } from "zod";
 
-export const SeasonCreateDTOSchema = z.object({
+export const SeasonCreateDTO = z.object({
   name: z.string().min(0, "Name is required"),
   scoreType: ScoreTypeSchema.default("elo"),
   leagueSlug: z.string(),
@@ -10,7 +10,6 @@ export const SeasonCreateDTOSchema = z.object({
   initialScore: z.coerce.number().int().min(0).default(1200),
   kFactor: z.coerce.number().int().min(10).max(50).optional().default(32),
 });
-export type SeasonCreateDTO = z.infer<typeof SeasonCreateDTOSchema>;
 
 export const SeasonEditDTOSchema = z
   .object({
