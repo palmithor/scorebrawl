@@ -118,7 +118,7 @@ export function NavLayout({
             document.cookie = "react-resizable-panels:collapsed=true";
           }}
           className={cn(
-            "grid grid-cols-1 grid-rows-[auto_auto_minmax(900px,_1fr)] min-h-screen ",
+            "grid grid-cols-1 grid-rows-[auto_auto_1fr] min-h-screen max-h-screen",
             isCollapsed && "min-w-[50px] transition-all duration-300 ease-in-out",
           )}
         >
@@ -154,7 +154,7 @@ export function NavLayout({
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]}>
-          <div className="flex min-h-screen flex-col">
+          <div className="flex min-h-screen flex-col h-screen overflow-auto">
             <main className="flex-1 container relative flex flex-col">{children}</main>
             <SiteFooter />
           </div>

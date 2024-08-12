@@ -92,23 +92,23 @@ export const Standing = ({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center p-0 sm:p-2">
                   <CountText count={matchCount} />
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center p-0 sm:p-2">
                   <CountText count={winCount} />
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center p-0 sm:p-2">
                   <CountText count={drawCount} />
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center p-0 sm:p-2">
                   <CountText count={lossCount} />
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center p-0 sm:p-2">
                   <PointDiffText diff={pointDiff} />
                 </TableCell>
                 <TableCell
-                  className={`text-center ${
+                  className={`text-center p-0 sm:p-2 ${
                     matchCount > 0 ? "font-bold" : "text-muted-foreground"
                   }`}
                 >
