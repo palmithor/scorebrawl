@@ -4,7 +4,7 @@ import { api } from "@/trpc/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const resetLastVisitedLeague = ({ leagueSlug }: { leagueSlug: string }) => {
+export const resetLastVisitedLeague = async ({ leagueSlug }: { leagueSlug: string }) => {
   cookies().set("last-visited-league", leagueSlug);
 };
 
