@@ -27,7 +27,7 @@ const schema = SeasonCreateDTO.omit({
 
 export const SeasonForm310 = ({ league }: { league: { id: string; slug: string } }) => {
   const { toast } = useToast();
-  const { push } = useRouter();
+  const { push, refresh } = useRouter();
   const utils = api.useUtils();
   const { mutate, isPending } = api.season.create.useMutation();
   const [_scoreType, setScoreType] = useQueryState(
@@ -52,6 +52,7 @@ export const SeasonForm310 = ({ league }: { league: { id: string; slug: string }
         },
         onSuccess: () => {
           utils.season.getAll.invalidate();
+          refresh();
         },
         onError: (err) => {
           toast({

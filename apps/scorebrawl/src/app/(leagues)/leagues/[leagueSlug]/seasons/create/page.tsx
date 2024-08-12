@@ -1,4 +1,5 @@
 import { findLeagueBySlugWithUserRole } from "@/actions/league";
+import { ToastMessageNoOngoing } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/create/components/toastMessageNoOngoing";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
@@ -44,6 +45,7 @@ export default async function ({
         ]}
       />
       <div className="flex flex-col gap-6 md:flex-row">
+        <ToastMessageNoOngoing leagueSlug={leagueSlug} />
         <Tabs defaultValue={scoreType} className="flex-1 flex flex-col">
           <TabsList className="flex">
             <TabsTrigger className="flex-1" value="elo">
