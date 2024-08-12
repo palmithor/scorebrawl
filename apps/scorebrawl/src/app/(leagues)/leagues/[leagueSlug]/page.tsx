@@ -5,7 +5,7 @@ export default async function ({ params: { leagueSlug } }: { params: { leagueSlu
   const ongoingSeason = await api.season.findOngoing({ leagueSlug });
 
   if (!ongoingSeason) {
-    redirect(`/leagues/${leagueSlug}/onboarding`);
+    redirect(`/leagues/${leagueSlug}/seasons/create?message=no-ongoing`);
   } else {
     redirect(`/leagues/${leagueSlug}/seasons/${ongoingSeason.slug}`);
   }
