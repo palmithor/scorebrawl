@@ -108,6 +108,8 @@ const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
         slug: seasonWithLeagueAndRole.seasonSlug,
         leagueId: seasonWithLeagueAndRole.leagueId,
         name: seasonWithLeagueAndRole.seasonName,
+        startDate: seasonWithLeagueAndRole.startDate,
+        endDate: seasonWithLeagueAndRole.endDate,
       },
       role: seasonWithLeagueAndRole.role,
     },
