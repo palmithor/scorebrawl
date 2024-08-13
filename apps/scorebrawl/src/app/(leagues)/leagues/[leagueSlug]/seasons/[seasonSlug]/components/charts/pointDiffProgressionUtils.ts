@@ -66,7 +66,9 @@ function transformWeeklyData(input: PointDiffInputData[]): ChartData[] {
     };
 
     for (const [playerId, pointDiffs] of Object.entries(playerData)) {
-      const average = pointDiffs.reduce((sum, diff) => sum + diff, 0) / pointDiffs.length;
+      const average = Math.round(
+        pointDiffs.reduce((sum, diff) => sum + diff, 0) / pointDiffs.length,
+      );
       entry[playerId] = Number.parseFloat(average.toFixed(2));
     }
 
@@ -87,7 +89,7 @@ export function transformData(input?: PointDiffInputData[]): ChartData[] {
   const firstDate = new Date((input[0] as PointDiffInputData).matchDate);
   const lastDate = new Date((input[input.length - 1] as PointDiffInputData).matchDate);
   const dateSpan = (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
-  const spanMoreThanThreeWeeks = dateSpan > 21;
+  const spanMoreThanThreeWeeks = dateSpan > 35;
 
   if (spanMoreThanThreeWeeks) {
     return transformWeeklyData(input);
