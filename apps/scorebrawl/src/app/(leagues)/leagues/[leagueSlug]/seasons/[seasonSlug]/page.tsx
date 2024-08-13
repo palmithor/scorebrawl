@@ -1,9 +1,6 @@
 import { findSeasonBySlug } from "@/actions/season";
 import { DashboardCards } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/DashboardCards";
 import { LatestMatches } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/LatestMatches";
-import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
-import { PointDiffProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointDiffProgression";
-import { PointProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointProgression";
 import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/add-match";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { SeasonPlayerStanding } from "./components/SeasonPlayerStanding";
@@ -38,7 +35,7 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
             <LatestMatches />
           </div>
         </div>
-        <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
+        {/**<div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
           <div className={"grid gap-2"}>
             <OverviewCard title={"Point Progression"}>
               <PointProgression />
@@ -49,7 +46,7 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
               <PointDiffProgression />
             </OverviewCard>
           </div>
-        </div>
+        </div>**/}
       </div>
     </>
   );
