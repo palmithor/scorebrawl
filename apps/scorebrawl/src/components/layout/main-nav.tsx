@@ -82,6 +82,8 @@ const constructLinks = ({
     : []),
 ];
 
+const isMobile = () => window.innerWidth < 640;
+
 export function NavLayout({
   leagues,
   defaultCollapsed = false,
@@ -93,7 +95,7 @@ export function NavLayout({
   const { theme, systemTheme } = useTheme();
   const themeInUse = theme === "system" ? systemTheme : theme;
   const params = useParams<{ leagueSlug: string }>();
-  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
+  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed || isMobile());
   const [links, setLinks] = React.useState<
     { name: string; href: string; regex: RegExp; icon: LucideIcon }[]
   >([]);
@@ -128,10 +130,14 @@ export function NavLayout({
           collapsible={true}
           minSize={10}
           maxSize={16}
-          onExpand={() => {
-            setIsCollapsed(false);
-            document.cookie = "react-resizable-panels:collapsed=false";
-          }}
+          onExpand={
+            !isMobile()
+              ? () => {
+                  setIsCollapsed(false);
+                  document.cookie = "react-resizable-panels:collapsed=false";
+                }
+              : undefined
+          }
           onCollapse={() => {
             setIsCollapsed(true);
             document.cookie = "react-resizable-panels:collapsed=true";
@@ -171,7 +177,7 @@ export function NavLayout({
             </div>
           </div>
         </ResizablePanel>
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle={!isMobile()} />
         <ResizablePanel defaultSize={defaultLayout[1]}>
           <div className="flex min-h-screen flex-col h-screen overflow-auto">
             <main className="flex-1 container relative flex flex-col">{children}</main>
