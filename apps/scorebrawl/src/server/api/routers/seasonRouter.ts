@@ -57,9 +57,9 @@ export const seasonRouter = createTRPCRouter({
   getCountInfo: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
     .query(async ({ input: { seasonSlug } }) => SeasonRepository.getCountInfo({ seasonSlug })),
-  findOngoing: leagueProcedure
+  findActive: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
-    .query(async ({ ctx }) => SeasonRepository.findOngoingSeason({ leagueId: ctx.league.id })),
+    .query(async ({ ctx }) => SeasonRepository.findActive({ leagueId: ctx.league.id })),
   findBySlug: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
     .query(async ({ ctx: { season } }) => season),

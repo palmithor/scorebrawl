@@ -102,7 +102,7 @@ const getBySlug = async ({ seasonSlug }: { seasonSlug: string }) => {
   return season;
 };
 
-const findOngoingSeason = async ({ leagueId }: { leagueId: string }) => {
+const findActive = async ({ leagueId }: { leagueId: string }) => {
   const now = new Date();
   const [season] = await db
     .select(getTableColumns(seasons))
@@ -372,7 +372,7 @@ export const findSeasonAndLeagueBySlug = async ({
 export const SeasonRepository = {
   create,
   getCountInfo,
-  findOngoingSeason,
+  findActive,
   findOverlappingSeason,
   getAll,
   getBySlug,

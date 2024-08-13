@@ -24,18 +24,18 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
         <AddMatchButton />
       </BreadcrumbsHeader>
       <div className="grid gap-6">
-        <DashboardCards leagueSlug={leagueSlug} seasonSlug={seasonSlug} />
+        <DashboardCards />
         <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
           <div className={"grid gap-2"}>
             <SeasonPlayerStanding />
           </div>
           <div className={"grid gap-2"}>
-            <SeasonTeamStanding leagueSlug={leagueSlug} seasonSlug={seasonSlug} />
+            <SeasonTeamStanding />
           </div>
         </div>
         <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
           <div className={"grid gap-2"}>
-            <LatestMatches leagueSlug={leagueSlug} seasonSlug={seasonSlug} />
+            <LatestMatches />
           </div>
         </div>
         <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
