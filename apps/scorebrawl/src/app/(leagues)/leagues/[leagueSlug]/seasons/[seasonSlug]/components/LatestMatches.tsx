@@ -3,6 +3,7 @@ import EmptyStateSvg from "@/../public/img/empty-state.svg";
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
 import { MatchTable } from "@/components/match/match-table";
 import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
+import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
 import { Button } from "@scorebrawl/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
@@ -24,10 +25,8 @@ const _EmptyState = () => (
   </>
 );
 
-export const LatestMatches = ({
-  leagueSlug,
-  seasonSlug,
-}: { leagueSlug: string; seasonSlug: string }) => {
+export const LatestMatches = () => {
+  const { leagueSlug, seasonSlug } = useSeason();
   const { push } = useRouter();
   const { data, isLoading } = api.match.getAll.useQuery({ leagueSlug, seasonSlug, limit: 6 });
   const showEmptyState = !isLoading && data && data.matches.length < 1;
