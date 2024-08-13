@@ -2,13 +2,12 @@
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
 import { Standing } from "@/components/standing/standing";
 import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
+import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@scorebrawl/ui/skeleton";
 
-export const SeasonTeamStanding = ({
-  leagueSlug,
-  seasonSlug,
-}: { leagueSlug: string; seasonSlug: string }) => {
+export const SeasonTeamStanding = () => {
+  const { leagueSlug, seasonSlug } = useSeason();
   const { data = [], isLoading: isLoadingStanding } = api.seasonTeam.getStanding.useQuery({
     leagueSlug,
     seasonSlug,

@@ -8,6 +8,8 @@ import { Nav } from "@/components/layout/navbar";
 import { LeagueSwitcher } from "@/components/layout/league-switcher";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { api } from "@/trpc/react";
+import type { LucideIcon } from "lucide-react";
+
 import { UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { cn } from "@scorebrawl/ui/lib";
@@ -16,6 +18,7 @@ import { Separator } from "@scorebrawl/ui/separator";
 import { TooltipProvider } from "@scorebrawl/ui/tooltip";
 import { useTheme } from "next-themes";
 import { useParams, usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface MailProps {
   leagues: { id: string; slug: string; name: string; logoUrl: string | null }[];
@@ -26,17 +29,20 @@ interface MailProps {
 const constructLinks = ({
   leagueSlug,
   hasEditorAccess,
-}: { leagueSlug: string; hasEditorAccess?: boolean }) => [
+  activeSeasonSlug,
+}: { leagueSlug: string; hasEditorAccess?: boolean; activeSeasonSlug: string }) => [
   {
     name: "Active Season",
-    href: `/leagues/${leagueSlug}`,
-    regex: new RegExp(`^/leagues/${leagueSlug}$`),
+    href: `/leagues/${leagueSlug}/seasons/${activeSeasonSlug}`,
+    regex: new RegExp(`/leagues/${leagueSlug}/seasons/${activeSeasonSlug}(\\/.*)?`),
     icon: Home,
   },
   {
     name: "Seasons",
     href: `/leagues/${leagueSlug}/seasons`,
-    regex: new RegExp(`^/leagues/${leagueSlug}/seasons`),
+    regex: new RegExp(
+      `^/leagues/${leagueSlug}/seasons(?!/${activeSeasonSlug}(\\/|$))(?:/(?!${activeSeasonSlug})[^\\s/]+.*)?$`,
+    ),
     icon: ChartNoAxesGantt,
   },
   {
@@ -88,12 +94,25 @@ export function NavLayout({
   const themeInUse = theme === "system" ? systemTheme : theme;
   const params = useParams<{ leagueSlug: string }>();
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
+  const [links, setLinks] = React.useState<
+    { name: string; href: string; regex: RegExp; icon: LucideIcon }[]
+  >([]);
   const selectedLeague = leagues.find((league) => league.slug === params.leagueSlug) ?? leagues[0];
   const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
     { leagueSlug: selectedLeague?.slug as string },
     { enabled: !!selectedLeague?.slug },
   );
-  const links = constructLinks({ leagueSlug: params.leagueSlug, hasEditorAccess });
+  const { data: activeSeason } = api.season.findActive.useQuery({ leagueSlug: params.leagueSlug });
+  useEffect(() => {
+    setLinks(
+      constructLinks({
+        leagueSlug: params.leagueSlug,
+        hasEditorAccess,
+        activeSeasonSlug: activeSeason?.slug ?? "",
+      }),
+    );
+  }, [activeSeason, hasEditorAccess, params.leagueSlug]);
+
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
