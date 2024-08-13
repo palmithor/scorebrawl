@@ -4,7 +4,7 @@ import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
 import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@scorebrawl/ui/charts";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { createChartConfig, getAllChartKeys } from "./charts/utils";
 
 export const PointDiffProgression = () => {
@@ -14,11 +14,13 @@ export const PointDiffProgression = () => {
 
   if (seasonPlayers === undefined || !data) return null; // possibly loading state?
   const chartData = transformData(data);
+
   if (chartData.length < 2) {
     return <EmptyCardContentText>Not enough data to display chart</EmptyCardContentText>;
   }
   const chartKeys = getAllChartKeys(chartData);
-
+  const dataMin = Math.min(...data.map((key) => key.pointDiff)) - 10;
+  const dataMax = Math.max(...data.map((key) => key.pointDiff)) + 10;
   return (
     <ChartContainer config={createChartConfig({ chartKeys, seasonPlayers })}>
       <LineChart
@@ -37,6 +39,7 @@ export const PointDiffProgression = () => {
           tickMargin={8}
           tickFormatter={(value) => value.slice(0, 3)}
         />
+        <YAxis hide domain={[dataMin, dataMax]} />
         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
         {chartData.length > 0 &&
           chartKeys.map((key) => {

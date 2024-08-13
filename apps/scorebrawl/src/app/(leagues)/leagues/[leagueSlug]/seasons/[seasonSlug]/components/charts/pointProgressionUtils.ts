@@ -23,7 +23,7 @@ export const transformData = (inputData?: PointProgressionInputData[]) => {
   const dateRangeInDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
 
   // Determine if we need to group by week
-  const groupByWeek = dateRangeInDays > 21;
+  const groupByWeek = dateRangeInDays > 35;
 
   const outputMap = new Map<string, ChartData>();
 
@@ -58,7 +58,9 @@ export const transformData = (inputData?: PointProgressionInputData[]) => {
       const newTotal = currentTotal + item.score;
       output[`${item.seasonPlayerId}_count`] =
         ((output[`${item.seasonPlayerId}_count`] as number) || 1) + 1;
-      output[item.seasonPlayerId] = newTotal / (output[`${item.seasonPlayerId}_count`] as number);
+      output[item.seasonPlayerId] = Math.round(
+        newTotal / (output[`${item.seasonPlayerId}_count`] as number),
+      );
     } else {
       // For daily grouping, use the higher score
       output[item.seasonPlayerId] = Math.max(output[item.seasonPlayerId] as number, item.score);
