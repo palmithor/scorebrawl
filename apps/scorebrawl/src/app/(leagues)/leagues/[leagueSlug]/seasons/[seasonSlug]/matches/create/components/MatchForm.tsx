@@ -27,8 +27,9 @@ import { Separator } from "@scorebrawl/ui/separator";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { capitalize, getInitialsFromString } from "@scorebrawl/utils/string";
 import type { VariantProps } from "class-variance-authority";
-import { MinusIcon, PlusIcon } from "lucide-react";
-import { CircleEqual, Shuffle } from "lucide-react";
+import { isAfter, isWithinInterval } from "date-fns";
+import { CircleEqual, MinusIcon, PlusIcon, Shuffle, TriangleAlert } from "lucide-react";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -47,6 +48,11 @@ type SeasonPlayerType = z.infer<typeof SeasonPlayerStandingDTO>;
 export const MatchForm = () => {
   const { leagueSlug, seasonSlug } = useSeason();
   const { data: season } = api.season.getBySlug.useQuery({ leagueSlug, seasonSlug });
+  const now = new Date();
+  const _isSeasonActive = season?.endDate
+    ? isWithinInterval(now, { start: season.startDate, end: season.endDate })
+    : season && isAfter(now, season.startDate);
+
   const { data: seasonPlayers } = api.seasonPlayer.getStanding.useQuery({ leagueSlug, seasonSlug });
   const { toast } = useToast();
   const utils = api.useUtils();
@@ -327,9 +333,17 @@ export const MatchForm = () => {
                 <CircleEqual className="mr-2 h-4 w-4" /> Even
               </Button>
             </div>
-            <LoadingButton loading={isPending} type="submit">
-              Create Match
-            </LoadingButton>
+            <div className="flex flex-col gap-1">
+              <LoadingButton loading={isPending} type="submit">
+                Create
+              </LoadingButton>
+              {!_isSeasonActive && (
+                <div className="text-xs text-muted-foreground flex gap-1 items-center text-yellow-600">
+                  <TriangleAlert className="h-3 w-3" />
+                  Season is not active
+                </div>
+              )}
+            </div>
           </div>
         </Drawer>
       </form>
