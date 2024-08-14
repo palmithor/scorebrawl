@@ -129,7 +129,7 @@ export function NavLayout({
           collapsedSize={4}
           collapsible={true}
           minSize={10}
-          maxSize={16}
+          maxSize={14}
           onExpand={
             !isMobile()
               ? () => {
@@ -144,7 +144,7 @@ export function NavLayout({
           }}
           className={cn(
             "grid grid-cols-1 grid-rows-[auto_auto_1fr] min-h-screen max-h-screen",
-            isCollapsed && "min-w-[50px] transition-all duration-300 ease-in-out",
+            isCollapsed && "min-w-[50px] max-w-[50px] transition-all duration-300 ease-in-out",
           )}
         >
           <div

@@ -23,7 +23,7 @@ export const MatchTable = ({
 
   return (
     <Table className={className}>
-      <TableHeader>
+      <TableHeader className="hidden sm:table-header-group">
         <TableRow>
           <TableHead>Date</TableHead>
           <TableHead>Results</TableHead>
@@ -32,8 +32,8 @@ export const MatchTable = ({
       <TableBody>
         {matches.map((match) => (
           <TableRow key={match.id}>
-            <TableCell>
-              <div className={"text-xs"}>
+            <TableCell className="hidden sm:table-cell">
+              <div className="text-xs">
                 {match.createdAt.toLocaleDateString(window.navigator.language)}{" "}
                 {match.createdAt.toLocaleTimeString(window.navigator.language).substring(0, 5)}
               </div>
