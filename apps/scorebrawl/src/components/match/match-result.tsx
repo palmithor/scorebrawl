@@ -33,12 +33,12 @@ export const MatchResult = ({
     { enabled: homeTeamSeasonPlayerIds.length > 1 },
   );
   return (
-    <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center justify-between sm:justify-start gap-3">
       <MultiAvatarWithSkeletonLoading
         users={homeTeamAvatars?.map(({ userId, ...u }) => ({ id: userId, ...u }))}
         visibleCount={3}
       />
-      <Badge className="text-base rounded font-bold">
+      <Badge className="text-base rounded font-bold whitespace-nowrap">
         {homeScore} - {awayScore}
       </Badge>
       <MultiAvatarWithSkeletonLoading
