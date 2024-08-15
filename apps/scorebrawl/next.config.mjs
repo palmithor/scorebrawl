@@ -5,6 +5,7 @@ import "./src/env.mjs";
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  productionBrowserSourceMaps: true,
   transpilePackages: ["@scorebrawl/ui"],
   images: {
     remotePatterns: [
