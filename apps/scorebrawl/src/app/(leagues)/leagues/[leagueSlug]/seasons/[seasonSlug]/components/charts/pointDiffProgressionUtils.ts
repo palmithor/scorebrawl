@@ -66,10 +66,14 @@ function transformWeeklyData(input: PointDiffInputData[]): ChartData[] {
     };
 
     for (const [playerId, pointDiffs] of Object.entries(playerData)) {
-      const average = Math.round(
-        pointDiffs.reduce((sum, diff) => sum + diff, 0) / pointDiffs.length,
-      );
-      entry[playerId] = Number.parseFloat(average.toFixed(2));
+      if (pointDiffs.length !== 0) {
+        const average = Math.round(
+          pointDiffs.reduce((sum, diff) => sum + diff, 0) / pointDiffs.length,
+        );
+        entry[playerId] = Number.parseFloat(average.toFixed(2));
+      } else {
+        entry[playerId] = 0;
+      }
     }
 
     output.push(entry);
