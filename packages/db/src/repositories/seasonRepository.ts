@@ -363,6 +363,7 @@ export const findSeasonAndLeagueBySlug = async ({
       seasonSlug: seasons.slug,
       startDate: seasons.startDate,
       endDate: seasons.endDate,
+      initialScore: seasons.initialScore,
     })
     .from(seasons)
     .innerJoin(leagues, and(eq(leagues.slug, leagueSlug), eq(leagues.id, seasons.leagueId)))

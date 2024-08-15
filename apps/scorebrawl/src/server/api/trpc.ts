@@ -84,7 +84,10 @@ const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
 });
 
 const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next }) => {
-  const { leagueSlug, seasonSlug } = input as { leagueSlug: string; seasonSlug: string };
+  const { leagueSlug, seasonSlug } = input as {
+    leagueSlug: string;
+    seasonSlug: string;
+  };
   const seasonWithLeagueAndRole = await SeasonRepository.findSeasonAndLeagueBySlug({
     userId: ctx.auth.userId,
     leagueSlug,
@@ -110,6 +113,7 @@ const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
         name: seasonWithLeagueAndRole.seasonName,
         startDate: seasonWithLeagueAndRole.startDate,
         endDate: seasonWithLeagueAndRole.endDate,
+        initialScore: seasonWithLeagueAndRole.initialScore,
       },
       role: seasonWithLeagueAndRole.role,
     },

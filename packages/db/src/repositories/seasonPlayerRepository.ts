@@ -222,10 +222,11 @@ const getPointProgression = async ({ seasonId }: { seasonId: string }) => {
         seasonId: seasonPlayers.seasonId,
         score: matchPlayers.scoreAfter,
         createdAt: matchPlayers.createdAt,
+        date: sql`DATE(${matchPlayers.createdAt})`.as("date"),
         rowNumber:
-          sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId} ORDER BY ${matchPlayers.createdAt})`
-            .mapWith(Number)
-            .as("rowNumber"),
+          sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId}, DATE(${matchPlayers.createdAt}) ORDER BY ${matchPlayers.createdAt} DESC, ${matchPlayers.id} DESC)`.as(
+            "rowNumber",
+          ),
       })
       .from(matchPlayers)
       .innerJoin(seasonPlayers, eq(seasonPlayers.id, matchPlayers.seasonPlayerId))
@@ -238,10 +239,11 @@ const getPointProgression = async ({ seasonId }: { seasonId: string }) => {
       seasonPlayerId: rankedScores.seasonPlayerId,
       score: rankedScores.score,
       createdAt: rankedScores.createdAt,
+      date: rankedScores.date,
     })
     .from(rankedScores)
-    .where(and(eq(rankedScores.rowNumber, 1), eq(rankedScores.seasonId, seasonId)))
-    .orderBy(rankedScores.seasonPlayerId, rankedScores.createdAt);
+    .where(and(eq(rankedScores.seasonId, seasonId), eq(rankedScores.rowNumber, 1)))
+    .orderBy(rankedScores.seasonPlayerId, rankedScores.date);
 };
 
 const onFireStrugglingQuery = async ({
