@@ -1,82 +1,70 @@
-import { type ChartData, formatDate, getWeekNumber, getWeekStart } from "./utils";
+import { format } from "date-fns";
+import type { ChartData } from "./utils";
 
-export type PointProgressionInputData = {
+type InputData = {
   seasonPlayerId: string;
   score: number;
   createdAt: Date;
 };
 
-export const transformData = (inputData?: PointProgressionInputData[]) => {
-  if (!inputData || inputData.length === 0) {
-    return [];
-  }
-  // Sort the input data by date
-  const sortedData = inputData.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+export const transformData = ({
+  data,
+  startDate,
+  initialScore,
+}: {
+  data: InputData[];
+  startDate: Date;
+  initialScore: number;
+}) => {
+  const sortedData = data.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  const lastScores = Array.from(new Set<string>(data.map((d) => d.seasonPlayerId))).reduce<
+    Record<string, number>
+  >((acc, key) => {
+    acc[key] = initialScore;
+    return acc;
+  }, {});
+  const playerScores: Record<string, { matchDate: Date; score: number }[]> = sortedData.reduce(
+    (
+      acc: Record<string, { matchDate: Date; score: number }[]>,
+      { seasonPlayerId, createdAt, score },
+    ) => {
+      if (!acc[seasonPlayerId]) {
+        acc[seasonPlayerId] = [{ matchDate: createdAt, score }];
+      } else {
+        acc[seasonPlayerId]?.push({
+          matchDate: new Date(createdAt),
+          score,
+        });
+      }
+
+      return acc;
+    },
+    {} satisfies Record<string, number[]>,
   );
 
-  // Calculate the date range
-  const startDate = new Date((sortedData[0] as PointProgressionInputData).createdAt);
-  const endDate = new Date(
-    (sortedData[sortedData.length - 1] as PointProgressionInputData).createdAt,
-  );
-  const dateRangeInDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
-
-  // Determine if we need to group by week
-  const groupByWeek = dateRangeInDays > 35;
-
-  const outputMap = new Map<string, ChartData>();
-
-  for (const item of sortedData) {
-    const date = new Date(item.createdAt);
-    let key: string;
-    let labelDetail: string | undefined;
-
-    if (groupByWeek) {
-      const weekNumber = getWeekNumber(date);
-      const weekStart = getWeekStart(date);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
-      key = `${date.getFullYear()}-W${weekNumber.toString().padStart(2, "0")}`;
-      labelDetail = `${formatDate(weekStart)} to ${formatDate(weekEnd)}`;
-    } else {
-      key = formatDate(date);
-    }
-
-    if (!outputMap.has(key)) {
-      outputMap.set(key, { label: key, labelDetail });
-    }
-
-    const output = outputMap.get(key) as ChartData;
-    if (output[item.seasonPlayerId] === undefined) {
-      output[item.seasonPlayerId] = item.score;
-    } else if (groupByWeek) {
-      // For week grouping, calculate the average
-      const currentTotal =
-        (output[item.seasonPlayerId] as number) *
-        ((output[`${item.seasonPlayerId}_count`] as number) || 1);
-      const newTotal = currentTotal + item.score;
-      output[`${item.seasonPlayerId}_count`] =
-        ((output[`${item.seasonPlayerId}_count`] as number) || 1) + 1;
-      output[item.seasonPlayerId] = Math.round(
-        newTotal / (output[`${item.seasonPlayerId}_count`] as number),
+  const currentDate = new Date();
+  const output: ChartData[] = [];
+  for (let date = new Date(startDate); date <= currentDate; date.setDate(date.getDate() + 1)) {
+    const outputItem: ChartData = { label: format(date, "MM-dd") };
+    for (const player in playerScores) {
+      const dateClone = new Date(date);
+      const playerData = playerScores[player];
+      const playerDataIndex = playerData?.find(
+        (data) =>
+          data.matchDate.getFullYear() === dateClone.getFullYear() &&
+          data.matchDate.getMonth() === dateClone.getMonth() &&
+          data.matchDate.getDate() === dateClone.getDate(),
       );
-    } else {
-      // For daily grouping, use the higher score
-      output[item.seasonPlayerId] = Math.max(output[item.seasonPlayerId] as number, item.score);
-    }
-  }
 
-  // Clean up the count properties used for averaging
-  if (groupByWeek) {
-    for (const value of outputMap.values()) {
-      for (const key of Object.keys(value)) {
-        if (key.endsWith("_count")) {
-          delete value[key];
-        }
+      if (playerDataIndex) {
+        outputItem[player] = playerDataIndex.score;
+        lastScores[player] = playerDataIndex.score;
+      } else {
+        outputItem[player] = lastScores[player];
       }
     }
+    output.push(outputItem);
   }
 
-  return Array.from(outputMap.values());
+  return [...output];
 };

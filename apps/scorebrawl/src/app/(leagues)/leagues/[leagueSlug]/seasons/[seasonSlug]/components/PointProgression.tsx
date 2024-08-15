@@ -12,11 +12,16 @@ import { transformData } from "./charts/pointProgressionUtils";
 
 export const PointProgression = () => {
   const { seasonSlug, leagueSlug } = useSeason();
+  const { data: season } = api.season.findBySlug.useQuery({ leagueSlug, seasonSlug });
   const { data: seasonPlayers } = api.seasonPlayer.getAll.useQuery({ leagueSlug, seasonSlug });
   const { data } = api.seasonPlayer.getPointProgression.useQuery({ leagueSlug, seasonSlug });
 
-  if (seasonPlayers === undefined || data === undefined) return null; // possibly loading state?
-  const chartData = transformData(data);
+  if (seasonPlayers === undefined || data === undefined || season === undefined) return null; // possibly loading state?
+  const chartData = transformData({
+    startDate: season.startDate,
+    data,
+    initialScore: season.initialScore,
+  });
 
   if (chartData.length < 2) {
     return <EmptyCardContentText>Not enough data to display chart</EmptyCardContentText>;
@@ -41,6 +46,7 @@ export const PointProgression = () => {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
+          hide={true}
           tickFormatter={(value) => value.slice(0, 3)}
         />
         <YAxis hide domain={[dataMin, dataMax]} />

@@ -14,7 +14,7 @@ type PageParams = { params: { leagueSlug: string; seasonSlug: string } };
 
 export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
   const season = await findSeasonBySlug(leagueSlug, seasonSlug);
-  const user = await currentUser();
+  const _user = await currentUser();
   return (
     <>
       <BreadcrumbsHeader
@@ -40,20 +40,18 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
             <LatestMatches />
           </div>
         </div>
-        {user?.id === "user_2Vvm2mxLO7blltr7zCXPsovhcLJ" && (
-          <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
-            <div className={"grid gap-2"}>
-              <OverviewCard title={"Point Progression"}>
-                <PointProgression />
-              </OverviewCard>
-            </div>
-            <div className={"grid gap-2"}>
-              <OverviewCard title={"Daily Point +/-"}>
-                <PointDiffProgression />
-              </OverviewCard>
-            </div>
+        <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
+          <div className={"grid gap-2"}>
+            <OverviewCard title={"Point Progression"}>
+              <PointProgression />
+            </OverviewCard>
           </div>
-        )}
+          <div className={"grid gap-2"}>
+            <OverviewCard title={"Daily Point +/-"}>
+              <PointDiffProgression />
+            </OverviewCard>
+          </div>
+        </div>
       </div>
     </>
   );
