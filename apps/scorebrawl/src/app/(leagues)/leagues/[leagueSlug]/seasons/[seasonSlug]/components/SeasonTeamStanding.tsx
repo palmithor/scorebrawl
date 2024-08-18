@@ -1,5 +1,4 @@
 "use client";
-import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
 import { Standing } from "@/components/standing/standing";
 import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
 import { useSeason } from "@/context/SeasonContext";
@@ -21,33 +20,26 @@ export const SeasonTeamStanding = () => {
   return (
     <>
       {isLoading && <Skeleton className={"w-full h-80"} />}
-      {!isLoading && (
-        <OverviewCard title="Team Standing">
-          {data.length > 0 && (
-            <Standing
-              items={data?.map((st) => ({
-                id: st.seasonTeamId,
-                name: st.name,
-                score: st.score,
-                form: st.form,
-                matchCount: st.matchCount,
-                winCount: st.winCount,
-                drawCount: st.drawCount,
-                lossCount: st.lossCount,
-                pointDiff: st.pointDiff,
-                avatars:
-                  avatars
-                    ?.find((t) => t.teamId === st.seasonTeamId)
-                    ?.players.map((p) => ({ id: p.userId, name: p.name, imageUrl: p.imageUrl })) ??
-                  [],
-              }))}
-            />
-          )}
-          {data.length === 0 && (
-            <EmptyCardContentText>No team matches registered</EmptyCardContentText>
-          )}
-        </OverviewCard>
+      {!isLoading && data.length > 0 && (
+        <Standing
+          items={data?.map((st) => ({
+            id: st.seasonTeamId,
+            name: st.name,
+            score: st.score,
+            form: st.form,
+            matchCount: st.matchCount,
+            winCount: st.winCount,
+            drawCount: st.drawCount,
+            lossCount: st.lossCount,
+            pointDiff: st.pointDiff,
+            avatars:
+              avatars
+                ?.find((t) => t.teamId === st.seasonTeamId)
+                ?.players.map((p) => ({ id: p.userId, name: p.name, imageUrl: p.imageUrl })) ?? [],
+          }))}
+        />
       )}
+      {data.length === 0 && <EmptyCardContentText>No team matches registered</EmptyCardContentText>}
     </>
   );
 };

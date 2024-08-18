@@ -4,11 +4,10 @@ import { LatestMatches } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[sea
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
 import { PointDiffProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointDiffProgression";
 import { PointProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointProgression";
-import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/add-match";
+import { StandingTabs } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/StandingTabs";
+import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/addMatchButton";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { currentUser } from "@clerk/nextjs/server";
-import { SeasonPlayerStanding } from "./components/SeasonPlayerStanding";
-import { SeasonTeamStanding } from "./components/SeasonTeamStanding";
 
 type PageParams = { params: { leagueSlug: string; seasonSlug: string } };
 
@@ -29,13 +28,8 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
         <DashboardCards />
         <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
           <div className={"grid gap-2"}>
-            <SeasonPlayerStanding />
+            <StandingTabs />
           </div>
-          <div className={"grid gap-2"}>
-            <SeasonTeamStanding />
-          </div>
-        </div>
-        <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
           <div className={"grid gap-2"}>
             <LatestMatches />
           </div>
