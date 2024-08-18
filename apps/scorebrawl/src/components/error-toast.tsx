@@ -1,4 +1,5 @@
 "use client";
+import { clearLastVisitedLeague } from "@/actions/navigationActions";
 import { useToast } from "@scorebrawl/ui/use-toast";
 import { useQueryState } from "nuqs";
 import { useEffect } from "react";
@@ -10,18 +11,22 @@ export const ErrorToast = () => {
   useEffect(() => {
     if (errorCode) {
       if (errorCode === "LEAGUE_PERMISSION") {
-        toast({
-          title: "Access denied",
-          description: "Insufficient league permissions",
-          variant: "destructive",
-          duration: 2000,
+        clearLastVisitedLeague().then(() => {
+          toast({
+            title: "Access denied",
+            description: "Insufficient league permissions",
+            variant: "destructive",
+            duration: 2000,
+          });
         });
       } else if (errorCode === "LEAGUE_NOT_FOUND") {
-        toast({
-          title: "Something went wrong",
-          description: "League not found",
-          variant: "destructive",
-          duration: 2000,
+        clearLastVisitedLeague().then(() => {
+          toast({
+            title: "Something went wrong",
+            description: "League not found",
+            variant: "destructive",
+            duration: 2000,
+          });
         });
       } else {
         toast({

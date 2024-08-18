@@ -1,5 +1,5 @@
 import { findSeasonBySlug } from "@/actions/season";
-import { SeasonPlayerStanding } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/SeasonPlayerStanding";
+import { StandingTabs } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/StandingTabs";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { MatchForm } from "./components/MatchForm";
 
@@ -18,7 +18,7 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
         ]}
       />
       <MatchForm />
-      <SeasonPlayerStanding />
+      <StandingTabs />
     </div>
   );
 };

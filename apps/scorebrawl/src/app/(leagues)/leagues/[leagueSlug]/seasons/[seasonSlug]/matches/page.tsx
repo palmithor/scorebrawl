@@ -1,5 +1,5 @@
 import { findSeasonBySlug } from "@/actions/season";
-import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/add-match";
+import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/addMatchButton";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { MatchesPage } from "./components/MatchesPage";
 

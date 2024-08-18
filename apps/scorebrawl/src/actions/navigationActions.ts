@@ -4,6 +4,10 @@ import { api } from "@/trpc/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+export const clearLastVisitedLeague = async () => {
+  cookies().delete("last-visited-league");
+};
+
 export const resetLastVisitedLeague = async ({ leagueSlug }: { leagueSlug: string }) => {
   cookies().set("last-visited-league", leagueSlug);
 };
