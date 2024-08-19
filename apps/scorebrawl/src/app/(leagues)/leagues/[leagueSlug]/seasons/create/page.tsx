@@ -4,6 +4,7 @@ import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonTable } from "@/components/season/season-table";
+import { editorRoles } from "@/utils/permissionUtil";
 import type { ScoreType } from "@scorebrawl/model";
 import { Label } from "@scorebrawl/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
@@ -34,6 +35,11 @@ export default async function ({
   const league =
     (await findLeagueBySlugWithUserRole(leagueSlug)) ??
     redirect("/?errorCode=LEAGUE_NOT_FOUND", RedirectType.replace);
+
+  const hasEditorAccess = editorRoles.includes(league.role);
+  if (!hasEditorAccess) {
+    redirect("/?errorCode=LEAGUE_PERMISSION", RedirectType.replace);
+  }
 
   const scoreType = searchParams.scoreType ?? "elo";
   return (

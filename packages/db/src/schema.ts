@@ -22,7 +22,6 @@ export const leagues = pgTable(
     name: varchar("name", defaultVarcharConfig).notNull(),
     slug: varchar("name_slug", defaultVarcharConfig).notNull(),
     logoUrl: varchar("logo_url", defaultVarcharConfig),
-    code: varchar("code", cuidConfig).notNull(),
     archived: boolean("archived").default(false).notNull(),
     createdBy: varchar("created_by").notNull(),
     updatedBy: varchar("updated_by").notNull(),
@@ -31,7 +30,6 @@ export const leagues = pgTable(
   },
   (league) => ({
     slugIdx: uniqueIndex("league_name_slug_uq_idx").on(league.slug),
-    codeIdx: uniqueIndex("league_code_uq_idx").on(league.code),
   }),
 );
 
@@ -266,7 +264,9 @@ export const leagueInvites = pgTable(
   "league_invite",
   {
     id: varchar("id", cuidConfig).primaryKey(),
-    leagueId: varchar("league_id").references(() => leagues.id),
+    leagueId: varchar("league_id")
+      .references(() => leagues.id)
+      .notNull(),
     role: varchar("role", { enum: leagueMemberRoles }).notNull(),
     code: varchar("code", cuidConfig).notNull(),
     expiresAt: timestamp("expires_at"),

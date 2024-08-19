@@ -1,4 +1,4 @@
-export * from "./deprecated";
+export * from "./invites";
 export * from "./league";
 export * from "./leaguePlayer";
 export * from "./leagueTeam";

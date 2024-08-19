@@ -28,6 +28,19 @@ export const ErrorToast = () => {
             duration: 2000,
           });
         });
+      } else if (errorCode === "INVITE_NOT_FOUND") {
+        toast({
+          title: "Something went wrong",
+          description: "Invite not found",
+          variant: "destructive",
+          duration: 2000,
+        });
+      } else if (errorCode === "INVITE_ALREADY_CLAIMED") {
+        toast({
+          title: "Something went wrong",
+          description: "Invite already claimed",
+          duration: 2000,
+        });
       } else {
         toast({
           title: "Something went wrong",
