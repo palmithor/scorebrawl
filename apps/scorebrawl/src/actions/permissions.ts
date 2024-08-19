@@ -1,6 +1,7 @@
 "use server";
 import type { LeagueMemberRole } from "@scorebrawl/api";
 import { redirect } from "next/navigation";
+import type { z } from "zod";
 
 type LeagueWithUserRole = {
   id: string;
@@ -11,7 +12,10 @@ type LeagueWithUserRole = {
 export const validateMembership = async ({
   leagueWithMembership,
   allowedRoles,
-}: { leagueWithMembership?: LeagueWithUserRole; allowedRoles: LeagueMemberRole[] }) => {
+}: {
+  leagueWithMembership?: LeagueWithUserRole;
+  allowedRoles: z.infer<typeof LeagueMemberRole>[];
+}) => {
   if (!leagueWithMembership) {
     redirect("/?errorCode=LEAGUE_NOT_FOUND");
   }

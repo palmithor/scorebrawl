@@ -1,12 +1,14 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { type LeagueMemberRole, createInviteSchema } from "@scorebrawl/api";
+import { InviteInputDTO, type LeagueMemberRole } from "@scorebrawl/api";
 import AutoForm from "@scorebrawl/ui/auto-form";
 import { LoadingButton } from "@scorebrawl/ui/loading-button";
+import { endOfDay } from "date-fns";
+import type { z } from "zod";
 
 type FormValues = {
-  role: LeagueMemberRole;
+  role: z.infer<typeof LeagueMemberRole>;
   expiresAt?: Date;
 };
 
@@ -18,7 +20,7 @@ export const InviteForm = ({
   const { mutate, isPending } = api.invite.create.useMutation();
   const onSubmit = async (val: FormValues) => {
     mutate(
-      { ...val, leagueSlug },
+      { ...val, expiresAt: val.expiresAt ? endOfDay(val.expiresAt) : undefined, leagueSlug },
       {
         onSuccess: () => {
           invite.getAll.invalidate({ leagueSlug });
@@ -29,7 +31,7 @@ export const InviteForm = ({
   };
 
   return (
-    <AutoForm formSchema={createInviteSchema.omit({ leagueSlug: true })} onSubmit={onSubmit}>
+    <AutoForm formSchema={InviteInputDTO.omit({ leagueSlug: true })} onSubmit={onSubmit}>
       <LoadingButton loading={isPending} type="submit">
         Create Invite
       </LoadingButton>

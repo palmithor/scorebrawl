@@ -49,7 +49,7 @@ export const InviteTable = ({ leagueSlug }: { leagueSlug: string }) => {
                   onClick={() =>
                     void navigator.clipboard
                       .writeText(
-                        `${window.location.origin.toString()}/leagues/auto-join/${invite.code}`,
+                        `${window.location.origin.toString()}/api/leagues/auto-join/${invite.code}`,
                       )
                       .then(() =>
                         toast({

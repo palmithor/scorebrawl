@@ -33,7 +33,9 @@ const constructLinks = ({
 }: { leagueSlug: string; hasEditorAccess?: boolean; activeSeasonSlug: string }) => [
   {
     name: "Active Season",
-    href: `/leagues/${leagueSlug}/seasons/${activeSeasonSlug}`,
+    href: activeSeasonSlug
+      ? `/leagues/${leagueSlug}/seasons/${activeSeasonSlug}`
+      : `/leagues/${leagueSlug}/seasons/create?message=no-active`,
     regex: new RegExp(`/leagues/${leagueSlug}/seasons/${activeSeasonSlug}(\\/.*)?`),
     icon: Home,
   },
@@ -97,7 +99,7 @@ export function NavLayout({
   const params = useParams<{ leagueSlug: string }>();
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed || isMobile());
   const [links, setLinks] = React.useState<
-    { name: string; href: string; regex: RegExp; icon: LucideIcon }[]
+    { name: string; href: string; regex: RegExp; icon: LucideIcon; disabled?: boolean }[]
   >([]);
   const selectedLeague = leagues.find((league) => league.slug === params.leagueSlug) ?? leagues[0];
   const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
@@ -156,7 +158,10 @@ export function NavLayout({
             <LeagueSwitcher
               isCollapsed={isCollapsed}
               leagues={leagues}
-              onLeagueSelect={(value) => router.push(`/leagues/${value}`)}
+              onLeagueSelect={(value) => {
+                router.refresh();
+                router.push(`/leagues/${value}`);
+              }}
               selectedLeague={selectedLeague}
             />
           </div>
@@ -170,6 +175,7 @@ export function NavLayout({
                 icon: link.icon,
                 variant: link.regex.test(pathname) ? "default" : "ghost",
                 href: link.href,
+                disabled: link.disabled,
               }))}
             />
             <div className="flex p-3">

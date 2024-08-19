@@ -6,6 +6,7 @@ import { useQueryState } from "nuqs";
 export const ToastMessageNoOngoing = ({ leagueSlug }: { leagueSlug: string }) => {
   const [message] = useQueryState("message");
   const { replace } = useRouter();
+
   if (message === "no-active") {
     toast({ title: "No active season", description: "Please create one" });
     replace(`/leagues/${leagueSlug}/seasons/create`);

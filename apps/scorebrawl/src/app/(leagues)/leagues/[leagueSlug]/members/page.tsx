@@ -1,7 +1,6 @@
 import { findLeagueBySlugWithUserRole } from "@/actions/league";
 import { validateMembership } from "@/actions/permissions";
 import { LeagueMemberTable } from "@/app/(leagues)/leagues/[leagueSlug]/members/components/MemberTable";
-import { AddSeasonButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/components/AddSeasonButton";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { RedirectType, redirect } from "next/navigation";
 
@@ -13,9 +12,7 @@ export default async ({ params: { leagueSlug } }: { params: { leagueSlug: string
 
   return (
     <>
-      <BreadcrumbsHeader breadcrumbs={[{ name: "Members" }]}>
-        <AddSeasonButton leagueSlug={leagueSlug} />
-      </BreadcrumbsHeader>
+      <BreadcrumbsHeader breadcrumbs={[{ name: "Members" }]} />
       <LeagueMemberTable leagueSlug={leagueSlug} />
     </>
   );
