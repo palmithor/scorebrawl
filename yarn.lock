@@ -2387,9 +2387,7 @@
   integrity sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==
 
 "@turbo/gen@^2.0.5":
-  version "2.0.6"
-  resolved "https://registry.npmjs.org/@turbo/gen/-/gen-2.0.6.tgz"
-  integrity sha512-Epv3tt40mrNCzL6XKELdHvM1KSYvY7bg4uRZAjS0SuYYY5E0gGjpeZPqqUNZl7fwmTHZLEZH5qqoKxbGWZsKXQ==
+  version "2.0.14"
   dependencies:
     chalk "2.4.2"
     commander "^10.0.0"
