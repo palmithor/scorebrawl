@@ -42,8 +42,5 @@ jobs:
       - name: 🦄 Format
         run: bun run format:check
 
-      - name: 🧪 Test
-        run: bun run format:check
-
       - name: 👷‍ Build
         run: bun run build
