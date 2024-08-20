@@ -258,9 +258,7 @@
     "@clerk/shared" "2.4.1"
 
 "@clerk/clerk-sdk-node@^5.0.20":
-  version "5.0.20"
-  resolved "https://registry.npmjs.org/@clerk/clerk-sdk-node/-/clerk-sdk-node-5.0.20.tgz"
-  integrity sha512-W8r9zpre2JowLcSk9fz74SQuGFCut/YrGZzE7GeAAafpnVAhfzBgpQ+Dg5onYc8dJUR/5/jLUJ/VrApBC+65kg==
+  version "5.0.27"
   dependencies:
     tslib "2.4.1"
     "@clerk/types" "4.9.1"
