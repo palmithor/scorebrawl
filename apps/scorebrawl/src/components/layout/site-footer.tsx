@@ -6,7 +6,7 @@ import { ModeToggle } from "@scorebrawl/ui/mode-toggle";
 export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
     <footer className={cn(className)}>
-      <div className="container flex items-center justify-end py-10">
+      <div className="container flex items-center justify-end py-4">
         <ModeToggle />
       </div>
     </footer>

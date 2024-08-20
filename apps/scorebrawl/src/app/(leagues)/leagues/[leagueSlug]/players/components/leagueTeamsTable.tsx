@@ -14,7 +14,7 @@ import {
 } from "@scorebrawl/ui/table";
 import { EditIcon } from "lucide-react";
 
-export const LeagueTeamsTable = async ({ leagueSlug }: { leagueSlug: string }) => {
+export const LeagueTeamsTable = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.leagueTeam.getAll.useQuery({ leagueSlug });
   const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery({ leagueSlug });
   const { userId } = useAuth();

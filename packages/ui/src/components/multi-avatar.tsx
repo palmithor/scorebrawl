@@ -17,7 +17,7 @@ export const MultiAvatar = (
   const avatarAndName = ({ id, name, imageUrl }: AvatarProps) => {
     return (
       <Tooltip key={id}>
-        <TooltipTrigger>
+        <TooltipTrigger className="flex">
           <Avatar className={"h-8 w-8"}>
             <AvatarImage src={imageUrl} />
             <AvatarFallback>{getInitialsFromString(name)}</AvatarFallback>
@@ -56,7 +56,7 @@ export const MultiAvatarWithSkeletonLoading = ({
 }: { users?: Array<AvatarProps>; visibleCount?: number }) => {
   if (!users) {
     return (
-      <div className="flex -space-x-4">
+      <div className="flex space-x-4">
         {Array.from({ length: visibleCount }).map((_) => (
           <Skeleton className="h-8 w-8" />
         ))}

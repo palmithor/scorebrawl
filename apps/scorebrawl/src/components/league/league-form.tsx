@@ -25,7 +25,7 @@ export const LeagueForm = ({
   league?: { name: string; logoUrl: string };
 }) => {
   const { toast } = useToast();
-  const { push } = useRouter();
+  const { push, refresh } = useRouter();
   const { mutate, isPending } = api.league.create.useMutation();
   const [uploadError, setUploadError] = useState<string | undefined>();
   const [uploadInProgress, setUploadInProgress] = useState(false);
@@ -38,6 +38,7 @@ export const LeagueForm = ({
         onSettled: (data) => {
           if (data) {
             push(`/leagues/${data?.slug}`);
+            refresh();
           }
         },
         onError: (err) => {

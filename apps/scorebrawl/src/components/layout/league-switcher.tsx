@@ -31,7 +31,7 @@ export function LeagueSwitcher({
   const router = useRouter();
   return (
     <Select
-      defaultValue={selectedLeague?.name}
+      value={selectedLeague?.name}
       onValueChange={(value) => {
         if (value === "create") {
           router.push("/leagues/create");
@@ -58,7 +58,7 @@ export function LeagueSwitcher({
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        <SelectGroup>
+        <SelectGroup className="max-h-48 overflow-y-auto">
           <SelectLabel>Leagues</SelectLabel>
           {leagues.map((league) => (
             <SelectItem key={league.slug} value={league.slug}>

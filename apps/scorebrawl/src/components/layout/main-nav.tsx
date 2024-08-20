@@ -97,25 +97,31 @@ export function NavLayout({
   const { theme, systemTheme } = useTheme();
   const themeInUse = theme === "system" ? systemTheme : theme;
   const params = useParams<{ leagueSlug: string }>();
+  const [leagueSlug, setLeagueSlug] = React.useState(params.leagueSlug);
+  useEffect(() => {
+    if (params.leagueSlug) {
+      setLeagueSlug(params.leagueSlug);
+    }
+  }, [params.leagueSlug]);
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed || isMobile());
   const [links, setLinks] = React.useState<
     { name: string; href: string; regex: RegExp; icon: LucideIcon; disabled?: boolean }[]
   >([]);
-  const selectedLeague = leagues.find((league) => league.slug === params.leagueSlug) ?? leagues[0];
+  const selectedLeague = leagues.find((league) => league.slug === leagueSlug) ?? leagues[0];
   const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery(
     { leagueSlug: selectedLeague?.slug as string },
     { enabled: !!selectedLeague?.slug },
   );
-  const { data: activeSeason } = api.season.findActive.useQuery({ leagueSlug: params.leagueSlug });
+  const { data: activeSeason } = api.season.findActive.useQuery({ leagueSlug: leagueSlug });
   useEffect(() => {
     setLinks(
       constructLinks({
-        leagueSlug: params.leagueSlug,
+        leagueSlug: leagueSlug ?? selectedLeague?.slug,
         hasEditorAccess,
         activeSeasonSlug: activeSeason?.slug ?? "",
       }),
     );
-  }, [activeSeason, hasEditorAccess, params.leagueSlug]);
+  }, [activeSeason, hasEditorAccess, leagueSlug, selectedLeague?.slug]);
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -124,7 +130,7 @@ export function NavLayout({
         onLayout={(sizes: number[]) => {
           document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`;
         }}
-        className="min-h-screen items-stretch"
+        className="h-screen-safe items-stretch"
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
@@ -145,7 +151,7 @@ export function NavLayout({
             document.cookie = "react-resizable-panels:collapsed=true";
           }}
           className={cn(
-            "grid grid-cols-1 grid-rows-[auto_auto_1fr] min-h-screen max-h-screen",
+            "grid grid-cols-1 grid-rows-[auto_auto_1fr] h-screen-safe",
             isCollapsed && "min-w-[50px] max-w-[50px] transition-all duration-300 ease-in-out",
           )}
         >
@@ -185,7 +191,7 @@ export function NavLayout({
         </ResizablePanel>
         <ResizableHandle withHandle={!isMobile()} />
         <ResizablePanel defaultSize={defaultLayout[1]}>
-          <div className="flex min-h-screen flex-col h-screen overflow-auto">
+          <div className="flex flex-col h-screen-safe overflow-auto">
             <main className="flex-1 container relative flex flex-col">{children}</main>
             <SiteFooter />
           </div>
