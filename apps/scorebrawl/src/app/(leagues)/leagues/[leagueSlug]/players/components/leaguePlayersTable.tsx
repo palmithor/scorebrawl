@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@scorebrawl/ui/table";
 
-export const LeaguePlayersTable = async ({
+export const LeaguePlayersTable = ({
   leagueSlug,
 }: {
   leagueSlug: string;

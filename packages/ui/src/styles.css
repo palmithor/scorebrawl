@@ -90,3 +90,19 @@
     @apply px-4;
   }
 }
+
+.h-screen-safe {
+  height: 100vh;
+}
+
+@supports (height: 100cqh) {
+  .h-screen-safe {
+    height: 100cqh;
+  }
+}
+
+@supports (height: 100svh) {
+  .h-screen-safe {
+    height: 100svh;
+  }
+}

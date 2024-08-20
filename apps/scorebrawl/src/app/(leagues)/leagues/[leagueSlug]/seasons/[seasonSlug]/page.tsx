@@ -24,24 +24,26 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
       </BreadcrumbsHeader>
       <div className="grid gap-6">
         <DashboardCards />
-        <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
-          <div className={"grid gap-2"}>
-            <StandingTabs />
+        <div className="grid gap-6 lg:grid-cols-2 grid-flow-row">
+          <div className="flex flex-col gap-6">
+            <div className="grid gap-6">
+              <StandingTabs />
+            </div>
+            <div className="grid gap-6">
+              <LatestMatches />
+            </div>
           </div>
-          <div className={"grid gap-2"}>
-            <LatestMatches />
-          </div>
-        </div>
-        <div className="grid gap-x-4 gap-y-6 m:grid-cols-1 lg:grid-cols-2 items-start">
-          <div className={"grid gap-2"}>
-            <OverviewCard title={"Point Progression"}>
-              <PointProgression />
-            </OverviewCard>
-          </div>
-          <div className={"grid gap-2"}>
-            <OverviewCard title={"Daily Point +/-"}>
-              <PointDiffProgression />
-            </OverviewCard>
+          <div className="flex flex-col gap-6">
+            <div className="grid gap-6">
+              <OverviewCard title={"Point Progression"}>
+                <PointProgression />
+              </OverviewCard>
+            </div>
+            <div className="grid gap-6">
+              <OverviewCard title={"Daily Point +/-"}>
+                <PointDiffProgression />
+              </OverviewCard>
+            </div>
           </div>
         </div>
       </div>

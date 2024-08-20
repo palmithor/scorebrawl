@@ -1,14 +1,8 @@
 "use client";
 import { useSeason } from "@/context/SeasonContext";
 import type { MatchDTO } from "@scorebrawl/api";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@scorebrawl/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@scorebrawl/ui/table";
+import { formatDistanceToNow } from "date-fns";
 import type { z } from "zod";
 import { MatchResult } from "./match-result";
 
@@ -23,19 +17,12 @@ export const MatchTable = ({
 
   return (
     <Table className={className}>
-      <TableHeader className="hidden sm:table-header-group">
-        <TableRow>
-          <TableHead>Date</TableHead>
-          <TableHead>Results</TableHead>
-        </TableRow>
-      </TableHeader>
       <TableBody>
         {matches.map((match) => (
           <TableRow key={match.id}>
-            <TableCell className="hidden sm:table-cell">
-              <div className="text-xs">
-                {match.createdAt.toLocaleDateString(window.navigator.language)}{" "}
-                {match.createdAt.toLocaleTimeString(window.navigator.language).substring(0, 5)}
+            <TableCell className="hidden table-cell">
+              <div className="text-s">
+                {formatDistanceToNow(new Date(match.createdAt), { addSuffix: true })}
               </div>
             </TableCell>
             <TableCell>
