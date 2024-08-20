@@ -75,7 +75,6 @@ const claimInvite = async ({
     .insert(leagueMembers)
     .values({ id: createCuid(), leagueId, userId, role, createdAt: now, updatedAt: now });
   if (role !== "viewer") {
-    console.log("not viewer");
     const [leaguePlayer] = await db
       .insert(leaguePlayers)
       .values({ id: createCuid(), leagueId, userId, createdAt: now, updatedAt: now })

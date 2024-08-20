@@ -177,6 +177,7 @@ export const MatchForm = () => {
           utils.seasonPlayer.getTop.invalidate();
           utils.seasonPlayer.getStruggling.invalidate();
           utils.seasonPlayer.getOnFire.invalidate();
+          utils.seasonTeam.getStanding.invalidate();
           utils.match.getAll.invalidate();
           utils.match.getLatest.invalidate();
           toast({
