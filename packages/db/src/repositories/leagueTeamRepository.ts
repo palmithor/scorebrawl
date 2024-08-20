@@ -117,7 +117,6 @@ const update = async ({
   userId,
   isEditor,
 }: z.infer<typeof LeagueTeamInput>) => {
-  console.log("1");
   const [leagueTeam] = await db
     .select({ id: leagueTeams.id })
     .from(leagueTeams)
@@ -129,7 +128,7 @@ const update = async ({
       message: "Team not found in league",
     });
   }
-  console.log("1");
+
   if (!isEditor) {
     const [result] = await db
       .select({ id: leagueTeams.id })
