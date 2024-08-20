@@ -15,7 +15,7 @@
     "@biomejs/biome": "1.8.3",
     "@scorebrawl/typescript-config": "*",
     "tailwindcss": "^3.4.7",
-    "turbo": "^2.0.9"
+    "turbo": "^2.0.14"
   },
   "packageManager": "bun@1.1.24",
   "workspaces": ["apps/*", "packages/*"],
