@@ -284,7 +284,7 @@ export const users = pgTable("user", {
   id: varchar("id", { length: 100 }).primaryKey(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
   name: varchar("name").notNull(),
-  defaultLeagueId: varchar("defaultLeagueId", cuidConfig).references(() => leagues.id),
+  defaultLeagueId: varchar("default_league_id", cuidConfig).references(() => leagues.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
