@@ -12,5 +12,4 @@ export default async ({ params: { leagueSlug } }: { params: { leagueSlug: string
   } else {
     redirect(`/leagues/${leagueSlug}/seasons`);
   }
-  return null;
 };

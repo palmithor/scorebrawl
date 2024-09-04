@@ -77,8 +77,10 @@ const getSeasonPlayerAvatars = ({
     .where(inArray(seasonPlayers.id, seasonPlayerIds));
 };
 
-const findUserById = async ({ id }: { id: string }) =>
-  db.select().from(users).where(eq(users.id, id));
+const findUserById = async ({ id }: { id: string }) => {
+  const [user] = await db.select().from(users).where(eq(users.id, id));
+  return user;
+};
 
 const setDefaultLeague = async ({
   leagueId,

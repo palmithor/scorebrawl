@@ -1,5 +1,6 @@
 "use client";
 
+import { resetLastVisitedLeague } from "@/actions/navigationActions";
 import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
 import { cn } from "@scorebrawl/ui/lib";
 import {
@@ -32,11 +33,11 @@ export function LeagueSwitcher({
   return (
     <Select
       value={selectedLeague?.name}
-      onValueChange={(value) => {
+      onValueChange={async (value) => {
         if (value === "create") {
           router.push("/leagues/create");
         } else {
-          document.cookie = `last-visited-league=${value}`;
+          await resetLastVisitedLeague({ leagueSlug: value });
           onLeagueSelect(value);
         }
       }}

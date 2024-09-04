@@ -1,5 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
+const _isLeagueRoute = createRouteMatcher(["/leagues/(.*)"]);
+
 const _isEditorRoute = createRouteMatcher([
   "/leagues/(.*)/members(.*)",
   "/leagues/(.*)/invites(.*)",

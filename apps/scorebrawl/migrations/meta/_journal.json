@@ -50,6 +50,13 @@
       "when": 1724020061652,
       "tag": "0006_easy_micromacro",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1725451930015,
+      "tag": "0007_mighty_hawkeye",
+      "breakpoints": true
     }
   ]
 }

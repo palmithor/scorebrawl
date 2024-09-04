@@ -5,6 +5,7 @@ import {
 
 import type { ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
+import { SetLastVisitedLeague } from "./components/setLastVisitedLeague";
 
 export const generateMetadata = async (
   { params: { leagueSlug } }: { params: { leagueSlug: string } },
@@ -31,5 +32,10 @@ export default async ({
   children: ReactNode;
 }) => {
   await getLeagueBySlugWithUserRoleOrRedirect(leagueSlug);
-  return <>{children}</>;
+  return (
+    <>
+      <SetLastVisitedLeague leagueSlug={leagueSlug} />
+      {children}
+    </>
+  );
 };
