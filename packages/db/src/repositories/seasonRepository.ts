@@ -1,9 +1,6 @@
 import type { ScoreType } from "@scorebrawl/model";
-import { endOfDay, startOfDay } from "date-fns";
 import {
   and,
-  asc,
-  between,
   desc,
   eq,
   getTableColumns,
@@ -18,13 +15,13 @@ import {
 } from "drizzle-orm";
 import {
   ScoreBrawlError,
+  SeasonPlayerRepository,
   createCuid,
   db,
   leagueEvents,
   leagueMembers,
   leaguePlayers,
   leagues,
-  matchPlayers,
   matches,
   seasonPlayers,
   seasonTeams,
@@ -294,53 +291,16 @@ const getTodayDiff = async ({
   leagueId: string;
   userId: string;
 }) => {
-  const now = new Date();
-  const dayEnd = endOfDay(now);
-  const dayStart = startOfDay(now);
-  const season = await db.query.seasons.findFirst({
-    where: and(
-      eq(seasons.leagueId, leagueId),
-      lte(seasons.startDate, dayEnd),
-      or(isNull(seasons.endDate), gte(seasons.endDate, dayEnd)),
-    ),
-    with: {
-      seasonPlayers: {
-        columns: { id: true, score: true },
-        with: {
-          leaguePlayer: { columns: { userId: true } },
-        },
-      },
-    },
-  });
-
+  const season = await SeasonRepository.findActive({ leagueId });
   if (!season) {
     return { diff: 0 };
   }
-
-  const seasonPlayer = season.seasonPlayers.find((sp) => sp.leaguePlayer.userId === userId);
-  if (!seasonPlayer) {
-    return { diff: 0 };
-  }
-
-  const seasonPlayerMatches = await db.query.matchPlayers.findMany({
-    where: and(
-      between(matchPlayers.createdAt, dayStart, dayEnd),
-      eq(matchPlayers.seasonPlayerId, seasonPlayer.id),
-    ),
-    orderBy: asc(matchPlayers.createdAt),
+  const seasonPlayers = await SeasonPlayerRepository.getStanding({
+    seasonId: season.id,
   });
+  const seasonPlayer = seasonPlayers.find((sp) => sp.user.userId === userId);
 
-  // Ensure there are matches and the array is not empty
-  if (seasonPlayerMatches && seasonPlayerMatches.length > 0) {
-    // Access scoreBefore of the first match
-    const scoreBeforeFirstMatch = seasonPlayerMatches[0]?.scoreBefore;
-    // Access scoreAfter of the last match
-    const scoreAfterLastMatch = seasonPlayerMatches[seasonPlayerMatches.length - 1]?.scoreAfter;
-    // Calculate the difference
-    const diff = (scoreAfterLastMatch ?? 0) - (scoreBeforeFirstMatch ?? 0);
-    return { diff };
-  }
-  return { diff: 0 };
+  return { diff: seasonPlayer?.pointDiff ?? 0 };
 };
 
 export const findSeasonAndLeagueBySlug = async ({
