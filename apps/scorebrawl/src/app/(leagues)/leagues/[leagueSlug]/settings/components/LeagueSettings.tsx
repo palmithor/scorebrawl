@@ -1,12 +1,12 @@
 "use client";
 import { resetLastVisitedLeague } from "@/actions/navigationActions";
 import { DEFAULT_LEAGUE_LOGO } from "@/components/league/league-form";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { UploadButton } from "@/components/uploadthing";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
-import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
-import { Input } from "@scorebrawl/ui/input";
-import { Label } from "@scorebrawl/ui/label";
-import { useToast } from "@scorebrawl/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 

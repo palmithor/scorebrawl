@@ -1,5 +1,5 @@
 "use client";
-import { toast } from "@scorebrawl/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 

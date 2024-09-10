@@ -1,4 +1,4 @@
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@scorebrawl/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
 export const WelcomeStep = () => {

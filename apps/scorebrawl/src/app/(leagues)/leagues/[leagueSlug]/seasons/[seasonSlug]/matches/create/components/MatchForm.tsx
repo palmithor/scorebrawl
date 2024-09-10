@@ -1,14 +1,10 @@
 "use client";
 
 import { events } from "@/analytics/counters";
-import { useSeason } from "@/context/SeasonContext";
-import { api } from "@/trpc/react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { trackEvent } from "@openpanel/nextjs";
-import { SeasonPlayerStandingDTO } from "@scorebrawl/api";
-import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
-import { Button } from "@scorebrawl/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@scorebrawl/ui/card";
+import { LoadingButton } from "@/components/loading-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Drawer,
   DrawerClose,
@@ -17,15 +13,19 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@scorebrawl/ui/drawer";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@scorebrawl/ui/form";
-import { LoadingButton } from "@scorebrawl/ui/loading-button";
-import { useToast } from "@scorebrawl/ui/use-toast";
+} from "@/components/ui/drawer";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { useSeason } from "@/context/SeasonContext";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/trpc/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { trackEvent } from "@openpanel/nextjs";
+import { SeasonPlayerStandingDTO } from "@scorebrawl/api";
 import { capitalize, getInitialsFromString } from "@scorebrawl/utils/string";
 import { isAfter, isWithinInterval } from "date-fns";
 import { CircleEqual, MinusIcon, PlusIcon, Shuffle, TriangleAlert } from "lucide-react";
 
-import { Separator } from "@scorebrawl/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

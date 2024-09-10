@@ -1,7 +1,6 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { LoadingButton } from "@/components/loading-button";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@scorebrawl/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -17,10 +16,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@scorebrawl/ui/form";
-import { Input } from "@scorebrawl/ui/input";
-import { LoadingButton } from "@scorebrawl/ui/loading-button";
-import { useToast } from "@scorebrawl/ui/use-toast";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/trpc/react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";

@@ -1,8 +1,8 @@
 "use client";
 
-import { buttonVariants } from "@scorebrawl/ui/button";
-import { cn } from "@scorebrawl/ui/lib";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
+import { buttonVariants } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 

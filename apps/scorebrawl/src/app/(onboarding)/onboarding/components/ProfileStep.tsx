@@ -1,10 +1,10 @@
 "use client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@clerk/nextjs";
-import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@scorebrawl/ui/card";
-import { Input } from "@scorebrawl/ui/input";
-import { Label } from "@scorebrawl/ui/label";
-import { useToast } from "@scorebrawl/ui/use-toast";
 import { getInitialsFromString } from "@scorebrawl/utils/string";
 import { type ChangeEvent, useCallback, useRef, useState } from "react";
 

@@ -10,12 +10,12 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { api } from "@/trpc/react";
 import type { LucideIcon } from "lucide-react";
 
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { Separator } from "@/components/ui/separator";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { cn } from "@scorebrawl/ui/lib";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@scorebrawl/ui/resizable";
-import { Separator } from "@scorebrawl/ui/separator";
-import { TooltipProvider } from "@scorebrawl/ui/tooltip";
 import { useTheme } from "next-themes";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";

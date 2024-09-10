@@ -1,6 +1,6 @@
 "use client";
 import { clearLastVisitedLeague } from "@/actions/navigationActions";
-import { useToast } from "@scorebrawl/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useQueryState } from "nuqs";
 import { useEffect } from "react";
 

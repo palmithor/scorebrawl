@@ -1,6 +1,6 @@
 "use client";
+import { AvatarName } from "@/components/avatar-name";
 import { api } from "@/trpc/react";
-import { AvatarName } from "@scorebrawl/ui/avatar-name";
 
 export const CreatedByCell = ({ userId }: { userId: string }) => {
   const { data } = api.avatar.getByUserId.useQuery({ userId });

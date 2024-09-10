@@ -1,9 +1,7 @@
 "use client";
 import { DateCell } from "@/components/date-cell";
+import { MultiAvatar } from "@/components/multi-avatar";
 import { UpdateTeamDialog } from "@/components/players/update-team-dialog";
-import { api } from "@/trpc/react";
-import { useAuth } from "@clerk/nextjs";
-import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
 import {
   Table,
   TableBody,
@@ -11,7 +9,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@scorebrawl/ui/table";
+} from "@/components/ui/table";
+import { api } from "@/trpc/react";
+import { useAuth } from "@clerk/nextjs";
 import { EditIcon } from "lucide-react";
 
 export const LeagueTeamsTable = ({ leagueSlug }: { leagueSlug: string }) => {

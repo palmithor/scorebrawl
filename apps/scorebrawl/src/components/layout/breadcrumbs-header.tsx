@@ -7,7 +7,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@scorebrawl/ui/breadcrumbs";
+} from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import type { ReactNode } from "react";
 

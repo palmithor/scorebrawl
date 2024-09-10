@@ -1,9 +1,9 @@
 "use client";
 
+import AutoForm from "@/components/auto-form";
+import { LoadingButton } from "@/components/loading-button";
 import { api } from "@/trpc/react";
 import { InviteInputDTO, type LeagueMemberRole } from "@scorebrawl/api";
-import AutoForm from "@scorebrawl/ui/auto-form";
-import { LoadingButton } from "@scorebrawl/ui/loading-button";
 import { endOfDay } from "date-fns";
 import type { z } from "zod";
 

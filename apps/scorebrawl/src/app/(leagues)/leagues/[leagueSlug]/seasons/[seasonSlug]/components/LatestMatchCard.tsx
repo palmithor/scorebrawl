@@ -2,11 +2,11 @@
 import { CardContentText } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/CardContentText";
 import { DashboardCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/DashboardCard";
 import { MatchResult } from "@/components/match/match-result";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
 import type { MatchDTO } from "@scorebrawl/api";
-import { Button } from "@scorebrawl/ui/button";
-import { Skeleton } from "@scorebrawl/ui/skeleton";
-import { useToast } from "@scorebrawl/ui/use-toast";
 import { CalendarCheck2, CheckIcon, Undo2Icon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { z } from "zod";

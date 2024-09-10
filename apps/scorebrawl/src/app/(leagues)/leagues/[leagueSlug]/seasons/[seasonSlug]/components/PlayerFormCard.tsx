@@ -1,8 +1,8 @@
+import { AvatarName, AvatarNameSkeleton } from "@/components/avatar-name";
 import { FormDots } from "@/components/league/player-form";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/trpc/react";
 import type { SeasonPlayerStandingDTO } from "@scorebrawl/api";
-import { AvatarName, AvatarNameSkeleton } from "@scorebrawl/ui/avatar-name";
-import { Skeleton } from "@scorebrawl/ui/skeleton";
 import { Flame, Snowflake } from "lucide-react";
 import type { z } from "zod";
 import { CardContentText } from "./CardContentText";

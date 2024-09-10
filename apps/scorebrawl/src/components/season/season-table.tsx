@@ -1,10 +1,8 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { sortSeasons } from "@/utils/seasonUtils";
-import { AvatarName } from "@scorebrawl/ui/avatar-name";
-import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
-import { Skeleton } from "@scorebrawl/ui/skeleton";
+import { AvatarName } from "@/components/avatar-name";
+import { MultiAvatar } from "@/components/multi-avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -12,8 +10,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@scorebrawl/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
+} from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { api } from "@/trpc/react";
+import { sortSeasons } from "@/utils/seasonUtils";
 import { getPeriodStatus } from "@scorebrawl/utils/date";
 import { CircleCheck, CirclePlay, FastForward } from "lucide-react";
 import { useRouter } from "next/navigation";

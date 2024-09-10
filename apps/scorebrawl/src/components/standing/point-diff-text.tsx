@@ -1,4 +1,4 @@
-import { cn } from "@scorebrawl/ui/lib";
+import { cn } from "@/lib/utils";
 
 export const PointDiffText = ({ diff }: { diff?: number }) => {
   if (diff) {

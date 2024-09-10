@@ -1,7 +1,7 @@
 import type * as React from "react";
 
-import { cn } from "@scorebrawl/ui/lib";
-import { ModeToggle } from "@scorebrawl/ui/mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
+import { cn } from "@/lib/utils";
 
 export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
   return (

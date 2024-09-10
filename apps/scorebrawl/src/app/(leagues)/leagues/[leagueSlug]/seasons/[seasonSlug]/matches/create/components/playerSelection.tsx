@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
-import { cn } from "@scorebrawl/ui/lib";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 import { getInitialsFromString } from "@scorebrawl/utils/string";
 import type { PlayerWithSelection } from "./MatchForm";
 

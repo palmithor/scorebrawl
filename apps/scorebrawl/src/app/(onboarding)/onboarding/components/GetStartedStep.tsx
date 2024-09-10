@@ -1,5 +1,5 @@
 import { LeagueForm } from "@/components/league/league-form";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@scorebrawl/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const GetStartedStep = () => {
   return (
