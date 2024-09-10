@@ -1,8 +1,8 @@
 "use client";
 import { CardContentText } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/CardContentText";
 import { DashboardCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/DashboardCard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/trpc/react";
-import { Skeleton } from "@scorebrawl/ui/skeleton";
 import { BarChart3 } from "lucide-react";
 
 export const InfoCard = ({

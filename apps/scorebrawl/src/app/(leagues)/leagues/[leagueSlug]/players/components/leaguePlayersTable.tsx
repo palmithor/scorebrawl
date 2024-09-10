@@ -1,8 +1,6 @@
 "use client";
+import { AvatarName } from "@/components/avatar-name";
 import { DateCell } from "@/components/date-cell";
-import { api } from "@/trpc/react";
-import { AvatarName } from "@scorebrawl/ui/avatar-name";
-import { cn } from "@scorebrawl/ui/lib";
 import {
   Table,
   TableBody,
@@ -10,7 +8,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@scorebrawl/ui/table";
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 export const LeaguePlayersTable = ({
   leagueSlug,

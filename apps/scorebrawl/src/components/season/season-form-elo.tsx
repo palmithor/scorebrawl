@@ -1,10 +1,10 @@
 "use client";
+import AutoForm from "@/components/auto-form";
+import { LoadingButton } from "@/components/loading-button";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
 import { SeasonCreateDTO } from "@scorebrawl/api";
 import { EloTypeEnumSchema } from "@scorebrawl/model";
-import AutoForm from "@scorebrawl/ui/auto-form";
-import { LoadingButton } from "@scorebrawl/ui/loading-button";
-import { useToast } from "@scorebrawl/ui/use-toast";
 import { endOfDay, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";

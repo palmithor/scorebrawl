@@ -1,9 +1,9 @@
 "use client";
 import { Standing } from "@/components/standing/standing";
 import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
-import { Skeleton } from "@scorebrawl/ui/skeleton";
 
 export const SeasonPlayerStanding = () => {
   const { leagueSlug, seasonSlug } = useSeason();

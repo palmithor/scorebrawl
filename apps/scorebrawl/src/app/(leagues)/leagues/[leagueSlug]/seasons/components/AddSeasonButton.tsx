@@ -1,7 +1,7 @@
 "use client";
 import { LayoutActionButton } from "@/components/layout/LayoutActionButton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/trpc/react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@scorebrawl/ui/tooltip";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 

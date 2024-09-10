@@ -2,8 +2,8 @@
 import { GetStartedStep } from "@/app/(onboarding)/onboarding/components/GetStartedStep";
 import { ProfileStep } from "@/app/(onboarding)/onboarding/components/ProfileStep";
 import { WelcomeStep } from "@/app/(onboarding)/onboarding/components/WelcomeStep";
-import { Card } from "@scorebrawl/ui/card";
-import { Step, type StepItem, Stepper } from "@scorebrawl/ui/stepper";
+import { Step, type StepItem, Stepper } from "@/components/stepper";
+import { Card } from "@/components/ui/card";
 import type { ReactNode } from "react";
 import { Footer } from "./Footer";
 

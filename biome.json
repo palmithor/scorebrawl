@@ -13,7 +13,12 @@
   },
   "linter": {
     "enabled": true,
-    "ignore": ["packages/ui/src/components"],
+    "ignore": [
+      "apps/scorebrawl/src/components/ui",
+      "apps/scorebrawl/src/hooks",
+      "apps/scorebrawl/src/components/auto-form.tsx",
+      "apps/scorebrawl/src/components/stepper.tsx"
+    ],
     "rules": {
       "correctness": {
         "noUnusedImports": "error",

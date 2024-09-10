@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@scorebrawl/ui/button";
-import { useStepper } from "@scorebrawl/ui/stepper";
+import { useStepper } from "@/components/stepper";
+import { Button } from "@/components/ui/button";
 
 export const Footer = () => {
   const {

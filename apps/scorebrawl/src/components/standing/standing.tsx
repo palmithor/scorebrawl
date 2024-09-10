@@ -1,9 +1,6 @@
 "use client";
 
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import type { PlayerForm } from "@scorebrawl/model";
-import { cn } from "@scorebrawl/ui/lib";
-import { MultiAvatar } from "@scorebrawl/ui/multi-avatar";
+import { MultiAvatar } from "@/components/multi-avatar";
 import {
   Table,
   TableBody,
@@ -11,8 +8,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@scorebrawl/ui/table";
-import { Tooltip, TooltipContent } from "@scorebrawl/ui/tooltip";
+} from "@/components/ui/table";
+import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import type { PlayerForm } from "@scorebrawl/model";
 import { FormDots } from "../league/player-form";
 import { PointDiffText } from "./point-diff-text";
 

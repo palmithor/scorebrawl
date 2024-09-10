@@ -1,20 +1,29 @@
-import "@scorebrawl/ui/styles.css";
+import "./globals.css";
 
+import { Analytics, Providers } from "@/components/providers";
+import { Spinner } from "@/components/spinner";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { siteConfig } from "@/config/site";
 import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
-import { fontHeading, fontSans, fontUrban } from "@scorebrawl/ui/fonts";
-import { cn } from "@scorebrawl/ui/lib";
-import { Analytics, Providers } from "@scorebrawl/ui/providers";
-import { Spinner } from "@scorebrawl/ui/spinner";
-import { TailwindIndicator } from "@scorebrawl/ui/tailwind-indicator";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import localFont from "next/font/local";
 
 import { AnalyticsProvider } from "@/analytics/AnalyticsProvider";
+import { Toaster } from "@/components/ui/toaster";
 import { TRPCReactProvider } from "@/trpc/react";
-import { Toaster } from "@scorebrawl/ui/toaster";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+const geistSans = localFont({
+  src: "./fonts/GeistVF.woff",
+  variable: "--font-geist-sans",
+  weight: "100 900",
+});
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+});
 interface RootLayoutProps {
   children: ReactNode;
 }
@@ -62,12 +71,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
-          className={cn(
-            "h-screen-safe bg-background font-sans antialiased",
-            fontSans.variable,
-            fontUrban.variable,
-            fontHeading.variable,
-          )}
+          className={`${geistSans.variable} ${geistMono.variable} h-screen-safe bg-background font-sans antialiased`}
         >
           <TRPCReactProvider>
             <Providers attribute="class" defaultTheme="system" enableSystem>

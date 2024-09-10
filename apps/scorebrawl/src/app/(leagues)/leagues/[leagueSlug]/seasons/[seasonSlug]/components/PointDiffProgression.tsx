@@ -1,9 +1,9 @@
 "use client";
 
 import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@scorebrawl/ui/charts";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { transformData } from "./charts/pointDiffProgressionUtils";
 import { createChartConfig, getAllChartKeys } from "./charts/utils";

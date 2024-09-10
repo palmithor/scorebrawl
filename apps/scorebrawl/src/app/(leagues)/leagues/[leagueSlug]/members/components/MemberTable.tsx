@@ -1,7 +1,6 @@
 "use client";
+import { AvatarName } from "@/components/avatar-name";
 import { FullPageSpinner } from "@/components/full-page-spinner";
-import { api } from "@/trpc/react";
-import { AvatarName } from "@scorebrawl/ui/avatar-name";
 import {
   Table,
   TableBody,
@@ -9,7 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@scorebrawl/ui/table";
+} from "@/components/ui/table";
+import { api } from "@/trpc/react";
 import { capitalize } from "@scorebrawl/utils/string";
 
 export const LeagueMemberTable = ({ leagueSlug }: { leagueSlug: string }) => {

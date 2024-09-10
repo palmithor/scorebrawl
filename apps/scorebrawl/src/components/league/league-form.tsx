@@ -1,10 +1,10 @@
 "use client";
+import AutoForm from "@/components/auto-form";
+import { LoadingButton } from "@/components/loading-button";
 import { UploadButton } from "@/components/uploadthing";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
 import { LeagueCreateDTO } from "@scorebrawl/api/src/league";
-import AutoForm from "@scorebrawl/ui/auto-form";
-import { LoadingButton } from "@scorebrawl/ui/loading-button";
-import { useToast } from "@scorebrawl/ui/use-toast";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

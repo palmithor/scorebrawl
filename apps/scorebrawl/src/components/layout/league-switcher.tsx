@@ -1,8 +1,7 @@
 "use client";
 
 import { resetLastVisitedLeague } from "@/actions/navigationActions";
-import { Avatar, AvatarFallback, AvatarImage } from "@scorebrawl/ui/avatar";
-import { cn } from "@scorebrawl/ui/lib";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -11,8 +10,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@scorebrawl/ui/select";
-import { Separator } from "@scorebrawl/ui/separator";
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 

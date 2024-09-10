@@ -1,7 +1,6 @@
 "use client";
 import { CreatedByCell } from "@/app/(leagues)/leagues/[leagueSlug]/invites/components/CreatedByCell";
-import { api } from "@/trpc/react";
-import { Button } from "@scorebrawl/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,8 +8,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@scorebrawl/ui/table";
-import { toast } from "@scorebrawl/ui/use-toast";
+} from "@/components/ui/table";
+import { toast } from "@/hooks/use-toast";
+import { api } from "@/trpc/react";
 import { capitalize } from "@scorebrawl/utils/string";
 import { Copy } from "lucide-react";
 

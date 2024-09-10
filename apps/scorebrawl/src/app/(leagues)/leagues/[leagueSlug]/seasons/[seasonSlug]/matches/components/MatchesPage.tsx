@@ -1,9 +1,9 @@
 "use client";
 import { FullPageSpinner } from "@/components/full-page-spinner";
 import { MatchTable } from "@/components/match/match-table";
+import { Button } from "@/components/ui/button";
 import { useSeason } from "@/context/SeasonContext";
 import { api } from "@/trpc/react";
-import { Button } from "@scorebrawl/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useState } from "react";

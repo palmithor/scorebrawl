@@ -4,10 +4,10 @@ import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { SeasonForm310 } from "@/components/season/season-form-310";
 import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonTable } from "@/components/season/season-table";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { editorRoles } from "@/utils/permissionUtil";
 import type { ScoreType } from "@scorebrawl/model";
-import { Label } from "@scorebrawl/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@scorebrawl/ui/tabs";
 import type { Metadata, ResolvingMetadata } from "next";
 import { RedirectType, redirect } from "next/navigation";
 

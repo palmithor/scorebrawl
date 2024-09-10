@@ -1,4 +1,4 @@
-import { Button } from "@scorebrawl/ui/button";
+import { Button } from "@/components/ui/button";
 import type { LucideIcon } from "lucide-react";
 
 export const LayoutActionButton = ({

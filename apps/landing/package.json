@@ -8,13 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
-    "@scorebrawl/ui": "workspace:*",
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@scorebrawl/style-config": "workspace:*",
     "@scorebrawl/typescript-config": "workspace:*",
     "@types/node": "20.12.8",
     "@types/react": "^18.3.3",

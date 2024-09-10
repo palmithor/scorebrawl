@@ -1,4 +1,4 @@
-import { cn } from "@scorebrawl/ui/lib";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 export const CardContentText = ({

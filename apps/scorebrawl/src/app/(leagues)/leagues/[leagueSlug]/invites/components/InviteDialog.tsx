@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@scorebrawl/ui/dialog";
+} from "@/components/ui/dialog";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
 
