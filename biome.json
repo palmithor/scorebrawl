@@ -1,7 +1,15 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "files": {
-    "ignore": [".next", "node_modules", ".idea", "bun.lockb", "dev", "deprecated-scorebrawl-app"]
+    "ignore": [
+      ".next",
+      "node_modules",
+      ".idea",
+      "bun.lockb",
+      "dev",
+      "deprecated-scorebrawl-app",
+      ".trigger"
+    ]
   },
   "organizeImports": {
     "enabled": true

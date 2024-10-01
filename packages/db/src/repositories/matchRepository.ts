@@ -321,10 +321,17 @@ const remove = async ({
     });
   }
 
+  const seasonPlayerIds = await db
+    .select({ seasonPlayerId: matchPlayers.seasonPlayerId })
+    .from(seasonPlayers)
+    .innerJoin(matchPlayers, eq(matchPlayers.seasonPlayerId, seasonPlayers.id))
+    .where(eq(matchPlayers.matchId, matchId));
   await revertScores({ matchId });
   await db.delete(matchPlayers).where(eq(matchPlayers.matchId, match.id));
   await db.delete(teamMatches).where(eq(teamMatches.matchId, match.id));
   await db.delete(matches).where(eq(matches.id, match.id));
+
+  return seasonPlayerIds.map((sp) => sp.seasonPlayerId);
 };
 
 const revertScores = async ({ matchId }: { matchId: string }) => {
