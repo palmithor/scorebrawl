@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
+import type { achievementCalculationTask } from "@/trigger/achievementCalculationTask";
 import { MatchDTO, MatchInputDTO, RemoveMatchDTO } from "@scorebrawl/api";
 import { MatchRepository } from "@scorebrawl/db";
 import { MatchInput } from "@scorebrawl/model";
+import { tasks } from "@trigger.dev/sdk/v3";
 
 export const matchRouter = createTRPCRouter({
   create: seasonProcedure.input(MatchInputDTO).mutation(async ({ ctx, input }) => {
@@ -15,13 +17,21 @@ export const matchRouter = createTRPCRouter({
         ...input,
       }),
     );
+    tasks.trigger<typeof achievementCalculationTask>("achivement-calculations", {
+      seasonPlayerIds: [...match.awayTeamSeasonPlayerIds, ...match.homeTeamSeasonPlayerIds],
+    });
     return MatchDTO.parse(match);
   }),
-  remove: seasonProcedure
-    .input(RemoveMatchDTO)
-    .mutation(({ ctx, input: { matchId } }) =>
-      MatchRepository.remove({ matchId, seasonId: ctx.season.id }),
-    ),
+  remove: seasonProcedure.input(RemoveMatchDTO).mutation(async ({ ctx, input: { matchId } }) => {
+    const seasonPlayerIds = await MatchRepository.remove({
+      matchId,
+      seasonId: ctx.season.id,
+    });
+    tasks.trigger<typeof achievementCalculationTask>("achivement-calculations", {
+      seasonPlayerIds,
+    });
+    return { success: true };
+  }),
   getLatest: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
     .query(async ({ ctx }) => {

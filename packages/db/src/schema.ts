@@ -1,3 +1,4 @@
+import { type NotificationData, leagueAchievementType, notificationType } from "@scorebrawl/model";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -10,6 +11,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
+import type { z } from "zod";
 import type { LeagueEventData } from "./types";
 
 const defaultVarcharConfig = { length: 100 };
@@ -288,6 +290,37 @@ export const users = pgTable("user", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const notifications = pgTable("notification", {
+  id: varchar("id", cuidConfig).primaryKey(),
+  userId: varchar("user_id", cuidConfig)
+    .notNull()
+    .references(() => users.id),
+  type: varchar("type", { enum: notificationType }).notNull(),
+  data: json("data").$type<z.output<typeof NotificationData>>().notNull(),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const leaguePlayerAchievement = pgTable(
+  "league_player_achievement",
+  {
+    id: varchar("id", cuidConfig).primaryKey(),
+    leaguePlayerId: varchar("league_player_id", cuidConfig)
+      .notNull()
+      .references(() => leaguePlayers.id),
+    type: varchar("type_id", { enum: leagueAchievementType }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (achievement) => ({
+    leagueAchievementIdx: uniqueIndex("league_player_achievement_uq_idx").on(
+      achievement.leaguePlayerId,
+      achievement.type,
+    ),
+  }),
+);
 
 export const leaguesRelations = relations(leagues, ({ many }) => ({
   seasons: many(seasons),

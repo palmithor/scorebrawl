@@ -1,5 +1,5 @@
 import type { SeasonPlayerDTO } from "@scorebrawl/api";
-import { type SQL, and, desc, eq, sql } from "drizzle-orm";
+import { type SQL, and, desc, eq, inArray, sql } from "drizzle-orm";
 import type z from "zod";
 import { db } from "../db";
 import {
@@ -332,8 +332,86 @@ export const getOnFire = async ({ seasonId }: { seasonId: string }) =>
 export const getStruggling = async ({ seasonId }: { seasonId: string }) =>
   onFireStrugglingQuery({ seasonId, onFire: false });
 
+export const getPlayerMatches = async ({
+  seasonPlayerId,
+}: {
+  seasonPlayerId: string;
+}) => {
+  const result = await db
+    .select({
+      matchId: matches.id,
+      createdAt: matches.createdAt,
+      result: matchPlayers.result,
+      scoreAfter: matchPlayers.scoreAfter,
+      scoreBefore: matchPlayers.scoreBefore,
+    })
+    .from(matchPlayers)
+    .innerJoin(matches, eq(matches.id, matchPlayers.matchId))
+    .where(eq(matchPlayers.seasonPlayerId, seasonPlayerId))
+    .orderBy(desc(matches.createdAt));
+
+  return result.map((match) => ({
+    matchId: match.matchId,
+    createdAt: match.createdAt,
+    result: match.result,
+    scoreAfter: match.scoreAfter,
+    scoreBefore: match.scoreBefore,
+  }));
+};
+
+const getGoalsConcededAgainst = async ({
+  matchIds,
+  seasonPlayerId,
+}: {
+  matchIds: string[];
+  seasonPlayerId: string;
+}) => {
+  const results = await db
+    .select({
+      matchId: matchPlayers.matchId,
+      goalsConceded: sql<number>`
+      CASE 
+        WHEN ${matchPlayers.homeTeam} = true THEN ${matches.awayScore}
+        ELSE ${matches.homeScore}
+      END
+    `,
+    })
+    .from(matchPlayers)
+    .innerJoin(matches, eq(matchPlayers.matchId, matches.id))
+    .where(
+      and(inArray(matchPlayers.matchId, matchIds), eq(matchPlayers.seasonPlayerId, seasonPlayerId)),
+    )
+    .execute();
+
+  return results;
+};
+
+const getLastFiveMatchesGoals = async (seasonPlayerId: string) => {
+  const result = await db
+    .select({
+      matchId: matchPlayers.matchId,
+      goalsScored: sql<number>`
+        CASE 
+          WHEN ${matchPlayers.homeTeam} = true THEN ${matches.homeScore}
+          ELSE ${matches.awayScore}
+        END
+      `,
+    })
+    .from(matchPlayers)
+    .innerJoin(matches, eq(matchPlayers.matchId, matches.id))
+    .where(eq(matchPlayers.seasonPlayerId, seasonPlayerId))
+    .orderBy(desc(matches.createdAt))
+    .limit(5)
+    .execute();
+
+  return result.map((r) => r.goalsScored);
+};
+
 export const SeasonPlayerRepository = {
   getAll,
+  getPlayerMatches,
+  getGoalsConcededAgainst,
+  getLastFiveMatchesGoals,
   getPointDiffProgression,
   getPointProgression,
   getStanding,

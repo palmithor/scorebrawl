@@ -1,8 +1,8 @@
 import type { LeaguePlayer } from "@scorebrawl/model";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type z from "zod";
 import { db } from "../db";
-import { leaguePlayers, users } from "../schema";
+import { leaguePlayers, seasonPlayers, users } from "../schema";
 
 const getAll = async ({ leagueId }: { leagueId: string }) => {
   const result = await db
@@ -26,6 +26,18 @@ const getAll = async ({ leagueId }: { leagueId: string }) => {
   })) satisfies z.infer<typeof LeaguePlayer>[];
 };
 
+const findLeaguePlayerIds = (seasonPlayerIds: string[]) =>
+  db
+    .select({
+      leaguePlayerId: seasonPlayers.leaguePlayerId,
+      seasonPlayerId: seasonPlayers.id,
+      userId: leaguePlayers.userId,
+    })
+    .from(seasonPlayers)
+    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
+    .where(inArray(seasonPlayers.id, seasonPlayerIds));
+
 export const LeaguePlayerRepository = {
   getAll,
+  findLeaguePlayerIds,
 };
