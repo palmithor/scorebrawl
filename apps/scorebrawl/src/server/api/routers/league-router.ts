@@ -7,7 +7,7 @@ import {
   leagueProcedure,
   protectedProcedure,
 } from "@/server/api/trpc";
-import { editorRoles } from "@/utils/permissionUtil";
+import { editorRoles } from "@/utils/permission-util";
 import { LeagueCreateDTO, LeagueEditDTO } from "@scorebrawl/api/src/league";
 import { LeagueCreate, LeagueEdit } from "@scorebrawl/model";
 

@@ -1,5 +1,5 @@
 "use client";
-import { LayoutActionButton } from "@/components/layout/LayoutActionButton";
+import { LayoutActionButton } from "@/components/layout/layout-action-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/trpc/react";
 import { PlusIcon } from "lucide-react";

@@ -6,7 +6,7 @@ import { SeasonFormElo } from "@/components/season/season-form-elo";
 import { SeasonTable } from "@/components/season/season-table";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { editorRoles } from "@/utils/permissionUtil";
+import { editorRoles } from "@/utils/permission-util";
 import type { ScoreType } from "@scorebrawl/model";
 import type { Metadata, ResolvingMetadata } from "next";
 import { RedirectType, redirect } from "next/navigation";

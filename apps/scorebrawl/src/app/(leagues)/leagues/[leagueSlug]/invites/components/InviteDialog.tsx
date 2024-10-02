@@ -1,6 +1,6 @@
 "use client";
 import { InviteForm } from "@/app/(leagues)/leagues/[leagueSlug]/invites/components/InviteForm";
-import { LayoutActionButton } from "@/components/layout/LayoutActionButton";
+import { LayoutActionButton } from "@/components/layout/layout-action-button";
 import {
   Dialog,
   DialogContent,

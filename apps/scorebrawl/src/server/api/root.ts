@@ -1,15 +1,15 @@
-import { avatarRouter } from "@/server/api/routers/avatarRouter";
-import { inviteRouter } from "@/server/api/routers/inviteRouter";
-import { leaguePlayerRouter } from "@/server/api/routers/leaguePlayerRouter";
-import { leagueRouter } from "@/server/api/routers/leagueRouter";
-import { leagueTeamRouter } from "@/server/api/routers/leagueTeamRouter";
-import { matchRouter } from "@/server/api/routers/matchRouter";
-import { memberRouter } from "@/server/api/routers/memberRouter";
-import { seasonPlayerRouter } from "@/server/api/routers/seasonPlayerRouter";
-import { seasonRouter } from "@/server/api/routers/seasonRouter";
-import { seasonTeamRouter } from "@/server/api/routers/seasonTeamRouter";
+import { avatarRouter } from "@/server/api/routers/avatar-router";
+import { inviteRouter } from "@/server/api/routers/invite-router";
+import { leaguePlayerRouter } from "@/server/api/routers/league-player-router";
+import { leagueRouter } from "@/server/api/routers/league-router";
+import { leagueTeamRouter } from "@/server/api/routers/league-team-router";
+import { matchRouter } from "@/server/api/routers/match-router";
+import { memberRouter } from "@/server/api/routers/member-router";
+import { seasonPlayerRouter } from "@/server/api/routers/season-player-router";
+import { seasonRouter } from "@/server/api/routers/season-router";
+import { seasonTeamRouter } from "@/server/api/routers/season-team-router";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-import { userRouter } from "./routers/userRouter";
+import { userRouter } from "./routers/user-router";
 
 /**
  * This is the primary router for your server.

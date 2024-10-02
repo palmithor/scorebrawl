@@ -1,5 +1,5 @@
 import { createTRPCRouter, leagueProcedure, seasonProcedure } from "@/server/api/trpc";
-import { editorRoles } from "@/utils/permissionUtil";
+import { editorRoles } from "@/utils/permission-util";
 import { LeagueTeamInputDTO } from "@scorebrawl/api";
 import { LeagueTeamRepository } from "@scorebrawl/db";
 import { z } from "zod";

@@ -1,5 +1,5 @@
 "use client";
-import { clearLastVisitedLeague } from "@/actions/navigationActions";
+import { clearLastVisitedLeague } from "@/actions/navigation-actions";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryState } from "nuqs";
 import { useEffect } from "react";

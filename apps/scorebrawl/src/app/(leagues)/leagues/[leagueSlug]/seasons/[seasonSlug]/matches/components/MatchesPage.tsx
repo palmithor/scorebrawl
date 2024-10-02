@@ -2,7 +2,7 @@
 import { FullPageSpinner } from "@/components/full-page-spinner";
 import { MatchTable } from "@/components/match/match-table";
 import { Button } from "@/components/ui/button";
-import { useSeason } from "@/context/SeasonContext";
+import { useSeason } from "@/context/season-context";
 import { api } from "@/trpc/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { parseAsInteger, useQueryState } from "nuqs";

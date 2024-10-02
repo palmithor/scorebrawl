@@ -1,6 +1,6 @@
 import { findLeagueBySlugWithUserRole } from "@/actions/league";
 import { findSeasonBySlug } from "@/actions/season";
-import { SeasonProvider } from "@/context/SeasonContext";
+import { SeasonProvider } from "@/context/season-context";
 import type { ReactNode } from "react";
 
 export const generateMetadata = async ({

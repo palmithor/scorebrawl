@@ -3,7 +3,7 @@ import {
   OnFireCard,
   StrugglingCard,
 } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PlayerFormCard";
-import { useSeason } from "@/context/SeasonContext";
+import { useSeason } from "@/context/season-context";
 import { InfoCard } from "./InfoCard";
 import { LatestMatchCard } from "./LatestMatchCard";
 

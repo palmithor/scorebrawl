@@ -1,4 +1,4 @@
-import { editorRoles } from "@/utils/permissionUtil";
+import { editorRoles } from "@/utils/permission-util";
 import type { AuthObject } from "@clerk/backend/internal";
 import { LeagueRepository, ScoreBrawlError, SeasonRepository } from "@scorebrawl/db";
 import { initTRPC } from "@trpc/server";
