@@ -2,10 +2,10 @@
 import EmptyStateSvg from "@/../public/img/empty-state.svg";
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
 import { MatchTable } from "@/components/match/match-table";
-import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
+import { EmptyCardContentText } from "@/components/state/empty-card-content";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSeason } from "@/context/SeasonContext";
+import { useSeason } from "@/context/season-context";
 import { api } from "@/trpc/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";

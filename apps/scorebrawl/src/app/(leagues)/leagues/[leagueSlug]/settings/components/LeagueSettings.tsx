@@ -1,5 +1,5 @@
 "use client";
-import { resetLastVisitedLeague } from "@/actions/navigationActions";
+import { resetLastVisitedLeague } from "@/actions/navigation-actions";
 import { DEFAULT_LEAGUE_LOGO } from "@/components/league/league-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";

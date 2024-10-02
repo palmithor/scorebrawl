@@ -13,7 +13,7 @@ import {
   seasons,
   teamMatches,
 } from "..";
-import { LeagueTeamRepository } from "./leagueTeamRepository";
+import { LeagueTeamRepository } from "./league-team-repository";
 
 const create = async ({
   seasonId,

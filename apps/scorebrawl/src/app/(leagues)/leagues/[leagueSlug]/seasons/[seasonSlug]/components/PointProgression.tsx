@@ -3,9 +3,9 @@ import {
   createChartConfig,
   getAllChartKeys,
 } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/charts/utils";
-import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
+import { EmptyCardContentText } from "@/components/state/empty-card-content";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { useSeason } from "@/context/SeasonContext";
+import { useSeason } from "@/context/season-context";
 import { api } from "@/trpc/react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { transformData } from "./charts/pointProgressionUtils";

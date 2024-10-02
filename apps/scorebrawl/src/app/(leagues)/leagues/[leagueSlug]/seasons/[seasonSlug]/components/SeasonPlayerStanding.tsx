@@ -1,8 +1,8 @@
 "use client";
 import { Standing } from "@/components/standing/standing";
-import { EmptyCardContentText } from "@/components/state/EmptyCardContent";
+import { EmptyCardContentText } from "@/components/state/empty-card-content";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSeason } from "@/context/SeasonContext";
+import { useSeason } from "@/context/season-context";
 import { api } from "@/trpc/react";
 
 export const SeasonPlayerStanding = () => {

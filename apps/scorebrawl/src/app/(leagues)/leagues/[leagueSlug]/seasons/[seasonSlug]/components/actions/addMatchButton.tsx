@@ -1,7 +1,7 @@
 "use client";
-import { LayoutActionButton } from "@/components/layout/LayoutActionButton";
+import { LayoutActionButton } from "@/components/layout/layout-action-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useSeason } from "@/context/SeasonContext";
+import { useSeason } from "@/context/season-context";
 import { api } from "@/trpc/react";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";

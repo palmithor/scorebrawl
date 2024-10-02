@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
-import type { achievementCalculationTask } from "@/trigger/achievementCalculationTask";
+import type { achievementCalculationTask } from "@/trigger/achievement-calculation-task";
 import { MatchDTO, MatchInputDTO, RemoveMatchDTO } from "@scorebrawl/api";
 import { MatchRepository } from "@scorebrawl/db";
 import { MatchInput } from "@scorebrawl/model";

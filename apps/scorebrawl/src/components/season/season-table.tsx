@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/trpc/react";
-import { sortSeasons } from "@/utils/seasonUtils";
+import { sortSeasons } from "@/utils/season-utils";
 import { getPeriodStatus } from "@scorebrawl/utils/date";
 import { CircleCheck, CirclePlay, FastForward } from "lucide-react";
 import { useRouter } from "next/navigation";

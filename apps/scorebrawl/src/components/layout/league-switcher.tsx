@@ -1,6 +1,6 @@
 "use client";
 
-import { resetLastVisitedLeague } from "@/actions/navigationActions";
+import { resetLastVisitedLeague } from "@/actions/navigation-actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
