@@ -9,6 +9,7 @@ import { seasonPlayerRouter } from "@/server/api/routers/seasonPlayerRouter";
 import { seasonRouter } from "@/server/api/routers/seasonRouter";
 import { seasonTeamRouter } from "@/server/api/routers/seasonTeamRouter";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
+import { notificationRouter } from "./routers/notificationRouter";
 import { userRouter } from "./routers/userRouter";
 
 /**
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
   league: leagueRouter,
   match: matchRouter,
   member: memberRouter,
+  notification: notificationRouter,
   leaguePlayer: leaguePlayerRouter,
   leagueTeam: leagueTeamRouter,
   seasonPlayer: seasonPlayerRouter,

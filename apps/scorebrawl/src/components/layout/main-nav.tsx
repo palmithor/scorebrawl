@@ -19,6 +19,7 @@ import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { NotificationDropdown } from "../notification-dropdown";
 
 interface MailProps {
   leagues: { id: string; slug: string; name: string; logoUrl: string | null }[];
@@ -97,6 +98,11 @@ export function NavLayout({
   const { theme, systemTheme } = useTheme();
   const themeInUse = theme === "system" ? systemTheme : theme;
   const params = useParams<{ leagueSlug: string }>();
+  const { data: notifications = [] } = api.notification.getAll.useQuery();
+  const { data: unreadCount } = api.notification.unreadCount.useQuery();
+  const { mutate: markAsRead } = api.notification.markAsRead.useMutation();
+  const { mutate: markAllAsRead } = api.notification.markAllAsRead.useMutation();
+  const trpcUtils = api.useUtils();
   const [leagueSlug, setLeagueSlug] = React.useState(params.leagueSlug);
   useEffect(() => {
     if (params.leagueSlug) {
@@ -184,8 +190,31 @@ export function NavLayout({
                 disabled: link.disabled,
               }))}
             />
-            <div className="flex p-3">
+            <div className="flex p-3 gap1">
               <UserButton appearance={{ baseTheme: themeInUse === "dark" ? dark : undefined }} />
+              <NotificationDropdown
+                unreadCount={unreadCount ?? 0}
+                notifications={notifications}
+                onClickMarkAllAsRead={async () => {
+                  markAllAsRead(undefined, {
+                    onSuccess: () => {
+                      trpcUtils.notification.getAll.invalidate();
+                      trpcUtils.notification.unreadCount.invalidate();
+                    },
+                  });
+                }}
+                onClickMarkAsRead={async (id) => {
+                  markAsRead(
+                    { notificationId: id },
+                    {
+                      onSuccess: () => {
+                        trpcUtils.notification.getAll.invalidate();
+                        trpcUtils.notification.unreadCount.invalidate();
+                      },
+                    },
+                  );
+                }}
+              />
             </div>
           </div>
         </ResizablePanel>

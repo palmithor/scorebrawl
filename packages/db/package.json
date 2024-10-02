@@ -5,7 +5,8 @@
   "exports": {
     "./types": "./src/types.ts",
     ".": "./src/index.ts",
-    "./achievementRepository": "./src/repositories/achievementRepository.ts"
+    "./achievement": "./src/repositories/achievement-repository.ts",
+    "./notification": "./src/repositories/notification-repository.ts"
   },
   "scripts": {},
   "dependencies": {
