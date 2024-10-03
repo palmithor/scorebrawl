@@ -1,3 +1,4 @@
+import { achievementRouter } from "@/server/api/routers/achievement-router";
 import { avatarRouter } from "@/server/api/routers/avatar-router";
 import { inviteRouter } from "@/server/api/routers/invite-router";
 import { leaguePlayerRouter } from "@/server/api/routers/league-player-router";
@@ -17,6 +18,7 @@ import { userRouter } from "./routers/user-router";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  achievement: achievementRouter,
   avatar: avatarRouter,
   invite: inviteRouter,
   league: leagueRouter,
