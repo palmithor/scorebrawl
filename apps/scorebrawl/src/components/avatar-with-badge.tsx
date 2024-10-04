@@ -37,7 +37,7 @@ export const AvatarWithLabel = ({
       </Avatar>
       <span
         className={cn(
-          `absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full ${labelSizeClasses[size]} font-semibold flex items-center justify-center`,
+          `absolute -bottom-1 -right-1 bg-secondary text-primary-foreground rounded-full ${labelSizeClasses[size]} font-semibold flex items-center justify-center`,
         )}
         style={{
           backgroundColor: badgeBgColor,
