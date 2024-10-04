@@ -17,99 +17,72 @@ import type { LeagueAchievementType } from "@scorebrawl/api";
 import { Medal } from "lucide-react";
 import type { z } from "zod";
 
-const bronze = "#CD7F32";
-const silver = "#C0C0C0";
-const gold = "#FFD700";
 const getAchievementData = (
   type: z.output<typeof LeagueAchievementType>,
 ): Omit<AvatarWithLabelProps, "fallback"> & { title: string } => {
   switch (type) {
     case "5_win_streak":
-      return {
-        badgeBgColor: bronze,
-        labelText: "5",
-        title: "5 Win Streak",
-        imageUrl: "/achievements/win-streak.jpeg",
-      };
     case "10_win_streak":
+    case "15_win_streak": {
+      let labelText = "🥉";
+      let title = "5 Win Streak";
+      if (type === "10_win_streak") {
+        labelText = "🥈";
+        title = "10 Win Streak";
+      } else if (type === "15_win_streak") {
+        labelText = "🥇";
+        title = "15 Win Streak";
+      }
       return {
-        labelText: "10",
-        badgeBgColor: silver,
-        title: "10 Win Streak",
+        labelText,
+        title,
         imageUrl: "/achievements/win-streak.jpeg",
       };
-    case "15_win_streak":
-      return {
-        labelText: "15",
-        badgeBgColor: gold,
-        title: "15 Win Streak",
-        imageUrl: "/achievements/win-streak.jpeg",
-      };
+    }
     case "3_win_loss_redemption":
+    case "5_win_loss_redemption": {
+      let labelText = "🥈";
+      let title = "3 win streak after 3 losses";
+      if (type === "5_win_loss_redemption") {
+        labelText = "🥇";
+        title = "5 win streak after 5 losses";
+      }
       return {
-        labelText: "3",
-        badgeBgColor: silver,
-        title: "3 Win Loss Redemption",
+        labelText,
+        title,
         imageUrl: "/achievements/clean-sheet-streak.jpeg",
       };
-    case "5_win_loss_redemption":
-      return {
-        labelText: "5",
-        badgeBgColor: gold,
-        title: "5 Win Loss Redemption",
-        imageUrl: "/achievements/clean-sheet-streak.jpeg",
-      };
+    }
     case "5_clean_sheet_streak":
-      return {
-        labelText: "5",
-        badgeBgColor: bronze,
-        title: "5 Clean Sheet Streak",
-        imageUrl: "/achievements/clean-sheet-streak.jpeg",
-      };
     case "10_clean_sheet_streak":
+    case "15_clean_sheet_streak": {
+      let labelText = "🥉";
+      let title = "5 Clean Sheet Streak";
+      if (type === "10_clean_sheet_streak") {
+        labelText = "🥈";
+        title = "10 Clean Sheet Streak";
+      } else if (type === "15_clean_sheet_streak") {
+        labelText = "🥇";
+        title = "15 Clean Sheet Streak";
+      }
       return {
-        labelText: "10",
-        badgeBgColor: silver,
-        title: "10 Clean Sheet Streak",
+        labelText,
+        title,
         imageUrl: "/achievements/clean-sheet-streak.jpeg",
       };
-    case "15_clean_sheet_streak":
-      return {
-        labelText: "15",
-        badgeBgColor: gold,
-        title: "15 Clean Sheet Streak",
-        imageUrl: "/achievements/clean-sheet-streak.jpeg",
-      };
-    case "3_goals_5_games":
-      return {
-        labelText: "3",
-        badgeBgColor: bronze,
-        title: "3 Goals 5 Games",
-        imageUrl: "/achievements/goal-scoring-streak.jpeg",
-      };
-    case "5_goals_5_games":
-      return {
-        labelText: "5",
-        badgeBgColor: silver,
-        title: "5 Goals 5 Games",
-        imageUrl: "/achievements/goal-scoring-streak.jpeg",
-      };
-    case "8_goals_5_games":
-      return {
-        labelText: "8",
-        badgeBgColor: gold,
-        title: "8 Goals 5 Games",
-        imageUrl: "/achievements/goal-scoring-streak.jpeg",
-      };
+    }
     case "season_winner":
       return {
         labelText: "🏆",
-        badgeBgColor: gold,
         title: "Season Winner",
         imageUrl: "/achievements/clean-sheet-streak.jpeg",
       };
     default:
-      return { labelText: "", title: "Unknown", imageUrl: "/achievements/clean-sheet-streak.jpeg" };
+      return {
+        labelText: "💩",
+        title: "Unknown",
+        imageUrl: "/achievements/clean-sheet-streak.jpeg",
+      };
   }
 };
 
