@@ -36,7 +36,7 @@ const getAchievementData = (
       return {
         labelText,
         title,
-        imageUrl: "/achievements/win-streak.jpeg",
+        imageUrl: "/achievements/win-streak-v2.jpeg",
       };
     }
     case "3_win_loss_redemption":
@@ -50,7 +50,7 @@ const getAchievementData = (
       return {
         labelText,
         title,
-        imageUrl: "/achievements/clean-sheet-streak.jpeg",
+        imageUrl: "/achievements/redemption.jpeg",
       };
     }
     case "5_clean_sheet_streak":
@@ -68,7 +68,25 @@ const getAchievementData = (
       return {
         labelText,
         title,
-        imageUrl: "/achievements/clean-sheet-streak.jpeg",
+        imageUrl: "/achievements/clean-sheet-v2.jpeg",
+      };
+    }
+    case "3_goals_5_games":
+    case "5_goals_5_games":
+    case "8_goals_5_games": {
+      let labelText = "🥉";
+      let title = "3 Goals 5 in a row";
+      if (type === "5_goals_5_games") {
+        labelText = "🥈";
+        title = "5 Goals 5 in a row";
+      } else if (type === "8_goals_5_games") {
+        labelText = "🥇";
+        title = "8 Goals 5 in a row";
+      }
+      return {
+        labelText,
+        title,
+        imageUrl: "/achievements/goal-scoring-streak-v2.jpeg",
       };
     }
     case "season_winner":
