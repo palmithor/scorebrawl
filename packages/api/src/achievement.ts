@@ -7,6 +7,7 @@ export const leagueAchievementType = [
 
   "3_win_loss_redemption",
   "5_win_loss_redemption",
+  "8_win_loss_redemption",
 
   "5_clean_sheet_streak",
   "10_clean_sheet_streak",

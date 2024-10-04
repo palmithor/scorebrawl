@@ -23,8 +23,9 @@ const achievements: PartialRecord<MatchLeagueAchievement, number> = {
   "10_win_streak": 10,
   "15_win_streak": 15,
 
-  //"3_win_loss_redemption": 3,
-  //"5_win_loss_redemption": 5,
+  "3_win_loss_redemption": 3,
+  "5_win_loss_redemption": 5,
+  "8_win_loss_redemption": 8,
 
   "5_clean_sheet_streak": 5,
   "10_clean_sheet_streak": 10,
@@ -38,15 +39,17 @@ const achievements: PartialRecord<MatchLeagueAchievement, number> = {
 export const achievementCalculationTask = task({
   id: "achivement-calculations",
   run: async ({ seasonPlayerIds }: AchievementCalculationTaskInput /*{ctx}*/) => {
-    const playerAchievements: Record<string, z.output<typeof LeagueAchievementType>[]> = {};
+    const playerAchievementsMap: Record<string, z.output<typeof LeagueAchievementType>[]> = {};
 
     for (const seasonPlayerId of seasonPlayerIds) {
-      playerAchievements[seasonPlayerId] = [];
+      const playerAchievements: z.output<typeof LeagueAchievementType>[] = [];
       const seasonPlayerMatches = await SeasonPlayerRepository.getPlayerMatches({ seasonPlayerId });
+
+      checkRedemptionAchievement(playerAchievements, seasonPlayerMatches);
 
       const lastFiveMatchesGoals =
         await SeasonPlayerRepository.getLastFiveMatchesGoals(seasonPlayerId);
-      checkGoalsScoredStreak(playerAchievements[seasonPlayerId], lastFiveMatchesGoals);
+      checkGoalsScoredStreak(playerAchievements, lastFiveMatchesGoals);
 
       let currentWinStreak = 0;
       let currentCleanSheetStreak = 0;
@@ -77,24 +80,16 @@ export const achievementCalculationTask = task({
         }
 
         // Check for win streaks
-        checkStreakAchievement(playerAchievements[seasonPlayerId], currentWinStreak, [
+        checkStreakAchievement(playerAchievements, currentWinStreak, [
           "5_win_streak",
           "10_win_streak",
           "15_win_streak",
         ]);
 
-        // Check for redemptions
-        checkRedemptionAchievement(
-          playerAchievements[seasonPlayerId],
-          maxLossStreak,
-          currentWinStreak,
-          ["3_win_loss_redemption", "5_win_loss_redemption"],
-        );
-
         // Update and check clean sheet streak
         if (match.goalsConceded === 0) {
           currentCleanSheetStreak++;
-          checkStreakAchievement(playerAchievements[seasonPlayerId], currentCleanSheetStreak, [
+          checkStreakAchievement(playerAchievements, currentCleanSheetStreak, [
             "5_clean_sheet_streak",
             "10_clean_sheet_streak",
             "15_clean_sheet_streak",
@@ -103,14 +98,16 @@ export const achievementCalculationTask = task({
           currentCleanSheetStreak = 0;
         }
       }
+      playerAchievementsMap[seasonPlayerId] = playerAchievements;
     }
     const playerIds = await LeaguePlayerRepository.findLeaguePlayerIds(
-      Object.keys(playerAchievements),
+      Object.keys(playerAchievementsMap),
     );
-    for (const seasonPlayerId of Object.keys(playerAchievements)) {
+    for (const seasonPlayerId of Object.keys(playerAchievementsMap)) {
       const player = playerIds.find((p) => p.seasonPlayerId === seasonPlayerId);
-      if (player && playerAchievements[seasonPlayerId]) {
-        for (const achievement of playerAchievements[seasonPlayerId]) {
+      if (player) {
+        const playerAchievements = playerAchievementsMap[seasonPlayerId] ?? [];
+        for (const achievement of playerAchievements) {
           await createAchievement({
             leaguePlayerId: player.leaguePlayerId,
             type: achievement,
@@ -123,7 +120,7 @@ export const achievementCalculationTask = task({
         }
       }
     }
-    return playerAchievements;
+    return playerAchievementsMap;
   },
 });
 
@@ -159,18 +156,20 @@ const checkStreakAchievement = (
 
 const checkRedemptionAchievement = (
   playerAchievements: z.output<typeof LeagueAchievementType>[],
-  maxLossStreak: number,
-  currentWinStreak: number,
-  redemptionAchievements: z.output<typeof LeagueAchievementType>[],
+  seasonPlayerMatches: Awaited<ReturnType<typeof SeasonPlayerRepository.getPlayerMatches>>,
 ): void => {
-  for (const achievement of redemptionAchievements) {
-    const requiredStreak = achievements[achievement];
-    if (
-      requiredStreak &&
-      maxLossStreak >= requiredStreak &&
-      currentWinStreak === requiredStreak &&
-      !playerAchievements.includes(achievement)
-    ) {
+  const resultString = seasonPlayerMatches.map((m) => m.result).join("");
+  const generateLossWinString = (redemptionCount: number) =>
+    "W".repeat(redemptionCount) + "L".repeat(redemptionCount);
+
+  const winLossRedemptionAchievements: MatchLeagueAchievement[] = [
+    "3_win_loss_redemption",
+    "5_win_loss_redemption",
+    "8_win_loss_redemption",
+  ];
+  for (const achievement of winLossRedemptionAchievements) {
+    const redemptionCount = achievements[achievement];
+    if (redemptionCount && resultString.includes(generateLossWinString(redemptionCount))) {
       playerAchievements.push(achievement);
     }
   }

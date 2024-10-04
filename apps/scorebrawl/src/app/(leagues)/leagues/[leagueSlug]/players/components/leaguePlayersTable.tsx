@@ -26,7 +26,7 @@ const getNumericValue = (achievement: string): number | null => {
 // Define the groups of achievements
 const achievementGroups: { [key: string]: z.output<typeof LeagueAchievementType>[] } = {
   win_streak: ["5_win_streak", "10_win_streak", "15_win_streak"],
-  win_loss_redemption: ["3_win_loss_redemption", "5_win_loss_redemption"],
+  win_loss_redemption: ["3_win_loss_redemption", "5_win_loss_redemption", "8_win_loss_redemption"],
   clean_sheet_streak: ["5_clean_sheet_streak", "10_clean_sheet_streak", "15_clean_sheet_streak"],
   goals_5_games: ["3_goals_5_games", "5_goals_5_games", "8_goals_5_games"],
   season_winner: ["season_winner"],
@@ -85,12 +85,16 @@ const getAchievementData = (
       };
     }
     case "3_win_loss_redemption":
-    case "5_win_loss_redemption": {
-      let labelText = "🥈";
+    case "5_win_loss_redemption":
+    case "8_win_loss_redemption": {
+      let labelText = "🥉";
       let title = "3 win streak after 3 losses";
       if (type === "5_win_loss_redemption") {
-        labelText = "🥇";
+        labelText = "🥈";
         title = "5 win streak after 5 losses";
+      } else if (type === "8_win_loss_redemption") {
+        labelText = "🥇";
+        title = "8 win streak after 8 losses";
       }
       return {
         labelText,
