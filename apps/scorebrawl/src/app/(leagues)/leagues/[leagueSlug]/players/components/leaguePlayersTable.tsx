@@ -13,13 +13,57 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import type { LeagueAchievementType } from "@scorebrawl/api";
+import type { LeagueAchievementType } from "@scorebrawl/api"; // Removed 'typeof'
 import { Medal } from "lucide-react";
 import type { z } from "zod";
 
+// Utility function to extract the numeric part of the achievement type
+const getNumericValue = (achievement: string): number | null => {
+  const match = achievement.match(/^\d+/);
+  return match ? Number.parseInt(match[0], 10) : null;
+};
+
+// Define the groups of achievements
+const achievementGroups: { [key: string]: z.output<typeof LeagueAchievementType>[] } = {
+  win_streak: ["5_win_streak", "10_win_streak", "15_win_streak"],
+  win_loss_redemption: ["3_win_loss_redemption", "5_win_loss_redemption"],
+  clean_sheet_streak: ["5_clean_sheet_streak", "10_clean_sheet_streak", "15_clean_sheet_streak"],
+  goals_5_games: ["3_goals_5_games", "5_goals_5_games", "8_goals_5_games"],
+  season_winner: ["season_winner"],
+};
+
+// Function to get the top achievement per group
+const getTopAchievements = (
+  achievements: z.output<typeof LeagueAchievementType>[],
+): z.output<typeof LeagueAchievementType>[] => {
+  const topAchievements: z.output<typeof LeagueAchievementType>[] = [];
+
+  // Iterate over each group and find the top achievement in that group
+  for (const [_, types] of Object.entries(achievementGroups)) {
+    const groupAchievements = achievements.filter((a) => types.includes(a));
+
+    if (groupAchievements.length > 0) {
+      const topAchievement = groupAchievements.sort((a, b) => {
+        const aValue = getNumericValue(a) ?? 0;
+        const bValue = getNumericValue(b) ?? 0;
+        return bValue - aValue; // Sort descending
+      })[0];
+
+      // @ts-ignore
+      topAchievements.push(topAchievement);
+    }
+  }
+
+  return topAchievements;
+};
+
+// Function to map achievement type to display properties
 const getAchievementData = (
-  type: z.output<typeof LeagueAchievementType>,
-): Omit<AvatarWithLabelProps, "fallback"> & { title: string } => {
+  type: z.output<typeof LeagueAchievementType>, // Corrected type usage
+): Omit<AvatarWithLabelProps, "fallback"> & {
+  title: string;
+  type: z.output<typeof LeagueAchievementType>; // Corrected type usage
+} => {
   switch (type) {
     case "5_win_streak":
     case "10_win_streak":
@@ -37,6 +81,7 @@ const getAchievementData = (
         labelText,
         title,
         imageUrl: "/achievements/win-streak-v2.jpeg",
+        type,
       };
     }
     case "3_win_loss_redemption":
@@ -51,6 +96,7 @@ const getAchievementData = (
         labelText,
         title,
         imageUrl: "/achievements/redemption.jpeg",
+        type,
       };
     }
     case "5_clean_sheet_streak":
@@ -69,6 +115,7 @@ const getAchievementData = (
         labelText,
         title,
         imageUrl: "/achievements/clean-sheet-v2.jpeg",
+        type,
       };
     }
     case "3_goals_5_games":
@@ -87,6 +134,7 @@ const getAchievementData = (
         labelText,
         title,
         imageUrl: "/achievements/goal-scoring-streak-v2.jpeg",
+        type,
       };
     }
     case "season_winner":
@@ -94,16 +142,19 @@ const getAchievementData = (
         labelText: "🏆",
         title: "Season Winner",
         imageUrl: "/achievements/clean-sheet-streak.jpeg",
+        type,
       };
     default:
       return {
         labelText: "💩",
         title: "Unknown",
         imageUrl: "/achievements/clean-sheet-streak.jpeg",
+        type,
       };
   }
 };
 
+// Updated AchievementsCell to only display top achievements
 const AchievementsCell = ({
   leagueSlug,
   leaguePlayerId,
@@ -113,12 +164,15 @@ const AchievementsCell = ({
     return null;
   }
 
+  // Filter the achievements to only get the top one per group
+  const topAchievements = getTopAchievements(data.map((achievement) => achievement.type));
+
   return (
     <div className="flex gap-2">
-      {data.map((achievement) => {
-        const achievementData = getAchievementData(achievement.type);
+      {topAchievements.map((achievementType) => {
+        const achievementData = getAchievementData(achievementType);
         return (
-          <Tooltip key={achievement.id}>
+          <Tooltip key={achievementData.type}>
             <TooltipTrigger>
               <AvatarWithLabel
                 size={"sm"}
