@@ -3,13 +3,13 @@ import { type SQL, and, desc, eq, inArray, sql } from "drizzle-orm";
 import type z from "zod";
 import { db } from "../db";
 import {
-  leaguePlayers,
-  leagues,
-  matchPlayers,
-  matches,
-  seasonPlayers,
-  seasons,
-  users,
+  LeaguePlayers,
+  Leagues,
+  MatchPlayers,
+  Matches,
+  SeasonPlayers,
+  Seasons,
+  Users,
 } from "../schema";
 
 const getPointDiffProgression = async ({
@@ -21,25 +21,25 @@ const getPointDiffProgression = async ({
 }) => {
   const subQuery = db
     .select({
-      seasonPlayerId: matchPlayers.seasonPlayerId,
-      matchDate: sql<string>`DATE(${matchPlayers.createdAt})`.mapWith(String).as("match_date"),
-      scoreBefore: matchPlayers.scoreBefore,
-      scoreAfter: matchPlayers.scoreAfter,
+      seasonPlayerId: MatchPlayers.seasonPlayerId,
+      matchDate: sql<string>`DATE(${MatchPlayers.createdAt})`.mapWith(String).as("match_date"),
+      scoreBefore: MatchPlayers.scoreBefore,
+      scoreAfter: MatchPlayers.scoreAfter,
       rnAsc:
-        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId}, DATE(${matchPlayers.createdAt}) ORDER BY ${matchPlayers.createdAt}, ${matchPlayers.id})`
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${MatchPlayers.seasonPlayerId}, DATE(${MatchPlayers.createdAt}) ORDER BY ${MatchPlayers.createdAt}, ${MatchPlayers.id})`
           .mapWith(Number)
           .as("rn_asc"),
       rnDesc:
-        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId}, DATE(${matchPlayers.createdAt}) ORDER BY ${matchPlayers.createdAt} DESC, ${matchPlayers.id} DESC)`
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${MatchPlayers.seasonPlayerId}, DATE(${MatchPlayers.createdAt}) ORDER BY ${MatchPlayers.createdAt} DESC, ${MatchPlayers.id} DESC)`
           .mapWith(Number)
           .as("rn_desc"),
     })
-    .from(matchPlayers)
-    .innerJoin(seasonPlayers, eq(matchPlayers.seasonPlayerId, seasonPlayers.id))
+    .from(MatchPlayers)
+    .innerJoin(SeasonPlayers, eq(MatchPlayers.seasonPlayerId, SeasonPlayers.id))
     .where(
       condition
-        ? and(eq(seasonPlayers.seasonId, seasonId), condition)
-        : eq(seasonPlayers.seasonId, seasonId),
+        ? and(eq(SeasonPlayers.seasonId, seasonId), condition)
+        : eq(SeasonPlayers.seasonId, seasonId),
     );
   const rankedMatches = db.$with("ranked_matches").as(subQuery);
   const firstMatchAlias = sql`${rankedMatches} "first_match"`;
@@ -50,7 +50,7 @@ const getPointDiffProgression = async ({
   return db
     .with(rankedMatches)
     .select({
-      seasonPlayerId: seasonPlayers.id,
+      seasonPlayerId: SeasonPlayers.id,
       matchDate: sql`"first_match"."match_date"`.mapWith(String),
       pointDiff: sql<number>`${lastMatch.scoreAfter} - ${firstMatch.scoreBefore}`.mapWith(Number),
     })
@@ -64,10 +64,10 @@ const getPointDiffProgression = async ({
         eq(sql`"last_match"."rn_desc"`, 1),
       ),
     )
-    .innerJoin(seasonPlayers, eq(seasonPlayers.id, firstMatch.seasonPlayerId))
-    .where(eq(seasonPlayers.seasonId, seasonId))
+    .innerJoin(SeasonPlayers, eq(SeasonPlayers.id, firstMatch.seasonPlayerId))
+    .where(eq(SeasonPlayers.seasonId, seasonId))
     .groupBy(
-      seasonPlayers.id,
+      SeasonPlayers.id,
       lastMatch.scoreAfter,
       firstMatch.scoreBefore,
       sql`"first_match"."match_date"`,
@@ -77,18 +77,18 @@ const getPointDiffProgression = async ({
 export const getAll = async ({ seasonId }: { seasonId: string }) => {
   const result = await db
     .select({
-      seasonPlayerId: seasonPlayers.id,
-      leaguePlayerId: seasonPlayers.leaguePlayerId,
-      score: seasonPlayers.score,
-      userId: users.id,
-      name: users.name,
-      imageUrl: users.imageUrl,
+      seasonPlayerId: SeasonPlayers.id,
+      leaguePlayerId: SeasonPlayers.leaguePlayerId,
+      score: SeasonPlayers.score,
+      userId: Users.id,
+      name: Users.name,
+      imageUrl: Users.imageUrl,
     })
-    .from(seasonPlayers)
-    .innerJoin(seasons, eq(seasons.id, seasonPlayers.seasonId))
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .where(eq(seasons.id, seasonId));
+    .from(SeasonPlayers)
+    .innerJoin(Seasons, eq(Seasons.id, SeasonPlayers.seasonId))
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+    .where(eq(Seasons.id, seasonId));
 
   return result.map(
     (sp) =>
@@ -104,21 +104,21 @@ export const getAll = async ({ seasonId }: { seasonId: string }) => {
 const matchesSubqueryBuilder = ({ seasonId }: { seasonId: string }) =>
   db
     .select({
-      seasonPlayerId: matchPlayers.seasonPlayerId,
-      leaguePlayerId: seasonPlayers.leaguePlayerId,
-      score: seasonPlayers.score,
-      matchId: matchPlayers.matchId,
-      result: matchPlayers.result,
-      createdAt: matches.createdAt,
+      seasonPlayerId: MatchPlayers.seasonPlayerId,
+      leaguePlayerId: SeasonPlayers.leaguePlayerId,
+      score: SeasonPlayers.score,
+      matchId: MatchPlayers.matchId,
+      result: MatchPlayers.result,
+      createdAt: Matches.createdAt,
       rowNumber:
-        sql`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId} ORDER BY ${matches.createdAt} DESC)`.as(
+        sql`ROW_NUMBER() OVER (PARTITION BY ${MatchPlayers.seasonPlayerId} ORDER BY ${Matches.createdAt} DESC)`.as(
           "rowNumber",
         ),
     })
-    .from(matchPlayers)
-    .innerJoin(matches, eq(matches.id, matchPlayers.matchId))
-    .innerJoin(seasonPlayers, eq(seasonPlayers.id, matchPlayers.seasonPlayerId))
-    .where(eq(seasonPlayers.seasonId, seasonId))
+    .from(MatchPlayers)
+    .innerJoin(Matches, eq(Matches.id, MatchPlayers.matchId))
+    .innerJoin(SeasonPlayers, eq(SeasonPlayers.id, MatchPlayers.seasonPlayerId))
+    .where(eq(SeasonPlayers.seasonId, seasonId))
     .as("recent_matches");
 
 const getStanding = async ({ seasonId }: { seasonId: string }) => {
@@ -147,22 +147,22 @@ const getStanding = async ({ seasonId }: { seasonId: string }) => {
 
   const players = await db
     .select({
-      seasonPlayerId: seasonPlayers.id,
-      leaguePlayerId: seasonPlayers.leaguePlayerId,
-      score: seasonPlayers.score,
-      userId: users.id,
-      name: users.name,
-      imageUrl: users.imageUrl,
+      seasonPlayerId: SeasonPlayers.id,
+      leaguePlayerId: SeasonPlayers.leaguePlayerId,
+      score: SeasonPlayers.score,
+      userId: Users.id,
+      name: Users.name,
+      imageUrl: Users.imageUrl,
     })
-    .from(seasonPlayers)
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .where(eq(seasonPlayers.seasonId, seasonId))
-    .orderBy(desc(seasonPlayers.score));
+    .from(SeasonPlayers)
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+    .where(eq(SeasonPlayers.seasonId, seasonId))
+    .orderBy(desc(SeasonPlayers.score));
 
   const pointDiff = await getPointDiffProgression({
     seasonId,
-    condition: eq(sql`DATE(${matchPlayers.createdAt})`, sql`CURRENT_DATE`),
+    condition: eq(sql`DATE(${MatchPlayers.createdAt})`, sql`CURRENT_DATE`),
   });
 
   return players.map((p) => {
@@ -187,20 +187,20 @@ const getStanding = async ({ seasonId }: { seasonId: string }) => {
 const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
   const [topPlayer] = await db
     .select({
-      seasonPlayerId: seasonPlayers.id,
-      leaguePlayerId: leaguePlayers.id,
-      score: seasonPlayers.score,
-      userId: users.id,
-      name: users.name,
-      imageUrl: users.imageUrl,
+      seasonPlayerId: SeasonPlayers.id,
+      leaguePlayerId: LeaguePlayers.id,
+      score: SeasonPlayers.score,
+      userId: Users.id,
+      name: Users.name,
+      imageUrl: Users.imageUrl,
     })
-    .from(seasonPlayers)
-    .innerJoin(seasons, and(eq(seasons.id, seasonPlayers.seasonId)))
-    .innerJoin(leagues, eq(seasons.leagueId, leagues.id))
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .where(eq(seasonPlayers.seasonId, seasonId))
-    .orderBy(desc(seasonPlayers.score));
+    .from(SeasonPlayers)
+    .innerJoin(Seasons, and(eq(Seasons.id, SeasonPlayers.seasonId)))
+    .innerJoin(Leagues, eq(Seasons.leagueId, Leagues.id))
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+    .where(eq(SeasonPlayers.seasonId, seasonId))
+    .orderBy(desc(SeasonPlayers.score));
 
   return {
     seasonPlayerId: topPlayer?.seasonPlayerId,
@@ -218,19 +218,19 @@ const getPointProgression = async ({ seasonId }: { seasonId: string }) => {
   const rankedScores = db.$with("ranked_scores").as(
     db
       .select({
-        seasonPlayerId: matchPlayers.seasonPlayerId,
-        seasonId: seasonPlayers.seasonId,
-        score: matchPlayers.scoreAfter,
-        createdAt: matchPlayers.createdAt,
-        date: sql`DATE(${matchPlayers.createdAt})`.as("date"),
+        seasonPlayerId: MatchPlayers.seasonPlayerId,
+        seasonId: SeasonPlayers.seasonId,
+        score: MatchPlayers.scoreAfter,
+        createdAt: MatchPlayers.createdAt,
+        date: sql`DATE(${MatchPlayers.createdAt})`.as("date"),
         rowNumber:
-          sql<number>`ROW_NUMBER() OVER (PARTITION BY ${matchPlayers.seasonPlayerId}, DATE(${matchPlayers.createdAt}) ORDER BY ${matchPlayers.createdAt} DESC, ${matchPlayers.id} DESC)`.as(
+          sql<number>`ROW_NUMBER() OVER (PARTITION BY ${MatchPlayers.seasonPlayerId}, DATE(${MatchPlayers.createdAt}) ORDER BY ${MatchPlayers.createdAt} DESC, ${MatchPlayers.id} DESC)`.as(
             "rowNumber",
           ),
       })
-      .from(matchPlayers)
-      .innerJoin(seasonPlayers, eq(seasonPlayers.id, matchPlayers.seasonPlayerId))
-      .where(eq(seasonPlayers.seasonId, seasonId)),
+      .from(MatchPlayers)
+      .innerJoin(SeasonPlayers, eq(SeasonPlayers.id, MatchPlayers.seasonPlayerId))
+      .where(eq(SeasonPlayers.seasonId, seasonId)),
   );
 
   return db
@@ -299,14 +299,14 @@ const onFireStrugglingQuery = async ({
 
   const [userInfo] = await db
     .select({
-      userId: users.id,
-      name: users.name,
-      imageUrl: users.imageUrl,
+      userId: Users.id,
+      name: Users.name,
+      imageUrl: Users.imageUrl,
     })
-    .from(seasonPlayers)
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .where(eq(seasonPlayers.id, playerStats.seasonPlayerId));
+    .from(SeasonPlayers)
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+    .where(eq(SeasonPlayers.id, playerStats.seasonPlayerId));
 
   const form = (playerStats?.recentResults as string)?.split(",")?.slice(0, 5) ?? [];
   return {
@@ -339,16 +339,16 @@ export const getPlayerMatches = async ({
 }) => {
   const result = await db
     .select({
-      matchId: matches.id,
-      createdAt: matches.createdAt,
-      result: matchPlayers.result,
-      scoreAfter: matchPlayers.scoreAfter,
-      scoreBefore: matchPlayers.scoreBefore,
+      matchId: Matches.id,
+      createdAt: Matches.createdAt,
+      result: MatchPlayers.result,
+      scoreAfter: MatchPlayers.scoreAfter,
+      scoreBefore: MatchPlayers.scoreBefore,
     })
-    .from(matchPlayers)
-    .innerJoin(matches, eq(matches.id, matchPlayers.matchId))
-    .where(eq(matchPlayers.seasonPlayerId, seasonPlayerId))
-    .orderBy(desc(matches.createdAt));
+    .from(MatchPlayers)
+    .innerJoin(Matches, eq(Matches.id, MatchPlayers.matchId))
+    .where(eq(MatchPlayers.seasonPlayerId, seasonPlayerId))
+    .orderBy(desc(Matches.createdAt));
 
   return result.map((match) => ({
     matchId: match.matchId,
@@ -368,18 +368,18 @@ const getGoalsConcededAgainst = async ({
 }) => {
   const results = await db
     .select({
-      matchId: matchPlayers.matchId,
+      matchId: MatchPlayers.matchId,
       goalsConceded: sql<number>`
-      CASE 
-        WHEN ${matchPlayers.homeTeam} = true THEN ${matches.awayScore}
-        ELSE ${matches.homeScore}
-      END
-    `,
+        CASE 
+          WHEN ${MatchPlayers.homeTeam} = true THEN ${Matches.awayScore}
+          ELSE ${Matches.homeScore}
+        END
+      `,
     })
-    .from(matchPlayers)
-    .innerJoin(matches, eq(matchPlayers.matchId, matches.id))
+    .from(MatchPlayers)
+    .innerJoin(Matches, eq(MatchPlayers.matchId, Matches.id))
     .where(
-      and(inArray(matchPlayers.matchId, matchIds), eq(matchPlayers.seasonPlayerId, seasonPlayerId)),
+      and(inArray(MatchPlayers.matchId, matchIds), eq(MatchPlayers.seasonPlayerId, seasonPlayerId)),
     )
     .execute();
 
@@ -389,18 +389,18 @@ const getGoalsConcededAgainst = async ({
 const getLastFiveMatchesGoals = async (seasonPlayerId: string) => {
   const result = await db
     .select({
-      matchId: matchPlayers.matchId,
+      matchId: MatchPlayers.matchId,
       goalsScored: sql<number>`
-        CASE 
-          WHEN ${matchPlayers.homeTeam} = true THEN ${matches.homeScore}
-          ELSE ${matches.awayScore}
-        END
-      `,
+          CASE 
+            WHEN ${MatchPlayers.homeTeam} = true THEN ${Matches.homeScore}
+            ELSE ${Matches.awayScore}
+          END
+        `,
     })
-    .from(matchPlayers)
-    .innerJoin(matches, eq(matchPlayers.matchId, matches.id))
-    .where(eq(matchPlayers.seasonPlayerId, seasonPlayerId))
-    .orderBy(desc(matches.createdAt))
+    .from(MatchPlayers)
+    .innerJoin(Matches, eq(MatchPlayers.matchId, Matches.id))
+    .where(eq(MatchPlayers.seasonPlayerId, seasonPlayerId))
+    .orderBy(desc(Matches.createdAt))
     .limit(5)
     .execute();
 

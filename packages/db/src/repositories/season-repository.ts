@@ -14,18 +14,18 @@ import {
   sql,
 } from "drizzle-orm";
 import {
+  LeagueEvents,
+  LeagueMembers,
+  LeaguePlayers,
+  Leagues,
+  Matches,
   ScoreBrawlError,
   SeasonPlayerRepository,
+  SeasonPlayers,
+  SeasonTeams,
+  Seasons,
   createCuid,
   db,
-  leagueEvents,
-  leagueMembers,
-  leaguePlayers,
-  leagues,
-  matches,
-  seasonPlayers,
-  seasonTeams,
-  seasons,
   slugifySeasonName,
 } from "..";
 import type { SeasonCreate } from "../../../model/src/season";
@@ -40,29 +40,29 @@ export const findOverlappingSeason = async ({
   startDate: Date;
   endDate?: Date;
 }) =>
-  db.query.seasons.findFirst({
+  db.query.Seasons.findFirst({
     where: and(
-      eq(seasons.leagueId, leagueId),
-      gte(seasons.endDate, startDate),
-      endDate ? lte(seasons.startDate, endDate) : sql`true`,
+      eq(Seasons.leagueId, leagueId),
+      gte(Seasons.endDate, startDate),
+      endDate ? lte(Seasons.startDate, endDate) : sql`true`,
     ),
   });
 
 const getCountInfo = async ({ seasonSlug }: { seasonSlug: string }) => {
   const [matchCount] = await db
     .select({ count: sql<number>`count(*)` })
-    .from(matches)
-    .innerJoin(seasons, and(eq(matches.seasonId, seasons.id), eq(seasons.slug, seasonSlug)));
+    .from(Matches)
+    .innerJoin(Seasons, and(eq(Matches.seasonId, Seasons.id), eq(Seasons.slug, seasonSlug)));
 
   const [teamCount] = await db
     .select({ count: sql<number>`count(*)` })
-    .from(seasonTeams)
-    .innerJoin(seasons, and(eq(seasonTeams.seasonId, seasons.id), eq(seasons.slug, seasonSlug)));
+    .from(SeasonTeams)
+    .innerJoin(Seasons, and(eq(SeasonTeams.seasonId, Seasons.id), eq(Seasons.slug, seasonSlug)));
 
   const [playerCount] = await db
     .select({ count: sql<number>`count(*)` })
-    .from(seasonPlayers)
-    .innerJoin(seasons, and(eq(seasonPlayers.seasonId, seasons.id), eq(seasons.slug, seasonSlug)));
+    .from(SeasonPlayers)
+    .innerJoin(Seasons, and(eq(SeasonPlayers.seasonId, Seasons.id), eq(Seasons.slug, seasonSlug)));
 
   return {
     matchCount: matchCount?.count || 0,
@@ -72,7 +72,7 @@ const getCountInfo = async ({ seasonSlug }: { seasonSlug: string }) => {
 };
 
 const getById = async ({ seasonId }: { seasonId: string }) => {
-  const [season] = await db.select().from(seasons).where(eq(seasons.id, seasonId));
+  const [season] = await db.select().from(Seasons).where(eq(Seasons.id, seasonId));
 
   if (!season) {
     throw new ScoreBrawlError({
@@ -86,9 +86,9 @@ const getById = async ({ seasonId }: { seasonId: string }) => {
 const getBySlug = async ({ seasonSlug }: { seasonSlug: string }) => {
   const [season] = await db
     .select()
-    .from(seasons)
+    .from(Seasons)
 
-    .where(eq(seasons.id, seasonSlug));
+    .where(eq(Seasons.id, seasonSlug));
 
   if (!season) {
     throw new ScoreBrawlError({
@@ -102,14 +102,14 @@ const getBySlug = async ({ seasonSlug }: { seasonSlug: string }) => {
 const findActive = async ({ leagueId }: { leagueId: string }) => {
   const now = new Date();
   const [season] = await db
-    .select(getTableColumns(seasons))
-    .from(seasons)
-    .innerJoin(leagues, eq(leagues.id, seasons.leagueId))
+    .select(getTableColumns(Seasons))
+    .from(Seasons)
+    .innerJoin(Leagues, eq(Leagues.id, Seasons.leagueId))
     .where(
       and(
-        eq(seasons.leagueId, leagueId),
-        lt(seasons.startDate, now),
-        or(isNull(seasons.endDate), gt(seasons.endDate, now)),
+        eq(Seasons.leagueId, leagueId),
+        lt(Seasons.startDate, now),
+        or(isNull(Seasons.endDate), gt(Seasons.endDate, now)),
       ),
     );
   return season;
@@ -122,8 +122,8 @@ const getSeasonPlayers = async ({
   seasonId: string;
   userId: string;
 }) => {
-  const seasonPlayerResult = await db.query.seasonPlayers.findMany({
-    where: eq(seasonPlayers.seasonId, seasonId),
+  const seasonPlayerResult = await db.query.SeasonPlayers.findMany({
+    where: eq(SeasonPlayers.seasonId, seasonId),
     extras: (_, { sql }) => ({
       matchCount:
         sql<number>`(SELECT COUNT(*) FROM match_player mp WHERE mp.season_player_id = "seasonPlayers"."id")`.as(
@@ -152,7 +152,7 @@ const getSeasonPlayers = async ({
         },
       },
     },
-    orderBy: desc(seasonPlayers.score),
+    orderBy: desc(SeasonPlayers.score),
   });
   return seasonPlayerResult.map((sp) => ({
     id: sp.id,
@@ -172,10 +172,10 @@ const getSeasonPlayers = async ({
 
 const getAll = async ({ leagueId }: { leagueId: string }) =>
   db
-    .select(getTableColumns(seasons))
-    .from(seasons)
-    .where(eq(seasons.leagueId, leagueId))
-    .orderBy(desc(seasons.startDate));
+    .select(getTableColumns(Seasons))
+    .from(Seasons)
+    .where(eq(Seasons.leagueId, leagueId))
+    .orderBy(desc(Seasons.startDate));
 
 const update = async ({
   userId,
@@ -191,13 +191,13 @@ const update = async ({
   kFactor?: number;
 }) => {
   const [season] = await db
-    .update(seasons)
+    .update(Seasons)
     .set({
       updatedAt: new Date(),
       updatedBy: userId,
       ...rest,
     })
-    .where(eq(seasons.id, seasonId))
+    .where(eq(Seasons.id, seasonId))
     .returning();
   return season;
 };
@@ -216,7 +216,7 @@ const create = async ({
 
   const now = new Date();
   const [season] = await db
-    .insert(seasons)
+    .insert(Seasons)
     .values({
       id: createCuid(),
       name,
@@ -233,13 +233,13 @@ const create = async ({
       updatedAt: now,
     })
     .returning();
-  const players = await db.query.leaguePlayers.findMany({
+  const players = await db.query.LeaguePlayers.findMany({
     columns: { id: true },
-    where: and(eq(leaguePlayers.leagueId, leagueId), eq(leaguePlayers.disabled, false)),
+    where: and(eq(LeaguePlayers.leagueId, leagueId), eq(LeaguePlayers.disabled, false)),
   });
   await Promise.all(
     players.map((lp) =>
-      db.insert(seasonPlayers).values({
+      db.insert(SeasonPlayers).values({
         id: createCuid(),
         disabled: false,
         score: season?.initialScore ?? 0,
@@ -251,7 +251,7 @@ const create = async ({
     ),
   );
 
-  await db.insert(leagueEvents).values({
+  await db.insert(LeagueEvents).values({
     leagueId,
     id: createCuid(),
     type: "season_created_v1",
@@ -259,7 +259,7 @@ const create = async ({
     createdBy: userId,
     createdAt: now,
   });
-  return season as typeof seasons.$inferSelect;
+  return season as typeof Seasons.$inferSelect;
 };
 const getSeasonPlayerLatestMatches = async ({
   seasonPlayerIds,
@@ -268,9 +268,9 @@ const getSeasonPlayerLatestMatches = async ({
   seasonPlayerIds: string[];
   limit?: number;
 }) => {
-  return db.query.seasonPlayers.findMany({
+  return db.query.SeasonPlayers.findMany({
     columns: { id: true },
-    where: inArray(seasonPlayers.id, seasonPlayerIds),
+    where: inArray(SeasonPlayers.id, seasonPlayerIds),
     with: {
       season: { columns: { id: true } },
       matches: {
@@ -314,21 +314,21 @@ export const findSeasonAndLeagueBySlug = async ({
 }) => {
   const [league] = await db
     .select({
-      leagueId: leagues.id,
-      leagueSlug: leagues.slug,
-      leagueName: leagues.name,
-      role: leagueMembers.role,
-      seasonName: seasons.name,
-      seasonId: seasons.id,
-      seasonSlug: seasons.slug,
-      startDate: seasons.startDate,
-      endDate: seasons.endDate,
-      initialScore: seasons.initialScore,
+      leagueId: Leagues.id,
+      leagueSlug: Leagues.slug,
+      leagueName: Leagues.name,
+      role: LeagueMembers.role,
+      seasonName: Seasons.name,
+      seasonId: Seasons.id,
+      seasonSlug: Seasons.slug,
+      startDate: Seasons.startDate,
+      endDate: Seasons.endDate,
+      initialScore: Seasons.initialScore,
     })
-    .from(seasons)
-    .innerJoin(leagues, and(eq(leagues.slug, leagueSlug), eq(leagues.id, seasons.leagueId)))
-    .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
-    .where(and(eq(seasons.slug, seasonSlug), eq(leagueMembers.userId, userId)));
+    .from(Seasons)
+    .innerJoin(Leagues, and(eq(Leagues.slug, leagueSlug), eq(Leagues.id, Seasons.leagueId)))
+    .innerJoin(LeagueMembers, eq(LeagueMembers.leagueId, Leagues.id))
+    .where(and(eq(Seasons.slug, seasonSlug), eq(LeagueMembers.userId, userId)));
   return league;
 };
 

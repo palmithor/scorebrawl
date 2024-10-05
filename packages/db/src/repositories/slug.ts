@@ -1,7 +1,7 @@
 import slugify from "@sindresorhus/slugify";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { leagues, seasons } from "../schema";
+import { Leagues, Seasons } from "../schema";
 
 // TODO Refactor to reuse same parts
 
@@ -17,7 +17,7 @@ export const slugifyWithCustomReplacement = (text: string) => {
 };
 export const slugifyLeagueName = async ({ name }: { name: string }) => {
   const doesLeagueSlugExists = async (_slug: string) =>
-    db.select().from(leagues).where(eq(leagues.slug, slug)).limit(1);
+    db.select().from(Leagues).where(eq(Leagues.slug, slug)).limit(1);
   const rootSlug = slugifyWithCustomReplacement(name);
   let slug = rootSlug;
   let [slugExists] = await doesLeagueSlugExists(slug);
@@ -32,7 +32,7 @@ export const slugifyLeagueName = async ({ name }: { name: string }) => {
 
 export const slugifySeasonName = async ({ name }: { name: string }) => {
   const doesLeagueSlugExists = async (_slug: string) =>
-    db.select().from(seasons).where(eq(seasons.slug, slug)).limit(1);
+    db.select().from(Seasons).where(eq(Seasons.slug, slug)).limit(1);
 
   const rootSlug = slugifyWithCustomReplacement(name);
   let slug = rootSlug;

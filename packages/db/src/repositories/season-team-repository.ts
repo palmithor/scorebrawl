@@ -1,15 +1,15 @@
 import { type SQL, and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import {
-  leaguePlayers,
-  leagueTeamPlayers,
-  leagueTeams,
-  leagues,
-  matches,
-  seasonTeams,
-  seasons,
-  teamMatches,
-  users,
+  LeaguePlayers,
+  LeagueTeamPlayers,
+  LeagueTeams,
+  Leagues,
+  MatchTeams,
+  Matches,
+  SeasonTeams,
+  Seasons,
+  Users,
 } from "../schema";
 
 const getPointDiffProgression = async ({
@@ -21,25 +21,25 @@ const getPointDiffProgression = async ({
 }) => {
   const subQuery = db
     .select({
-      seasonTeamId: teamMatches.seasonTeamId,
-      matchDate: sql<string>`DATE(${teamMatches.createdAt})`.mapWith(String).as("match_date"),
-      scoreBefore: teamMatches.scoreBefore,
-      scoreAfter: teamMatches.scoreAfter,
+      seasonTeamId: MatchTeams.seasonTeamId,
+      matchDate: sql<string>`DATE(${MatchTeams.createdAt})`.mapWith(String).as("match_date"),
+      scoreBefore: MatchTeams.scoreBefore,
+      scoreAfter: MatchTeams.scoreAfter,
       rnAsc:
-        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${teamMatches.seasonTeamId}, DATE(${teamMatches.createdAt}) ORDER BY ${teamMatches.createdAt}, ${teamMatches.id})`
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${MatchTeams.seasonTeamId}, DATE(${MatchTeams.createdAt}) ORDER BY ${MatchTeams.createdAt}, ${MatchTeams.id})`
           .mapWith(Number)
           .as("rn_asc"),
       rnDesc:
-        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${teamMatches.seasonTeamId}, DATE(${teamMatches.createdAt}) ORDER BY ${teamMatches.createdAt} DESC, ${teamMatches.id} DESC)`
+        sql<number>`ROW_NUMBER() OVER (PARTITION BY ${MatchTeams.seasonTeamId}, DATE(${MatchTeams.createdAt}) ORDER BY ${MatchTeams.createdAt} DESC, ${MatchTeams.id} DESC)`
           .mapWith(Number)
           .as("rn_desc"),
     })
-    .from(teamMatches)
-    .innerJoin(seasonTeams, eq(teamMatches.seasonTeamId, seasonTeams.id))
+    .from(MatchTeams)
+    .innerJoin(SeasonTeams, eq(MatchTeams.seasonTeamId, SeasonTeams.id))
     .where(
       condition
-        ? and(eq(seasonTeams.seasonId, seasonId), condition)
-        : eq(seasonTeams.seasonId, seasonId),
+        ? and(eq(SeasonTeams.seasonId, seasonId), condition)
+        : eq(SeasonTeams.seasonId, seasonId),
     );
   const rankedMatches = db.$with("ranked_matches").as(subQuery);
   const firstMatchAlias = sql`${rankedMatches} "first_match"`;
@@ -50,7 +50,7 @@ const getPointDiffProgression = async ({
   return db
     .with(rankedMatches)
     .select({
-      seasonTeamId: seasonTeams.id,
+      seasonTeamId: SeasonTeams.id,
       matchDate: sql`"first_match"."match_date"`.mapWith(String),
       pointDiff: sql<number>`${lastMatch.scoreAfter} - ${firstMatch.scoreBefore}`.mapWith(Number),
     })
@@ -64,10 +64,10 @@ const getPointDiffProgression = async ({
         eq(sql`"last_match"."rn_desc"`, 1),
       ),
     )
-    .innerJoin(seasonTeams, eq(seasonTeams.id, firstMatch.seasonTeamId))
-    .where(eq(seasonTeams.seasonId, seasonId))
+    .innerJoin(SeasonTeams, eq(SeasonTeams.id, firstMatch.seasonTeamId))
+    .where(eq(SeasonTeams.seasonId, seasonId))
     .groupBy(
-      seasonTeams.id,
+      SeasonTeams.id,
       lastMatch.scoreAfter,
       firstMatch.scoreBefore,
       sql`"first_match"."match_date"`,
@@ -77,19 +77,19 @@ const getPointDiffProgression = async ({
 const matchesSubqueryBuilder = ({ seasonId }: { seasonId: string }) =>
   db
     .select({
-      seasonTeamId: teamMatches.seasonTeamId,
-      matchId: teamMatches.matchId,
-      result: teamMatches.result,
-      createdAt: teamMatches.createdAt,
+      seasonTeamId: MatchTeams.seasonTeamId,
+      matchId: MatchTeams.matchId,
+      result: MatchTeams.result,
+      createdAt: MatchTeams.createdAt,
       rowNumber:
-        sql`ROW_NUMBER() OVER (PARTITION BY ${teamMatches.seasonTeamId} ORDER BY ${teamMatches.createdAt} DESC)`.as(
+        sql`ROW_NUMBER() OVER (PARTITION BY ${MatchTeams.seasonTeamId} ORDER BY ${MatchTeams.createdAt} DESC)`.as(
           "rowNumber",
         ),
     })
-    .from(teamMatches)
-    .innerJoin(matches, eq(matches.id, teamMatches.matchId))
-    .innerJoin(seasonTeams, eq(seasonTeams.id, teamMatches.seasonTeamId))
-    .where(eq(seasonTeams.seasonId, seasonId))
+    .from(MatchTeams)
+    .innerJoin(Matches, eq(Matches.id, MatchTeams.matchId))
+    .innerJoin(SeasonTeams, eq(SeasonTeams.id, MatchTeams.seasonTeamId))
+    .where(eq(SeasonTeams.seasonId, seasonId))
     .as("recent_matches");
 
 const getStanding = async ({ seasonId }: { seasonId: string }) => {
@@ -117,18 +117,18 @@ const getStanding = async ({ seasonId }: { seasonId: string }) => {
     .groupBy(matchesSubquery.seasonTeamId);
   const teams = await db
     .select({
-      name: leagueTeams.name,
-      seasonTeamId: seasonTeams.id,
-      score: seasonTeams.score,
+      name: LeagueTeams.name,
+      seasonTeamId: SeasonTeams.id,
+      score: SeasonTeams.score,
     })
-    .from(seasonTeams)
-    .innerJoin(leagueTeams, eq(leagueTeams.id, seasonTeams.teamId))
-    .where(eq(seasonTeams.seasonId, seasonId))
-    .orderBy(desc(seasonTeams.score));
+    .from(SeasonTeams)
+    .innerJoin(LeagueTeams, eq(LeagueTeams.id, SeasonTeams.teamId))
+    .where(eq(SeasonTeams.seasonId, seasonId))
+    .orderBy(desc(SeasonTeams.score));
 
   const pointDiff = await getPointDiffProgression({
     seasonId,
-    condition: eq(sql`DATE(${teamMatches.createdAt})`, sql`CURRENT_DATE`),
+    condition: eq(sql`DATE(${MatchTeams.createdAt})`, sql`CURRENT_DATE`),
   });
 
   return teams.map((p) => {
@@ -152,32 +152,32 @@ const getStanding = async ({ seasonId }: { seasonId: string }) => {
 const getTopTeam = async ({ seasonSlug }: { seasonSlug: string }) => {
   const topTeamSubquery = db
     .select({
-      seasonTeamId: seasonTeams.id,
-      maxScore: seasonTeams.score,
+      seasonTeamId: SeasonTeams.id,
+      maxScore: SeasonTeams.score,
     })
-    .from(seasonTeams)
-    .innerJoin(seasons, and(eq(seasons.id, seasonTeams.seasonId), eq(seasons.slug, seasonSlug)))
-    .orderBy(desc(seasonTeams.score))
+    .from(SeasonTeams)
+    .innerJoin(Seasons, and(eq(Seasons.id, SeasonTeams.seasonId), eq(Seasons.slug, seasonSlug)))
+    .orderBy(desc(SeasonTeams.score))
     .limit(1)
     .as("top_team");
 
   return db
     .select({
-      seasonTeamId: seasonTeams.id,
-      id: users.id,
-      teamName: leagueTeams.name,
-      name: users.name,
-      imageUrl: users.imageUrl,
-      score: seasonTeams.score,
+      seasonTeamId: SeasonTeams.id,
+      id: Users.id,
+      teamName: LeagueTeams.name,
+      name: Users.name,
+      imageUrl: Users.imageUrl,
+      score: SeasonTeams.score,
     })
-    .from(seasonTeams)
-    .innerJoin(topTeamSubquery, eq(topTeamSubquery.seasonTeamId, seasonTeams.id))
-    .innerJoin(seasons, and(eq(seasons.id, seasonTeams.seasonId), eq(seasons.slug, seasonSlug)))
-    .innerJoin(leagues, eq(seasons.leagueId, leagues.id))
-    .innerJoin(leagueTeams, eq(leagueTeams.id, seasonTeams.teamId))
-    .innerJoin(leagueTeamPlayers, eq(leagueTeamPlayers.teamId, leagueTeams.id))
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, leagueTeamPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId));
+    .from(SeasonTeams)
+    .innerJoin(topTeamSubquery, eq(topTeamSubquery.seasonTeamId, SeasonTeams.id))
+    .innerJoin(Seasons, and(eq(Seasons.id, SeasonTeams.seasonId), eq(Seasons.slug, seasonSlug)))
+    .innerJoin(Leagues, eq(Seasons.leagueId, Leagues.id))
+    .innerJoin(LeagueTeams, eq(LeagueTeams.id, SeasonTeams.teamId))
+    .innerJoin(LeagueTeamPlayers, eq(LeagueTeamPlayers.teamId, LeagueTeams.id))
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, LeagueTeamPlayers.leaguePlayerId))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId));
 };
 
 export const SeasonTeamRepository = {

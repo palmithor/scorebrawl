@@ -1,13 +1,13 @@
 import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "../db";
-import { leagueMembers, leagues } from "../schema";
+import { LeagueMembers, Leagues } from "../schema";
 
 export const canReadLeaguesCriteria = ({ userId }: { userId: string }) =>
   inArray(
-    leagues.id,
+    Leagues.id,
     db
-      .select({ data: leagues.id })
-      .from(leagues)
-      .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
-      .where(and(eq(leagueMembers.userId, userId), isNotNull(leagues.id))),
+      .select({ data: Leagues.id })
+      .from(Leagues)
+      .innerJoin(LeagueMembers, eq(LeagueMembers.leagueId, Leagues.id))
+      .where(and(eq(LeagueMembers.userId, userId), isNotNull(Leagues.id))),
   );

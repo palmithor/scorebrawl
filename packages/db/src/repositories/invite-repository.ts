@@ -1,12 +1,12 @@
 import { and, desc, eq, getTableColumns, gte, isNull, or } from "drizzle-orm";
 import { db } from "../db";
 import {
-  leagueInvites,
-  leagueMembers,
-  leaguePlayers,
-  leagues,
-  seasonPlayers,
-  seasons,
+  LeagueInvites,
+  LeagueMembers,
+  LeaguePlayers,
+  Leagues,
+  SeasonPlayers,
+  Seasons,
 } from "../schema";
 import type { LeagueMemberRole } from "../types";
 import { createCuid } from "../utils";
@@ -24,7 +24,7 @@ const createInvite = async ({
 }) => {
   const now = new Date();
   const [invite] = await db
-    .insert(leagueInvites)
+    .insert(LeagueInvites)
     .values([
       {
         leagueId,
@@ -44,48 +44,59 @@ const createInvite = async ({
 
 const findByCode = async (code: string) => {
   const [invite] = await db
-    .select(getTableColumns(leagueInvites))
-    .from(leagueInvites)
-    .where(eq(leagueInvites.code, code));
+    .select(getTableColumns(LeagueInvites))
+    .from(LeagueInvites)
+    .where(eq(LeagueInvites.code, code));
   return invite;
 };
 
-const getLeagueInvites = async ({
-  leagueId,
-}: {
-  leagueId: string;
-}) =>
+const getLeagueInvites = async ({ leagueId }: { leagueId: string }) =>
   db
-    .select(getTableColumns(leagueInvites))
-    .from(leagueInvites)
-    .innerJoin(leagues, eq(leagueInvites.leagueId, leagues.id))
-    .where(eq(leagueInvites.leagueId, leagueId))
-    .orderBy(desc(leagueInvites.expiresAt));
+    .select(getTableColumns(LeagueInvites))
+    .from(LeagueInvites)
+    .innerJoin(Leagues, eq(LeagueInvites.leagueId, Leagues.id))
+    .where(eq(LeagueInvites.leagueId, leagueId))
+    .orderBy(desc(LeagueInvites.expiresAt));
 
 const claimInvite = async ({
   userId,
   leagueId,
   role,
-}: { leagueId: string; userId: string; role: LeagueMemberRole }) => {
+}: {
+  leagueId: string;
+  userId: string;
+  role: LeagueMemberRole;
+}) => {
   await db
-    .delete(leagueMembers)
-    .where(and(eq(leagueMembers.leagueId, leagueId), eq(leagueMembers.userId, userId)));
+    .delete(LeagueMembers)
+    .where(and(eq(LeagueMembers.leagueId, leagueId), eq(LeagueMembers.userId, userId)));
   const now = new Date();
-  await db
-    .insert(leagueMembers)
-    .values({ id: createCuid(), leagueId, userId, role, createdAt: now, updatedAt: now });
+  await db.insert(LeagueMembers).values({
+    id: createCuid(),
+    leagueId,
+    userId,
+    role,
+    createdAt: now,
+    updatedAt: now,
+  });
   if (role !== "viewer") {
     const [leaguePlayer] = await db
-      .insert(leaguePlayers)
-      .values({ id: createCuid(), leagueId, userId, createdAt: now, updatedAt: now })
+      .insert(LeaguePlayers)
+      .values({
+        id: createCuid(),
+        leagueId,
+        userId,
+        createdAt: now,
+        updatedAt: now,
+      })
       .returning();
     const futureOrOngoingSeasons = await db
-      .select({ id: seasons.id, initialScore: seasons.initialScore })
-      .from(seasons)
+      .select({ id: Seasons.id, initialScore: Seasons.initialScore })
+      .from(Seasons)
       .where(
-        and(eq(seasons.leagueId, leagueId), or(gte(seasons.endDate, now), isNull(seasons.endDate))),
+        and(eq(Seasons.leagueId, leagueId), or(gte(Seasons.endDate, now), isNull(Seasons.endDate))),
       );
-    await db.insert(seasonPlayers).values(
+    await db.insert(SeasonPlayers).values(
       futureOrOngoingSeasons.map(
         ({ id, initialScore }) =>
           ({
@@ -95,14 +106,14 @@ const claimInvite = async ({
             score: initialScore,
             createdAt: now,
             updatedAt: now,
-          }) satisfies typeof seasonPlayers.$inferInsert,
+          }) satisfies typeof SeasonPlayers.$inferInsert,
       ),
     );
   }
   const [league] = await db
-    .select({ slug: leagues.slug })
-    .from(leagues)
-    .where(eq(leagues.id, leagueId));
+    .select({ slug: Leagues.slug })
+    .from(Leagues)
+    .where(eq(Leagues.id, leagueId));
   return { leagueSlug: league?.slug ?? "" };
 };
 

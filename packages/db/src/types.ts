@@ -1,9 +1,9 @@
 import type { InferSelectModel } from "drizzle-orm";
-import type { leagueInvites, leagueMemberRoles, seasons } from "./schema";
+import type { LeagueInvites, Seasons, leagueMemberRoles } from "./schema";
 
 export type LeagueMemberRole = (typeof leagueMemberRoles)[number];
-export type Season = InferSelectModel<typeof seasons>;
-export type Invite = InferSelectModel<typeof leagueInvites>;
+export type Season = InferSelectModel<typeof Seasons>;
+export type Invite = InferSelectModel<typeof LeagueInvites>;
 
 export type LeagueEventData = PlayerJoinedEventData | SeasonCreatedEventData;
 

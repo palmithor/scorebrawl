@@ -2,22 +2,22 @@ import type { LeagueTeamInput } from "@scorebrawl/model";
 import { and, asc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import type { z } from "zod";
 import {
+  LeaguePlayers,
+  LeagueTeamPlayers,
+  LeagueTeams,
+  Leagues,
   ScoreBrawlError,
+  SeasonPlayers,
+  SeasonTeams,
+  Users,
   createCuid,
-  leaguePlayers,
-  leagueTeamPlayers,
-  leagueTeams,
-  leagues,
-  seasonPlayers,
-  seasonTeams,
-  users,
 } from "..";
 import { db } from "../db";
 
 const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {
-  return db.query.leagueTeams.findMany({
+  return db.query.LeagueTeams.findMany({
     where: (team, { eq }) => eq(team.leagueId, leagueId),
-    orderBy: asc(leagueTeams.name),
+    orderBy: asc(LeagueTeams.name),
     with: {
       players: {
         columns: {},
@@ -46,22 +46,22 @@ const getOrInsertTeam = async ({
   players: { leaguePlayer: { id: string; user: { name: string } } }[];
 }) => {
   const [teamIdResult] = await db
-    .select({ teamId: leagueTeamPlayers.teamId })
-    .from(leagueTeamPlayers)
+    .select({ teamId: LeagueTeamPlayers.teamId })
+    .from(LeagueTeamPlayers)
     .where(
       inArray(
-        leagueTeamPlayers.leaguePlayerId,
+        LeagueTeamPlayers.leaguePlayerId,
         players.map((p) => p.leaguePlayer.id),
       ),
     )
-    .groupBy(leagueTeamPlayers.teamId)
-    .having(sql`COUNT(DISTINCT ${leagueTeamPlayers.leaguePlayerId}) = ${players.length}`);
+    .groupBy(LeagueTeamPlayers.teamId)
+    .having(sql`COUNT(DISTINCT ${LeagueTeamPlayers.leaguePlayerId}) = ${players.length}`);
 
   let teamId = teamIdResult?.teamId;
 
   if (!teamId) {
     teamId = createCuid();
-    await db.insert(leagueTeams).values({
+    await db.insert(LeagueTeams).values({
       id: teamId,
       name: players.map((p) => p.leaguePlayer.user.name.split(" ")[0]).join(" & "),
       leagueId: season.leagueId,
@@ -69,7 +69,7 @@ const getOrInsertTeam = async ({
       createdAt: now,
     });
 
-    await db.insert(leagueTeamPlayers).values(
+    await db.insert(LeagueTeamPlayers).values(
       players.map((p) => ({
         id: createCuid(),
         teamId: teamId as string,
@@ -80,7 +80,7 @@ const getOrInsertTeam = async ({
     );
 
     const seasonTeamId = createCuid();
-    await db.insert(seasonTeams).values({
+    await db.insert(SeasonTeams).values({
       id: seasonTeamId,
       teamId: teamId,
       seasonId: season.id,
@@ -91,13 +91,13 @@ const getOrInsertTeam = async ({
 
     return { seasonTeamId, score: season.initialScore };
   }
-  const seasonTeam = await db.query.seasonTeams.findFirst({
+  const seasonTeam = await db.query.SeasonTeams.findFirst({
     columns: { id: true, score: true },
     where: (st, { and, eq }) => and(eq(st.teamId, teamId as string), eq(st.seasonId, season.id)),
   });
   if (!seasonTeam) {
     const seasonTeamId = createCuid();
-    await db.insert(seasonTeams).values({
+    await db.insert(SeasonTeams).values({
       id: seasonTeamId,
       seasonId: season.id,
       teamId: teamId,
@@ -118,10 +118,10 @@ const update = async ({
   isEditor,
 }: z.infer<typeof LeagueTeamInput>) => {
   const [leagueTeam] = await db
-    .select({ id: leagueTeams.id })
-    .from(leagueTeams)
-    .innerJoin(leagues, eq(leagues.id, leagueTeams.leagueId))
-    .where(and(eq(leagueTeams.id, teamId), eq(leagues.slug, leagueSlug)));
+    .select({ id: LeagueTeams.id })
+    .from(LeagueTeams)
+    .innerJoin(Leagues, eq(Leagues.id, LeagueTeams.leagueId))
+    .where(and(eq(LeagueTeams.id, teamId), eq(Leagues.slug, leagueSlug)));
   if (!leagueTeam) {
     throw new ScoreBrawlError({
       code: "NOT_FOUND",
@@ -131,13 +131,13 @@ const update = async ({
 
   if (!isEditor) {
     const [result] = await db
-      .select({ id: leagueTeams.id })
-      .from(leagueTeams)
-      .innerJoin(leagues, eq(leagues.id, leagueTeams.leagueId))
-      .innerJoin(leagueTeamPlayers, eq(leagueTeamPlayers.teamId, leagueTeams.id))
-      .innerJoin(leaguePlayers, eq(leaguePlayers.id, leagueTeamPlayers.leaguePlayerId))
-      .innerJoin(users, eq(users.id, leaguePlayers.userId))
-      .where(and(eq(leagues.slug, leagueSlug), eq(leagueTeams.id, teamId), eq(users.id, userId)));
+      .select({ id: LeagueTeams.id })
+      .from(LeagueTeams)
+      .innerJoin(Leagues, eq(Leagues.id, LeagueTeams.leagueId))
+      .innerJoin(LeagueTeamPlayers, eq(LeagueTeamPlayers.teamId, LeagueTeams.id))
+      .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, LeagueTeamPlayers.leaguePlayerId))
+      .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+      .where(and(eq(Leagues.slug, leagueSlug), eq(LeagueTeams.id, teamId), eq(Users.id, userId)));
     if (!result) {
       throw new ScoreBrawlError({
         code: "FORBIDDEN",
@@ -146,12 +146,12 @@ const update = async ({
     }
   }
   return db
-    .update(leagueTeams)
+    .update(LeagueTeams)
     .set({
       name: name,
       updatedAt: new Date(),
     })
-    .where(and(eq(leagueTeams.id, teamId)))
+    .where(and(eq(LeagueTeams.id, teamId)))
     .returning();
 };
 
@@ -161,12 +161,12 @@ const getBySeasonPlayerIds = async ({
   seasonPlayerIds: string[];
 }) => {
   const [team] = await db
-    .select(getTableColumns(leagueTeams))
-    .from(leagueTeamPlayers)
-    .innerJoin(leagueTeams, eq(leagueTeams.id, leagueTeamPlayers.teamId))
-    .innerJoin(seasonTeams, eq(seasonTeams.teamId, leagueTeams.id))
-    .innerJoin(seasonPlayers, eq(seasonPlayers.seasonId, seasonTeams.seasonId))
-    .where(inArray(seasonPlayers.id, seasonPlayerIds));
+    .select(getTableColumns(LeagueTeams))
+    .from(LeagueTeamPlayers)
+    .innerJoin(LeagueTeams, eq(LeagueTeams.id, LeagueTeamPlayers.teamId))
+    .innerJoin(SeasonTeams, eq(SeasonTeams.teamId, LeagueTeams.id))
+    .innerJoin(SeasonPlayers, eq(SeasonPlayers.seasonId, SeasonTeams.seasonId))
+    .where(inArray(SeasonPlayers.id, seasonPlayerIds));
   return team;
 };
 

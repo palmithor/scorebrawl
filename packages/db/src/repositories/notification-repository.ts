@@ -1,11 +1,11 @@
 import { db } from "../db";
-import { notifications } from "../schema";
+import { Notifications } from "../schema";
 import { createCuid } from "../utils";
 
-export const createNotification = async (value: Omit<typeof notifications.$inferInsert, "id">) => {
+export const createNotification = async (value: Omit<typeof Notifications.$inferInsert, "id">) => {
   const now = new Date();
   const [result] = await db
-    .insert(notifications)
+    .insert(Notifications)
     .values({ id: createCuid(), ...value, updatedAt: now })
     .onConflictDoNothing()
     .returning();
