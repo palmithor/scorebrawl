@@ -1,12 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { db, users } from "@scorebrawl/db";
+import { Users, db } from "@scorebrawl/db";
 import { fullName } from "@scorebrawl/utils/string";
 
 const userId = "userId";
 
 export const insertAuthUser = async () => {
   await db
-    .insert(users)
+    .insert(Users)
     .values({
       id: userId,
       name: fullName({

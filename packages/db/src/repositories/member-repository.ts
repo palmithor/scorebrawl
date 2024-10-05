@@ -1,19 +1,19 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
-import { leagueMembers, leagues, users } from "../schema";
+import { LeagueMembers, Leagues, Users } from "../schema";
 
 export const MemberRepository = {
   find: async ({ leagueId }: { leagueId: string }) =>
     db
       .select({
-        memberId: leagueMembers.id,
-        role: leagueMembers.role,
-        userId: leagueMembers.userId,
-        name: users.name,
-        imageUrl: users.imageUrl,
+        memberId: LeagueMembers.id,
+        role: LeagueMembers.role,
+        userId: LeagueMembers.userId,
+        name: Users.name,
+        imageUrl: Users.imageUrl,
       })
-      .from(leagueMembers)
-      .innerJoin(users, eq(users.id, leagueMembers.userId))
-      .innerJoin(leagues, eq(leagues.id, leagueMembers.leagueId))
-      .where(and(eq(leagues.id, leagueId))),
+      .from(LeagueMembers)
+      .innerJoin(Users, eq(Users.id, LeagueMembers.userId))
+      .innerJoin(Leagues, eq(Leagues.id, LeagueMembers.leagueId))
+      .where(and(eq(Leagues.id, leagueId))),
 };

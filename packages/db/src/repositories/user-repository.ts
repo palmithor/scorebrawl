@@ -2,19 +2,19 @@ import { fullName } from "@scorebrawl/utils/string";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import {
-  leaguePlayers,
-  leagueTeamPlayers,
-  leagueTeams,
-  seasonPlayers,
-  seasonTeams,
-  users,
+  LeaguePlayers,
+  LeagueTeamPlayers,
+  LeagueTeams,
+  SeasonPlayers,
+  SeasonTeams,
+  Users,
 } from "../schema";
 
 const getUserAvatar = async ({ userId }: { userId: string }) => {
   const [userAvatar] = await db
-    .select({ name: users.name, imageUrl: users.imageUrl })
-    .from(users)
-    .where(eq(users.id, userId));
+    .select({ name: Users.name, imageUrl: Users.imageUrl })
+    .from(Users)
+    .where(eq(Users.id, userId));
   return userAvatar;
 };
 
@@ -25,17 +25,17 @@ const getSeasonTeamAvatars = async ({
 }) => {
   const rawResults = await db
     .select({
-      teamId: seasonTeams.id,
-      userId: users.id,
-      imageUrl: users.imageUrl,
-      name: users.name,
+      teamId: SeasonTeams.id,
+      userId: Users.id,
+      imageUrl: Users.imageUrl,
+      name: Users.name,
     })
-    .from(leagueTeamPlayers)
-    .innerJoin(leagueTeams, eq(leagueTeams.id, leagueTeamPlayers.teamId))
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, leagueTeamPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .innerJoin(seasonTeams, eq(seasonTeams.teamId, leagueTeams.id))
-    .where(inArray(seasonTeams.id, seasonTeamIds));
+    .from(LeagueTeamPlayers)
+    .innerJoin(LeagueTeams, eq(LeagueTeams.id, LeagueTeamPlayers.teamId))
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, LeagueTeamPlayers.leaguePlayerId))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+    .innerJoin(SeasonTeams, eq(SeasonTeams.teamId, LeagueTeams.id))
+    .where(inArray(SeasonTeams.id, seasonTeamIds));
 
   // Process the results to group players by team
   const resultMap = new Map<
@@ -67,18 +67,18 @@ const getSeasonPlayerAvatars = ({
 }) => {
   return db
     .select({
-      userId: users.id,
-      imageUrl: users.imageUrl,
-      name: users.name,
+      userId: Users.id,
+      imageUrl: Users.imageUrl,
+      name: Users.name,
     })
-    .from(seasonPlayers)
-    .innerJoin(leaguePlayers, eq(leaguePlayers.id, seasonPlayers.leaguePlayerId))
-    .innerJoin(users, eq(users.id, leaguePlayers.userId))
-    .where(inArray(seasonPlayers.id, seasonPlayerIds));
+    .from(SeasonPlayers)
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+    .where(inArray(SeasonPlayers.id, seasonPlayerIds));
 };
 
 const findUserById = async ({ id }: { id: string }) => {
-  const [user] = await db.select().from(users).where(eq(users.id, id));
+  const [user] = await db.select().from(Users).where(eq(Users.id, id));
   return user;
 };
 
@@ -90,9 +90,9 @@ const setDefaultLeague = async ({
   userId: string;
 }) => {
   const [user] = await db
-    .update(users)
+    .update(Users)
     .set({ defaultLeagueId: leagueId })
-    .where(eq(users.id, userId))
+    .where(eq(Users.id, userId))
     .returning();
   return user;
 };
@@ -113,7 +113,7 @@ const upsertUser = async ({
   updatedAt: number;
 }) => {
   await db
-    .insert(users)
+    .insert(Users)
     .values({
       id,
       name: fullName({
@@ -125,7 +125,7 @@ const upsertUser = async ({
       updatedAt: new Date(updatedAt),
     })
     .onConflictDoUpdate({
-      target: users.id,
+      target: Users.id,
       set: {
         name: fullName({
           firstName,

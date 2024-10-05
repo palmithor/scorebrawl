@@ -17,7 +17,7 @@ import type { LeagueEventData } from "./types";
 const defaultVarcharConfig = { length: 100 };
 export const cuidConfig = { length: 32 };
 
-export const leagues = pgTable(
+export const Leagues = pgTable(
   "league",
   {
     id: varchar("id", cuidConfig).primaryKey(),
@@ -42,11 +42,11 @@ const leagueEventType = [
   "match_undo_v1",
 ] as const;
 
-export const leagueEvents = pgTable("league_event", {
+export const LeagueEvents = pgTable("league_event", {
   id: varchar("id", cuidConfig).primaryKey(),
   leagueId: varchar("league_id", cuidConfig)
     .notNull()
-    .references(() => leagues.id),
+    .references(() => Leagues.id),
   type: varchar("type", {
     enum: leagueEventType,
   }).notNull(),
@@ -55,16 +55,16 @@ export const leagueEvents = pgTable("league_event", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const leaguePlayers = pgTable(
+export const LeaguePlayers = pgTable(
   "league_player",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     userId: varchar("user_id", defaultVarcharConfig)
       .notNull()
-      .references(() => users.id),
+      .references(() => Users.id),
     leagueId: varchar("league_id", cuidConfig)
       .notNull()
-      .references(() => leagues.id),
+      .references(() => Leagues.id),
     disabled: boolean("disabled").default(false).notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -74,26 +74,26 @@ export const leaguePlayers = pgTable(
   }),
 );
 
-export const leagueTeams = pgTable("league_team", {
+export const LeagueTeams = pgTable("league_team", {
   id: varchar("id", cuidConfig).primaryKey(),
   name: varchar("name", defaultVarcharConfig).notNull(),
   leagueId: varchar("league_id", cuidConfig)
     .notNull()
-    .references(() => leagues.id),
+    .references(() => Leagues.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const leagueTeamPlayers = pgTable(
+export const LeagueTeamPlayers = pgTable(
   "league_team_player",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     leaguePlayerId: varchar("league_player_id", cuidConfig)
       .notNull()
-      .references(() => leaguePlayers.id),
+      .references(() => LeaguePlayers.id),
     teamId: varchar("team_id", cuidConfig)
       .notNull()
-      .references(() => leagueTeams.id),
+      .references(() => LeagueTeams.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -107,14 +107,14 @@ export const leagueTeamPlayers = pgTable(
 
 export const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
 
-export const leagueMembers = pgTable(
+export const LeagueMembers = pgTable(
   "league_member",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     userId: varchar("user_id", defaultVarcharConfig).notNull(),
     leagueId: varchar("league_id", cuidConfig)
       .notNull()
-      .references(() => leagues.id),
+      .references(() => Leagues.id),
     role: varchar("role", {
       enum: leagueMemberRoles,
     }).notNull(),
@@ -128,7 +128,7 @@ export const leagueMembers = pgTable(
 
 const scoreType = ["elo", "3-1-0", "elo-individual-vs-team"] as const;
 
-export const seasons = pgTable(
+export const Seasons = pgTable(
   "season",
   {
     id: varchar("id", cuidConfig).primaryKey(),
@@ -141,7 +141,7 @@ export const seasons = pgTable(
     endDate: timestamp("end_date"),
     leagueId: varchar("league_id", cuidConfig)
       .notNull()
-      .references(() => leagues.id),
+      .references(() => Leagues.id),
     createdBy: varchar("created_by").notNull(),
     updatedBy: varchar("updated_by").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -152,16 +152,16 @@ export const seasons = pgTable(
   }),
 );
 
-export const seasonTeams = pgTable(
+export const SeasonTeams = pgTable(
   "season_team",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     seasonId: varchar("season_id", cuidConfig)
       .notNull()
-      .references(() => seasons.id),
+      .references(() => Seasons.id),
     teamId: varchar("team_id", cuidConfig)
       .notNull()
-      .references(() => leagueTeams.id),
+      .references(() => LeagueTeams.id),
     score: integer("score").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -174,16 +174,16 @@ export const seasonTeams = pgTable(
 
 const matchResult = ["W", "L", "D"] as const;
 
-export const teamMatches = pgTable(
+export const MatchTeams = pgTable(
   "season_team_match",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     seasonTeamId: varchar("season_team_id", cuidConfig)
       .notNull()
-      .references(() => seasonTeams.id),
+      .references(() => SeasonTeams.id),
     matchId: varchar("match_id", cuidConfig)
       .notNull()
-      .references(() => matches.id),
+      .references(() => Matches.id),
     scoreBefore: integer("score_before").notNull().default(-1),
     scoreAfter: integer("score_after").notNull().default(-1),
     result: varchar("result", { enum: matchResult }).notNull(),
@@ -197,16 +197,16 @@ export const teamMatches = pgTable(
   }),
 );
 
-export const seasonPlayers = pgTable(
+export const SeasonPlayers = pgTable(
   "season_player",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     seasonId: varchar("season_id", cuidConfig)
       .notNull()
-      .references(() => seasons.id),
+      .references(() => Seasons.id),
     leaguePlayerId: varchar("league_player_id", cuidConfig)
       .notNull()
-      .references(() => leaguePlayers.id),
+      .references(() => LeaguePlayers.id),
     score: integer("score").notNull(),
     disabled: boolean("disabled").default(false).notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -218,13 +218,13 @@ export const seasonPlayers = pgTable(
   }),
 );
 
-export const matches = pgTable(
+export const Matches = pgTable(
   "match",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     seasonId: varchar("season_id", cuidConfig)
       .notNull()
-      .references(() => seasons.id),
+      .references(() => Seasons.id),
     homeScore: integer("home_score").notNull(),
     awayScore: integer("away_score").notNull(),
     homeExpectedElo: real("home_expected_elo"),
@@ -239,17 +239,17 @@ export const matches = pgTable(
   }),
 );
 
-export const matchPlayers = pgTable(
+export const MatchPlayers = pgTable(
   "match_player",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     seasonPlayerId: varchar("season_player_id", cuidConfig)
       .notNull()
-      .references(() => seasonPlayers.id),
+      .references(() => SeasonPlayers.id),
     homeTeam: boolean("home_team").notNull(),
     matchId: varchar("match_id", cuidConfig)
       .notNull()
-      .references(() => matches.id),
+      .references(() => Matches.id),
     scoreBefore: integer("score_before").notNull().default(-1),
     scoreAfter: integer("score_after").notNull().default(-1),
     result: varchar("result", { enum: matchResult }).notNull(),
@@ -262,12 +262,12 @@ export const matchPlayers = pgTable(
   }),
 );
 
-export const leagueInvites = pgTable(
+export const LeagueInvites = pgTable(
   "league_invite",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     leagueId: varchar("league_id")
-      .references(() => leagues.id)
+      .references(() => Leagues.id)
       .notNull(),
     role: varchar("role", { enum: leagueMemberRoles }).notNull(),
     code: varchar("code", cuidConfig).notNull(),
@@ -282,20 +282,20 @@ export const leagueInvites = pgTable(
   }),
 );
 
-export const users = pgTable("user", {
+export const Users = pgTable("user", {
   id: varchar("id", { length: 100 }).primaryKey(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
   name: varchar("name").notNull(),
-  defaultLeagueId: varchar("default_league_id", cuidConfig).references(() => leagues.id),
+  defaultLeagueId: varchar("default_league_id", cuidConfig).references(() => Leagues.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const notifications = pgTable("notification", {
+export const Notifications = pgTable("notification", {
   id: varchar("id", cuidConfig).primaryKey(),
   userId: varchar("user_id", cuidConfig)
     .notNull()
-    .references(() => users.id),
+    .references(() => Users.id),
   type: varchar("type", { enum: notificationType }).notNull(),
   data: json("data").$type<z.output<typeof NotificationData>>().notNull(),
   read: boolean("read").notNull().default(false),
@@ -303,13 +303,13 @@ export const notifications = pgTable("notification", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const leaguePlayerAchievement = pgTable(
+export const LeaguePlayerAchievement = pgTable(
   "league_player_achievement",
   {
     id: varchar("id", cuidConfig).primaryKey(),
     leaguePlayerId: varchar("league_player_id", cuidConfig)
       .notNull()
-      .references(() => leaguePlayers.id),
+      .references(() => LeaguePlayers.id),
     type: varchar("type_id", { enum: leagueAchievementType }).notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -322,133 +322,133 @@ export const leaguePlayerAchievement = pgTable(
   }),
 );
 
-export const leaguesRelations = relations(leagues, ({ many }) => ({
-  seasons: many(seasons),
-  invites: many(leagueInvites),
-  leaguePlayers: many(leaguePlayers),
-  leagueTeams: many(leagueTeams),
-  members: many(leagueMembers),
-  events: many(leagueEvents),
+export const leaguesRelations = relations(Leagues, ({ many }) => ({
+  seasons: many(Seasons),
+  invites: many(LeagueInvites),
+  leaguePlayers: many(LeaguePlayers),
+  leagueTeams: many(LeagueTeams),
+  members: many(LeagueMembers),
+  events: many(LeagueEvents),
 }));
 
-export const leagueInvitesRelations = relations(leagueInvites, ({ one }) => ({
-  league: one(leagues, {
-    fields: [leagueInvites.leagueId],
-    references: [leagues.id],
-  }),
-}));
-
-export const seasonTeamRelations = relations(seasonTeams, ({ one, many }) => ({
-  leagueTeam: one(leagueTeams, {
-    fields: [seasonTeams.teamId],
-    references: [leagueTeams.id],
-  }),
-  season: one(seasons, {
-    fields: [seasonTeams.seasonId],
-    references: [seasons.id],
-  }),
-  matches: many(teamMatches),
-}));
-
-export const userRelations = relations(users, ({ many }) => ({
-  leaguePlayers: many(leaguePlayers),
-}));
-
-export const leaguePlayerRelations = relations(leaguePlayers, ({ one, many }) => ({
-  user: one(users, {
-    fields: [leaguePlayers.userId],
-    references: [users.id],
-  }),
-  league: one(leagues, {
-    fields: [leaguePlayers.leagueId],
-    references: [leagues.id],
-  }),
-  teamPlayer: many(leagueTeamPlayers),
-  seasonPlayers: many(seasonPlayers),
-}));
-
-export const leagueTeamRelations = relations(leagueTeams, ({ one, many }) => ({
-  league: one(leagues, {
-    fields: [leagueTeams.leagueId],
-    references: [leagues.id],
-  }),
-  players: many(leagueTeamPlayers),
-}));
-
-export const leagueTeamPlayerRelations = relations(leagueTeamPlayers, ({ one }) => ({
-  team: one(leagueTeams, {
-    fields: [leagueTeamPlayers.teamId],
-    references: [leagueTeams.id],
-  }),
-  leaguePlayer: one(leaguePlayers, {
-    fields: [leagueTeamPlayers.leaguePlayerId],
-    references: [leaguePlayers.id],
+export const leagueInvitesRelations = relations(LeagueInvites, ({ one }) => ({
+  league: one(Leagues, {
+    fields: [LeagueInvites.leagueId],
+    references: [Leagues.id],
   }),
 }));
 
-export const leagueMemberRelations = relations(leagueMembers, ({ one }) => ({
-  league: one(leagues, {
-    fields: [leagueMembers.leagueId],
-    references: [leagues.id],
+export const seasonTeamRelations = relations(SeasonTeams, ({ one, many }) => ({
+  leagueTeam: one(LeagueTeams, {
+    fields: [SeasonTeams.teamId],
+    references: [LeagueTeams.id],
+  }),
+  season: one(Seasons, {
+    fields: [SeasonTeams.seasonId],
+    references: [Seasons.id],
+  }),
+  matches: many(MatchTeams),
+}));
+
+export const userRelations = relations(Users, ({ many }) => ({
+  leaguePlayers: many(LeaguePlayers),
+}));
+
+export const leaguePlayerRelations = relations(LeaguePlayers, ({ one, many }) => ({
+  user: one(Users, {
+    fields: [LeaguePlayers.userId],
+    references: [Users.id],
+  }),
+  league: one(Leagues, {
+    fields: [LeaguePlayers.leagueId],
+    references: [Leagues.id],
+  }),
+  teamPlayer: many(LeagueTeamPlayers),
+  seasonPlayers: many(SeasonPlayers),
+}));
+
+export const leagueTeamRelations = relations(LeagueTeams, ({ one, many }) => ({
+  league: one(Leagues, {
+    fields: [LeagueTeams.leagueId],
+    references: [Leagues.id],
+  }),
+  players: many(LeagueTeamPlayers),
+}));
+
+export const leagueTeamPlayerRelations = relations(LeagueTeamPlayers, ({ one }) => ({
+  team: one(LeagueTeams, {
+    fields: [LeagueTeamPlayers.teamId],
+    references: [LeagueTeams.id],
+  }),
+  leaguePlayer: one(LeaguePlayers, {
+    fields: [LeagueTeamPlayers.leaguePlayerId],
+    references: [LeaguePlayers.id],
   }),
 }));
 
-export const seasonRelations = relations(seasons, ({ one, many }) => ({
-  seasonPlayers: many(seasonPlayers),
-  matches: many(matches),
-  seasonTeams: many(seasonTeams),
-  league: one(leagues, {
-    fields: [seasons.leagueId],
-    references: [leagues.id],
+export const leagueMemberRelations = relations(LeagueMembers, ({ one }) => ({
+  league: one(Leagues, {
+    fields: [LeagueMembers.leagueId],
+    references: [Leagues.id],
   }),
 }));
 
-export const leagueEventRelations = relations(leagueEvents, ({ one }) => ({
-  league: one(leagues, {
-    fields: [leagueEvents.leagueId],
-    references: [leagues.id],
+export const seasonRelations = relations(Seasons, ({ one, many }) => ({
+  seasonPlayers: many(SeasonPlayers),
+  matches: many(Matches),
+  seasonTeams: many(SeasonTeams),
+  league: one(Leagues, {
+    fields: [Seasons.leagueId],
+    references: [Leagues.id],
   }),
 }));
 
-export const seasonPlayerRelations = relations(seasonPlayers, ({ one, many }) => ({
-  season: one(seasons, {
-    fields: [seasonPlayers.seasonId],
-    references: [seasons.id],
-  }),
-  leaguePlayer: one(leaguePlayers, {
-    fields: [seasonPlayers.leaguePlayerId],
-    references: [leaguePlayers.id],
-  }),
-  matches: many(matchPlayers),
-}));
-
-export const seasonTeamMatchRelations = relations(teamMatches, ({ one }) => ({
-  match: one(matches, {
-    fields: [teamMatches.matchId],
-    references: [matches.id],
-  }),
-  seasonTeam: one(seasonTeams, {
-    fields: [teamMatches.seasonTeamId],
-    references: [seasonTeams.id],
+export const leagueEventRelations = relations(LeagueEvents, ({ one }) => ({
+  league: one(Leagues, {
+    fields: [LeagueEvents.leagueId],
+    references: [Leagues.id],
   }),
 }));
 
-export const matchRelations = relations(matches, ({ one, many }) => ({
-  matchPlayers: many(matchPlayers),
-  season: one(seasons, {
-    fields: [matches.seasonId],
-    references: [seasons.id],
+export const seasonPlayerRelations = relations(SeasonPlayers, ({ one, many }) => ({
+  season: one(Seasons, {
+    fields: [SeasonPlayers.seasonId],
+    references: [Seasons.id],
   }),
-  teamMatches: many(teamMatches),
+  leaguePlayer: one(LeaguePlayers, {
+    fields: [SeasonPlayers.leaguePlayerId],
+    references: [LeaguePlayers.id],
+  }),
+  matches: many(MatchPlayers),
 }));
 
-export const matchPlayerRelations = relations(matchPlayers, ({ one }) => ({
-  match: one(matches, {
-    fields: [matchPlayers.matchId],
-    references: [matches.id],
+export const seasonTeamMatchRelations = relations(MatchTeams, ({ one }) => ({
+  match: one(Matches, {
+    fields: [MatchTeams.matchId],
+    references: [Matches.id],
   }),
-  seasonPlayer: one(seasonPlayers, {
-    fields: [matchPlayers.seasonPlayerId],
-    references: [seasonPlayers.id],
+  seasonTeam: one(SeasonTeams, {
+    fields: [MatchTeams.seasonTeamId],
+    references: [SeasonTeams.id],
+  }),
+}));
+
+export const matchRelations = relations(Matches, ({ one, many }) => ({
+  matchPlayers: many(MatchPlayers),
+  season: one(Seasons, {
+    fields: [Matches.seasonId],
+    references: [Seasons.id],
+  }),
+  teamMatches: many(MatchTeams),
+}));
+
+export const matchPlayerRelations = relations(MatchPlayers, ({ one }) => ({
+  match: one(Matches, {
+    fields: [MatchPlayers.matchId],
+    references: [Matches.id],
+  }),
+  seasonPlayer: one(SeasonPlayers, {
+    fields: [MatchPlayers.seasonPlayerId],
+    references: [SeasonPlayers.id],
   }),
 }));

@@ -1,5 +1,5 @@
 import type { WebhookEvent } from "@clerk/nextjs/server";
-import { db, users } from "@scorebrawl/db";
+import { Users, db } from "@scorebrawl/db";
 import { fullName } from "@scorebrawl/utils/string";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 
   if (eventType === "user.created" || eventType === "user.updated") {
     await db
-      .insert(users)
+      .insert(Users)
       .values({
         id: evt.data.id,
         name: fullName({
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
         updatedAt: new Date(evt.data.updated_at),
       })
       .onConflictDoUpdate({
-        target: users.id,
+        target: Users.id,
         set: {
           name: fullName({
             firstName: evt.data.first_name,

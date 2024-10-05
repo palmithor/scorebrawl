@@ -1,7 +1,7 @@
 import { env } from "@/env.mjs";
 import type { User } from "@clerk/clerk-sdk-node";
 import { createClerkClient } from "@clerk/nextjs/server";
-import { db, users } from "@scorebrawl/db";
+import { Users, db } from "@scorebrawl/db";
 import { fullName } from "@scorebrawl/utils/string";
 
 console.log("Fetching users from clerk to populate users table");
@@ -26,7 +26,7 @@ do {
 for (const user of clerkUsers) {
   if (user.firstName || user.lastName) {
     await db
-      .insert(users)
+      .insert(Users)
       .values({
         id: user.id,
         name: fullName({ firstName: user.firstName, lastName: user.lastName }),
@@ -35,7 +35,7 @@ for (const user of clerkUsers) {
         updatedAt: new Date(user.updatedAt),
       })
       .onConflictDoUpdate({
-        target: users.id,
+        target: Users.id,
         set: {
           name: fullName({
             firstName: user.firstName,
