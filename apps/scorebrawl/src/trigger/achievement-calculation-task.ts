@@ -1,9 +1,11 @@
+import { createAchievement } from "@scorebrawl/db/achievement";
+import { findLeaguePlayerIds } from "@scorebrawl/db/league-player";
+import { createNotification } from "@scorebrawl/db/notification";
 import {
-  LeaguePlayerRepository,
-  SeasonPlayerRepository,
-  createAchievement,
-  createNotification,
-} from "@scorebrawl/db";
+  getGoalsConcededAgainst,
+  getLastFiveMatchesGoals,
+  getPlayerMatches,
+} from "@scorebrawl/db/season-player";
 import type { LeagueAchievementType, leagueAchievementType } from "@scorebrawl/model";
 import { task } from "@trigger.dev/sdk/v3";
 import type { z } from "zod";
@@ -43,12 +45,11 @@ export const achievementCalculationTask = task({
 
     for (const seasonPlayerId of seasonPlayerIds) {
       const playerAchievements: z.output<typeof LeagueAchievementType>[] = [];
-      const seasonPlayerMatches = await SeasonPlayerRepository.getPlayerMatches({ seasonPlayerId });
+      const seasonPlayerMatches = await getPlayerMatches({ seasonPlayerId });
 
       checkRedemptionAchievement(playerAchievements, seasonPlayerMatches);
 
-      const lastFiveMatchesGoals =
-        await SeasonPlayerRepository.getLastFiveMatchesGoals(seasonPlayerId);
+      const lastFiveMatchesGoals = await getLastFiveMatchesGoals(seasonPlayerId);
       checkGoalsScoredStreak(playerAchievements, lastFiveMatchesGoals);
 
       let currentWinStreak = 0;
@@ -56,7 +57,7 @@ export const achievementCalculationTask = task({
       let maxLossStreak = 0;
       let currentLossStreak = 0;
 
-      const goalsConcededAgainst = await SeasonPlayerRepository.getGoalsConcededAgainst({
+      const goalsConcededAgainst = await getGoalsConcededAgainst({
         seasonPlayerId,
         matchIds: seasonPlayerMatches.map((m) => m.matchId),
       });
@@ -100,9 +101,7 @@ export const achievementCalculationTask = task({
       }
       playerAchievementsMap[seasonPlayerId] = playerAchievements;
     }
-    const playerIds = await LeaguePlayerRepository.findLeaguePlayerIds(
-      Object.keys(playerAchievementsMap),
-    );
+    const playerIds = await findLeaguePlayerIds(Object.keys(playerAchievementsMap));
     for (const seasonPlayerId of Object.keys(playerAchievementsMap)) {
       const player = playerIds.find((p) => p.seasonPlayerId === seasonPlayerId);
       if (player) {
@@ -156,7 +155,7 @@ const checkStreakAchievement = (
 
 const checkRedemptionAchievement = (
   playerAchievements: z.output<typeof LeagueAchievementType>[],
-  seasonPlayerMatches: Awaited<ReturnType<typeof SeasonPlayerRepository.getPlayerMatches>>,
+  seasonPlayerMatches: Awaited<ReturnType<typeof getPlayerMatches>>,
 ): void => {
   const resultString = seasonPlayerMatches.map((m) => m.result).join("");
   const generateLossWinString = (redemptionCount: number) =>

@@ -1,4 +1,4 @@
-import { LeagueRepository } from "@scorebrawl/db";
+import { create, getUserLeagues, update } from "@scorebrawl/db/league";
 import { z } from "zod";
 
 import {
@@ -24,7 +24,7 @@ export const leagueRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(z.object({ search: z.string().optional() }).optional())
     .query(({ ctx, input }) =>
-      LeagueRepository.getUserLeagues({
+      getUserLeagues({
         userId: ctx.auth.userId,
         search: input?.search,
       }),
@@ -32,11 +32,11 @@ export const leagueRouter = createTRPCRouter({
   create: protectedProcedure
     .input(LeagueCreateDTO)
     .mutation(({ ctx, input }) =>
-      LeagueRepository.create(LeagueCreate.parse({ ...input, userId: ctx.auth.userId })),
+      create(LeagueCreate.parse({ ...input, userId: ctx.auth.userId })),
     ),
   update: leagueEditorProcedure
     .input(LeagueEditDTO)
     .mutation(({ ctx: { league, auth }, input }) =>
-      LeagueRepository.update(LeagueEdit.parse({ ...input, userId: auth.userId, id: league.id })),
+      update(LeagueEdit.parse({ ...input, userId: auth.userId, id: league.id })),
     ),
 });

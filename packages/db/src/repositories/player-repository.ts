@@ -3,7 +3,7 @@ import { eq, gte, inArray, lte } from "drizzle-orm";
 import { db } from "../db";
 import { LeaguePlayers } from "../schema";
 
-const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
+export const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
   const leaguePlayerResult = await db.query.LeaguePlayers.findMany({
     columns: { id: true, createdAt: true, disabled: true, userId: true },
     where: eq(LeaguePlayers.leagueId, leagueId),
@@ -24,7 +24,7 @@ const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
   }));
 };
 
-const getSeasonPlayersPointDiff = async ({
+export const getSeasonPlayersPointDiff = async ({
   seasonPlayerIds,
   from = startOfDay(new Date()),
   to = endOfDay(new Date()),
@@ -64,9 +64,4 @@ const getSeasonPlayersPointDiff = async ({
     pointsDiff:
       (spm.matches[spm.matches.length - 1]?.scoreAfter ?? 0) - (spm.matches[0]?.scoreBefore ?? 0),
   }));
-};
-
-export const PlayerRepository = {
-  getLeaguePlayers,
-  getSeasonPlayersPointDiff,
 };

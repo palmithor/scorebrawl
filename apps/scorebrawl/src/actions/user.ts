@@ -3,7 +3,7 @@
 import { env } from "@/env.mjs";
 import { auth } from "@clerk/nextjs/server";
 import { createClerkClient } from "@clerk/nextjs/server";
-import { UserRepository } from "@scorebrawl/db";
+import { upsertUser } from "@scorebrawl/db/user";
 
 export const upsertAuthenticatedUser = async () => {
   const clerk = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
@@ -11,6 +11,6 @@ export const upsertAuthenticatedUser = async () => {
   const userId = auth().userId;
   if (userId) {
     const clerkUser = await clerk.users.getUser(userId as string);
-    UserRepository.upsertUser(clerkUser);
+    upsertUser(clerkUser);
   }
 };

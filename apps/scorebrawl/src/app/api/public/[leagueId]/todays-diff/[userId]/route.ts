@@ -1,11 +1,11 @@
-import { SeasonRepository } from "@scorebrawl/db";
+import { getTodayDiff } from "@scorebrawl/db/season";
 import type { NextRequest } from "next/server";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: { leagueId: string; userId: string } },
 ) {
-  const result = await SeasonRepository.getTodayDiff({
+  const result = await getTodayDiff({
     leagueId: params.leagueId as string,
     userId: params.userId as string,
   });

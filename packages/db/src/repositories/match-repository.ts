@@ -13,9 +13,9 @@ import {
   createCuid,
   db,
 } from "..";
-import { LeagueTeamRepository } from "./league-team-repository";
+import { getOrInsertTeam } from "./league-team-repository";
 
-const create = async ({
+export const create = async ({
   seasonId,
   homeTeamSeasonPlayerIds,
   awayTeamSeasonPlayerIds,
@@ -125,18 +125,16 @@ const create = async ({
   }
 
   if (homeSeasonPlayers.length > 1 && awaySeasonPlayers.length > 1) {
-    const { seasonTeamId: homeSeasonTeamId, score: homeSeasonTeamScore } =
-      await LeagueTeamRepository.getOrInsertTeam({
-        season,
-        now,
-        players: homeSeasonPlayers,
-      });
-    const { seasonTeamId: awaySeasonTeamId, score: awaySeasonTeamScore } =
-      await LeagueTeamRepository.getOrInsertTeam({
-        season,
-        now,
-        players: awaySeasonPlayers,
-      });
+    const { seasonTeamId: homeSeasonTeamId, score: homeSeasonTeamScore } = await getOrInsertTeam({
+      season,
+      now,
+      players: homeSeasonPlayers,
+    });
+    const { seasonTeamId: awaySeasonTeamId, score: awaySeasonTeamScore } = await getOrInsertTeam({
+      season,
+      now,
+      players: awaySeasonPlayers,
+    });
 
     const teamMatchResult = calculateMatchResult({
       season,
@@ -192,7 +190,7 @@ const create = async ({
   } satisfies z.infer<typeof Match>;
 };
 
-const getBySeasonId = async ({
+export const getBySeasonId = async ({
   seasonId,
   page = 1,
   limit = 30,
@@ -238,7 +236,8 @@ const getBySeasonId = async ({
     totalPages: Math.ceil((countResult?.count ?? 0) / limit),
   };
 };
-const findLatest = async ({ seasonId }: { seasonId: string }) => {
+
+export const findLatest = async ({ seasonId }: { seasonId: string }) => {
   const match = await db.query.Matches.findFirst({
     with: {
       matchPlayers: { columns: { seasonPlayerId: true, homeTeam: true } },
@@ -287,7 +286,7 @@ const findAndValidateSeasonPlayers = async ({
   return players;
 };
 
-const remove = async ({
+export const remove = async ({
   matchId,
   seasonId,
 }: {
@@ -464,10 +463,3 @@ const calculate310 = (
     })),
   },
 });
-
-export const MatchRepository = {
-  create,
-  remove,
-  getBySeasonId,
-  findLatest,
-};

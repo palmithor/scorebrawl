@@ -12,7 +12,7 @@ import {
   Users,
 } from "../schema";
 
-const getPointDiffProgression = async ({
+export const getPointDiffProgression = async ({
   seasonId,
   condition,
 }: {
@@ -74,7 +74,7 @@ const getPointDiffProgression = async ({
     );
 };
 
-export const getAll = async ({ seasonId }: { seasonId: string }) => {
+export const findAll = async ({ seasonId }: { seasonId: string }) => {
   const result = await db
     .select({
       seasonPlayerId: SeasonPlayers.id,
@@ -121,7 +121,7 @@ const matchesSubqueryBuilder = ({ seasonId }: { seasonId: string }) =>
     .where(eq(SeasonPlayers.seasonId, seasonId))
     .as("recent_matches");
 
-const getStanding = async ({ seasonId }: { seasonId: string }) => {
+export const getStanding = async ({ seasonId }: { seasonId: string }) => {
   const matchesSubquery = matchesSubqueryBuilder({ seasonId });
 
   const playerStats = await db
@@ -184,7 +184,7 @@ const getStanding = async ({ seasonId }: { seasonId: string }) => {
   });
 };
 
-const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
+export const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
   const [topPlayer] = await db
     .select({
       seasonPlayerId: SeasonPlayers.id,
@@ -214,7 +214,11 @@ const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
   };
 };
 
-const getPointProgression = async ({ seasonId }: { seasonId: string }) => {
+export const getPointProgression = async ({
+  seasonId,
+}: {
+  seasonId: string;
+}) => {
   const rankedScores = db.$with("ranked_scores").as(
     db
       .select({
@@ -359,7 +363,7 @@ export const getPlayerMatches = async ({
   }));
 };
 
-const getGoalsConcededAgainst = async ({
+export const getGoalsConcededAgainst = async ({
   matchIds,
   seasonPlayerId,
 }: {
@@ -386,7 +390,7 @@ const getGoalsConcededAgainst = async ({
   return results;
 };
 
-const getLastFiveMatchesGoals = async (seasonPlayerId: string) => {
+export const getLastFiveMatchesGoals = async (seasonPlayerId: string) => {
   const result = await db
     .select({
       matchId: MatchPlayers.matchId,
@@ -405,17 +409,4 @@ const getLastFiveMatchesGoals = async (seasonPlayerId: string) => {
     .execute();
 
   return result.map((r) => r.goalsScored);
-};
-
-export const SeasonPlayerRepository = {
-  getAll,
-  getPlayerMatches,
-  getGoalsConcededAgainst,
-  getLastFiveMatchesGoals,
-  getPointDiffProgression,
-  getPointProgression,
-  getStanding,
-  getOnFire,
-  getStruggling,
-  getTopPlayer,
 };

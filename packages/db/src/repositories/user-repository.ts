@@ -10,7 +10,7 @@ import {
   Users,
 } from "../schema";
 
-const getUserAvatar = async ({ userId }: { userId: string }) => {
+export const getUserAvatar = async ({ userId }: { userId: string }) => {
   const [userAvatar] = await db
     .select({ name: Users.name, imageUrl: Users.imageUrl })
     .from(Users)
@@ -18,7 +18,7 @@ const getUserAvatar = async ({ userId }: { userId: string }) => {
   return userAvatar;
 };
 
-const getSeasonTeamAvatars = async ({
+export const getSeasonTeamAvatars = async ({
   seasonTeamIds,
 }: {
   seasonTeamIds: string[];
@@ -60,7 +60,7 @@ const getSeasonTeamAvatars = async ({
   return Array.from(resultMap.values());
 };
 
-const getSeasonPlayerAvatars = ({
+export const getSeasonPlayerAvatars = ({
   seasonPlayerIds,
 }: {
   seasonPlayerIds: Array<string>;
@@ -77,12 +77,12 @@ const getSeasonPlayerAvatars = ({
     .where(inArray(SeasonPlayers.id, seasonPlayerIds));
 };
 
-const findUserById = async ({ id }: { id: string }) => {
+export const findUserById = async ({ id }: { id: string }) => {
   const [user] = await db.select().from(Users).where(eq(Users.id, id));
   return user;
 };
 
-const setDefaultLeague = async ({
+export const setDefaultLeague = async ({
   leagueId,
   userId,
 }: {
@@ -97,7 +97,7 @@ const setDefaultLeague = async ({
   return user;
 };
 
-const upsertUser = async ({
+export const upsertUser = async ({
   id,
   firstName,
   lastName,
@@ -135,13 +135,4 @@ const upsertUser = async ({
         updatedAt: new Date(updatedAt),
       },
     });
-};
-
-export const UserRepository = {
-  findUserById,
-  getUserAvatar,
-  setDefaultLeague,
-  upsertUser,
-  getSeasonTeamAvatars,
-  getSeasonPlayerAvatars,
 };

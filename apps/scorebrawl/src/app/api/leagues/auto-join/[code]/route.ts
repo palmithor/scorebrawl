@@ -1,18 +1,19 @@
 import { auth } from "@clerk/nextjs/server";
-import { InviteRepository, LeagueRepository } from "@scorebrawl/db";
+import { claim, findByCode } from "@scorebrawl/db/invite";
+import { getByIdWhereMember } from "@scorebrawl/db/league";
 
 export const GET = async (
   _request: Request,
   { params: { code } }: { params: { code: string } },
 ) => {
-  const invite = await InviteRepository.findByCode(code);
+  const invite = await findByCode(code);
   if (!invite) {
     return Response.redirect(
       `${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/?errorCode=INVITE_NOT_FOUND`,
       302,
     );
   }
-  const league = await LeagueRepository.getByIdWhereMember({
+  const league = await getByIdWhereMember({
     leagueId: invite.leagueId,
     userId: auth().userId ?? "",
   });
@@ -22,7 +23,7 @@ export const GET = async (
       302,
     );
   }
-  const { leagueSlug } = await InviteRepository.claimInvite({
+  const { leagueSlug } = await claim({
     leagueId: invite.leagueId,
     role: invite.role,
     userId: auth().userId ?? "",

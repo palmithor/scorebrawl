@@ -20,16 +20,16 @@ import {
   Leagues,
   Matches,
   ScoreBrawlError,
-  SeasonPlayerRepository,
   SeasonPlayers,
   SeasonTeams,
   Seasons,
   createCuid,
   db,
-  slugifySeasonName,
 } from "..";
 import type { SeasonCreate } from "../../../model/src/season";
 import type { SeasonCreatedEventData } from "../types";
+import { getStanding } from "./season-player-repository";
+import { slugifyWithCustomReplacement } from "./slug";
 
 export const findOverlappingSeason = async ({
   leagueId,
@@ -48,7 +48,7 @@ export const findOverlappingSeason = async ({
     ),
   });
 
-const getCountInfo = async ({ seasonSlug }: { seasonSlug: string }) => {
+export const getCountInfo = async ({ seasonSlug }: { seasonSlug: string }) => {
   const [matchCount] = await db
     .select({ count: sql<number>`count(*)` })
     .from(Matches)
@@ -71,7 +71,7 @@ const getCountInfo = async ({ seasonSlug }: { seasonSlug: string }) => {
   };
 };
 
-const getById = async ({ seasonId }: { seasonId: string }) => {
+export const getById = async ({ seasonId }: { seasonId: string }) => {
   const [season] = await db.select().from(Seasons).where(eq(Seasons.id, seasonId));
 
   if (!season) {
@@ -83,7 +83,7 @@ const getById = async ({ seasonId }: { seasonId: string }) => {
   return season;
 };
 
-const getBySlug = async ({ seasonSlug }: { seasonSlug: string }) => {
+export const getBySlug = async ({ seasonSlug }: { seasonSlug: string }) => {
   const [season] = await db
     .select()
     .from(Seasons)
@@ -99,7 +99,7 @@ const getBySlug = async ({ seasonSlug }: { seasonSlug: string }) => {
   return season;
 };
 
-const findActive = async ({ leagueId }: { leagueId: string }) => {
+export const findActive = async ({ leagueId }: { leagueId: string }) => {
   const now = new Date();
   const [season] = await db
     .select(getTableColumns(Seasons))
@@ -115,7 +115,7 @@ const findActive = async ({ leagueId }: { leagueId: string }) => {
   return season;
 };
 
-const getSeasonPlayers = async ({
+export const getSeasonPlayers = async ({
   seasonId,
 }: {
   leagueId: string;
@@ -170,14 +170,14 @@ const getSeasonPlayers = async ({
   }));
 };
 
-const getAll = async ({ leagueId }: { leagueId: string }) =>
+export const getAll = async ({ leagueId }: { leagueId: string }) =>
   db
     .select(getTableColumns(Seasons))
     .from(Seasons)
     .where(eq(Seasons.leagueId, leagueId))
     .orderBy(desc(Seasons.startDate));
 
-const update = async ({
+export const update = async ({
   userId,
   seasonId,
   ...rest
@@ -202,7 +202,7 @@ const update = async ({
   return season;
 };
 
-const create = async ({
+export const create = async ({
   leagueId,
   userId,
   name,
@@ -261,7 +261,8 @@ const create = async ({
   });
   return season as typeof Seasons.$inferSelect;
 };
-const getSeasonPlayerLatestMatches = async ({
+
+export const getSeasonPlayerLatestMatches = async ({
   seasonPlayerIds,
   limit = 5,
 }: {
@@ -284,18 +285,18 @@ const getSeasonPlayerLatestMatches = async ({
 /**
  * used by the public endpoint that is used to show the scores for Jón Þór statue
  */
-const getTodayDiff = async ({
+export const getTodayDiff = async ({
   leagueId,
   userId,
 }: {
   leagueId: string;
   userId: string;
 }) => {
-  const season = await SeasonRepository.findActive({ leagueId });
+  const season = await findActive({ leagueId });
   if (!season) {
     return { diff: 0 };
   }
-  const seasonPlayers = await SeasonPlayerRepository.getStanding({
+  const seasonPlayers = await getStanding({
     seasonId: season.id,
   });
   const seasonPlayer = seasonPlayers.find((sp) => sp.user.userId === userId);
@@ -332,17 +333,18 @@ export const findSeasonAndLeagueBySlug = async ({
   return league;
 };
 
-export const SeasonRepository = {
-  create,
-  getCountInfo,
-  findActive,
-  findOverlappingSeason,
-  getAll,
-  getBySlug,
-  getById,
-  getSeasonPlayerLatestMatches,
-  getSeasonPlayers,
-  getTodayDiff,
-  update,
-  findSeasonAndLeagueBySlug,
+export const slugifySeasonName = async ({ name }: { name: string }) => {
+  const doesLeagueSlugExists = async (_slug: string) =>
+    db.select().from(Seasons).where(eq(Seasons.slug, slug)).limit(1);
+
+  const rootSlug = slugifyWithCustomReplacement(name);
+  let slug = rootSlug;
+  let [slugExists] = await doesLeagueSlugExists(slug);
+  let counter = 1;
+  while (slugExists) {
+    slug = `${rootSlug}-${counter}`;
+    counter++;
+    [slugExists] = await doesLeagueSlugExists(slug);
+  }
+  return slug;
 };

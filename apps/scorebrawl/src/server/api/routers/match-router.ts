@@ -3,13 +3,13 @@ import { z } from "zod";
 import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
 import type { achievementCalculationTask } from "@/trigger/achievement-calculation-task";
 import { MatchDTO, MatchInputDTO, RemoveMatchDTO } from "@scorebrawl/api";
-import { MatchRepository } from "@scorebrawl/db";
+import { create, findLatest, getBySeasonId, remove } from "@scorebrawl/db/match";
 import { MatchInput } from "@scorebrawl/model";
 import { tasks } from "@trigger.dev/sdk/v3";
 
 export const matchRouter = createTRPCRouter({
   create: seasonProcedure.input(MatchInputDTO).mutation(async ({ ctx, input }) => {
-    const match = await MatchRepository.create(
+    const match = await create(
       MatchInput.parse({
         userId: ctx.auth.userId,
         seasonId: ctx.season.id,
@@ -23,7 +23,7 @@ export const matchRouter = createTRPCRouter({
     return MatchDTO.parse(match);
   }),
   remove: seasonProcedure.input(RemoveMatchDTO).mutation(async ({ ctx, input: { matchId } }) => {
-    const seasonPlayerIds = await MatchRepository.remove({
+    const seasonPlayerIds = await remove({
       matchId,
       seasonId: ctx.season.id,
     });
@@ -35,7 +35,7 @@ export const matchRouter = createTRPCRouter({
   getLatest: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
     .query(async ({ ctx }) => {
-      const latestMatch = await MatchRepository.findLatest({
+      const latestMatch = await findLatest({
         seasonId: ctx.season.id,
       });
       return MatchDTO.parse(latestMatch);
@@ -50,7 +50,7 @@ export const matchRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input: { page, limit } }) => {
-      const matchPage = await MatchRepository.getBySeasonId({
+      const matchPage = await getBySeasonId({
         seasonId: ctx.season.id,
         page,
         limit,

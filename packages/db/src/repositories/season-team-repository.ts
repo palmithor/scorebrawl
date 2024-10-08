@@ -12,7 +12,7 @@ import {
   Users,
 } from "../schema";
 
-const getPointDiffProgression = async ({
+export const getPointDiffProgression = async ({
   seasonId,
   condition,
 }: {
@@ -92,7 +92,7 @@ const matchesSubqueryBuilder = ({ seasonId }: { seasonId: string }) =>
     .where(eq(SeasonTeams.seasonId, seasonId))
     .as("recent_matches");
 
-const getStanding = async ({ seasonId }: { seasonId: string }) => {
+export const getStanding = async ({ seasonId }: { seasonId: string }) => {
   const matchesSubquery = matchesSubqueryBuilder({ seasonId });
 
   const teamStats = await db
@@ -149,7 +149,7 @@ const getStanding = async ({ seasonId }: { seasonId: string }) => {
   });
 };
 
-const getTopTeam = async ({ seasonSlug }: { seasonSlug: string }) => {
+export const getTopTeam = async ({ seasonSlug }: { seasonSlug: string }) => {
   const topTeamSubquery = db
     .select({
       seasonTeamId: SeasonTeams.id,
@@ -178,9 +178,4 @@ const getTopTeam = async ({ seasonSlug }: { seasonSlug: string }) => {
     .innerJoin(LeagueTeamPlayers, eq(LeagueTeamPlayers.teamId, LeagueTeams.id))
     .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, LeagueTeamPlayers.leaguePlayerId))
     .innerJoin(Users, eq(Users.id, LeaguePlayers.userId));
-};
-
-export const SeasonTeamRepository = {
-  getStanding,
-  getTopTeam,
 };

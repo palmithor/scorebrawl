@@ -5,7 +5,19 @@
   "exports": {
     "./types": "./src/types.ts",
     ".": "./src/index.ts",
-    "./achievementRepository": "./src/repositories/achievementRepository.ts"
+    "./achievement": "./src/repositories/achievement-repository.ts",
+    "./invite": "./src/repositories/invite-repository.ts",
+    "./league-player": "./src/repositories/league-player-repository.ts",
+    "./league": "./src/repositories/league-repository.ts",
+    "./league-team": "./src/repositories/league-team-repository.ts",
+    "./match": "./src/repositories/match-repository.ts",
+    "./member": "./src/repositories/member-repository.ts",
+    "./notification": "./src/repositories/notification-repository.ts",
+    "./player": "./src/repositories/player-repository.ts",
+    "./season-player": "./src/repositories/season-player-repository.ts",
+    "./season": "./src/repositories/season-repository.ts",
+    "./season-team": "./src/repositories/season-team-repository.ts",
+    "./user": "./src/repositories/user-repository.ts"
   },
   "scripts": {},
   "dependencies": {

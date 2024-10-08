@@ -1,4 +1,4 @@
-import { InviteRepository } from "@scorebrawl/db";
+import { create, findByLeagueId } from "@scorebrawl/db/invite";
 import { z } from "zod";
 
 import { createTRPCRouter, leagueEditorProcedure } from "@/server/api/trpc";
@@ -6,14 +6,14 @@ import { InviteInputDTO } from "@scorebrawl/api";
 
 export const inviteRouter = createTRPCRouter({
   getAll: leagueEditorProcedure.input(z.object({ leagueSlug: z.string() })).query(({ ctx }) =>
-    InviteRepository.getLeagueInvites({
+    findByLeagueId({
       leagueId: ctx.league.id,
     }),
   ),
   create: leagueEditorProcedure
     .input(InviteInputDTO)
     .mutation(({ input: { role, expiresAt }, ctx }) =>
-      InviteRepository.createInvite({
+      create({
         leagueId: ctx.league.id,
         userId: ctx.auth.userId,
         role: role,
