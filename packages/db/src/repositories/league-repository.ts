@@ -1,20 +1,13 @@
-import {
-  LeagueMembers,
-  LeaguePlayers,
-  Leagues,
-  createCuid,
-  db,
-  slugifyLeagueName,
-  slugifyWithCustomReplacement,
-} from "@scorebrawl/db";
+import { LeagueMembers, LeaguePlayers, Leagues, createCuid, db } from "@scorebrawl/db";
 import { type SQL, and, asc, eq, getTableColumns, ilike, inArray } from "drizzle-orm";
 import type { z } from "zod";
 import type { LeagueCreate, LeagueEdit } from "../../../model";
 import { ScoreBrawlError } from "../errors";
 import type { LeagueMemberRole } from "../types";
 import { canReadLeaguesCriteria } from "./criteria-util";
+import { slugifyWithCustomReplacement } from "./slug";
 
-const getUserLeagues = async ({
+export const getUserLeagues = async ({
   search,
   userId,
 }: {
@@ -35,7 +28,8 @@ const getUserLeagues = async ({
     .where(where)
     .orderBy(asc(Leagues.slug));
 };
-const findBySlug = async ({
+
+export const findBySlug = async ({
   userId,
   leagueSlug: slug,
 }: {
@@ -49,7 +43,7 @@ const findBySlug = async ({
   return league ? { ...league, code: undefined } : undefined;
 };
 
-const getLeagueById = async ({
+export const getLeagueById = async ({
   userId,
   leagueId,
 }: {
@@ -69,7 +63,7 @@ const getLeagueById = async ({
   return { ...league, code: undefined };
 };
 
-const hasLeagueEditorAccess = async ({
+export const hasLeagueEditorAccess = async ({
   userId,
   leagueId,
 }: {
@@ -84,7 +78,7 @@ const hasLeagueEditorAccess = async ({
   return !!league;
 };
 
-const getWhereMember = async ({
+export const getWhereMember = async ({
   allowedRoles,
   userId,
   whereCondition,
@@ -107,7 +101,8 @@ const getWhereMember = async ({
     .where(whereCondition);
   return league;
 };
-const getByIdWhereMember = async ({
+
+export const getByIdWhereMember = async ({
   userId,
   leagueId,
   allowedRoles,
@@ -120,7 +115,7 @@ const getByIdWhereMember = async ({
   return await getWhereMember({ allowedRoles, userId, whereCondition });
 };
 
-const findBySlugWithUserRole = async ({
+export const findBySlugWithUserRole = async ({
   userId,
   leagueSlug,
 }: {
@@ -141,7 +136,7 @@ const findBySlugWithUserRole = async ({
   return league;
 };
 
-const create = async ({ name, logoUrl, userId }: z.infer<typeof LeagueCreate>) => {
+export const create = async ({ name, logoUrl, userId }: z.infer<typeof LeagueCreate>) => {
   const slug = await slugifyLeagueName({ name });
   const now = new Date();
   const [league] = await db
@@ -176,7 +171,7 @@ const create = async ({ name, logoUrl, userId }: z.infer<typeof LeagueCreate>) =
   return league;
 };
 
-const update = async ({ name, logoUrl, id, userId }: z.infer<typeof LeagueEdit>) => {
+export const update = async ({ name, logoUrl, id, userId }: z.infer<typeof LeagueEdit>) => {
   const slug = name ? await slugifyLeagueName({ name }) : undefined;
   const now = new Date();
   await db
@@ -193,13 +188,17 @@ const update = async ({ name, logoUrl, id, userId }: z.infer<typeof LeagueEdit>)
   return db.query.Leagues.findFirst({ where: eq(Leagues.id, id) });
 };
 
-export const LeagueRepository = {
-  create,
-  update,
-  findBySlug,
-  getByIdWhereMember,
-  findBySlugWithUserRole,
-  getLeagueById,
-  getUserLeagues,
-  hasLeagueEditorAccess,
+export const slugifyLeagueName = async ({ name }: { name: string }) => {
+  const doesLeagueSlugExists = async (_slug: string) =>
+    db.select().from(Leagues).where(eq(Leagues.slug, slug)).limit(1);
+  const rootSlug = slugifyWithCustomReplacement(name);
+  let slug = rootSlug;
+  let [slugExists] = await doesLeagueSlugExists(slug);
+  let counter = 1;
+  while (slugExists) {
+    slug = `${rootSlug}-${counter}`;
+    counter++;
+    [slugExists] = await doesLeagueSlugExists(slug);
+  }
+  return slug;
 };

@@ -11,7 +11,7 @@ import {
 import type { LeagueMemberRole } from "../types";
 import { createCuid } from "../utils";
 
-const createInvite = async ({
+export const create = async ({
   userId,
   leagueId,
   role,
@@ -42,7 +42,7 @@ const createInvite = async ({
   return invite;
 };
 
-const findByCode = async (code: string) => {
+export const findByCode = async (code: string) => {
   const [invite] = await db
     .select(getTableColumns(LeagueInvites))
     .from(LeagueInvites)
@@ -50,7 +50,7 @@ const findByCode = async (code: string) => {
   return invite;
 };
 
-const getLeagueInvites = async ({ leagueId }: { leagueId: string }) =>
+export const findByLeagueId = async ({ leagueId }: { leagueId: string }) =>
   db
     .select(getTableColumns(LeagueInvites))
     .from(LeagueInvites)
@@ -58,7 +58,7 @@ const getLeagueInvites = async ({ leagueId }: { leagueId: string }) =>
     .where(eq(LeagueInvites.leagueId, leagueId))
     .orderBy(desc(LeagueInvites.expiresAt));
 
-const claimInvite = async ({
+export const claim = async ({
   userId,
   leagueId,
   role,
@@ -115,11 +115,4 @@ const claimInvite = async ({
     .from(Leagues)
     .where(eq(Leagues.id, leagueId));
   return { leagueSlug: league?.slug ?? "" };
-};
-
-export const InviteRepository = {
-  createInvite,
-  findByCode,
-  getLeagueInvites,
-  claimInvite,
 };

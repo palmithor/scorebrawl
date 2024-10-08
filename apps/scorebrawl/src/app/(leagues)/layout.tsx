@@ -5,7 +5,7 @@ import { api } from "@/trpc/server";
 import { cookies } from "next/headers";
 
 import { auth } from "@clerk/nextjs/server";
-import { UserRepository } from "@scorebrawl/db";
+import { findUserById } from "@scorebrawl/db/user";
 import type { ReactNode } from "react";
 
 interface LayoutProps {
@@ -15,7 +15,7 @@ interface LayoutProps {
 export default async function Layout({ children }: LayoutProps) {
   const { userId } = auth();
   if (userId) {
-    const user = await UserRepository.findUserById({ id: userId });
+    const user = await findUserById({ id: userId });
     if (!user) {
       await upsertAuthenticatedUser();
     }

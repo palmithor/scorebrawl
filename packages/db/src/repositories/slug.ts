@@ -1,9 +1,4 @@
 import slugify from "@sindresorhus/slugify";
-import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { Leagues, Seasons } from "../schema";
-
-// TODO Refactor to reuse same parts
 
 export const slugifyWithCustomReplacement = (text: string) => {
   return slugify(text, {
@@ -14,34 +9,4 @@ export const slugifyWithCustomReplacement = (text: string) => {
       ["Ð", "d"],
     ],
   });
-};
-export const slugifyLeagueName = async ({ name }: { name: string }) => {
-  const doesLeagueSlugExists = async (_slug: string) =>
-    db.select().from(Leagues).where(eq(Leagues.slug, slug)).limit(1);
-  const rootSlug = slugifyWithCustomReplacement(name);
-  let slug = rootSlug;
-  let [slugExists] = await doesLeagueSlugExists(slug);
-  let counter = 1;
-  while (slugExists) {
-    slug = `${rootSlug}-${counter}`;
-    counter++;
-    [slugExists] = await doesLeagueSlugExists(slug);
-  }
-  return slug;
-};
-
-export const slugifySeasonName = async ({ name }: { name: string }) => {
-  const doesLeagueSlugExists = async (_slug: string) =>
-    db.select().from(Seasons).where(eq(Seasons.slug, slug)).limit(1);
-
-  const rootSlug = slugifyWithCustomReplacement(name);
-  let slug = rootSlug;
-  let [slugExists] = await doesLeagueSlugExists(slug);
-  let counter = 1;
-  while (slugExists) {
-    slug = `${rootSlug}-${counter}`;
-    counter++;
-    [slugExists] = await doesLeagueSlugExists(slug);
-  }
-  return slug;
 };

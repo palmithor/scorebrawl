@@ -14,7 +14,7 @@ import {
 } from "..";
 import { db } from "../db";
 
-const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {
+export const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {
   return db.query.LeagueTeams.findMany({
     where: (team, { eq }) => eq(team.leagueId, leagueId),
     orderBy: asc(LeagueTeams.name),
@@ -36,7 +36,7 @@ const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {
   });
 };
 
-const getOrInsertTeam = async ({
+export const getOrInsertTeam = async ({
   now,
   season,
   players,
@@ -110,7 +110,7 @@ const getOrInsertTeam = async ({
   return { seasonTeamId: seasonTeam.id, score: seasonTeam.score };
 };
 
-const update = async ({
+export const update = async ({
   leagueSlug,
   teamId,
   name,
@@ -155,7 +155,7 @@ const update = async ({
     .returning();
 };
 
-const getBySeasonPlayerIds = async ({
+export const getBySeasonPlayerIds = async ({
   seasonPlayerIds,
 }: {
   seasonPlayerIds: string[];
@@ -168,11 +168,4 @@ const getBySeasonPlayerIds = async ({
     .innerJoin(SeasonPlayers, eq(SeasonPlayers.seasonId, SeasonTeams.seasonId))
     .where(inArray(SeasonPlayers.id, seasonPlayerIds));
   return team;
-};
-
-export const LeagueTeamRepository = {
-  getLeagueTeams,
-  getOrInsertTeam,
-  update,
-  getBySeasonPlayerIds,
 };

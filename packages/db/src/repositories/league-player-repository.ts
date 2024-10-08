@@ -4,7 +4,7 @@ import type z from "zod";
 import { db } from "../db";
 import { LeaguePlayers, SeasonPlayers, Users } from "../schema";
 
-const getAll = async ({ leagueId }: { leagueId: string }) => {
+export const getAll = async ({ leagueId }: { leagueId: string }) => {
   const result = await db
     .select({
       leaguePlayerId: LeaguePlayers.id,
@@ -26,7 +26,7 @@ const getAll = async ({ leagueId }: { leagueId: string }) => {
   })) satisfies z.infer<typeof LeaguePlayer>[];
 };
 
-const findLeaguePlayerIds = (seasonPlayerIds: string[]) =>
+export const findLeaguePlayerIds = (seasonPlayerIds: string[]) =>
   db
     .select({
       leaguePlayerId: SeasonPlayers.leaguePlayerId,
@@ -36,8 +36,3 @@ const findLeaguePlayerIds = (seasonPlayerIds: string[]) =>
     .from(SeasonPlayers)
     .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
     .where(inArray(SeasonPlayers.id, seasonPlayerIds));
-
-export const LeaguePlayerRepository = {
-  getAll,
-  findLeaguePlayerIds,
-};

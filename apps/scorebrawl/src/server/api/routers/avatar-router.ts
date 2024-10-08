@@ -1,13 +1,13 @@
 //
 
 import { createTRPCRouter, protectedProcedure, seasonProcedure } from "@/server/api/trpc";
-import { UserRepository } from "@scorebrawl/db";
+import { getSeasonPlayerAvatars, getSeasonTeamAvatars, getUserAvatar } from "@scorebrawl/db/user";
 import { z } from "zod";
 
 export const avatarRouter = createTRPCRouter({
   getByUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
-    .query(({ input: { userId } }) => UserRepository.getUserAvatar({ userId })),
+    .query(({ input: { userId } }) => getUserAvatar({ userId })),
   getBySeasonTeamIds: seasonProcedure
     .input(
       z.object({
@@ -16,9 +16,7 @@ export const avatarRouter = createTRPCRouter({
         seasonTeamIds: z.array(z.string()).min(1),
       }),
     )
-    .query(({ input: { seasonTeamIds } }) =>
-      UserRepository.getSeasonTeamAvatars({ seasonTeamIds }),
-    ),
+    .query(({ input: { seasonTeamIds } }) => getSeasonTeamAvatars({ seasonTeamIds })),
   getBySeasonPlayerIds: seasonProcedure
     .input(
       z.object({
@@ -27,7 +25,5 @@ export const avatarRouter = createTRPCRouter({
         seasonPlayerIds: z.array(z.string()).min(1),
       }),
     )
-    .query(({ input: { seasonPlayerIds } }) =>
-      UserRepository.getSeasonPlayerAvatars({ seasonPlayerIds }),
-    ),
+    .query(({ input: { seasonPlayerIds } }) => getSeasonPlayerAvatars({ seasonPlayerIds })),
 });

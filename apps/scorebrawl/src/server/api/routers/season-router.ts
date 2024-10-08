@@ -1,4 +1,3 @@
-import { SeasonRepository } from "@scorebrawl/db";
 import { z } from "zod";
 
 import {
@@ -8,6 +7,15 @@ import {
   seasonProcedure,
 } from "@/server/api/trpc";
 import { SeasonCreateDTO, SeasonEditDTOSchema } from "@scorebrawl/api";
+import {
+  create,
+  findActive,
+  findOverlappingSeason,
+  getAll,
+  getBySlug,
+  getCountInfo,
+  update,
+} from "@scorebrawl/db/season";
 import { SeasonCreateSchema, SeasonEditSchema } from "@scorebrawl/model";
 import { TRPCError } from "@trpc/server";
 
@@ -37,7 +45,7 @@ const validateNoOverlappingSeason = async ({
   if (!startDate) {
     return;
   }
-  const overlappingSeason = await SeasonRepository.findOverlappingSeason({
+  const overlappingSeason = await findOverlappingSeason({
     leagueId,
     startDate,
     endDate,
@@ -56,20 +64,20 @@ export const seasonRouter = createTRPCRouter({
     .query(({ ctx: { season } }) => season),
   getCountInfo: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
-    .query(async ({ input: { seasonSlug } }) => SeasonRepository.getCountInfo({ seasonSlug })),
+    .query(async ({ input: { seasonSlug } }) => getCountInfo({ seasonSlug })),
   findActive: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
-    .query(async ({ ctx }) => SeasonRepository.findActive({ leagueId: ctx.league.id })),
+    .query(async ({ ctx }) => findActive({ leagueId: ctx.league.id })),
   findBySlug: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
     .query(async ({ ctx: { season } }) => season),
   getAll: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
-    .query(async ({ ctx }) => SeasonRepository.getAll({ leagueId: ctx.league.id })),
+    .query(async ({ ctx }) => getAll({ leagueId: ctx.league.id })),
   create: leagueEditorProcedure.input(SeasonCreateDTO).mutation(async ({ input, ctx }) => {
     validateStartBeforeEnd(input);
     await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
-    return SeasonRepository.create(
+    return create(
       SeasonCreateSchema.parse({
         userId: ctx.auth.userId,
         leagueId: ctx.league.id,
@@ -80,7 +88,7 @@ export const seasonRouter = createTRPCRouter({
   edit: leagueEditorProcedure.input(SeasonEditDTOSchema).mutation(async ({ ctx, input }) => {
     validateStartBeforeEnd(input);
     await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
-    const season = await SeasonRepository.getBySlug({
+    const season = await getBySlug({
       seasonSlug: input.seasonSlug,
     });
     if (
@@ -96,7 +104,7 @@ export const seasonRouter = createTRPCRouter({
         message: "Can only update name of a season that has started",
       });
     }
-    const updatedSeason = await SeasonRepository.update(
+    const updatedSeason = await update(
       SeasonEditSchema.parse({
         leagueId: ctx.league.id,
         userId: ctx.auth.userId,

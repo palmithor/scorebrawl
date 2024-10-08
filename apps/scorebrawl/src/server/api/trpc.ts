@@ -1,8 +1,9 @@
 import { editorRoles } from "@/utils/permission-util";
 import type { AuthObject } from "@clerk/backend/internal";
-import { LeagueRepository, ScoreBrawlError, SeasonRepository } from "@scorebrawl/db";
-import { initTRPC } from "@trpc/server";
-import { TRPCError } from "@trpc/server";
+import { ScoreBrawlError } from "@scorebrawl/db";
+import { findBySlugWithUserRole } from "@scorebrawl/db/league";
+import { findSeasonAndLeagueBySlug } from "@scorebrawl/db/season";
+import { TRPCError, initTRPC } from "@trpc/server";
 import { TRPC_ERROR_CODES_BY_KEY } from "@trpc/server/rpc";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
@@ -61,7 +62,7 @@ const isAuthed = t.middleware(({ next, ctx }) => {
 });
 
 const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next }) => {
-  const leagueWithUserRole = await LeagueRepository.findBySlugWithUserRole({
+  const leagueWithUserRole = await findBySlugWithUserRole({
     userId: ctx.auth.userId,
     leagueSlug: (input as { leagueSlug: string }).leagueSlug ?? "",
   });
@@ -88,7 +89,7 @@ const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
     leagueSlug: string;
     seasonSlug: string;
   };
-  const seasonWithLeagueAndRole = await SeasonRepository.findSeasonAndLeagueBySlug({
+  const seasonWithLeagueAndRole = await findSeasonAndLeagueBySlug({
     userId: ctx.auth.userId,
     leagueSlug,
     seasonSlug,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
-import { SeasonTeamRepository } from "@scorebrawl/db";
+import { getStanding, getTopTeam } from "@scorebrawl/db/season-team";
 
 export const seasonTeamRouter = createTRPCRouter({
   getStanding: seasonProcedure
@@ -11,9 +11,9 @@ export const seasonTeamRouter = createTRPCRouter({
         ctx: {
           season: { id },
         },
-      }) => SeasonTeamRepository.getStanding({ seasonId: id }),
+      }) => getStanding({ seasonId: id }),
     ),
   getTop: seasonProcedure
     .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
-    .query(({ input: { seasonSlug } }) => SeasonTeamRepository.getTopTeam({ seasonSlug })),
+    .query(({ input: { seasonSlug } }) => getTopTeam({ seasonSlug })),
 });
