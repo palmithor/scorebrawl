@@ -30,7 +30,7 @@ export const migrateDb = async () => {
       migrationsFolder: "./migrations",
     });
   } else {
-    const migrateDrizzle = localDrizzle(postgres(databaseUrl, { max: 1 }));
+    const migrateDrizzle = localDrizzle(postgres(databaseUrl, { max: 1, debug: true }));
     await localMigrator(migrateDrizzle, { migrationsFolder: "./migrations" });
   }
 };
