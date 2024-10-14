@@ -102,6 +102,7 @@ export const upsertUser = async ({
   firstName,
   lastName,
   imageUrl,
+  email,
   createdAt,
   updatedAt,
 }: {
@@ -109,6 +110,7 @@ export const upsertUser = async ({
   firstName: string | null;
   lastName: string | null;
   imageUrl: string;
+  email?: string;
   createdAt: number;
   updatedAt: number;
 }) => {
@@ -120,7 +122,10 @@ export const upsertUser = async ({
         firstName,
         lastName,
       }),
-      imageUrl: imageUrl,
+      email,
+      emailVerified: !!email,
+      imageUrl,
+      image: imageUrl,
       createdAt: new Date(createdAt),
       updatedAt: new Date(updatedAt),
     })

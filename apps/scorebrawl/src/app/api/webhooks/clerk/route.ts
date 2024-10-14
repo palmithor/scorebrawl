@@ -50,29 +50,36 @@ export async function POST(req: Request) {
   // Get the ID and type
   // const { id } = evt.data;
   const eventType = evt.type;
-
+  //.find(address => address.id === evt.data.primary_email_address_id)
   if (eventType === "user.created" || eventType === "user.updated") {
+    const webhookUser = evt.data;
+    const email = webhookUser.email_addresses?.find(
+      (emailAddressJson) => emailAddressJson.id === webhookUser.primary_email_address_id,
+    )?.email_address;
     await db
       .insert(Users)
       .values({
-        id: evt.data.id,
+        id: webhookUser.id,
         name: fullName({
-          firstName: evt.data.first_name,
-          lastName: evt.data.last_name,
+          firstName: webhookUser.first_name,
+          lastName: webhookUser.last_name,
         }),
-        imageUrl: evt.data.image_url,
-        createdAt: new Date(evt.data.created_at),
-        updatedAt: new Date(evt.data.updated_at),
+        image: webhookUser.image_url,
+        imageUrl: webhookUser.image_url,
+        email: email,
+        emailVerified: true,
+        createdAt: new Date(webhookUser.created_at),
+        updatedAt: new Date(webhookUser.updated_at),
       })
       .onConflictDoUpdate({
         target: Users.id,
         set: {
           name: fullName({
-            firstName: evt.data.first_name,
-            lastName: evt.data.last_name,
+            firstName: webhookUser.first_name,
+            lastName: webhookUser.last_name,
           }),
-          imageUrl: evt.data.image_url,
-          updatedAt: new Date(evt.data.updated_at),
+          imageUrl: webhookUser.image_url,
+          updatedAt: new Date(webhookUser.updated_at),
         },
       });
   }

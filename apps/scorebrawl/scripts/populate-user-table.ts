@@ -31,6 +31,9 @@ for (const user of clerkUsers) {
         id: user.id,
         name: fullName({ firstName: user.firstName, lastName: user.lastName }),
         imageUrl: user.imageUrl,
+        image: user.imageUrl,
+        email: user.primaryEmailAddress?.emailAddress,
+        emailVerified: true,
         createdAt: new Date(user.createdAt),
         updatedAt: new Date(user.updatedAt),
       })
@@ -42,6 +45,9 @@ for (const user of clerkUsers) {
             lastName: user.lastName,
           }),
           imageUrl: user.imageUrl,
+          image: user.imageUrl,
+          email: user.primaryEmailAddress?.emailAddress,
+          emailVerified: !!user.primaryEmailAddress?.emailAddress,
           updatedAt: new Date(user.updatedAt),
         },
       });

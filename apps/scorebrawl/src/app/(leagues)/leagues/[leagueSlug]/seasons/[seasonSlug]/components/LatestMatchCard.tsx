@@ -71,22 +71,20 @@ const LatestMatchCardContent = ({
     <div className="flex gap-4">
       <MatchResult match={match} leagueSlug={leagueSlug} seasonSlug={seasonSlug} />
 
-      <>
-        {!confirmDelete ? (
-          <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
-            <Undo2Icon size={20} />
+      {!confirmDelete ? (
+        <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
+          <Undo2Icon size={20} />
+        </Button>
+      ) : (
+        <>
+          <Button variant={"outline"} className={"px-2"} onClick={() => setConfirmDelete(false)}>
+            <XIcon size={20} className={"text-red-500"} />
           </Button>
-        ) : (
-          <>
-            <Button variant={"outline"} className={"px-2"} onClick={() => setConfirmDelete(false)}>
-              <XIcon size={20} className={"text-red-500"} />
-            </Button>
-            <Button variant={"outline"} className={"px-2"} onClick={onClickConfirmDelete}>
-              <CheckIcon size={20} className={"text-green-500"} />
-            </Button>
-          </>
-        )}
-      </>
+          <Button variant={"outline"} className={"px-2"} onClick={onClickConfirmDelete}>
+            <CheckIcon size={20} className={"text-green-500"} />
+          </Button>
+        </>
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import {
   json,
   pgTable,
   real,
+  text,
   timestamp,
   uniqueIndex,
   varchar,
@@ -285,10 +286,45 @@ export const LeagueInvites = pgTable(
 export const Users = pgTable("user", {
   id: varchar("id", { length: 100 }).primaryKey(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
+  image: varchar("image"),
   name: varchar("name").notNull(),
+  email: text("email"),
+  emailVerified: boolean("email_verified"),
   defaultLeagueId: varchar("default_league_id", cuidConfig).references(() => Leagues.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const Sessions = pgTable("session", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .references(() => Users.id)
+    .notNull(),
+  expiresAt: timestamp("expires_at"),
+  ipAddress: text("ip_address"),
+  userAgen: text("user_agent"),
+});
+
+export const Accounts = pgTable("account", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .references(() => Users.id)
+    .notNull(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  expiresAt: timestamp("expires_at"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  password: text("password"),
+});
+
+export const Verifications = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
 });
 
 export const Notifications = pgTable("notification", {
