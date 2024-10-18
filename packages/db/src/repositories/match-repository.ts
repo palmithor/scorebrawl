@@ -341,14 +341,15 @@ const revertScores = async ({ matchId }: { matchId: string }) => {
   }));
   const sqlChunks: SQL[] = [];
 
-  sqlChunks.push(sql`(case`);
+  sqlChunks.push(sql`case`);
   for (const update of playerUpdateData) {
     sqlChunks.push(sql`when id = ${update.id} then ${update.score}`);
   }
-  sqlChunks.push(sql`end)`);
+  sqlChunks.push(sql`else score end`);
   const finalSql: SQL = sql.join(sqlChunks, sql.raw(" "));
 
-  db.update(SeasonPlayers)
+  await db
+    .update(SeasonPlayers)
     .set({ score: finalSql })
     .where(
       inArray(
