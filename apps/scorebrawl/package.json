@@ -84,7 +84,7 @@
     "d3-path": "^3.1.0",
     "drizzle-kit": "^0.23.0",
     "postcss": "^8.4.45",
-    "tailwindcss": "3.4.7",
+    "tailwindcss": "3.4.15",
     "tailwindcss-animate": "1.0.7",
     "typescript": "5.5.4"
   }
