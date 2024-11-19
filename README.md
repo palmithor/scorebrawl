@@ -28,7 +28,7 @@ Run db migrations and start the development server by executing `bun run dev`.
 
 - Bun
 - NextJS
-- Clerk Authentication
+- Clerk
 - Uploadthing
 - Shadcn
 - Tailwind
