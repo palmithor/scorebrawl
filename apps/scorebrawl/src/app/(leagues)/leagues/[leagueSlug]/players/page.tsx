@@ -5,7 +5,9 @@ export default ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) 
   return (
     <>
       <BreadcrumbsHeader breadcrumbs={[{ name: "Players" }]} />
-      <LeaguePlayersTable leagueSlug={leagueSlug} />
+      <div className="grid">
+        <LeaguePlayersTable leagueSlug={leagueSlug} />
+      </div>
     </>
   );
 };
