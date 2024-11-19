@@ -14,26 +14,34 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSidebar } from "../ui/sidebar";
 
 interface LeagueSwitcherProps {
-  isCollapsed: boolean;
   leagues: { id: string; slug: string; name: string; logoUrl: string | null }[];
-  selectedLeague?: { id: string; slug: string; name: string; logoUrl: string | null };
   onLeagueSelect: (leagueId: string) => void;
 }
 
-export function LeagueSwitcher({
-  isCollapsed,
-  leagues,
-  selectedLeague,
-  onLeagueSelect,
-}: LeagueSwitcherProps) {
+export function LeagueSwitcher({ leagues, onLeagueSelect }: LeagueSwitcherProps) {
   const router = useRouter();
+  const { open, isMobile, setOpenMobile } = useSidebar();
+  const isCollapsed = !open && !isMobile;
+  // todo jonthor
+  const params = useParams<{ leagueSlug: string }>();
+  const [leagueSlug, setLeagueSlug] = useState(params.leagueSlug);
+  useEffect(() => {
+    if (params.leagueSlug) {
+      setLeagueSlug(params.leagueSlug);
+    }
+  }, [params.leagueSlug]);
+
+  const selectedLeague = leagues.find((league) => league.slug === leagueSlug) ?? leagues[0];
   return (
     <Select
       value={selectedLeague?.name}
       onValueChange={async (value) => {
+        setOpenMobile(false);
         if (value === "create") {
           router.push("/leagues/create");
         } else {
@@ -58,7 +66,7 @@ export function LeagueSwitcher({
           <span className={cn("ml-1", isCollapsed && "hidden")}>{selectedLeague?.name}</span>
         </SelectValue>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="bg-sidebar">
         <SelectGroup className="max-h-48 overflow-y-auto">
           <SelectLabel>Leagues</SelectLabel>
           {leagues.map((league) => (

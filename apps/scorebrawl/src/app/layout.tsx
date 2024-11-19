@@ -80,7 +80,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 {children}
               </ClerkLoaded>
               <ClerkLoading>
-                <div className="grid h-screen place-items-center">
+                <div className="grid h-screen-safe place-items-center">
                   <Spinner size="40" />
                 </div>
               </ClerkLoading>

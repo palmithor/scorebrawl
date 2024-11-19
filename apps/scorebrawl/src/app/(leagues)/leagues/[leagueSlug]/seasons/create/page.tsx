@@ -76,7 +76,7 @@ export default async function ({
           <div className="pb-3">
             <Label className="text-sm font-medium">All seasons</Label>
           </div>
-          <div className="rounded-md border">
+          <div className="rounded-md border grid">
             <SeasonTable leagueSlug={league.slug} />
           </div>
         </div>
