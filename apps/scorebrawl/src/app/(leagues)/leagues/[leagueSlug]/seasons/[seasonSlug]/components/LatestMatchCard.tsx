@@ -37,12 +37,13 @@ const LatestMatchCardContent = ({
   seasonSlug: string;
   match: z.infer<typeof MatchDTO>;
 }) => {
-  const { mutate } = api.match.remove.useMutation();
+  const { mutate, isPending } = api.match.remove.useMutation();
   const utils = api.useUtils();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
 
   const onClickConfirmDelete = async () => {
+    setConfirmDelete(false);
     mutate(
       { seasonSlug, leagueSlug, matchId: match.id },
       {
@@ -72,7 +73,12 @@ const LatestMatchCardContent = ({
       <MatchResult match={match} leagueSlug={leagueSlug} seasonSlug={seasonSlug} />
 
       {!confirmDelete ? (
-        <Button variant={"ghost"} className={"px-2"} onClick={() => setConfirmDelete(true)}>
+        <Button
+          variant={"ghost"}
+          className={"px-2"}
+          disabled={isPending}
+          onClick={() => setConfirmDelete(true)}
+        >
           <Undo2Icon size={20} />
         </Button>
       ) : (
