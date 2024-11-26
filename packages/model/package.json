@@ -7,7 +7,7 @@
   "scripts": {},
   "devDependencies": {
     "@scorebrawl/typescript-config": "workspace:*",
-    "@types/node": "20.12.8",
+    "@types/node": "20.17.8",
     "typescript": "5.3.3"
   }
 }

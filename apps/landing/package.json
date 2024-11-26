@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@scorebrawl/typescript-config": "workspace:*",
-    "@types/node": "20.12.8",
+    "@types/node": "20.17.8",
     "@types/react": "^18.3.3",
     "@types/react-dom": "18.3.0",
     "autoprefixer": "10.4.19",
