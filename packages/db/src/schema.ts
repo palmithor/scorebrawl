@@ -300,9 +300,12 @@ export const Sessions = pgTable("session", {
   userId: text("user_id")
     .references(() => Users.id)
     .notNull(),
+  token: text("token"),
   expiresAt: timestamp("expires_at"),
   ipAddress: text("ip_address"),
-  userAgen: text("user_agent"),
+  userAgent: text("user_agent"),
+  updatedAt: timestamp("updated_at"),
+  createdAt: timestamp("created_at"),
 });
 
 export const Accounts = pgTable("account", {
@@ -325,6 +328,8 @@ export const Verifications = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
+  updatedAt: timestamp("updated_at"),
+  createdAt: timestamp("created_at"),
 });
 
 export const Notifications = pgTable("notification", {
