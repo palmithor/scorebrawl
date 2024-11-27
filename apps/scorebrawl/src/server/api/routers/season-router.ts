@@ -79,7 +79,7 @@ export const seasonRouter = createTRPCRouter({
     await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
     return create(
       SeasonCreateSchema.parse({
-        userId: ctx.auth.userId,
+        userId: ctx.auth.user.id,
         leagueId: ctx.league.id,
         ...input,
       }),
@@ -107,7 +107,7 @@ export const seasonRouter = createTRPCRouter({
     const updatedSeason = await update(
       SeasonEditSchema.parse({
         leagueId: ctx.league.id,
-        userId: ctx.auth.userId,
+        userId: ctx.auth.user.id,
         ...input,
       }),
     );

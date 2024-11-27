@@ -22,7 +22,7 @@ import {
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { type ComponentProps, useEffect, useState } from "react";
 import { LeagueSwitcher } from "./layout/league-switcher";
-import { NavClerkUser } from "./nav-clerk-user";
+import { NavUser } from "./nav-user";
 
 const constructLinks = ({
   leagueSlug,
@@ -141,7 +141,7 @@ export function AppSidebar({
         />
       </SidebarContent>
       <SidebarFooter>
-        <NavClerkUser />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

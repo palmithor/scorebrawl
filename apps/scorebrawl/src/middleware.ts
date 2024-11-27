@@ -1,26 +1,30 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import type { Session } from "@/lib/auth";
+import { betterFetch } from "@better-fetch/fetch";
+import { createAuthClient } from "better-auth/client";
+import { type NextRequest, NextResponse } from "next/server";
 
-const _isLeagueRoute = createRouteMatcher(["/leagues/(.*)"]);
+export const client = createAuthClient();
 
-const _isEditorRoute = createRouteMatcher([
-  "/leagues/(.*)/members(.*)",
-  "/leagues/(.*)/invites(.*)",
-  "/leagues/(.*)/edit(.*)",
-]);
-const isPublicRoute = createRouteMatcher([
-  "/api/uploadthing",
-  "/api/public/(.*)",
-  "/api/webhooks/(.*)",
-  "/api/health",
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    auth().protect();
+export default async function (request: NextRequest) {
+  try {
+    const { data: session } = await betterFetch<Session>("/api/auth/get-session", {
+      baseURL: request.nextUrl.origin,
+      headers: {
+        cookie: request.headers.get("cookie") || "",
+      },
+    });
+    if (!session) {
+      return NextResponse.redirect(new URL("/auth", request.url));
+    }
+  } catch {
+    return NextResponse.redirect(new URL("/auth", request.url));
   }
-});
+  return NextResponse.next();
+}
 
-// Stop Middleware running on static files
+/*export const config = {
+  matcher: ["/((?!api|static|_next|favicon.ico|favicon-*|auth).*)"],
+};*/
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!api|auth|_next/static|_next/image|.*\\.png$|.*\\.jpg$).*)"],
 };

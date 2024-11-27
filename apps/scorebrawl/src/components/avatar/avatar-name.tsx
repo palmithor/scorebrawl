@@ -7,11 +7,9 @@ export const AvatarName = ({
   imageUrl,
   children,
   textClassName,
-  avatarClassName,
 }: {
   name: string;
-  imageUrl?: string;
-  avatarClassName?: string;
+  imageUrl?: string | null;
   textClassName?: string;
   children?: ReactNode;
 }) => {
@@ -23,8 +21,8 @@ export const AvatarName = ({
   return (
     <div className="flex items-center">
       <div className="relative">
-        <Avatar className={avatarClassName}>
-          <AvatarImage src={imageUrl} />
+        <Avatar>
+          <AvatarImage src={imageUrl ?? ""} />
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </div>

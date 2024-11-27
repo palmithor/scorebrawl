@@ -1,5 +1,5 @@
+import type { Session } from "@/lib/auth";
 import { editorRoles } from "@/utils/permission-util";
-import type { AuthObject } from "@clerk/backend/internal";
 import { ScoreBrawlError } from "@scorebrawl/db";
 import { findBySlugWithUserRole } from "@scorebrawl/db/league";
 import { findSeasonAndLeagueBySlug } from "@scorebrawl/db/season";
@@ -10,7 +10,7 @@ import { ZodError, z } from "zod";
 
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  auth: AuthObject;
+  auth: Session;
 }) => ({
   ...opts,
 });
@@ -51,7 +51,7 @@ export const createCallerFactory = t.createCallerFactory;
 export const createTRPCRouter = t.router;
 
 const isAuthed = t.middleware(({ next, ctx }) => {
-  if (!ctx.auth.userId) {
+  if (!ctx.auth.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
@@ -63,7 +63,7 @@ const isAuthed = t.middleware(({ next, ctx }) => {
 
 const leagueAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next }) => {
   const leagueWithUserRole = await findBySlugWithUserRole({
-    userId: ctx.auth.userId,
+    userId: ctx.auth.user.id,
     leagueSlug: (input as { leagueSlug: string }).leagueSlug ?? "",
   });
   if (!leagueWithUserRole) {
@@ -90,7 +90,7 @@ const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
     seasonSlug: string;
   };
   const seasonWithLeagueAndRole = await findSeasonAndLeagueBySlug({
-    userId: ctx.auth.userId,
+    userId: ctx.auth.user.id,
     leagueSlug,
     seasonSlug,
   });

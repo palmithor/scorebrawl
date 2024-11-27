@@ -11,7 +11,7 @@ export const matchRouter = createTRPCRouter({
   create: seasonProcedure.input(MatchInputDTO).mutation(async ({ ctx, input }) => {
     const match = await create(
       MatchInput.parse({
-        userId: ctx.auth.userId,
+        userId: ctx.auth.user.id,
         seasonId: ctx.season.id,
         leagueId: ctx.league.id,
         ...input,

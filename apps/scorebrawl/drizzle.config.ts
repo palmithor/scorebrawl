@@ -7,4 +7,7 @@ export default {
   dbCredentials: {
     url: process.env.DATABASE_URL ?? "",
   },
+  migrations: {
+    prefix: "timestamp",
+  },
 } satisfies Config;

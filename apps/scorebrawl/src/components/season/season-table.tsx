@@ -1,6 +1,6 @@
 "use client";
 
-import { AvatarName } from "@/components/avatar-name";
+import { AvatarName } from "@/components/avatar/avatar-name";
 import { MultiAvatar } from "@/components/multi-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -25,12 +25,7 @@ const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueS
     return null;
   }
   return (
-    <AvatarName
-      textClassName={"text-xs"}
-      avatarClassName={"h-8 w-8"}
-      name={data.user.name}
-      imageUrl={data.user.imageUrl}
-    />
+    <AvatarName textClassName={"text-xs"} name={data.user.name} imageUrl={data.user.imageUrl} />
   );
 };
 

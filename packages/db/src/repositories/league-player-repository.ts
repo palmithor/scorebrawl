@@ -22,7 +22,7 @@ export const getAll = async ({ leagueId }: { leagueId: string }) => {
     leaguePlayerId: lp.leaguePlayerId,
     disabled: lp.disabled,
     joinedAt: lp.joinedAt,
-    user: { userId: lp.userId, name: lp.name, imageUrl: lp.imageUrl },
+    user: { userId: lp.userId, name: lp.name, imageUrl: lp.imageUrl ?? undefined },
   })) satisfies z.infer<typeof LeaguePlayer>[];
 };
 

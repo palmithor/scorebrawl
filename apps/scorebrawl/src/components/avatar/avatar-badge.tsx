@@ -1,9 +1,8 @@
 import type { AvatarProps } from "@/components/multi-avatar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge, type badgeVariants } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getInitialsFromString } from "@scorebrawl/utils/string";
 import type { VariantProps } from "class-variance-authority";
+import { AvatarWithFallback } from "./avatar-with-fallback";
 
 export interface AvatarBadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -19,10 +18,7 @@ export const AvatarBadge = ({ item, variant, onClick, className, children }: Ava
       className={cn("mr-2 text-xs px-3 w-32", className)}
       onClick={onClick}
     >
-      <Avatar className="h-6 w-6 mr-2">
-        <AvatarImage src={item.imageUrl} />
-        <AvatarFallback>{getInitialsFromString(item.name)}</AvatarFallback>
-      </Avatar>
+      <AvatarWithFallback className="mr-2" imageUrl={item.imageUrl} name={item.name} />
       <p className="truncate">{item.name}</p>
       {children}
     </Badge>

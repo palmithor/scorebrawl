@@ -6,7 +6,7 @@ import { findUserById, setDefaultLeague } from "@scorebrawl/db/user";
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx }) => {
-    const user = await findUserById({ id: ctx.auth.userId });
+    const user = await findUserById({ id: ctx.auth.user.id });
     return UserDTO.parse({
       userId: user?.id,
       name: user?.name,
@@ -17,7 +17,7 @@ export const userRouter = createTRPCRouter({
   setDefaultLeague: leagueProcedure.input(z.object({ leagueSlug: z.string() })).query(({ ctx }) =>
     setDefaultLeague({
       leagueId: ctx.league.id,
-      userId: ctx.auth.userId,
+      userId: ctx.auth.user.id,
     }),
   ),
 });

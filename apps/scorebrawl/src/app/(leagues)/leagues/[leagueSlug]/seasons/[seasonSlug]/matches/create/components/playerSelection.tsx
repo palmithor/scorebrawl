@@ -1,6 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarWithFallback } from "@/components/avatar/avatar-with-fallback";
 import { cn } from "@/lib/utils";
-import { getInitialsFromString } from "@scorebrawl/utils/string";
 import type { PlayerWithSelection } from "./MatchForm";
 
 export const PlayerSelection = ({
@@ -30,10 +29,7 @@ export const PlayerSelection = ({
             p.team ? (p.team === team ? "bg-primary/20" : "line-through") : "",
           )}
         >
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={p.user.imageUrl} />
-            <AvatarFallback>{getInitialsFromString(p.user.name)}</AvatarFallback>
-          </Avatar>
+          <AvatarWithFallback imageUrl={p.user.imageUrl} name={p.user.name} />
           <div className="grid auto-rows-min text-start">
             <p className="text-xs font-medium truncate">{p.user.name}</p>
             <p className="text-xs text-muted-foreground">{p.score}</p>

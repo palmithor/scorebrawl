@@ -1,26 +1,19 @@
-import { upsertAuthenticatedUser } from "@/actions/user";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ErrorToast } from "@/components/error-toast";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth";
 import { api } from "@/trpc/server";
-import { auth } from "@clerk/nextjs/server";
-import { findUserById } from "@scorebrawl/db/user";
+import { headers } from "next/headers";
 import type { ReactNode } from "react";
-
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default async function Layout({ children }: LayoutProps) {
-  const { userId } = auth();
-  if (userId) {
-    const user = await findUserById({ id: userId });
-    if (!user) {
-      await upsertAuthenticatedUser();
-    }
-  }
-
+  await auth.api.getSession({
+    headers: headers(),
+  });
   return (
     <SidebarProvider>
       <AppSidebar leagues={await api.league.getAll({})} />

@@ -12,7 +12,6 @@ const devDb = (): PostgresJsDatabase<typeof schema> => {
   }
   globalThis.dbCache = localDrizzle(postgres(databaseUrl), {
     schema,
-    logger: false,
   });
   return globalThis.dbCache;
 };
@@ -30,7 +29,7 @@ export const migrateDb = async () => {
       migrationsFolder: "./migrations",
     });
   } else {
-    const migrateDrizzle = localDrizzle(postgres(databaseUrl, { max: 1, debug: true }));
+    const migrateDrizzle = localDrizzle(postgres(databaseUrl, { max: 1 }));
     await localMigrator(migrateDrizzle, { migrationsFolder: "./migrations" });
   }
 };
