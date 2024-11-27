@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 export type AvatarWithLabelProps = {
-  imageUrl?: string;
+  image?: string;
   fallback: ReactNode;
   badgeBgColor?: string;
   labelText: string;
@@ -11,7 +11,7 @@ export type AvatarWithLabelProps = {
 };
 
 export const AvatarWithLabel = ({
-  imageUrl,
+  image,
   fallback,
   labelText,
   badgeBgColor,
@@ -32,7 +32,7 @@ export const AvatarWithLabel = ({
   return (
     <div className="relative inline-block">
       <Avatar className={sizeClasses[size]}>
-        <AvatarImage src={imageUrl} />
+        <AvatarImage src={image} />
         <AvatarFallback>{fallback}</AvatarFallback>
       </Avatar>
       <span

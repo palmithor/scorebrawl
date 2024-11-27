@@ -24,9 +24,7 @@ const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueS
   if (!data) {
     return null;
   }
-  return (
-    <AvatarName textClassName={"text-xs"} name={data.user.name} imageUrl={data.user.imageUrl} />
-  );
+  return <AvatarName textClassName={"text-xs"} name={data.user.name} image={data.user.image} />;
 };
 
 const TopTeamCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlug: string }) => {
@@ -37,10 +35,10 @@ const TopTeamCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlu
   return (
     <div className="flex items-center">
       <div className="relative">
-        <MultiAvatar users={data} visibleCount={3} />
+        <MultiAvatar users={data.players} visibleCount={3} />
       </div>
       <div className="ml-4">
-        <h2 className={"text-xs"}>{data[0]?.teamName}</h2>
+        <h2 className={"text-xs"}>{data?.name}</h2>
       </div>
     </div>
   );

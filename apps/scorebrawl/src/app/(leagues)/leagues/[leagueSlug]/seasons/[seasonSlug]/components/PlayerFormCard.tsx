@@ -43,7 +43,7 @@ const PlayerFormCard = ({
         </AvatarNameSkeleton>
       )}
       {player && (
-        <AvatarName name={player.user.name} imageUrl={player.user.imageUrl}>
+        <AvatarName name={player.user.name} image={player.user.image}>
           <FormDots form={player.form} />
         </AvatarName>
       )}

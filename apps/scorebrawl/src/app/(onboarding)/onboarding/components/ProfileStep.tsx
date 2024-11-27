@@ -55,11 +55,7 @@ export const ProfileStep = () => {
           onChange={handleFileChange}
           className="hidden"
         />
-        <AvatarWithFallback
-          size="xl"
-          imageUrl={null}
-          name={getInitialsFromString(`${first} ${last}`)}
-        />
+        <AvatarWithFallback size="xl" name={getInitialsFromString(`${first} ${last}`)} />
         <div className="w-full max-w-sm  md:max-w-2xl xl:max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
             <div className="flex-1">

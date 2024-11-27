@@ -20,14 +20,13 @@ const avatarVariants = cva("", {
 export type AvatarVariantProp = VariantProps<typeof avatarVariants>;
 
 export const AvatarWithFallback = ({
-  imageUrl,
+  image,
   name,
   size,
   className,
-}: { imageUrl?: string | null; name: string } & AvatarVariantProp &
-  React.HTMLAttributes<HTMLDivElement>) => (
+}: { image?: string; name: string } & AvatarVariantProp & React.HTMLAttributes<HTMLDivElement>) => (
   <Avatar className={cn(avatarVariants({ size, className }))}>
-    {imageUrl && <AvatarImage src={imageUrl} />}
+    <AvatarImage src={image} />
     <AvatarFallback>{getInitialsFromString(name)}</AvatarFallback>
   </Avatar>
 );

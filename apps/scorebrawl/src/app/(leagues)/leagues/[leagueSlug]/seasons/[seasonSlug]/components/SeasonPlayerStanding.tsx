@@ -23,7 +23,7 @@ export const SeasonPlayerStanding = () => {
             drawCount: sp.drawCount,
             lossCount: sp.lossCount,
             pointDiff: sp.pointDiff,
-            avatars: [{ id: sp.user.userId, imageUrl: sp.user.imageUrl, name: sp.user.name }],
+            avatars: [{ id: sp.user.userId, image: sp.user.image, name: sp.user.name }],
           }))}
         />
       )}

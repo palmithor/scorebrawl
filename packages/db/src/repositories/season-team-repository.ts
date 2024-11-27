@@ -167,7 +167,7 @@ export const getTopTeam = async ({ seasonSlug }: { seasonSlug: string }) => {
       id: Users.id,
       teamName: LeagueTeams.name,
       name: Users.name,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
       score: SeasonTeams.score,
     })
     .from(SeasonTeams)

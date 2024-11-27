@@ -36,9 +36,9 @@ export const LeagueTeamsTable = ({ leagueSlug }: { leagueSlug: string }) => {
                 <div className="relative">
                   <MultiAvatar
                     users={team.players.map((p) => ({
-                      id: p.leaguePlayer.id,
-                      name: p.leaguePlayer.user.name,
-                      imageUrl: p.leaguePlayer.user.imageUrl,
+                      id: p.leaguePlayerId,
+                      name: p.name,
+                      image: p.image,
                     }))}
                     visibleCount={5}
                   />
@@ -50,8 +50,7 @@ export const LeagueTeamsTable = ({ leagueSlug }: { leagueSlug: string }) => {
               <DateCell date={team.createdAt} />
             </TableCell>
             <TableCell>
-              {((session &&
-                team.players.map((p) => p.leaguePlayer.user.id).includes(session.user.id)) ||
+              {((session && team.players.map((p) => p.userId).includes(session.user.id)) ||
                 hasEditorAccess) && (
                 <UpdateTeamDialog leagueSlug={leagueSlug} team={team}>
                   <EditIcon className="h-4 w-4 grow cursor-pointer text-center" />

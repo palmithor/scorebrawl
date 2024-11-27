@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useId } from "react";
 import { AvatarWithFallback } from "./avatar/avatar-with-fallback";
 
-export type AvatarProps = { id: string; name: string; imageUrl?: string | null };
+export type AvatarProps = { id: string; name: string; image?: string };
 export const MultiAvatar = (
   {
     visibleCount,
@@ -15,11 +15,11 @@ export const MultiAvatar = (
     users: AvatarProps[];
   } = { users: [], visibleCount: 5 },
 ) => {
-  const avatarAndName = ({ id, name, imageUrl }: AvatarProps) => {
+  const avatarAndName = ({ id, name, image }: AvatarProps) => {
     return (
       <Tooltip key={id}>
         <TooltipTrigger className="flex">
-          <AvatarWithFallback size="md" name={name} imageUrl={imageUrl} />
+          <AvatarWithFallback size="md" name={name} image={image} />
         </TooltipTrigger>
         <TooltipContent>
           <div className={"text-xs"}>{name}</div>

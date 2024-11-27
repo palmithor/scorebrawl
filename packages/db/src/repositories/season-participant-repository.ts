@@ -82,7 +82,7 @@ export const findAll = async ({ seasonId }: { seasonId: string }) => {
       score: SeasonPlayers.score,
       userId: Users.id,
       name: Users.name,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
     })
     .from(SeasonPlayers)
     .innerJoin(Seasons, eq(Seasons.id, SeasonPlayers.seasonId))
@@ -96,7 +96,11 @@ export const findAll = async ({ seasonId }: { seasonId: string }) => {
         seasonPlayerId: sp.seasonPlayerId,
         leaguePlayerId: sp.leaguePlayerId,
         score: sp.score,
-        user: { userId: sp.userId, name: sp.name, imageUrl: sp.imageUrl },
+        user: {
+          userId: sp.userId,
+          name: sp.name,
+          image: sp.image ?? undefined,
+        },
       }) satisfies z.infer<typeof SeasonPlayerDTO>,
   );
 };
@@ -152,7 +156,7 @@ export const getStanding = async ({ seasonId }: { seasonId: string }) => {
       score: SeasonPlayers.score,
       userId: Users.id,
       name: Users.name,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
     })
     .from(SeasonPlayers)
     .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
@@ -179,7 +183,7 @@ export const getStanding = async ({ seasonId }: { seasonId: string }) => {
       drawCount: stats?.draws ?? 0,
       form: (form as ("W" | "D" | "L")[]).reverse(),
       pointDiff: pointDiff.find((pd) => pd.seasonPlayerId === p.seasonPlayerId)?.pointDiff ?? 0,
-      user: { userId: p.userId, name: p.name, imageUrl: p.imageUrl },
+      user: { userId: p.userId, name: p.name, image: p.image ?? undefined },
     };
   });
 };
@@ -192,7 +196,7 @@ export const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
       score: SeasonPlayers.score,
       userId: Users.id,
       name: Users.name,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
     })
     .from(SeasonPlayers)
     .innerJoin(Seasons, and(eq(Seasons.id, SeasonPlayers.seasonId)))
@@ -209,7 +213,7 @@ export const getTopPlayer = async ({ seasonId }: { seasonId: string }) => {
     user: {
       userId: topPlayer?.userId,
       name: topPlayer?.name,
-      imageUrl: topPlayer?.imageUrl,
+      image: topPlayer?.image ?? undefined,
     },
   };
 };
@@ -305,7 +309,7 @@ const onFireStrugglingQuery = async ({
     .select({
       userId: Users.id,
       name: Users.name,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
     })
     .from(SeasonPlayers)
     .innerJoin(LeaguePlayers, eq(LeaguePlayers.id, SeasonPlayers.leaguePlayerId))
@@ -325,7 +329,7 @@ const onFireStrugglingQuery = async ({
     user: {
       userId: userInfo?.userId,
       name: userInfo?.name,
-      imageUrl: userInfo?.imageUrl,
+      image: userInfo?.image ?? undefined,
     },
   };
 };

@@ -4,12 +4,12 @@ import type { ReactNode } from "react";
 
 export const AvatarName = ({
   name,
-  imageUrl,
+  image,
   children,
   textClassName,
 }: {
   name: string;
-  imageUrl?: string | null;
+  image?: string;
   textClassName?: string;
   children?: ReactNode;
 }) => {
@@ -22,7 +22,7 @@ export const AvatarName = ({
     <div className="flex items-center">
       <div className="relative">
         <Avatar>
-          <AvatarImage src={imageUrl ?? ""} />
+          <AvatarImage src={image} />
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </div>

@@ -3,6 +3,6 @@ import z from "zod";
 export const User = z.object({
   userId: z.string(),
   name: z.string(),
-  imageUrl: z.string().nullish(),
+  image: z.string().optional(),
   defaultLeagueId: z.string().optional(),
 });

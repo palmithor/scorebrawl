@@ -26,7 +26,7 @@ export const getLeagueTeams = async ({ leagueId }: { leagueId: string }) => {
             columns: { id: true },
             with: {
               user: {
-                columns: { id: true, name: true, imageUrl: true },
+                columns: { id: true, name: true, image: true },
               },
             },
           },

@@ -27,7 +27,7 @@ export const LeagueMemberTable = ({ leagueSlug }: { leagueSlug: string }) => {
         {data?.map((member) => (
           <TableRow key={member.memberId}>
             <TableCell>
-              <AvatarName textClassName="text-sm" name={member.name} imageUrl={member.imageUrl} />
+              <AvatarName textClassName="text-sm" name={member.name} image={member.image} />
             </TableCell>
             <TableCell>{capitalize(member.role)}</TableCell>
           </TableRow>

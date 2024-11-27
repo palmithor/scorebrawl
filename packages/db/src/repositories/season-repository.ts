@@ -147,7 +147,7 @@ export const getSeasonPlayers = async ({
         columns: { userId: true },
         with: {
           user: {
-            columns: { imageUrl: true, name: true },
+            columns: { image: true, name: true },
           },
         },
       },
@@ -159,7 +159,7 @@ export const getSeasonPlayers = async ({
     leaguePlayerId: sp.leaguePlayerId,
     userId: sp.leaguePlayer.userId,
     name: sp.leaguePlayer.user.name,
-    imageUrl: sp.leaguePlayer.user.imageUrl,
+    image: sp.leaguePlayer.user.image,
     score: sp.score,
     joinedAt: sp.createdAt,
     disabled: sp.disabled,

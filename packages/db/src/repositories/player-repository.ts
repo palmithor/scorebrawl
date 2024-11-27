@@ -9,7 +9,7 @@ export const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
     where: eq(LeaguePlayers.leagueId, leagueId),
     with: {
       user: {
-        columns: { name: true, imageUrl: true },
+        columns: { name: true, image: true },
       },
     },
   });
@@ -18,7 +18,7 @@ export const getLeaguePlayers = async ({ leagueId }: { leagueId: string }) => {
     id: lp.id,
     userId: lp.userId,
     name: lp.user.name,
-    imageUrl: lp.user.imageUrl,
+    image: lp.user.image ?? undefined,
     joinedAt: lp.createdAt,
     disabled: lp.disabled,
   }));

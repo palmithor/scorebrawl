@@ -25,5 +25,11 @@ export const avatarRouter = createTRPCRouter({
         seasonPlayerIds: z.array(z.string()).min(1),
       }),
     )
-    .query(({ input: { seasonPlayerIds } }) => getSeasonPlayerAvatars({ seasonPlayerIds })),
+    .query(async ({ input: { seasonPlayerIds } }) => {
+      const result = await getSeasonPlayerAvatars({ seasonPlayerIds });
+      return result.map((r) => ({
+        ...r,
+        image: r.image ?? undefined,
+      }));
+    }),
 });
