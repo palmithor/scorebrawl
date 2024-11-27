@@ -35,7 +35,7 @@ export const SeasonTeamStanding = () => {
             avatars:
               avatars
                 ?.find((t) => t.teamId === st.seasonTeamId)
-                ?.players.map((p) => ({ id: p.userId, name: p.name, imageUrl: p.imageUrl })) ?? [],
+                ?.players.map((p) => ({ id: p.userId, name: p.name, image: p.image })) ?? [],
           }))}
         />
       )}

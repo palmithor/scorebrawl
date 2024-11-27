@@ -12,10 +12,10 @@ import {
 
 export const getUserAvatar = async ({ userId }: { userId: string }) => {
   const [userAvatar] = await db
-    .select({ name: Users.name, imageUrl: Users.imageUrl })
+    .select({ name: Users.name, image: Users.image })
     .from(Users)
     .where(eq(Users.id, userId));
-  return userAvatar;
+  return { name: userAvatar?.name ?? "", image: userAvatar?.image ?? "" };
 };
 
 export const getSeasonTeamAvatars = async ({
@@ -27,7 +27,7 @@ export const getSeasonTeamAvatars = async ({
     .select({
       teamId: SeasonTeams.id,
       userId: Users.id,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
       name: Users.name,
     })
     .from(LeagueTeamPlayers)
@@ -42,7 +42,7 @@ export const getSeasonTeamAvatars = async ({
     string,
     {
       teamId: string;
-      players: { userId: string; imageUrl?: string | null; name: string }[];
+      players: { userId: string; image?: string; name: string }[];
     }
   >();
 
@@ -52,7 +52,7 @@ export const getSeasonTeamAvatars = async ({
     }
     resultMap.get(row.teamId)?.players.push({
       userId: row.userId,
-      imageUrl: row.imageUrl,
+      image: row.image ?? undefined,
       name: row.name,
     });
   }
@@ -68,7 +68,7 @@ export const getSeasonPlayerAvatars = ({
   return db
     .select({
       userId: Users.id,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
       name: Users.name,
     })
     .from(SeasonPlayers)
@@ -101,7 +101,7 @@ export const upsertUser = async ({
   id,
   firstName,
   lastName,
-  imageUrl,
+  image,
   email,
   createdAt,
   updatedAt,
@@ -109,7 +109,7 @@ export const upsertUser = async ({
   id: string;
   firstName: string | null;
   lastName: string | null;
-  imageUrl: string;
+  image?: string;
   email?: string;
   createdAt: number;
   updatedAt: number;
@@ -124,8 +124,7 @@ export const upsertUser = async ({
       }),
       email,
       emailVerified: !!email,
-      imageUrl,
-      image: imageUrl,
+      image,
       createdAt: new Date(createdAt),
       updatedAt: new Date(updatedAt),
     })
@@ -136,7 +135,7 @@ export const upsertUser = async ({
           firstName,
           lastName,
         }),
-        imageUrl: imageUrl,
+        image,
         updatedAt: new Date(updatedAt),
       },
     });

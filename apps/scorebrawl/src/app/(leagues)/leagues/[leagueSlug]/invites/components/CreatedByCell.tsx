@@ -7,5 +7,5 @@ export const CreatedByCell = ({ userId }: { userId: string }) => {
   if (!data) {
     return null;
   }
-  return <AvatarName name={data.name} imageUrl={data.imageUrl} />;
+  return <AvatarName name={data.name} image={data.image} />;
 };

@@ -37,7 +37,11 @@ export const NavUser = () => {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <AvatarWithFallback size="md" name={data.user.name} imageUrl={data.user.image} />
+              <AvatarWithFallback
+                size="md"
+                name={data.user.name}
+                image={data.user.image ?? undefined}
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{data.user.name}</span>
                 <span className="truncate text-xs">{data.user.email}</span>
@@ -53,7 +57,11 @@ export const NavUser = () => {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <AvatarWithFallback size="md" name={data.user.name} imageUrl={data.user.image} />
+                <AvatarWithFallback
+                  size="md"
+                  name={data.user.name}
+                  image={data.user.image ?? undefined}
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{data.user.name}</span>
                   <span className="truncate text-xs">{data.user.email}</span>

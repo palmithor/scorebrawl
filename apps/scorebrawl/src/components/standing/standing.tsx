@@ -31,7 +31,7 @@ export const Standing = ({
     winCount: number;
     drawCount: number;
     lossCount: number;
-    avatars: { id: string; name: string; imageUrl?: string | null }[];
+    avatars: { id: string; name: string; image?: string }[];
     pointDiff: number | undefined;
     form: PlayerForm;
   }[];

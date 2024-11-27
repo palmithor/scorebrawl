@@ -10,7 +10,7 @@ export const userRouter = createTRPCRouter({
     return UserDTO.parse({
       userId: user?.id,
       name: user?.name,
-      imageUrl: user?.imageUrl,
+      image: user?.image ?? undefined,
       defaultLeagueId: user?.defaultLeagueId ?? undefined,
     });
   }),

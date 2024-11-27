@@ -19,6 +19,7 @@ export const leagueRouter = createTRPCRouter({
     .input(z.object({ leagueSlug: z.string() }))
     .query(({ ctx: { league, role } }) => ({
       ...league,
+      logoUrl: league.logoUrl ?? undefined,
       role,
     })),
   getAll: protectedProcedure

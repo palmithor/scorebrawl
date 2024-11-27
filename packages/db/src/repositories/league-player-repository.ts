@@ -12,7 +12,7 @@ export const getAll = async ({ leagueId }: { leagueId: string }) => {
       disabled: LeaguePlayers.disabled,
       userId: Users.id,
       name: Users.name,
-      imageUrl: Users.imageUrl,
+      image: Users.image,
     })
     .from(LeaguePlayers)
     .innerJoin(Users, eq(LeaguePlayers.userId, Users.id))
@@ -22,7 +22,7 @@ export const getAll = async ({ leagueId }: { leagueId: string }) => {
     leaguePlayerId: lp.leaguePlayerId,
     disabled: lp.disabled,
     joinedAt: lp.joinedAt,
-    user: { userId: lp.userId, name: lp.name, imageUrl: lp.imageUrl ?? undefined },
+    user: { userId: lp.userId, name: lp.name, image: lp.image ?? undefined },
   })) satisfies z.infer<typeof LeaguePlayer>[];
 };
 

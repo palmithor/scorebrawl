@@ -57,7 +57,7 @@ export const LeagueSettings = ({ leagueSlug }: { leagueSlug: string }) => {
   return (
     <>
       <div className={"flex flex-col items-center gap-3"}>
-        <AvatarWithFallback size="xl" imageUrl={league?.logoUrl} name={league?.name ?? ""} />
+        <AvatarWithFallback size="xl" image={league?.logoUrl} name={league?.name ?? ""} />
         <UploadButton
           className="ut-button:h-10 ut-button:items-center ut-button:justify-center ut-button:rounded-md ut-button:bg-primary ut-button:px-4 ut-button:py-2 ut-button:text-sm ut-button:font-medium ut-button:text-primary-foreground ut-button:ring-offset-background ut-button:transition-colors ut-button:hover:bg-primary/90 ut-button:focus-visible:outline-none ut-button:focus-visible:ring-2 ut-button:focus-visible:ring-ring ut-button:focus-visible:ring-offset-2 ut-button:disabled:pointer-events-none ut-button:disabled:opacity-50"
           endpoint="leagueLogo"

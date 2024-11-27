@@ -7,7 +7,20 @@ import { z } from "zod";
 export const leagueTeamRouter = createTRPCRouter({
   getAll: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
-    .query(({ ctx: { league } }) => getLeagueTeams({ leagueId: league.id })),
+    .query(async ({ ctx: { league } }) => {
+      const leagueTeams = await getLeagueTeams({ leagueId: league.id });
+      return leagueTeams.map((lt) => ({
+        id: lt.id,
+        name: lt.name,
+        createdAt: lt.createdAt,
+        players: lt.players.map((p) => ({
+          userId: p.leaguePlayer.user.id,
+          leaguePlayerId: p.leaguePlayer.id,
+          name: p.leaguePlayer.user.name,
+          image: p.leaguePlayer.user.image ?? undefined,
+        })),
+      }));
+    }),
   getBySeasonPlayerIds: seasonProcedure
     .input(
       z.object({

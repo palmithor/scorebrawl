@@ -6,9 +6,6 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
-  logger: {
-    verboseLogging: true,
-  },
   plugins: [nextCookies()],
   emailAndPassword: {
     enabled: false,
@@ -52,6 +49,6 @@ export type Session = {
     name: string;
     createdAt: Date;
     updatedAt: Date;
-    image?: string | undefined;
+    image?: string;
   };
 };

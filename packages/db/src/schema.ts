@@ -285,7 +285,6 @@ export const LeagueInvites = pgTable(
 
 export const Users = pgTable("user", {
   id: varchar("id", { length: 100 }).primaryKey(),
-  imageUrl: varchar("image_url", { length: 255 }),
   image: varchar("image"),
   name: varchar("name").notNull(),
   email: text("email"),

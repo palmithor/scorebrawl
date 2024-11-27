@@ -80,7 +80,7 @@ const getAchievementData = (
       return {
         labelText,
         title,
-        imageUrl: "/achievements/win-streak-v2.jpeg",
+        image: "/achievements/win-streak-v2.jpeg",
         type,
       };
     }
@@ -99,7 +99,7 @@ const getAchievementData = (
       return {
         labelText,
         title,
-        imageUrl: "/achievements/redemption.jpeg",
+        image: "/achievements/redemption.jpeg",
         type,
       };
     }
@@ -118,7 +118,7 @@ const getAchievementData = (
       return {
         labelText,
         title,
-        imageUrl: "/achievements/clean-sheet-v2.jpeg",
+        image: "/achievements/clean-sheet-v2.jpeg",
         type,
       };
     }
@@ -137,7 +137,7 @@ const getAchievementData = (
       return {
         labelText,
         title,
-        imageUrl: "/achievements/goal-scoring-streak-v2.jpeg",
+        image: "/achievements/goal-scoring-streak-v2.jpeg",
         type,
       };
     }
@@ -145,14 +145,14 @@ const getAchievementData = (
       return {
         labelText: "🏆",
         title: "Season Winner",
-        imageUrl: "/achievements/clean-sheet-streak.jpeg",
+        image: "/achievements/clean-sheet-streak.jpeg",
         type,
       };
     default:
       return {
         labelText: "💩",
         title: "Unknown",
-        imageUrl: "/achievements/clean-sheet-streak.jpeg",
+        image: "/achievements/clean-sheet-streak.jpeg",
         type,
       };
   }
@@ -215,7 +215,7 @@ export const LeaguePlayersTable = ({
         {data?.map((player) => (
           <TableRow key={player.leaguePlayerId}>
             <TableCell>
-              <AvatarName name={player.user.name} imageUrl={player.user.imageUrl || ""} />
+              <AvatarName name={player.user.name} image={player.user.image} />
             </TableCell>
             <TableCell>
               <DateCell date={player.joinedAt} />

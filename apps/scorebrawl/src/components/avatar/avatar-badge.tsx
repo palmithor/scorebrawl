@@ -18,7 +18,7 @@ export const AvatarBadge = ({ item, variant, onClick, className, children }: Ava
       className={cn("mr-2 text-xs px-3 w-32", className)}
       onClick={onClick}
     >
-      <AvatarWithFallback className="mr-2" imageUrl={item.imageUrl} name={item.name} />
+      <AvatarWithFallback className="mr-2" image={item.image} name={item.name} />
       <p className="truncate">{item.name}</p>
       {children}
     </Badge>

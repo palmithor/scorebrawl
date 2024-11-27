@@ -351,7 +351,7 @@ const PlayerListCard = ({
         .filter((p) => p.team === team)
         .map((p) => (
           <div className="flex gap-2" key={p.user.userId}>
-            <AvatarWithFallback imageUrl={p.user.imageUrl} name={p.user.name} />
+            <AvatarWithFallback image={p.user.image} name={p.user.name} />
             <div className="grid auto-rows-min">
               <p className="text-xs font-medium truncate">{p.user.name}</p>
               <p className="text-xs text-muted-foreground">{p.score}</p>
