@@ -42,7 +42,7 @@ export const getSeasonTeamAvatars = async ({
     string,
     {
       teamId: string;
-      players: { userId: string; imageUrl: string; name: string }[];
+      players: { userId: string; imageUrl?: string | null; name: string }[];
     }
   >();
 

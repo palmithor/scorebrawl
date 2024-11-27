@@ -1,10 +1,8 @@
 import "./globals.css";
 
 import { Analytics, Providers } from "@/components/providers";
-import { Spinner } from "@/components/spinner";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { siteConfig } from "@/config/site";
-import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 
@@ -67,31 +65,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <head />
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} h-screen-safe bg-background font-sans antialiased`}
-        >
-          <TRPCReactProvider>
-            <Providers attribute="class" defaultTheme="system" enableSystem>
-              <ClerkLoaded>
-                <AnalyticsProvider />
-                {children}
-              </ClerkLoaded>
-              <ClerkLoading>
-                <div className="grid h-screen-safe place-items-center">
-                  <Spinner size="40" />
-                </div>
-              </ClerkLoading>
-              <Analytics />
-              <SpeedInsights />
-              <Toaster />
-              <TailwindIndicator />
-            </Providers>
-          </TRPCReactProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head />
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} h-screen-safe bg-background font-sans antialiased`}
+      >
+        <TRPCReactProvider>
+          <Providers attribute="class" defaultTheme="system" enableSystem>
+            <AnalyticsProvider />
+            {children}
+            <Analytics />
+            <SpeedInsights />
+            <Toaster />
+            <TailwindIndicator />
+          </Providers>
+        </TRPCReactProvider>
+      </body>
+    </html>
   );
 }

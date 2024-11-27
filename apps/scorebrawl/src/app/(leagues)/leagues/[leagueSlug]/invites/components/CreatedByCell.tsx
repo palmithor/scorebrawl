@@ -1,5 +1,5 @@
 "use client";
-import { AvatarName } from "@/components/avatar-name";
+import { AvatarName } from "@/components/avatar/avatar-name";
 import { api } from "@/trpc/react";
 
 export const CreatedByCell = ({ userId }: { userId: string }) => {

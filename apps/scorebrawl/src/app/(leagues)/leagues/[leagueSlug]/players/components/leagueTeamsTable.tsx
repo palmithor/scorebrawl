@@ -10,14 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { authClient } from "@/lib/auth-client";
 import { api } from "@/trpc/react";
-import { useAuth } from "@clerk/nextjs";
 import { EditIcon } from "lucide-react";
 
 export const LeagueTeamsTable = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data } = api.leagueTeam.getAll.useQuery({ leagueSlug });
   const { data: hasEditorAccess } = api.league.hasEditorAccess.useQuery({ leagueSlug });
-  const { userId } = useAuth();
+  const { data: session } = authClient.useSession();
+
   return (
     <Table>
       <TableHeader>
@@ -49,7 +50,8 @@ export const LeagueTeamsTable = ({ leagueSlug }: { leagueSlug: string }) => {
               <DateCell date={team.createdAt} />
             </TableCell>
             <TableCell>
-              {((userId && team.players.map((p) => p.leaguePlayer.user.id).includes(userId)) ||
+              {((session &&
+                team.players.map((p) => p.leaguePlayer.user.id).includes(session.user.id)) ||
                 hasEditorAccess) && (
                 <UpdateTeamDialog leagueSlug={leagueSlug} team={team}>
                   <EditIcon className="h-4 w-4 grow cursor-pointer text-center" />

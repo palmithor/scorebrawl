@@ -1,7 +1,7 @@
 "use client";
 import { resetLastVisitedLeague } from "@/actions/navigation-actions";
+import { AvatarWithFallback } from "@/components/avatar/avatar-with-fallback";
 import { DEFAULT_LEAGUE_LOGO } from "@/components/league/league-form";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UploadButton } from "@/components/uploadthing";
@@ -57,10 +57,7 @@ export const LeagueSettings = ({ leagueSlug }: { leagueSlug: string }) => {
   return (
     <>
       <div className={"flex flex-col items-center gap-3"}>
-        <Avatar className={"h-32 w-32"}>
-          <AvatarImage src={league?.logoUrl ?? undefined} />
-          <AvatarFallback>{league?.name}</AvatarFallback>
-        </Avatar>
+        <AvatarWithFallback size="xl" imageUrl={league?.logoUrl} name={league?.name ?? ""} />
         <UploadButton
           className="ut-button:h-10 ut-button:items-center ut-button:justify-center ut-button:rounded-md ut-button:bg-primary ut-button:px-4 ut-button:py-2 ut-button:text-sm ut-button:font-medium ut-button:text-primary-foreground ut-button:ring-offset-background ut-button:transition-colors ut-button:hover:bg-primary/90 ut-button:focus-visible:outline-none ut-button:focus-visible:ring-2 ut-button:focus-visible:ring-ring ut-button:focus-visible:ring-offset-2 ut-button:disabled:pointer-events-none ut-button:disabled:opacity-50"
           endpoint="leagueLogo"

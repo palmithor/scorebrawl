@@ -15,7 +15,7 @@ export const inviteRouter = createTRPCRouter({
     .mutation(({ input: { role, expiresAt }, ctx }) =>
       create({
         leagueId: ctx.league.id,
-        userId: ctx.auth.userId,
+        userId: ctx.auth.user.id,
         role: role,
         expiresAt: expiresAt,
       }),

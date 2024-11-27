@@ -20,7 +20,7 @@ export const leagueTeamRouter = createTRPCRouter({
   update: leagueProcedure.input(LeagueTeamInputDTO).mutation(async ({ input, ctx }) =>
     update({
       ...input,
-      userId: ctx.auth.userId,
+      userId: ctx.auth.user.id,
       isEditor: editorRoles.includes(ctx.role),
     }),
   ),

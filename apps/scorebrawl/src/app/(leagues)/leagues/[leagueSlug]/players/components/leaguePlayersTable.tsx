@@ -1,6 +1,6 @@
 "use client";
-import { AvatarName } from "@/components/avatar-name";
-import { AvatarWithLabel, type AvatarWithLabelProps } from "@/components/avatar-with-badge";
+import { AvatarName } from "@/components/avatar/avatar-name";
+import { AvatarWithLabel, type AvatarWithLabelProps } from "@/components/avatar/avatar-with-badge";
 import { DateCell } from "@/components/date-cell";
 import {
   Table,
@@ -215,11 +215,7 @@ export const LeaguePlayersTable = ({
         {data?.map((player) => (
           <TableRow key={player.leaguePlayerId}>
             <TableCell>
-              <AvatarName
-                avatarClassName="h-8 w-8"
-                name={player.user.name}
-                imageUrl={player.user.imageUrl || ""}
-              />
+              <AvatarName name={player.user.name} imageUrl={player.user.imageUrl || ""} />
             </TableCell>
             <TableCell>
               <DateCell date={player.joinedAt} />

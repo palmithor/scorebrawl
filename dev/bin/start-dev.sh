@@ -26,10 +26,8 @@ docker compose up -d --wait
 cd "${repository_root}/apps/scorebrawl"
 
 bun run ./scripts/migrate-db.ts
-echo "Running migrations and populating clerk users"
-bun run ./scripts/populate-user-table.ts
 
-echo "Ran migrations and populated clerk users"
+echo "Ran migrations"
 
 # Start node service with bun dev
 echo "Starting node service..."

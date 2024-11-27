@@ -2,7 +2,6 @@
 
 import { events } from "@/analytics/counters";
 import { LoadingButton } from "@/components/loading-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,10 +20,11 @@ import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { trackEvent } from "@openpanel/nextjs";
 import { SeasonPlayerStandingDTO } from "@scorebrawl/api";
-import { capitalize, getInitialsFromString } from "@scorebrawl/utils/string";
+import { capitalize } from "@scorebrawl/utils/string";
 import { isAfter, isWithinInterval } from "date-fns";
 import { CircleEqual, MinusIcon, PlusIcon, Shuffle, TriangleAlert } from "lucide-react";
 
+import { AvatarWithFallback } from "@/components/avatar/avatar-with-fallback";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -351,10 +351,7 @@ const PlayerListCard = ({
         .filter((p) => p.team === team)
         .map((p) => (
           <div className="flex gap-2" key={p.user.userId}>
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={p.user.imageUrl} />
-              <AvatarFallback>{getInitialsFromString(p.user.name)}</AvatarFallback>
-            </Avatar>
+            <AvatarWithFallback imageUrl={p.user.imageUrl} name={p.user.name} />
             <div className="grid auto-rows-min">
               <p className="text-xs font-medium truncate">{p.user.name}</p>
               <p className="text-xs text-muted-foreground">{p.score}</p>

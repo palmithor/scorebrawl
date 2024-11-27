@@ -1,5 +1,5 @@
 "use client";
-import { AvatarName } from "@/components/avatar-name";
+import { AvatarName } from "@/components/avatar/avatar-name";
 import { FullPageSpinner } from "@/components/full-page-spinner";
 import {
   Table,
@@ -27,12 +27,7 @@ export const LeagueMemberTable = ({ leagueSlug }: { leagueSlug: string }) => {
         {data?.map((member) => (
           <TableRow key={member.memberId}>
             <TableCell>
-              <AvatarName
-                textClassName="text-sm"
-                avatarClassName={"h-8 w-8"}
-                name={member.name}
-                imageUrl={member.imageUrl}
-              />
+              <AvatarName textClassName="text-sm" name={member.name} imageUrl={member.imageUrl} />
             </TableCell>
             <TableCell>{capitalize(member.role)}</TableCell>
           </TableRow>

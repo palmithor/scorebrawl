@@ -1,11 +1,11 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { getInitialsFromString } from "@scorebrawl/utils/string";
 import { useId } from "react";
+import { AvatarWithFallback } from "./avatar/avatar-with-fallback";
 
-export type AvatarProps = { id: string; name: string; imageUrl: string };
+export type AvatarProps = { id: string; name: string; imageUrl?: string | null };
 export const MultiAvatar = (
   {
     visibleCount,
@@ -19,10 +19,7 @@ export const MultiAvatar = (
     return (
       <Tooltip key={id}>
         <TooltipTrigger className="flex">
-          <Avatar className={"h-8 w-8"}>
-            <AvatarImage src={imageUrl} />
-            <AvatarFallback>{getInitialsFromString(name)}</AvatarFallback>
-          </Avatar>
+          <AvatarWithFallback size="md" name={name} imageUrl={imageUrl} />
         </TooltipTrigger>
         <TooltipContent>
           <div className={"text-xs"}>{name}</div>

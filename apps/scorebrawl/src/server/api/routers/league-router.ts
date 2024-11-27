@@ -25,18 +25,18 @@ export const leagueRouter = createTRPCRouter({
     .input(z.object({ search: z.string().optional() }).optional())
     .query(({ ctx, input }) =>
       getUserLeagues({
-        userId: ctx.auth.userId,
+        userId: ctx.auth.user.id,
         search: input?.search,
       }),
     ),
   create: protectedProcedure
     .input(LeagueCreateDTO)
     .mutation(({ ctx, input }) =>
-      create(LeagueCreate.parse({ ...input, userId: ctx.auth.userId })),
+      create(LeagueCreate.parse({ ...input, userId: ctx.auth.user.id })),
     ),
   update: leagueEditorProcedure
     .input(LeagueEditDTO)
     .mutation(({ ctx: { league, auth }, input }) =>
-      update(LeagueEdit.parse({ ...input, userId: auth.userId, id: league.id })),
+      update(LeagueEdit.parse({ ...input, userId: auth.user.id, id: league.id })),
     ),
 });

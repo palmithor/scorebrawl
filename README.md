@@ -8,7 +8,7 @@ in real-time
 ## Dev environment
 
 Developing in Scorebrawl requires [bun](https://bun.sh/) and [neon](https://neon.tech/) along
-with [Clerk](https://clerk.com) and [uploadthing](https://uploadthing.com) credentials.
+with [better-auth](https://www.better-auth.com) and [uploadthing](https://uploadthing.com) credentials.
 
 ## Development environment
 
@@ -16,7 +16,9 @@ with [Clerk](https://clerk.com) and [uploadthing](https://uploadthing.com) crede
 
 Neon database has to be set up for the development environment.
 
-Clerk and Uploadthing credentials have to be set up in the environment variables.
+Uploadthing credentials have to be set up in the environment variables.
+
+Google OAuth Client Credentials have to be set up.
 
 See `apps/scorebrawl/.env.example` for the required environment variables.
 
@@ -28,7 +30,7 @@ Run db migrations and start the development server by executing `bun run dev`.
 
 - Bun
 - NextJS
-- Clerk
+- Better-Auth
 - Uploadthing
 - Shadcn
 - Tailwind

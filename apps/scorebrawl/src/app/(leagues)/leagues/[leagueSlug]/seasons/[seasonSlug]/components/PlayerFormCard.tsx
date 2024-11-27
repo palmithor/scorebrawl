@@ -1,4 +1,4 @@
-import { AvatarName, AvatarNameSkeleton } from "@/components/avatar-name";
+import { AvatarName, AvatarNameSkeleton } from "@/components/avatar/avatar-name";
 import { FormDots } from "@/components/league/player-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/trpc/react";
@@ -43,11 +43,9 @@ const PlayerFormCard = ({
         </AvatarNameSkeleton>
       )}
       {player && (
-        <div className="flex items-center">
-          <AvatarName name={player.user.name} imageUrl={player.user.imageUrl}>
-            <FormDots form={player.form} />
-          </AvatarName>
-        </div>
+        <AvatarName name={player.user.name} imageUrl={player.user.imageUrl}>
+          <FormDots form={player.form} />
+        </AvatarName>
       )}
     </DashboardCard>
   );
