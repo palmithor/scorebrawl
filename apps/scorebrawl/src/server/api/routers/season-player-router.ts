@@ -9,6 +9,7 @@ import {
   getPointProgression,
   getStanding,
   getStruggling,
+  getTeammateStatistics,
   getTopPlayer,
 } from "@scorebrawl/db/season-player";
 
@@ -57,4 +58,18 @@ export const seasonPlayerRouter = createTRPCRouter({
   getPointDiffProgression: seasonProcedure
     .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
     .query(async ({ ctx: { season } }) => getPointDiffProgression({ seasonId: season.id })),
+  getTeammateStatistics: seasonProcedure
+    .input(
+      z.object({
+        seasonSlug: z.string(),
+        leagueSlug: z.string(),
+        seasonPlayerId: z.string(),
+      }),
+    )
+    .query(async ({ input: { seasonPlayerId } }) => {
+      const stats = await getTeammateStatistics({
+        seasonPlayerId: seasonPlayerId,
+      });
+      return stats;
+    }),
 });

@@ -8,28 +8,29 @@ import { api } from "@/trpc/react";
 export const SeasonPlayerStanding = () => {
   const { leagueSlug, seasonSlug } = useSeason();
   const { data, isLoading } = api.seasonPlayer.getStanding.useQuery({ leagueSlug, seasonSlug });
+
+  if (isLoading) {
+    return <Skeleton className="w-full h-80" />;
+  }
+
+  if (!data?.length) {
+    return <EmptyCardContentText>No matches registered</EmptyCardContentText>;
+  }
+
   return (
-    <>
-      {isLoading && <Skeleton className={"w-full h-80"} />}
-      {!isLoading && data && data.length > 0 && (
-        <Standing
-          items={data?.map((sp) => ({
-            id: sp.seasonPlayerId,
-            name: sp.user.name,
-            score: sp.score,
-            form: sp.form,
-            matchCount: sp.matchCount,
-            winCount: sp.winCount,
-            drawCount: sp.drawCount,
-            lossCount: sp.lossCount,
-            pointDiff: sp.pointDiff,
-            avatars: [{ id: sp.user.userId, image: sp.user.image, name: sp.user.name }],
-          }))}
-        />
-      )}
-      {data?.length === 0 && (
-        <EmptyCardContentText>No team matches registered</EmptyCardContentText>
-      )}
-    </>
+    <Standing
+      items={data?.map((sp) => ({
+        id: sp.seasonPlayerId,
+        name: sp.user.name,
+        score: sp.score,
+        form: sp.form,
+        matchCount: sp.matchCount,
+        winCount: sp.winCount,
+        drawCount: sp.drawCount,
+        lossCount: sp.lossCount,
+        pointDiff: sp.pointDiff,
+        avatars: [{ id: sp.user.userId, image: sp.user.image, name: sp.user.name }],
+      }))}
+    />
   );
 };
