@@ -3,14 +3,18 @@ import { findBySlug } from "@scorebrawl/db/league";
 import { getLeaguePlayers } from "@scorebrawl/db/player";
 import { headers } from "next/headers";
 
-export async function GET(_request: Request, { params }: { params: { leagueSlug: string } }) {
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ leagueSlug: string }> },
+) {
+  const { leagueSlug } = await params;
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
     const league = await findBySlug({
       userId: session?.user.id ?? "",
-      leagueSlug: params.leagueSlug,
+      leagueSlug,
     });
     if (!league) {
       return Response.json({ error: "League not found" }, { status: 404 });

@@ -8,9 +8,10 @@ import { StandingTabs } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seas
 import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/addMatchButton";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 
-type PageParams = { params: { leagueSlug: string; seasonSlug: string } };
+type PageParams = { params: Promise<{ leagueSlug: string; seasonSlug: string }> };
 
-export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
+export default async ({ params }: PageParams) => {
+  const { leagueSlug, seasonSlug } = await params;
   const season = await findSeasonBySlug(leagueSlug, seasonSlug);
   return (
     <>

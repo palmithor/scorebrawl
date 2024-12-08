@@ -5,7 +5,8 @@ import { RedirectType, redirect } from "next/navigation";
 import { InviteDialog } from "./components/InviteDialog";
 import { InviteTable } from "./components/InviteTable";
 
-export default async ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) => {
+export default async ({ params }: { params: Promise<{ leagueSlug: string }> }) => {
+  const { leagueSlug } = await params;
   const leagueWithMembership =
     (await findLeagueBySlugWithUserRole(leagueSlug)) ??
     redirect("/?errorCode=LEAGUE_NOT_FOUND", RedirectType.replace);

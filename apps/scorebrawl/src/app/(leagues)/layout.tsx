@@ -12,7 +12,7 @@ interface LayoutProps {
 
 export default async function Layout({ children }: LayoutProps) {
   await auth.api.getSession({
-    headers: headers(),
+    headers: await headers(),
   });
   return (
     <SidebarProvider>

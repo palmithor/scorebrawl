@@ -38,7 +38,7 @@ export const matchRouter = createTRPCRouter({
       const latestMatch = await findLatest({
         seasonId: ctx.season.id,
       });
-      return MatchDTO.parse(latestMatch);
+      return latestMatch ? MatchDTO.parse(latestMatch) : null;
     }),
   getAll: seasonProcedure
     .input(

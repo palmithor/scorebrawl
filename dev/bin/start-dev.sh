@@ -31,7 +31,7 @@ echo "Ran migrations"
 
 # Start node service with bun dev
 echo "Starting node service..."
-bunx next dev --port 5050 &
+bunx next dev --port 5050 --turbopack &
 
 # Capture the PID of the Node process
 NODE_PID=$!

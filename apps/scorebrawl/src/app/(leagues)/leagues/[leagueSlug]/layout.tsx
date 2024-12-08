@@ -7,9 +7,10 @@ import type { ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
 
 export const generateMetadata = async (
-  { params: { leagueSlug } }: { params: { leagueSlug: string } },
+  { params }: { params: Promise<{ leagueSlug: string }> },
   _parent: ResolvingMetadata,
 ) => {
+  const { leagueSlug } = await params;
   const league = { name: "" };
   try {
     const leagueBySlug = await findLeagueBySlugWithUserRole(leagueSlug);
@@ -24,12 +25,13 @@ export const generateMetadata = async (
 };
 
 export default async ({
-  params: { leagueSlug },
+  params,
   children,
 }: {
-  params: { leagueSlug: string };
+  params: Promise<{ leagueSlug: string }>;
   children: ReactNode;
 }) => {
+  const { leagueSlug } = await params;
   await getLeagueBySlugWithUserRoleOrRedirect(leagueSlug);
   return <>{children}</>;
 };

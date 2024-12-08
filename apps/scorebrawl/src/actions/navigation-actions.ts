@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const clearLastVisitedLeague = async () => {
-  cookies().delete("last-visited-league");
+  (await cookies()).delete("last-visited-league");
 };
 
 export const resetLastVisitedLeague = async ({
@@ -13,11 +13,11 @@ export const resetLastVisitedLeague = async ({
 }: {
   leagueSlug: string;
 }) => {
-  cookies().set("last-visited-league", leagueSlug, { path: "/" });
+  (await cookies()).set("last-visited-league", leagueSlug, { path: "/" });
 };
 
 export const redirectToLeagueOrOnboarding = async () => {
-  const lastVisitedLeague = cookies().get("last-visited-league");
+  const lastVisitedLeague = (await cookies()).get("last-visited-league");
   if (lastVisitedLeague) {
     redirect(`/leagues/${lastVisitedLeague.value}`);
   } else {

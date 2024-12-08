@@ -3,10 +3,8 @@ import { claim, findByCode } from "@scorebrawl/db/invite";
 import { getByIdWhereMember } from "@scorebrawl/db/league";
 import { headers } from "next/headers";
 
-export const GET = async (
-  _request: Request,
-  { params: { code } }: { params: { code: string } },
-) => {
+export const GET = async (_request: Request, { params }: { params: Promise<{ code: string }> }) => {
+  const { code } = await params;
   const invite = await findByCode(code);
   if (!invite) {
     return Response.redirect(

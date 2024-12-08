@@ -4,7 +4,7 @@ import { api } from "@/trpc/server";
 import { RedirectType, redirect } from "next/navigation";
 import { cache } from "react";
 
-export const findLeagueBySlugWithUserRole = cache((leagueSlug: string) =>
+export const findLeagueBySlugWithUserRole = cache(async (leagueSlug: string) =>
   api.league.getLeagueBySlugAndRole({ leagueSlug }),
 );
 

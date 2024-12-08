@@ -1,7 +1,8 @@
 import { api } from "@/trpc/server";
 import { redirect } from "next/navigation";
 
-export default async ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) => {
+export default async ({ params }: { params: Promise<{ leagueSlug: string }> }) => {
+  const { leagueSlug } = await params;
   const ongoingSeason = await api.season.findActive({ leagueSlug });
   const hasEditorAccess = await api.league.hasEditorAccess({ leagueSlug });
 

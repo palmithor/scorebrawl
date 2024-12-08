@@ -471,7 +471,9 @@ export const getTeammateStatistics = async ({
         }
 
         acc[seasonPlayerId].totalMatches += 1;
-        if (result === "W") acc[seasonPlayerId].totalWins += 1;
+        if (result === "W") {
+          acc[seasonPlayerId].totalWins += 1;
+        }
         acc[seasonPlayerId].scoreChangeSum += scoreAfter - scoreBefore;
 
         return acc;
