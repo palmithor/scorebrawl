@@ -29,7 +29,7 @@ export const PlayerSelection = ({
             p.team ? (p.team === team ? "bg-primary/20" : "line-through") : "",
           )}
         >
-          <AvatarWithFallback image={p.user.image} name={p.user.name} />
+          <AvatarWithFallback size="md" image={p.user.image} name={p.user.name} />
           <div className="grid auto-rows-min text-start">
             <p className="text-xs font-medium truncate">{p.user.name}</p>
             <p className="text-xs text-muted-foreground">{p.score}</p>
