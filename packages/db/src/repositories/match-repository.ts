@@ -326,6 +326,7 @@ export const remove = async ({
     .innerJoin(MatchPlayers, eq(MatchPlayers.seasonPlayerId, SeasonPlayers.id))
     .where(eq(MatchPlayers.matchId, matchId));
   await revertScores({ matchId });
+  await revertTeamScores({ matchId });
   await db.delete(MatchPlayers).where(eq(MatchPlayers.matchId, match.id));
   await db.delete(MatchTeams).where(eq(MatchTeams.matchId, match.id));
   await db.delete(Matches).where(eq(Matches.id, match.id));
@@ -355,6 +356,32 @@ const revertScores = async ({ matchId }: { matchId: string }) => {
       inArray(
         SeasonPlayers.id,
         playerUpdateData.map((sp) => sp.id),
+      ),
+    );
+};
+
+const revertTeamScores = async ({ matchId }: { matchId: string }) => {
+  const teams = await db.select().from(MatchTeams).where(eq(MatchTeams.matchId, matchId));
+  const teamUpdateData = teams.map((mt) => ({
+    id: mt.seasonTeamId,
+    score: mt.scoreBefore,
+  }));
+  const sqlChunks: SQL[] = [];
+
+  sqlChunks.push(sql`case`);
+  for (const update of teamUpdateData) {
+    sqlChunks.push(sql`when id = ${update.id} then ${update.score}`);
+  }
+  sqlChunks.push(sql`else score end`);
+  const finalSql: SQL = sql.join(sqlChunks, sql.raw(" "));
+
+  await db
+    .update(SeasonTeams)
+    .set({ score: finalSql })
+    .where(
+      inArray(
+        SeasonTeams.id,
+        teamUpdateData.map((sp) => sp.id),
       ),
     );
 };
