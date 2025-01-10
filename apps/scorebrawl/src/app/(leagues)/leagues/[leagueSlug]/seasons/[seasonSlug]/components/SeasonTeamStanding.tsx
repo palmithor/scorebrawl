@@ -17,29 +17,32 @@ export const SeasonTeamStanding = () => {
   );
   const isLoading = isLoadingAvatars || isLoadingStanding;
 
+  if (isLoading) {
+    return <Skeleton className="w-full h-80" />;
+  }
+
+  if (!data?.length) {
+    return <EmptyCardContentText>No team matches registered</EmptyCardContentText>;
+  }
+
   return (
-    <>
-      {isLoading && <Skeleton className={"w-full h-80"} />}
-      {!isLoading && data.length > 0 && (
-        <Standing
-          items={data?.map((st) => ({
-            id: st.seasonTeamId,
-            name: st.name,
-            score: st.score,
-            form: st.form,
-            matchCount: st.matchCount,
-            winCount: st.winCount,
-            drawCount: st.drawCount,
-            lossCount: st.lossCount,
-            pointDiff: st.pointDiff,
-            avatars:
-              avatars
-                ?.find((t) => t.teamId === st.seasonTeamId)
-                ?.players.map((p) => ({ id: p.userId, name: p.name, image: p.image })) ?? [],
-          }))}
-        />
-      )}
-      {data.length === 0 && <EmptyCardContentText>No team matches registered</EmptyCardContentText>}
-    </>
+    <Standing
+      enableRowClick={false}
+      items={data?.map((st) => ({
+        id: st.seasonTeamId,
+        name: st.name,
+        score: st.score,
+        form: st.form,
+        matchCount: st.matchCount,
+        winCount: st.winCount,
+        drawCount: st.drawCount,
+        lossCount: st.lossCount,
+        pointDiff: st.pointDiff,
+        avatars:
+          avatars
+            ?.find((t) => t.teamId === st.seasonTeamId)
+            ?.players.map((p) => ({ id: p.userId, name: p.name, image: p.image })) ?? [],
+      }))}
+    />
   );
 };

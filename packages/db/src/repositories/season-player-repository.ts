@@ -1,5 +1,5 @@
 import type { SeasonPlayerDTO } from "@scorebrawl/api";
-import { type SQL, and, desc, eq, inArray, sql } from "drizzle-orm";
+import { type SQL, and, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import type z from "zod";
 import { db } from "../db";
 import {
@@ -413,4 +413,93 @@ export const getLastFiveMatchesGoals = async (seasonPlayerId: string) => {
     .execute();
 
   return result.map((r) => r.goalsScored);
+};
+
+export const getTeammateStatistics = async ({
+  seasonPlayerId,
+}: {
+  seasonPlayerId: string;
+}) => {
+  const matches = await db
+    .select({
+      matchId: MatchPlayers.matchId,
+      homeTeam: MatchPlayers.homeTeam,
+    })
+    .from(MatchPlayers)
+    .where(eq(MatchPlayers.seasonPlayerId, seasonPlayerId));
+
+  const matchIds = matches.map((d) => d.matchId);
+
+  const matchPlayers = await db
+    .select({
+      seasonPlayerId: MatchPlayers.seasonPlayerId,
+      result: MatchPlayers.result,
+      matchId: MatchPlayers.matchId,
+      homeTeam: MatchPlayers.homeTeam,
+      scoreBefore: MatchPlayers.scoreBefore,
+      scoreAfter: MatchPlayers.scoreAfter,
+      userId: Users.id,
+      image: Users.image,
+      name: Users.name,
+    })
+    .from(MatchPlayers)
+    .innerJoin(SeasonPlayers, eq(MatchPlayers.seasonPlayerId, SeasonPlayers.id))
+    .innerJoin(LeaguePlayers, eq(SeasonPlayers.leaguePlayerId, LeaguePlayers.id))
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
+    .where(
+      and(inArray(MatchPlayers.matchId, matchIds), ne(MatchPlayers.seasonPlayerId, seasonPlayerId)),
+    );
+
+  const stats = matchPlayers
+    .filter((mp) => {
+      const match = matches.find((m) => m.matchId === mp.matchId);
+      return match?.homeTeam === mp.homeTeam;
+    })
+    .reduce(
+      (acc, player) => {
+        const { seasonPlayerId, result, scoreBefore, scoreAfter } = player;
+
+        if (!acc[seasonPlayerId]) {
+          acc[seasonPlayerId] = {
+            seasonPlayerId,
+            totalMatches: 0,
+            totalWins: 0,
+            scoreChangeSum: 0,
+            name: player.name,
+            image: player.image ?? undefined,
+          };
+        }
+
+        acc[seasonPlayerId].totalMatches += 1;
+        if (result === "W") acc[seasonPlayerId].totalWins += 1;
+        acc[seasonPlayerId].scoreChangeSum += scoreAfter - scoreBefore;
+
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          seasonPlayerId: string;
+          totalMatches: number;
+          totalWins: number;
+          scoreChangeSum: number;
+          name: string;
+          image?: string;
+        }
+      >,
+    );
+
+  // Transform the stats object into an array with score averages
+  const result = Object.values(stats).map((stat) => ({
+    seasonPlayerId: stat.seasonPlayerId,
+    totalMatches: stat.totalMatches,
+    totalWins: stat.totalWins,
+    scoreAverage: stat.scoreChangeSum / stat.totalMatches,
+    winRatio: stat.totalWins / stat.totalMatches,
+    userId: stat.seasonPlayerId,
+    name: stat.name,
+    image: stat.image,
+  }));
+
+  return result;
 };
