@@ -1,7 +1,7 @@
 # Scorebrawl
 
 Scorebrawl is the ultimate score-tracking solution for gaming, sports, and competitions, bringing your victories to life
-in real-time
+in real-time.
 
 # Getting started
 
