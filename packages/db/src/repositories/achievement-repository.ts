@@ -1,7 +1,7 @@
+import { createCuid } from "@scorebrawl/utils/id";
 import { and, eq, getTableColumns } from "drizzle-orm";
 import { db } from "../db";
 import { LeaguePlayerAchievement, LeaguePlayers } from "../schema";
-import { createCuid } from "../utils";
 
 export const createAchievement = async (
   value: Omit<typeof LeaguePlayerAchievement.$inferInsert, "id">,

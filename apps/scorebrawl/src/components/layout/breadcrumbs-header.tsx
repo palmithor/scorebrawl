@@ -30,20 +30,22 @@ export const BreadcrumbsHeader = ({
       <Breadcrumb>
         <BreadcrumbList className="flex-nowrap">
           {breadcrumbs.map((crumb, index) => (
-            <BreadcrumbItem key={`item-${crumb.name}-${crumb.href}`}>
-              {crumb.href ? (
-                <>
-                  <BreadcrumbLink asChild>
-                    <Link href={crumb.href} prefetch={false}>
-                      {crumb.name}
-                    </Link>
-                  </BreadcrumbLink>
-                  {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
-                </>
-              ) : (
-                <BreadcrumbPage className="truncate">{crumb.name}</BreadcrumbPage>
-              )}
-            </BreadcrumbItem>
+            <>
+              <BreadcrumbItem key={`item-${crumb.name}-${crumb.href}`}>
+                {crumb.href ? (
+                  <>
+                    <BreadcrumbLink asChild>
+                      <Link href={crumb.href} prefetch={false}>
+                        {crumb.name}
+                      </Link>
+                    </BreadcrumbLink>
+                  </>
+                ) : (
+                  <BreadcrumbPage className="truncate">{crumb.name}</BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+            </>
           ))}
         </BreadcrumbList>
       </Breadcrumb>

@@ -17,10 +17,12 @@ export const AddMatchButton = () => {
   const hasTwoPlayersOrMore = ongoingSeasonPlayers && ongoingSeasonPlayers.length > 1;
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <LayoutActionButton
           text={"Match"}
-          onClick={() => void push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches/create`)}
+          onClick={() =>
+            void push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches/elo-create`)
+          }
           Icon={PlusIcon}
         />
       </TooltipTrigger>

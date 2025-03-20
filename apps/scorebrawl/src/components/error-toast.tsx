@@ -41,6 +41,12 @@ export const ErrorToast = () => {
           description: "Invite already claimed",
           duration: 2000,
         });
+      } else if (errorCode === "UNSUPPORTED_SCORE_TYPE") {
+        toast({
+          title: "Something went wrong",
+          description: "Page not supported for this score type",
+          duration: 2000,
+        });
       } else {
         toast({
           title: "Something went wrong",

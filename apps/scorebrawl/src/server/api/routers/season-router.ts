@@ -6,10 +6,12 @@ import {
   leagueProcedure,
   seasonProcedure,
 } from "@/server/api/trpc";
-import { SeasonCreateDTO, SeasonEditDTOSchema } from "@scorebrawl/api";
+import { SeasonCreateDTOSchema, SeasonEditDTOSchema } from "@scorebrawl/api";
+import { getLeaguePlayers } from "@scorebrawl/db/player";
 import {
   create,
   findActive,
+  findFixtures,
   findOverlappingSeason,
   getAll,
   getBySlug,
@@ -74,9 +76,21 @@ export const seasonRouter = createTRPCRouter({
   getAll: leagueProcedure
     .input(z.object({ leagueSlug: z.string() }))
     .query(async ({ ctx }) => getAll({ leagueId: ctx.league.id })),
-  create: leagueEditorProcedure.input(SeasonCreateDTO).mutation(async ({ input, ctx }) => {
+  getFixtures: seasonProcedure
+    .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string() }))
+    .query(async ({ ctx: { season } }) => {
+      return findFixtures({ seasonId: season.id });
+    }),
+  create: leagueEditorProcedure.input(SeasonCreateDTOSchema).mutation(async ({ input, ctx }) => {
     validateStartBeforeEnd(input);
     await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
+    const leaguePlayers = await getLeaguePlayers({ leagueId: ctx.league.id });
+    if (leaguePlayers.length < 2) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "League must have at least 2 players to create a season",
+      });
+    }
     return create(
       SeasonCreateSchema.parse({
         userId: ctx.auth.user.id,

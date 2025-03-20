@@ -7,21 +7,34 @@ export const ScoreTypeSchema = z.union([
 ]);
 export type ScoreType = z.infer<typeof ScoreTypeSchema>;
 
-export const EloTypeSchema = z.union([z.literal("team vs team"), z.literal("individual vs team")]);
-export const EloTypeEnumSchema = z.enum(["team vs team", "individual vs team"]);
-export type EloType = z.infer<typeof EloTypeSchema>;
+export const EloTypeEnumSchema = z.enum(["team vs team"]);
 
-export const SeasonCreateSchema = z.object({
-  name: z.string().min(0),
-  scoreType: ScoreTypeSchema,
+export const BaseSeasonCreateSchema = z.object({
+  name: z.string().min(0, "Name is required"),
+  userId: z.string(),
   leagueId: z.string(),
   startDate: z.date(),
   endDate: z.date().optional(),
-  initialScore: z.coerce.number().int(),
-  kFactor: z.coerce.number().int(),
-  userId: z.string(),
 });
-export type SeasonCreate = z.infer<typeof SeasonCreateSchema>;
+export const EloSeasonCreateSchema = z
+  .object({
+    scoreType: z.literal("elo"),
+    initialScore: z.number().int().min(0),
+    kFactor: z.number().int().min(10).max(50),
+  })
+  .merge(BaseSeasonCreateSchema);
+
+export const ThreeOneNilSeasonCreateSchema = z
+  .object({
+    scoreType: z.literal("3-1-0"),
+    roundsPerPlayer: z.number().int(),
+  })
+  .merge(BaseSeasonCreateSchema);
+
+export const SeasonCreateSchema = z.discriminatedUnion("scoreType", [
+  EloSeasonCreateSchema,
+  ThreeOneNilSeasonCreateSchema,
+]);
 
 export const SeasonEditSchema = z.object({
   seasonId: z.string(),

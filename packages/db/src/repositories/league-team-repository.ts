@@ -1,4 +1,5 @@
 import type { LeagueTeamInput } from "@scorebrawl/model";
+import { createCuid } from "@scorebrawl/utils/id";
 import { and, asc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import type { z } from "zod";
 import {
@@ -10,7 +11,6 @@ import {
   SeasonPlayers,
   SeasonTeams,
   Users,
-  createCuid,
 } from "..";
 import { db } from "../db";
 

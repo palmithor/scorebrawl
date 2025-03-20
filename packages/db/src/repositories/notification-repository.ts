@@ -1,6 +1,6 @@
+import { createCuid } from "@scorebrawl/utils/id";
 import { db } from "../db";
 import { Notifications } from "../schema";
-import { createCuid } from "../utils";
 
 export const createNotification = async (value: Omit<typeof Notifications.$inferInsert, "id">) => {
   const now = new Date();

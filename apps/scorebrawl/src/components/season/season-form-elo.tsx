@@ -3,8 +3,7 @@ import AutoForm from "@/components/auto-form";
 import { LoadingButton } from "@/components/loading-button";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
-import { SeasonCreateDTO } from "@scorebrawl/api";
-import { EloTypeEnumSchema } from "@scorebrawl/model";
+import { EloSeasonCreateDTOSchema } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
@@ -15,15 +14,17 @@ type FormValues = {
   name: string;
   initialScore: number;
   startDate: Date;
-  eloType?: "team vs team" | "individual vs team";
+  eloType?: "team vs team";
   endDate?: Date;
   kFactor: number;
 };
 
-const schema = SeasonCreateDTO.extend({
-  eloType: EloTypeEnumSchema.default("team vs team"),
+const schema = EloSeasonCreateDTOSchema.omit({
+  scoreType: true,
+  leagueSlug: true,
+  kFactor: true,
+  initialScore: true,
 })
-  .omit({ scoreType: true, leagueSlug: true, kFactor: true, initialScore: true })
   .merge(
     z.object({
       initialScore: z.coerce.number().int().min(50).default(1200),
@@ -57,7 +58,7 @@ export const SeasonFormElo = ({ league }: { league: { id: string; slug: string }
         startDate: startOfDay(val.startDate),
         endDate: val.endDate ? endOfDay(val.endDate) : undefined,
         leagueSlug: league.slug,
-        scoreType: val.eloType === "team vs team" ? "elo" : "elo-individual-vs-team",
+        scoreType: "elo",
         initialScore: val.initialScore,
       },
       {

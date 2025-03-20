@@ -1,10 +1,18 @@
 import { z } from "zod";
 
-export const MatchInputDTO = z.object({
+export const EloMatchInputDTOSchema = z.object({
   leagueSlug: z.string().min(1),
   seasonSlug: z.string().min(1),
   homeTeamSeasonPlayerIds: z.string().array().nonempty(),
   awayTeamSeasonPlayerIds: z.string().array().nonempty(),
+  homeScore: z.number().int(),
+  awayScore: z.number().int(),
+});
+
+export const FixtureMatchInputDTOSchema = z.object({
+  leagueSlug: z.string().min(1),
+  seasonSlug: z.string().min(1),
+  seasonFixtureId: z.string().min(1),
   homeScore: z.number().int(),
   awayScore: z.number().int(),
 });

@@ -4,6 +4,8 @@ import { events } from "@/analytics/counters";
 import { LoadingButton } from "@/components/loading-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+
 import {
   Drawer,
   DrawerClose,
@@ -55,7 +57,8 @@ export const MatchForm = () => {
   const { data: seasonPlayers } = api.seasonPlayer.getStanding.useQuery({ leagueSlug, seasonSlug });
   const { toast } = useToast();
   const utils = api.useUtils();
-  const { mutate, isPending } = api.match.create.useMutation();
+  const { mutate, isPending } = api.match.createEloMatch.useMutation();
+  const { push } = useRouter();
 
   const [teamSelection, setTeamSelection] = useState<PlayerWithSelection[]>([]);
 
@@ -200,6 +203,11 @@ export const MatchForm = () => {
     );
   };
   if (!season || !seasonPlayers) {
+    return null;
+  }
+
+  if (season.scoreType !== "elo") {
+    push(`/leagues/${leagueSlug}?errorCode=UNSUPPORTED_SCORE_TYPE`);
     return null;
   }
 
