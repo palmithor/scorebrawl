@@ -3,7 +3,7 @@ import AutoForm from "@/components/auto-form";
 import { LoadingButton } from "@/components/loading-button";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
-import { SeasonCreateDTO } from "@scorebrawl/api";
+import { ThreeOneNilSeasonCreateDTOSchema } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
@@ -15,10 +15,8 @@ type FormValues = {
   endDate?: Date;
 };
 
-const schema = SeasonCreateDTO.omit({
+const schema = ThreeOneNilSeasonCreateDTOSchema.omit({
   leagueSlug: true,
-  kFactor: true,
-  initialScore: true,
   scoreType: true,
 }).refine((data) => data.endDate && endOfDay(data.endDate) > startOfDay(data.startDate), {
   message: "End date cannot be earlier than start date.",
@@ -43,7 +41,7 @@ export const SeasonForm310 = ({ league }: { league: { id: string; slug: string }
 
   const onSubmit = async (val: FormValues) => {
     mutate(
-      { ...val, initialScore: 0, scoreType: "3-1-0", leagueSlug: league.slug },
+      { ...val, scoreType: "3-1-0", leagueSlug: league.slug },
       {
         onSettled: (data) => {
           if (data) {

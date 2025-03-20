@@ -10,7 +10,7 @@ export const AddSeasonButton = ({ leagueSlug }: { leagueSlug: string }) => {
   const { data: hasEditAccess } = api.league.hasEditorAccess.useQuery({ leagueSlug });
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <LayoutActionButton
           text={"Season"}
           onClick={() => void push(`/leagues/${leagueSlug}/seasons/create`)}

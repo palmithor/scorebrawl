@@ -1,4 +1,5 @@
 import { type NotificationData, leagueAchievementType, notificationType } from "@scorebrawl/model";
+import { cuidConfig } from "@scorebrawl/utils/id";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -16,7 +17,6 @@ import type { z } from "zod";
 import type { LeagueEventData } from "./types";
 
 const defaultVarcharConfig = { length: 100 };
-export const cuidConfig = { length: 32 };
 
 export const Leagues = pgTable(
   "league",
@@ -31,9 +31,7 @@ export const Leagues = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (league) => ({
-    slugIdx: uniqueIndex("league_name_slug_uq_idx").on(league.slug),
-  }),
+  (league) => [uniqueIndex("league_name_slug_uq_idx").on(league.slug)],
 );
 
 const leagueEventType = [
@@ -70,9 +68,7 @@ export const LeaguePlayers = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (player) => ({
-    leaguePlayerIdx: uniqueIndex("league_player_uq_idx").on(player.leagueId, player.userId),
-  }),
+  (player) => [uniqueIndex("league_player_uq_idx").on(player.leagueId, player.userId)],
 );
 
 export const LeagueTeams = pgTable("league_team", {
@@ -98,12 +94,12 @@ export const LeagueTeamPlayers = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (leagueTeamPlayer) => ({
-    leagueTeamPlayerIdx: uniqueIndex("league_team_player_uq_idx").on(
+  (leagueTeamPlayer) => [
+    uniqueIndex("league_team_player_uq_idx").on(
       leagueTeamPlayer.teamId,
       leagueTeamPlayer.leaguePlayerId,
     ),
-  }),
+  ],
 );
 
 export const leagueMemberRoles = ["viewer", "member", "editor", "owner"] as const;
@@ -122,9 +118,7 @@ export const LeagueMembers = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (player) => ({
-    leaguePlayerIdx: uniqueIndex("league_member_uq_idx").on(player.leagueId, player.userId),
-  }),
+  (player) => [uniqueIndex("league_member_uq_idx").on(player.leagueId, player.userId)],
 );
 
 const scoreType = ["elo", "3-1-0", "elo-individual-vs-team"] as const;
@@ -140,6 +134,7 @@ export const Seasons = pgTable(
     kFactor: integer("k_factor").notNull(),
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date"),
+    rounds: integer("rounds"),
     leagueId: varchar("league_id", cuidConfig)
       .notNull()
       .references(() => Leagues.id),
@@ -148,10 +143,21 @@ export const Seasons = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (season) => ({
-    slugIdx: uniqueIndex("season_name_slug_uq_idx").on(season.slug),
-  }),
+  (season) => [uniqueIndex("season_name_slug_uq_idx").on(season.slug)],
 );
+
+export const SeasonFixtures = pgTable("season_fixture", {
+  id: varchar("id", cuidConfig).primaryKey(),
+  round: integer("round").notNull(),
+  seasonId: varchar("season_id", cuidConfig)
+    .notNull()
+    .references(() => Seasons.id),
+  matchId: varchar("match_id", cuidConfig).references(() => Matches.id),
+  homePlayerId: varchar("home_player_id", cuidConfig).references(() => SeasonPlayers.id),
+  awayPlayerId: varchar("away_player_id", cuidConfig).references(() => SeasonPlayers.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 export const SeasonTeams = pgTable(
   "season_team",
@@ -167,10 +173,10 @@ export const SeasonTeams = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (seasonTeam) => ({
-    seasonTeamIdx: uniqueIndex("season_team_uq_idx").on(seasonTeam.seasonId, seasonTeam.teamId),
-    seasonIdIdx: index("season_team_season_id_idx").on(seasonTeam.seasonId),
-  }),
+  (seasonTeam) => [
+    uniqueIndex("season_team_uq_idx").on(seasonTeam.seasonId, seasonTeam.teamId),
+    index("season_team_season_id_idx").on(seasonTeam.seasonId),
+  ],
 );
 
 const matchResult = ["W", "L", "D"] as const;
@@ -191,11 +197,11 @@ export const MatchTeams = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (teamMatch) => ({
-    seasonTeamIdIdx: index("team_matches_season_team_id_idx").on(teamMatch.seasonTeamId),
-    matchIdIdx: index("team_matches_match_id_idx").on(teamMatch.matchId),
-    createdAtIdx: index("team_matches_created_at_idx").on(teamMatch.createdAt),
-  }),
+  (teamMatch) => [
+    index("team_matches_season_team_id_idx").on(teamMatch.seasonTeamId),
+    index("team_matches_match_id_idx").on(teamMatch.matchId),
+    index("team_matches_created_at_idx").on(teamMatch.createdAt),
+  ],
 );
 
 export const SeasonPlayers = pgTable(
@@ -213,10 +219,10 @@ export const SeasonPlayers = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (season) => ({
-    seasonPlayerIdx: uniqueIndex("season_player_uq_idx").on(season.seasonId, season.leaguePlayerId),
-    seasonIdIdx: index("season_player_season_id_idx").on(season.seasonId),
-  }),
+  (season) => [
+    uniqueIndex("season_player_uq_idx").on(season.seasonId, season.leaguePlayerId),
+    index("season_player_season_id_idx").on(season.seasonId),
+  ],
 );
 
 export const Matches = pgTable(
@@ -235,9 +241,7 @@ export const Matches = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (match) => ({
-    matchCreatedAtIdx: index("match_created_at_idx").on(match.createdAt),
-  }),
+  (match) => [index("match_created_at_idx").on(match.createdAt)],
 );
 
 export const MatchPlayers = pgTable(
@@ -257,10 +261,10 @@ export const MatchPlayers = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (matchPlayer) => ({
-    seasonPlayerIdx: index("match_player_season_player_id_idx").on(matchPlayer.seasonPlayerId),
-    matchIdIdx: index("match_player_match_id_idx").on(matchPlayer.matchId),
-  }),
+  (matchPlayer) => [
+    index("match_player_season_player_id_idx").on(matchPlayer.seasonPlayerId),
+    index("match_player_match_id_idx").on(matchPlayer.matchId),
+  ],
 );
 
 export const LeagueInvites = pgTable(
@@ -278,9 +282,7 @@ export const LeagueInvites = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (invite) => ({
-    codeIdx: uniqueIndex("league_invite_code_uq_idx").on(invite.code),
-  }),
+  (invite) => [uniqueIndex("league_invite_code_uq_idx").on(invite.code)],
 );
 
 export const Users = pgTable("user", {
@@ -354,12 +356,12 @@ export const LeaguePlayerAchievement = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (achievement) => ({
-    leagueAchievementIdx: uniqueIndex("league_player_achievement_uq_idx").on(
+  (achievement) => [
+    uniqueIndex("league_player_achievement_uq_idx").on(
       achievement.leaguePlayerId,
       achievement.type,
     ),
-  }),
+  ],
 );
 
 export const leaguesRelations = relations(Leagues, ({ many }) => ({

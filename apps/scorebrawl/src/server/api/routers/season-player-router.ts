@@ -11,6 +11,7 @@ import {
   getStruggling,
   getTeammateStatistics,
   getTopPlayer,
+  isUserInSeason,
 } from "@scorebrawl/db/season-player";
 
 export const seasonPlayerRouter = createTRPCRouter({
@@ -52,6 +53,14 @@ export const seasonPlayerRouter = createTRPCRouter({
       });
       return z.array(SeasonPlayerStandingDTO).parse(standing);
     }),
+  isInSeason: seasonProcedure
+    .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
+    .query(async ({ ctx: { season, auth } }) =>
+      isUserInSeason({
+        seasonId: season.id,
+        userId: auth.user.id,
+      }),
+    ),
   getPointProgression: seasonProcedure
     .input(z.object({ seasonSlug: z.string(), leagueSlug: z.string() }))
     .query(async ({ ctx: { season } }) => getPointProgression({ seasonId: season.id })),

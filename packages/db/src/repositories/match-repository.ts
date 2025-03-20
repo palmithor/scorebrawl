@@ -1,5 +1,6 @@
 import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
 import type { Match, MatchInput, MatchResultSymbol } from "@scorebrawl/model";
+import { createCuid } from "@scorebrawl/utils/id";
 import { type SQL, and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import type z from "zod";
 import {
@@ -10,7 +11,6 @@ import {
   SeasonPlayers,
   SeasonTeams,
   Seasons,
-  createCuid,
   db,
 } from "..";
 import { getOrInsertTeam } from "./league-team-repository";
@@ -261,6 +261,32 @@ export const findLatest = async ({ seasonId }: { seasonId: string }) => {
     }
   );
 };
+
+export const findById = async ({ seasonId, matchId }: { seasonId: string; matchId: string }) => {
+  const match = await db.query.Matches.findFirst({
+    with: {
+      matchPlayers: { columns: { seasonPlayerId: true, homeTeam: true } },
+    },
+    where: (match, { eq }) => and(eq(match.seasonId, seasonId), eq(match.id, matchId)),
+    orderBy: desc(Matches.createdAt),
+  });
+
+  return (
+    match && {
+      id: match.id,
+      homeScore: match.homeScore,
+      awayScore: match.awayScore,
+      createdAt: match.createdAt,
+      homeTeamSeasonPlayerIds: match.matchPlayers
+        .filter((p) => p.homeTeam)
+        .map((p) => p.seasonPlayerId),
+      awayTeamSeasonPlayerIds: match.matchPlayers
+        .filter((p) => !p.homeTeam)
+        .map((p) => p.seasonPlayerId),
+    }
+  );
+};
+
 const findAndValidateSeasonPlayers = async ({
   seasonId,
   seasonPlayerIds,

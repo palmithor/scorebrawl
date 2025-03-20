@@ -27,7 +27,7 @@
     "@scorebrawl/utils": "workspace:*",
     "@sindresorhus/slugify": "^2.2.1",
     "date-fns": "^3.6.0",
-    "drizzle-orm": "^0.33.0",
+    "drizzle-orm": "^0.40.1",
     "postgres": "3.3.5",
     "zod": "3.23.8"
   },

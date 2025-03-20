@@ -1,15 +1,37 @@
 import { ScoreTypeSchema } from "@scorebrawl/model";
 import { z } from "zod";
 
-export const SeasonCreateDTO = z.object({
+export const BaseSeasonCreateDTOSchema = z.object({
   name: z.string().min(0, "Name is required"),
-  scoreType: ScoreTypeSchema.default("elo"),
   leagueSlug: z.string(),
   startDate: z.date().optional().default(new Date()),
   endDate: z.date().optional(),
-  initialScore: z.coerce.number().int().min(0).default(1200),
-  kFactor: z.coerce.number().int().min(10).max(50).optional().default(32),
 });
+export const EloSeasonCreateDTOSchema = z
+  .object({
+    scoreType: z.literal("elo"),
+    initialScore: z.coerce.number().int().min(0).default(1200),
+    kFactor: z.coerce.number().int().min(10).max(50).optional().default(32),
+  })
+  .merge(BaseSeasonCreateDTOSchema);
+
+export const ThreeOneNilSeasonCreateDTOSchema = z
+  .object({
+    scoreType: z.literal("3-1-0"),
+    roundsPerPlayer: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(365)
+      .default(1)
+      .describe("Rounds per player"),
+  })
+  .merge(BaseSeasonCreateDTOSchema);
+
+export const SeasonCreateDTOSchema = z.discriminatedUnion("scoreType", [
+  EloSeasonCreateDTOSchema,
+  ThreeOneNilSeasonCreateDTOSchema,
+]);
 
 export const SeasonEditDTOSchema = z
   .object({

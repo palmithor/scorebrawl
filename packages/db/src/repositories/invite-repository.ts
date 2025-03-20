@@ -1,3 +1,4 @@
+import { createCuid } from "@scorebrawl/utils/id";
 import { and, desc, eq, getTableColumns, gte, isNull, or } from "drizzle-orm";
 import { db } from "../db";
 import {
@@ -9,7 +10,6 @@ import {
   Seasons,
 } from "../schema";
 import type { LeagueMemberRole } from "../types";
-import { createCuid } from "../utils";
 
 export const create = async ({
   userId,

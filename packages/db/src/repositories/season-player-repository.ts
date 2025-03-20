@@ -105,6 +105,22 @@ export const findAll = async ({ seasonId }: { seasonId: string }) => {
   );
 };
 
+export const isUserInSeason = async ({
+  seasonId,
+  userId,
+}: { seasonId: string; userId: string }) => {
+  const users = await db
+    .select({
+      userId: Users.id,
+    })
+    .from(Users)
+    .innerJoin(LeaguePlayers, eq(LeaguePlayers.userId, Users.id))
+    .innerJoin(SeasonPlayers, eq(SeasonPlayers.leaguePlayerId, LeaguePlayers.id))
+    .where(and(eq(SeasonPlayers.seasonId, seasonId), eq(Users.id, userId)));
+
+  return users.length > 0;
+};
+
 const matchesSubqueryBuilder = ({ seasonId }: { seasonId: string }) =>
   db
     .select({

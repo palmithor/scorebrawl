@@ -7,11 +7,13 @@ import { PointProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[
 import { StandingTabs } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/StandingTabs";
 import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/addMatchButton";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
+import { Fixtures } from "./components/Fixtures";
 
 type PageParams = { params: { leagueSlug: string; seasonSlug: string } };
 
 export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
   const season = await findSeasonBySlug(leagueSlug, seasonSlug);
+  const isEloSeason = season.scoreType === "elo";
   return (
     <>
       <BreadcrumbsHeader
@@ -20,7 +22,7 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
           { name: season.name },
         ]}
       >
-        <AddMatchButton />
+        {isEloSeason && <AddMatchButton />}
       </BreadcrumbsHeader>
       <div className="grid gap-6">
         <DashboardCards />
@@ -35,14 +37,23 @@ export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
           </div>
           <div className="flex flex-col gap-6">
             <div className="grid gap-6">
-              <OverviewCard title={"Point Progression"}>
-                <PointProgression />
-              </OverviewCard>
+              {isEloSeason && (
+                <OverviewCard title={"Point Progression"}>
+                  <PointProgression />
+                </OverviewCard>
+              )}
+              {!isEloSeason && (
+                <OverviewCard title={"Fixtures"}>
+                  <Fixtures />
+                </OverviewCard>
+              )}
             </div>
             <div className="grid gap-6">
-              <OverviewCard title={"Daily Point +/-"}>
-                <PointDiffProgression />
-              </OverviewCard>
+              {isEloSeason && (
+                <OverviewCard title={"Daily Point +/-"}>
+                  <PointDiffProgression />
+                </OverviewCard>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,8 @@
 import type { ScoreType } from "@scorebrawl/model";
+import { createCuid } from "@scorebrawl/utils/id";
 import {
   and,
+  asc,
   desc,
   eq,
   getTableColumns,
@@ -13,6 +15,7 @@ import {
   or,
   sql,
 } from "drizzle-orm";
+import type { z } from "zod";
 import {
   LeagueEvents,
   LeagueMembers,
@@ -20,13 +23,13 @@ import {
   Leagues,
   Matches,
   ScoreBrawlError,
+  SeasonFixtures,
   SeasonPlayers,
   SeasonTeams,
   Seasons,
-  createCuid,
   db,
-} from "..";
-import type { SeasonCreate } from "../../../model/src/season";
+} from "../";
+import type { SeasonCreateSchema } from "../../../model/src/season";
 import type { SeasonCreatedEventData } from "../types";
 import { getStanding } from "./season-player-repository";
 import { slugifyWithCustomReplacement } from "./slug";
@@ -73,7 +76,6 @@ export const getCountInfo = async ({ seasonSlug }: { seasonSlug: string }) => {
 
 export const getById = async ({ seasonId }: { seasonId: string }) => {
   const [season] = await db.select().from(Seasons).where(eq(Seasons.id, seasonId));
-
   if (!season) {
     throw new ScoreBrawlError({
       code: "NOT_FOUND",
@@ -202,61 +204,139 @@ export const update = async ({
   return season;
 };
 
-export const create = async ({
-  leagueId,
-  userId,
-  name,
-  startDate,
-  endDate,
-  initialScore,
-  scoreType,
-  kFactor,
-}: SeasonCreate) => {
-  const slug = await slugifySeasonName({ name });
-
+export const create = async (input: z.input<typeof SeasonCreateSchema>) => {
+  const slug = await slugifySeasonName({ name: input.name });
   const now = new Date();
-  const [season] = await db
-    .insert(Seasons)
-    .values({
+  let values: typeof Seasons.$inferInsert;
+  if (input.scoreType === "elo") {
+    values = {
       id: createCuid(),
-      name,
+      name: input.name,
       slug,
-      leagueId,
-      startDate,
-      endDate,
-      initialScore,
-      scoreType,
-      kFactor,
-      updatedBy: userId,
-      createdBy: userId,
+      leagueId: input.leagueId,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      initialScore: input.initialScore,
+      kFactor: input.kFactor,
+      scoreType: "elo",
+      rounds: undefined,
       createdAt: now,
       updatedAt: now,
-    })
-    .returning();
+      createdBy: input.userId,
+      updatedBy: input.userId,
+    };
+  } else {
+    values = {
+      id: createCuid(),
+      name: input.name,
+      slug,
+      leagueId: input.leagueId,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      initialScore: 0,
+      kFactor: -1,
+      rounds: input.roundsPerPlayer,
+      scoreType: "3-1-0",
+      createdAt: now,
+      updatedAt: now,
+      createdBy: input.userId,
+      updatedBy: input.userId,
+    };
+  }
+  const seasons = await db.insert(Seasons).values(values).returning();
+  const season = seasons[0] as typeof Seasons.$inferSelect;
   const players = await db.query.LeaguePlayers.findMany({
     columns: { id: true },
-    where: and(eq(LeaguePlayers.leagueId, leagueId), eq(LeaguePlayers.disabled, false)),
+    where: and(eq(LeaguePlayers.leagueId, input.leagueId), eq(LeaguePlayers.disabled, false)),
   });
-  await Promise.all(
-    players.map((lp) =>
-      db.insert(SeasonPlayers).values({
-        id: createCuid(),
-        disabled: false,
-        score: season?.initialScore ?? 0,
-        leaguePlayerId: lp.id,
-        seasonId: season?.id ?? "",
-        createdAt: now,
-        updatedAt: now,
-      }),
-    ),
-  );
+  const seasonPlayerValues = players.map((lp) => ({
+    id: createCuid(),
+    disabled: false,
+    score: season.initialScore,
+    leaguePlayerId: lp.id,
+    seasonId: season.id,
+    createdAt: now,
+    updatedAt: now,
+  }));
+  await db.insert(SeasonPlayers).values(seasonPlayerValues);
+
+  if (input.scoreType === "3-1-0" && input.roundsPerPlayer) {
+    const seasonPlayerIds = seasonPlayerValues.map((sp) => sp.id);
+    const fixtures: (typeof SeasonFixtures.$inferInsert)[] = [];
+
+    // Create a copy of player IDs for manipulation
+    const players = [...seasonPlayerIds];
+
+    // If odd number of players, add a null (bye) player
+    if (players.length % 2 !== 0) {
+      // @ts-ignore - from claude
+      players.push(null);
+    }
+
+    const totalPlayers = players.length; // This includes the potential bye
+    const matchesPerRound = totalPlayers / 2;
+    const roundsPerCompleteTournament = totalPlayers - 1;
+
+    for (let tournament = 0; tournament < input.roundsPerPlayer; tournament++) {
+      // Create a fresh copy of the players array for each tournament
+      let tournamentPlayers = [...players];
+
+      for (let roundNum = 0; roundNum < roundsPerCompleteTournament; roundNum++) {
+        const actualRound = tournament * roundsPerCompleteTournament + roundNum;
+        const roundFixtures: Array<{ homeId: string | null; awayId: string | null }> = [];
+
+        // In each round, first player is fixed and others rotate clockwise
+        for (let i = 0; i < matchesPerRound; i++) {
+          // Pair up players from opposite ends of the array
+          const homeId = tournamentPlayers[i];
+          const awayId = tournamentPlayers[totalPlayers - 1 - i];
+
+          // Only create fixture if neither player is the bye (null)
+          if (homeId !== null && awayId !== null) {
+            // Alternate home/away for fairness in rematches
+            const finalHomeId = tournament % 2 === 0 ? homeId : awayId;
+            const finalAwayId = tournament % 2 === 0 ? awayId : homeId;
+
+            // @ts-ignore - from claude
+            roundFixtures.push({ homeId: finalHomeId, awayId: finalAwayId });
+          }
+        }
+
+        // Add fixtures to the final fixtures array
+        for (const fixture of roundFixtures) {
+          fixtures.push({
+            id: createCuid(),
+            homePlayerId: fixture.homeId,
+            awayPlayerId: fixture.awayId,
+            seasonId: season.id,
+            round: actualRound + 1,
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
+
+        // Rotate players for next round (first player stays fixed)
+        const rotatedPlayers = [
+          tournamentPlayers[0],
+          tournamentPlayers[totalPlayers - 1],
+          ...tournamentPlayers.slice(1, totalPlayers - 1),
+        ];
+        // @ts-ignore - from claude
+        tournamentPlayers = rotatedPlayers;
+      }
+    }
+
+    if (fixtures.length > 0) {
+      await db.insert(SeasonFixtures).values(fixtures);
+    }
+  }
 
   await db.insert(LeagueEvents).values({
-    leagueId,
+    leagueId: input.leagueId,
     id: createCuid(),
     type: "season_created_v1",
     data: { seasonId: season?.id } as SeasonCreatedEventData,
-    createdBy: userId,
+    createdBy: input.userId,
     createdAt: now,
   });
   return season as typeof Seasons.$inferSelect;
@@ -325,12 +405,44 @@ export const findSeasonAndLeagueBySlug = async ({
       startDate: Seasons.startDate,
       endDate: Seasons.endDate,
       initialScore: Seasons.initialScore,
+      scoreType: Seasons.scoreType,
     })
     .from(Seasons)
     .innerJoin(Leagues, and(eq(Leagues.slug, leagueSlug), eq(Leagues.id, Seasons.leagueId)))
     .innerJoin(LeagueMembers, eq(LeagueMembers.leagueId, Leagues.id))
     .where(and(eq(Seasons.slug, seasonSlug), eq(LeagueMembers.userId, userId)));
   return league;
+};
+
+export const findFixtures = async ({ seasonId }: { seasonId: string }) => {
+  return db.query.SeasonFixtures.findMany({
+    where: eq(SeasonFixtures.seasonId, seasonId),
+    orderBy: [
+      asc(SeasonFixtures.round),
+      asc(SeasonFixtures.createdAt),
+      asc(SeasonFixtures.homePlayerId),
+    ],
+  });
+};
+
+export const findFixtureById = async ({
+  seasonId,
+  fixtureId,
+}: { seasonId: string; fixtureId: string }) => {
+  return db.query.SeasonFixtures.findFirst({
+    where: and(eq(SeasonFixtures.seasonId, seasonId), eq(SeasonFixtures.id, fixtureId)),
+  });
+};
+
+export const assignMatchToFixture = async ({
+  seasonId,
+  fixtureId,
+  matchId,
+}: { seasonId: string; fixtureId: string; matchId: string }) => {
+  await db
+    .update(SeasonFixtures)
+    .set({ matchId })
+    .where(and(eq(SeasonFixtures.seasonId, seasonId), eq(SeasonFixtures.id, fixtureId)));
 };
 
 export const slugifySeasonName = async ({ name }: { name: string }) => {
