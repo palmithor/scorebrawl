@@ -54,7 +54,7 @@
     "lucide-react": "^0.456.0",
     "next": "^14.2.5",
     "next-themes": "^0.3.0",
-    "nuqs": "^1.17.6",
+    "nuqs": "^2.1.12",
     "react": "18.3.1",
     "react-charts": "beta",
     "react-day-picker": "8.10.1",
