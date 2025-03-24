@@ -9,10 +9,7 @@ export const GET = async (
 ) => {
   const invite = await findByCode(code);
   if (!invite) {
-    return Response.redirect(
-      `${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/?errorCode=INVITE_NOT_FOUND`,
-      302,
-    );
+    return Response.redirect("/?errorCode=INVITE_NOT_FOUND", 302);
   }
   try {
     const session = await auth.api.getSession({
@@ -21,7 +18,7 @@ export const GET = async (
 
     if (!session?.user) {
       return Response.redirect(
-        `${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/auth?rt=${encodeURIComponent(`/api/leagues/auto-join/${code}`)}`,
+        `/auth?rt=${encodeURIComponent(`/api/leagues/auto-join/${code}`)}`,
         302,
       );
     }
@@ -31,10 +28,7 @@ export const GET = async (
       userId: session?.user.id ?? "",
     });
     if (league) {
-      return Response.redirect(
-        `${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/leagues/${league.slug}?errorCode=INVITE_ALREADY_CLAIMED`,
-        302,
-      );
+      return Response.redirect(`/leagues/${league.slug}?errorCode=INVITE_ALREADY_CLAIMED`, 302);
     }
     const { leagueSlug } = await claim({
       leagueId: invite.leagueId,
@@ -42,11 +36,8 @@ export const GET = async (
       userId: session?.user.id ?? "",
     });
 
-    return Response.redirect(
-      `${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/leagues/${leagueSlug}?errorCode=INVITE_ALREADY_CLAIMED`,
-      302,
-    );
+    return Response.redirect(`/leagues/${leagueSlug}?errorCode=INVITE_ALREADY_CLAIMED`, 302);
   } catch {
-    return Response.redirect(`${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`);
+    return Response.redirect("/");
   }
 };
