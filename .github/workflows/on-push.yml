@@ -40,7 +40,11 @@ jobs:
         uses: rharkor/caching-for-turbo@v1.5
 
       - name: 🦄 Format
-        run: bun run format:check
+        run: bun run flint:check
 
       - name: 👷‍ Build
         run: bun run build
+        env: 
+          # This is not the build output used when deployed - that is in vercel
+          # Better auth started to fail build when it was not set
+          BETTER_AUTH_SECRET: SOMETHING_SUPER_SECRET_9999

@@ -1,20 +1,10 @@
 "use client";
-import { authClient } from "@/lib/auth-client";
-
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
-import { useQueryState } from "nuqs";
+import { Suspense } from "react";
+import { LoginWithGoogle } from "./components/LoginWithGoogle";
 
 export default function SignIn() {
-  const [rt] = useQueryState("rt");
-  const signInWithGoogle = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: rt ?? undefined,
-    });
-  };
-
   return (
     <div className="flex h-screen">
       <div className="m-auto w-full">
@@ -23,9 +13,9 @@ export default function SignIn() {
             <Image alt="logo" src="/scorebrawl.jpg" width={200} height={200} />
           </CardHeader>
           <CardContent>
-            <Button onClick={signInWithGoogle} variant="outline" className="w-full text-lg">
-              Sign in with Google
-            </Button>
+            <Suspense>
+              <LoginWithGoogle />
+            </Suspense>
           </CardContent>
         </Card>
       </div>

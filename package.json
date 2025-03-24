@@ -8,8 +8,8 @@
     "db:start": "./dev/bin/start-db.sh",
     "db:stop": "./dev/bin/stop-db.sh",
     "test": "turbo test",
-    "format": "bunx @biomejs/biome check . --write --unsafe",
-    "format:check": "bunx @biomejs/biome check ."
+    "flint": "bunx @biomejs/biome check . --write --unsafe",
+    "flint:check": "bunx @biomejs/biome check ."
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
