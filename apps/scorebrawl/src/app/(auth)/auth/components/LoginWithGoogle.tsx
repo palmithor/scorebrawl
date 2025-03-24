@@ -13,7 +13,7 @@ export const LoginWithGoogle = () => {
   };
   return (
     <Button onClick={signInWithGoogle} variant="outline" className="w-full text-lg">
-      Sign in with Google
+      Continue with Google
     </Button>
   );
 };
