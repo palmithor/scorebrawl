@@ -4,11 +4,14 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
+import { useQueryState } from "nuqs";
 
 export default function SignIn() {
+  const [rt] = useQueryState("rt");
   const signInWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
+      callbackURL: rt ?? undefined,
     });
   };
 
