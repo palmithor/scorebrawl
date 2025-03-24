@@ -19,6 +19,13 @@ export const GET = async (
       headers: await headers(),
     });
 
+    if (!session?.user) {
+      return Response.redirect(
+        `${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/auth?rt=${encodeURIComponent(`/api/leagues/auto-join/${code}`)}`,
+        302,
+      );
+    }
+
     const league = await getByIdWhereMember({
       leagueId: invite.leagueId,
       userId: session?.user.id ?? "",
