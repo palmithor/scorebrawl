@@ -22,7 +22,7 @@ export const Providers = ({ children, ...props }: ThemeProviderProps) => {
               navigate={router.push}
               replace={router.replace}
               providers={["google"]}
-              //credentials={process.env.VERCEL_ENV !== "production"}
+              credentials={false}
               //forgotPassword={process.env.VERCEL_ENV !== "production"}
               onSessionChange={() => router.refresh()}
               defaultRedirectTo="/"
