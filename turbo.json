@@ -12,7 +12,12 @@
         "GOOGLE_CLIENT_SECRET",
         "SENTRY_AUTH_TOKEN",
         "SENTRY_ENV",
-        "SKIP_ENV_VALIDATION"
+        "SKIP_ENV_VALIDATION",
+        "NODE_ENV",
+        "SENTRY_ORG",
+        "SENTRY_PROJECT",
+        "TRIGGER_SECRET_KEY",
+        "UPLOADTHING_TOKEN"
       ]
     },
     "dev": {

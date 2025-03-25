@@ -1,6 +1,5 @@
 "use client";
 
-import { events } from "@/analytics/counters";
 import { LoadingButton } from "@/components/loading-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +19,6 @@ import { useSeason } from "@/context/season-context";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { trackEvent } from "@openpanel/nextjs";
 import { SeasonPlayerStandingDTO } from "@scorebrawl/api";
 import { capitalize } from "@scorebrawl/utils/string";
 import { isAfter, isWithinInterval } from "date-fns";
@@ -82,12 +80,6 @@ export const MatchForm = () => {
   // Button aligned with create
 
   const shuffleTeams = () => {
-    trackEvent(events.createMatch.shuffleTeams, {
-      leagueSlug,
-      homeTeamPlayerCount: form.getValues().homePlayers.length,
-      awayTeamPlayerCount: form.getValues().awayPlayers.length,
-    });
-
     const allPlayers = [...form.getValues().homePlayers, ...form.getValues().awayPlayers];
 
     // Fisher-Yates shuffle algorithm
@@ -121,11 +113,6 @@ export const MatchForm = () => {
   };
 
   const evenTeams = () => {
-    trackEvent(events.createMatch.evenTeams, {
-      leagueSlug,
-      homeTeamPlayerCount: form.getValues().homePlayers.length,
-      awayTeamPlayerCount: form.getValues().awayPlayers.length,
-    });
     const homePlayers = form.getValues().homePlayers;
     const awayPlayers = form.getValues().awayPlayers;
     const allPlayers = [...homePlayers, ...awayPlayers];

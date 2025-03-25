@@ -12,7 +12,7 @@ import { createTRPCContext } from "@/server/api/trpc";
  * handling a tRPC call from a React Server Component.
  */
 const createContext = cache(async () => {
-  const hdrs = new Headers(headers());
+  const hdrs = new Headers(await headers());
   hdrs.set("x-trpc-source", "rsc");
   const session = await auth.api.getSession({ headers: hdrs });
   if (!session) {

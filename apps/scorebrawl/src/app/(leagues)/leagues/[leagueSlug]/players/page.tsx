@@ -1,7 +1,8 @@
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { LeaguePlayersTable } from "./components/leaguePlayersTable";
 
-export default ({ params: { leagueSlug } }: { params: { leagueSlug: string } }) => {
+export default async ({ params }: { params: Promise<{ leagueSlug: string }> }) => {
+  const { leagueSlug } = await params;
   return (
     <>
       <BreadcrumbsHeader breadcrumbs={[{ name: "Players" }]} />

@@ -1,15 +1,7 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { ReactNode } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Scorebrawl",
-  description: "",
-};
-
-export default ({ children }: { children: React.ReactNode }): JSX.Element => (
+export default ({ children }: { children: ReactNode }) => (
   <html lang="en">
-    <body className={inter.className}>{children}</body>
+    <body>{children}</body>
   </html>
 );

@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { Accounts, Sessions, Users, Verifications, db } from "@scorebrawl/db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -9,12 +9,15 @@ export const auth = betterAuth({
   plugins: [nextCookies()],
   emailAndPassword: {
     enabled: process.env.VERCEL_ENV !== "production",
+    sendResetPassword: async (data) => {
+      console.log("sendResetPassword", data);
+    },
   },
   socialProviders: {
     google: {
       enabled: true,
-      clientId: env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: env.GOOGLE_CLIENT_ID as string,
+      clientSecret: env.GOOGLE_CLIENT_SECRET as string,
     },
   },
   account: {

@@ -3,9 +3,10 @@ import type { Metadata, ResolvingMetadata } from "next";
 import type { ReactNode } from "react";
 
 export async function generateMetadata(
-  { params: { leagueSlug } }: { params: { leagueSlug: string } },
+  { params }: { params: Promise<{ leagueSlug: string }> },
   _parent: ResolvingMetadata,
 ): Promise<Metadata> {
+  const { leagueSlug } = await params;
   const league = { name: "" };
   try {
     const leagueBySlug = await findLeagueBySlugWithUserRole(leagueSlug);
@@ -19,8 +20,6 @@ export async function generateMetadata(
   };
 }
 
-export default function Layout({
-  children,
-}: { children: ReactNode; params: { leagueSlug: string; seasonSlug: string } }) {
+export default function Layout({ children }: { children: ReactNode }) {
   return children;
 }

@@ -4,10 +4,11 @@ import { SeasonProvider } from "@/context/season-context";
 import type { ReactNode } from "react";
 
 export const generateMetadata = async ({
-  params: { leagueSlug, seasonSlug },
-}: { params: { leagueSlug: string; seasonSlug: string } }) => {
+  params,
+}: { params: Promise<{ leagueSlug: string; seasonSlug: string }> }) => {
   const league = { name: "" };
   const season = { name: "" };
+  const { leagueSlug, seasonSlug } = await params;
   try {
     const leagueBySlug = await findLeagueBySlugWithUserRole(leagueSlug);
     league.name = leagueBySlug?.name ?? "Unknown";

@@ -1,16 +1,16 @@
 import { auth } from "@/lib/auth";
+import { getURL } from "@/lib/auth-client";
 import { claim, findByCode } from "@scorebrawl/db/invite";
 import { getByIdWhereMember } from "@scorebrawl/db/league";
 import { headers } from "next/headers";
 
-export const GET = async (
-  _request: Request,
-  { params: { code } }: { params: { code: string } },
-) => {
+export const GET = async (_request: Request, { params }: { params: Promise<{ code: string }> }) => {
+  const { code } = await params;
   const invite = await findByCode(code);
   if (!invite) {
     return Response.redirect("/?errorCode=INVITE_NOT_FOUND", 302);
   }
+
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -18,7 +18,7 @@ export const GET = async (
 
     if (!session?.user) {
       return Response.redirect(
-        `/auth?rt=${encodeURIComponent(`/api/leagues/auto-join/${code}`)}`,
+        `${getURL()}/auth/sign-in?redirectTo=${encodeURIComponent(`${getURL()}/api/leagues/auto-join/${code}`)}`,
         302,
       );
     }
@@ -28,16 +28,21 @@ export const GET = async (
       userId: session?.user.id ?? "",
     });
     if (league) {
-      return Response.redirect(`/leagues/${league.slug}?errorCode=INVITE_ALREADY_CLAIMED`, 302);
+      return Response.redirect(
+        `${getURL()}/leagues/${league.slug}?errorCode=INVITE_ALREADY_CLAIMED`,
+        302,
+      );
     }
+
     const { leagueSlug } = await claim({
       leagueId: invite.leagueId,
       role: invite.role,
       userId: session?.user.id ?? "",
     });
-
-    return Response.redirect(`/leagues/${leagueSlug}?errorCode=INVITE_ALREADY_CLAIMED`, 302);
-  } catch {
-    return Response.redirect("/");
+    console.log({ claimedLeagueSlug: leagueSlug });
+    return Response.redirect(`${getURL()}/leagues/${leagueSlug}`, 302);
+  } catch (err) {
+    console.log(err);
+    return Response.redirect(getURL());
   }
 };

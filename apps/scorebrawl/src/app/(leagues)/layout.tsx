@@ -12,11 +12,12 @@ interface LayoutProps {
 
 export default async function Layout({ children }: LayoutProps) {
   await auth.api.getSession({
-    headers: headers(),
+    headers: await headers(),
   });
+  const leagues = await api.league.getAll({});
   return (
     <SidebarProvider>
-      <AppSidebar leagues={await api.league.getAll({})} />
+      <AppSidebar leagues={leagues} />
       <SidebarInset className="h-full">
         <main className="flex-1 container relative flex flex-col">{children}</main>
         <SiteFooter />

@@ -7,7 +7,7 @@
   "scripts": {},
   "dependencies": {
     "@scorebrawl/model": "workspace:*",
-    "zod": "^3.23.8"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@scorebrawl/typescript-config": "workspace:*",

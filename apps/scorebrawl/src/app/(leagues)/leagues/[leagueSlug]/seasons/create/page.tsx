@@ -12,9 +12,10 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { RedirectType, redirect } from "next/navigation";
 
 export async function generateMetadata(
-  { params: { leagueSlug } }: { params: { leagueSlug: string } },
+  { params }: { params: Promise<{ leagueSlug: string }> },
   _parent: ResolvingMetadata,
 ): Promise<Metadata> {
+  const { leagueSlug } = await params;
   const league = { name: "" };
   try {
     const leagueBySlug = await findLeagueBySlugWithUserRole(leagueSlug);
@@ -29,9 +30,11 @@ export async function generateMetadata(
 }
 
 export default async function ({
-  params: { leagueSlug },
+  params,
   searchParams,
-}: { params: { leagueSlug: string }; searchParams: { scoreType: ScoreType } }) {
+}: { params: Promise<{ leagueSlug: string }>; searchParams: Promise<{ scoreType: ScoreType }> }) {
+  const { leagueSlug } = await params;
+
   const league =
     (await findLeagueBySlugWithUserRole(leagueSlug)) ??
     redirect("/?errorCode=LEAGUE_NOT_FOUND", RedirectType.replace);
@@ -41,7 +44,7 @@ export default async function ({
     redirect("/?errorCode=LEAGUE_PERMISSION", RedirectType.replace);
   }
 
-  const scoreType = searchParams.scoreType ?? "elo";
+  const scoreType = (await searchParams).scoreType ?? "elo";
   return (
     <>
       <BreadcrumbsHeader

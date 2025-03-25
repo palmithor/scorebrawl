@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
 import { CheckIcon, Loader2, type LucideIcon, X } from "lucide-react";
 import * as React from "react";
+import { useEffect, useState } from "react";
 
 // <---------- CONTEXT ---------->
 
@@ -116,9 +117,9 @@ function useStepper() {
 }
 
 function useMediaQuery(query: string) {
-  const [value, setValue] = React.useState(false);
+  const [value, setValue] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     function onChange(event: MediaQueryListEvent) {
       setValue(event.matches);
     }
@@ -200,16 +201,16 @@ const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
     const {
       className,
       children,
-      orientation: orientationProp,
+      orientation: orientationProp = "horizontal",
       state,
-      responsive,
+      responsive = true,
       checkIcon,
       errorIcon,
       onClickStep,
       mobileBreakpoint,
       expandVerticalSteps = false,
       initialStep = 0,
-      size,
+      size = "md",
       steps,
       variant,
       styles,
@@ -294,12 +295,6 @@ const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
   },
 );
 
-Stepper.defaultProps = {
-  size: "md",
-  orientation: "horizontal",
-  responsive: true,
-};
-
 const VerticalContent = ({ children }: { children: React.ReactNode }) => {
   const { activeStep } = useStepper();
 
@@ -344,6 +339,7 @@ const HorizontalContent = ({ children }: { children: React.ReactNode }) => {
         if (!React.isValidElement(node)) {
           return null;
         }
+        // @ts-ignore
         return React.Children.map(node.props.children, (childNode) => childNode);
       })}
     </>

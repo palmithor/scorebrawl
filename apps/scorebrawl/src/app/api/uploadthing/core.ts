@@ -1,15 +1,21 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { createUploadthing } from "uploadthing/next";
-import type { FileRouter as UploadthingFileRouter } from "uploadthing/server";
-
+import { type FileRouter, createUploadthing } from "uploadthing/next";
 const f = createUploadthing();
-
 // FileRouter for your app, can contain multiple FileRoutes
-// ts-ignore
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
-  leagueLogo: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+  leagueLogo: f({
+    image: {
+      /**
+       * For full list of options and defaults, see the File Route API reference
+       * @see https://docs.uploadthing.com/file-routes#route-config
+       */
+      maxFileSize: "4MB",
+      maxFileCount: 1,
+    },
+  })
+    // Set permissions and file types for this FileRoute
     .middleware(async () => {
       const session = await auth.api.getSession({
         headers: await headers(),
@@ -24,10 +30,9 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
       console.log("Upload complete for userId:", metadata.userId);
-
-      console.log("file url", file.url);
+      console.log("file url", file.ufsUrl);
+      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
-} satisfies UploadthingFileRouter;
-
-export type FileRouter = typeof ourFileRouter;
+} satisfies FileRouter;
+export type OurFileRouter = typeof ourFileRouter;

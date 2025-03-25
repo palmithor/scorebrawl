@@ -3,9 +3,10 @@ import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[se
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
 import { MatchesPage } from "./components/MatchesPage";
 
-type PageParams = { params: { leagueSlug: string; seasonSlug: string } };
+type PageParams = { params: Promise<{ leagueSlug: string; seasonSlug: string }> };
 
-export default async ({ params: { leagueSlug, seasonSlug } }: PageParams) => {
+export default async ({ params }: PageParams) => {
+  const { leagueSlug, seasonSlug } = await params;
   const season = await findSeasonBySlug(leagueSlug, seasonSlug);
   return (
     <>

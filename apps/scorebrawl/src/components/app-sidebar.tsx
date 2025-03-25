@@ -20,7 +20,7 @@ import {
   Users,
 } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { type ComponentProps, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LeagueSwitcher } from "./layout/league-switcher";
 import { NavUser } from "./nav-user";
 
@@ -86,7 +86,7 @@ const constructLinks = ({
 export function AppSidebar({
   leagues,
   ...props
-}: ComponentProps<typeof Sidebar> & {
+}: {
   leagues: { id: string; slug: string; name: string; logoUrl: string | null }[];
 }) {
   const router = useRouter();

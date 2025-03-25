@@ -322,6 +322,8 @@ export const Accounts = pgTable("account", {
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   password: text("password"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const Verifications = pgTable("verification", {

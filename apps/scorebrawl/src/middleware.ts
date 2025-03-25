@@ -14,10 +14,10 @@ export default async function (request: NextRequest) {
       },
     });
     if (!session) {
-      return NextResponse.redirect(new URL("/auth", request.url));
+      return NextResponse.redirect(new URL("/auth/sign-in", request.url));
     }
   } catch {
-    return NextResponse.redirect(new URL("/auth", request.url));
+    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
   }
   return NextResponse.next();
 }
