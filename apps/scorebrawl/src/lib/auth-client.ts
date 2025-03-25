@@ -4,7 +4,7 @@ export const getURL = () => {
   const url =
     (process.env.NEXT_PUBLIC_EXPORT
       ? process.env.NEXT_PUBLIC_BASE_URL
-      : process.env.NEXT_PUBLIC_VERCEL_BRANCH_URL || // Set this to your site URL in production env only. (Production)
+      : process.env.NEXT_PUBLIC_SITE_URL || // Set this to your site URL in production env only. (Production)
         process.env.NEXT_PUBLIC_VERCEL_URL) || // Automatically set by Vercel. (Preview)
     "http://localhost:5050"; // Default to localhost. (Development)
 
