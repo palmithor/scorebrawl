@@ -14,11 +14,16 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@scorebrawl/typescript-config": "*",
-    "turbo": "^2.0.14"
+    "turbo": "^2.4.4",
+    "typescript": "5.5.4",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4"
   },
   "packageManager": "bun@1.1.30",
   "workspaces": ["apps/*", "packages/*"],
   "dependencies": {
+    "@daveyplate/better-auth-ui": "^1.2.42",
+    "lru-cache": "^11.1.0",
     "postcss": "^8.4.40",
     "react-resizable-panels": "^2.0.22",
     "swr": "^2.2.5"

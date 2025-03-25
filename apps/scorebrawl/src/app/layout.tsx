@@ -6,7 +6,6 @@ import { siteConfig } from "@/config/site";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 
-import { AnalyticsProvider } from "@/analytics/AnalyticsProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { TRPCReactProvider } from "@/trpc/react";
 import type { Metadata } from "next";
@@ -72,7 +71,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <TRPCReactProvider>
           <Providers attribute="class" defaultTheme="system" enableSystem>
-            <AnalyticsProvider />
             {children}
             <Analytics />
             <SpeedInsights />

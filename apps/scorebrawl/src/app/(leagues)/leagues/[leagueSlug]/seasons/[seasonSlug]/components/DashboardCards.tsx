@@ -7,13 +7,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSeason } from "@/context/season-context";
 import { api } from "@/trpc/react";
+import { Loader } from "lucide-react";
 import { InfoCard } from "./InfoCard";
 import { LatestMatchCard } from "./LatestMatchCard";
 import { YourNextMatchCard } from "./YourNextMatchCard";
 
 const LoadingCard = () => {
   return (
-    <DashboardCard title="...">
+    <DashboardCard Icon={Loader} title="...">
       <Skeleton className={"gap-2 h-4 w-full"} />
     </DashboardCard>
   );

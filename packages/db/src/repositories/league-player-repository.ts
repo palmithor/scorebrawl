@@ -1,6 +1,4 @@
-import type { LeaguePlayer } from "@scorebrawl/model";
 import { eq, inArray } from "drizzle-orm";
-import type z from "zod";
 import { db } from "../db";
 import { LeaguePlayers, SeasonPlayers, Users } from "../schema";
 
@@ -23,7 +21,7 @@ export const getAll = async ({ leagueId }: { leagueId: string }) => {
     disabled: lp.disabled,
     joinedAt: lp.joinedAt,
     user: { userId: lp.userId, name: lp.name, image: lp.image ?? undefined },
-  })) satisfies z.infer<typeof LeaguePlayer>[];
+  }));
 };
 
 export const findLeaguePlayerIds = (seasonPlayerIds: string[]) =>

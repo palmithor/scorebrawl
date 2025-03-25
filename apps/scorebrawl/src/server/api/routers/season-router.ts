@@ -12,7 +12,6 @@ import {
   create,
   findActive,
   findFixtures,
-  findOverlappingSeason,
   getAll,
   getBySlug,
   getCountInfo,
@@ -32,30 +31,6 @@ const validateStartBeforeEnd = ({
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "End date must be after start date",
-    });
-  }
-};
-const validateNoOverlappingSeason = async ({
-  leagueId,
-  startDate,
-  endDate,
-}: {
-  leagueId: string;
-  startDate?: Date;
-  endDate?: Date;
-}) => {
-  if (!startDate) {
-    return;
-  }
-  const overlappingSeason = await findOverlappingSeason({
-    leagueId,
-    startDate,
-    endDate,
-  });
-  if (overlappingSeason) {
-    throw new TRPCError({
-      code: "CONFLICT",
-      message: "Season overlaps with existing season",
     });
   }
 };
@@ -83,7 +58,7 @@ export const seasonRouter = createTRPCRouter({
     }),
   create: leagueEditorProcedure.input(SeasonCreateDTOSchema).mutation(async ({ input, ctx }) => {
     validateStartBeforeEnd(input);
-    await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
+
     const leaguePlayers = await getLeaguePlayers({ leagueId: ctx.league.id });
     if (leaguePlayers.length < 2) {
       throw new TRPCError({
@@ -101,7 +76,6 @@ export const seasonRouter = createTRPCRouter({
   }),
   edit: leagueEditorProcedure.input(SeasonEditDTOSchema).mutation(async ({ ctx, input }) => {
     validateStartBeforeEnd(input);
-    await validateNoOverlappingSeason({ ...input, leagueId: ctx.league.id });
     const season = await getBySlug({
       seasonSlug: input.seasonSlug,
     });

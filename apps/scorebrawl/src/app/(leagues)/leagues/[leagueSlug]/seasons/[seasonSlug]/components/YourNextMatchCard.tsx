@@ -13,8 +13,8 @@ export const YourNextMatchCard = () => {
     .find(
       (fixture) =>
         !fixture.matchId &&
-        (fixture.player1.user.userId === session.user.id ||
-          fixture.player2.user.userId === session.user.id),
+        (fixture.player1.user.userId === session?.user.id ||
+          fixture.player2.user.userId === session?.user.id),
     );
   return (
     <DashboardCard Icon={CalendarClockIcon} title={"Your Next Match"}>

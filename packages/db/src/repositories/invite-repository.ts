@@ -67,18 +67,18 @@ export const claim = async ({
   userId: string;
   role: LeagueMemberRole;
 }) => {
-  await db
-    .delete(LeagueMembers)
-    .where(and(eq(LeagueMembers.leagueId, leagueId), eq(LeagueMembers.userId, userId)));
   const now = new Date();
-  await db.insert(LeagueMembers).values({
-    id: createCuid(),
-    leagueId,
-    userId,
-    role,
-    createdAt: now,
-    updatedAt: now,
-  });
+  await db
+    .insert(LeagueMembers)
+    .values({
+      id: createCuid(),
+      leagueId,
+      userId,
+      role,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoNothing();
   if (role !== "viewer") {
     const [leaguePlayer] = await db
       .insert(LeaguePlayers)
@@ -96,19 +96,21 @@ export const claim = async ({
       .where(
         and(eq(Seasons.leagueId, leagueId), or(gte(Seasons.endDate, now), isNull(Seasons.endDate))),
       );
-    await db.insert(SeasonPlayers).values(
-      futureOrOngoingSeasons.map(
-        ({ id, initialScore }) =>
-          ({
-            id: createCuid(),
-            seasonId: id,
-            leaguePlayerId: leaguePlayer?.id ?? "",
-            score: initialScore,
-            createdAt: now,
-            updatedAt: now,
-          }) satisfies typeof SeasonPlayers.$inferInsert,
-      ),
-    );
+    if (futureOrOngoingSeasons.length > 0) {
+      await db.insert(SeasonPlayers).values(
+        futureOrOngoingSeasons.map(
+          ({ id, initialScore }) =>
+            ({
+              id: createCuid(),
+              seasonId: id,
+              leaguePlayerId: leaguePlayer?.id ?? "",
+              score: initialScore,
+              createdAt: now,
+              updatedAt: now,
+            }) satisfies typeof SeasonPlayers.$inferInsert,
+        ),
+      );
+    }
   }
   const [league] = await db
     .select({ slug: Leagues.slug })

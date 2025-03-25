@@ -1,4 +1,5 @@
 import type { ScoreType } from "@scorebrawl/model";
+import type { SeasonCreateSchema } from "@scorebrawl/model";
 import { createCuid } from "@scorebrawl/utils/id";
 import {
   and,
@@ -29,7 +30,6 @@ import {
   Seasons,
   db,
 } from "../";
-import type { SeasonCreateSchema } from "../../../model/src/season";
 import type { SeasonCreatedEventData } from "../types";
 import { getStanding } from "./season-player-repository";
 import { slugifyWithCustomReplacement } from "./slug";

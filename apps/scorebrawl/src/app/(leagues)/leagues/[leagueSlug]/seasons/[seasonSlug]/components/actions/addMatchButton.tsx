@@ -17,7 +17,7 @@ export const AddMatchButton = () => {
   const hasTwoPlayersOrMore = ongoingSeasonPlayers && ongoingSeasonPlayers.length > 1;
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger>
         <LayoutActionButton
           text={"Match"}
           onClick={() =>

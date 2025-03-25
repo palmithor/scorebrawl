@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 type Props = {
   title: string;
-  Icon?: LucideIcon;
+  Icon: LucideIcon;
   children: ReactNode;
 };
 
