@@ -8,10 +8,7 @@ import { nextCookies } from "better-auth/next-js";
 export const auth = betterAuth({
   plugins: [nextCookies()],
   emailAndPassword: {
-    enabled: process.env.VERCEL_ENV !== "production",
-    sendResetPassword: async (data) => {
-      console.log("sendResetPassword", data);
-    },
+    enabled: false,
   },
   socialProviders: {
     google: {
