@@ -23,6 +23,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "dependencies": {
     "@daveyplate/better-auth-ui": "^1.2.42",
+    "@radix-ui/react-scroll-area": "^1.2.3",
     "lru-cache": "^11.1.0",
     "postcss": "^8.4.40",
     "react-resizable-panels": "^2.0.22",

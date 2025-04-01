@@ -1,7 +1,6 @@
 "use client";
 import { MultiAvatar } from "@/components/multi-avatar";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSeason } from "@/context/season-context";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -12,17 +11,11 @@ import { useState } from "react";
 import type { z } from "zod";
 import { findCurrentRound } from "./utils/fixtureUtils";
 
-type Fixture = {
+export type Fixture = {
   id: string;
   matchId: string | null;
   player1: z.output<typeof SeasonPlayerDTO>;
   player2: z.output<typeof SeasonPlayerDTO>;
-};
-
-type FixtureRound = {
-  id: string;
-  name: string;
-  fixtures: Fixture[];
 };
 
 const ScoreStepper = ({

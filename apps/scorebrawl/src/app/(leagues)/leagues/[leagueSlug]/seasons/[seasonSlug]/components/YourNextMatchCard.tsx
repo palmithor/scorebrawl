@@ -3,7 +3,8 @@ import { authClient } from "@/lib/auth-client";
 import { CalendarClockIcon } from "lucide-react";
 import { CardContentText } from "./CardContentText";
 import { DashboardCard } from "./DashboardCard";
-import { FixtureButton, useFixturesRounds } from "./Fixtures";
+import { FixtureButton } from "./fixtures/FixtureButton";
+import { useFixturesRounds } from "./fixtures/Fixtures";
 
 export const YourNextMatchCard = () => {
   const { data: rounds, isLoading } = useFixturesRounds();

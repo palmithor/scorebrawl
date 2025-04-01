@@ -8,6 +8,7 @@ type PageParams = { params: Promise<{ leagueSlug: string; seasonSlug: string }> 
 export default async ({ params }: PageParams) => {
   const { leagueSlug, seasonSlug } = await params;
   const season = await findSeasonBySlug(leagueSlug, seasonSlug);
+  const isEloSeason = season.scoreType === "elo";
   return (
     <>
       <BreadcrumbsHeader
@@ -17,7 +18,7 @@ export default async ({ params }: PageParams) => {
           { name: "Matches" },
         ]}
       >
-        <AddMatchButton />
+        {isEloSeason && <AddMatchButton />}
       </BreadcrumbsHeader>
       <MatchesPage />
     </>

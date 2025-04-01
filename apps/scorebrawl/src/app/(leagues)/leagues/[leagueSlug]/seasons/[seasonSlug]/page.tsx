@@ -7,7 +7,7 @@ import { PointProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[
 import { StandingTabs } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/StandingTabs";
 import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/addMatchButton";
 import { BreadcrumbsHeader } from "@/components/layout/breadcrumbs-header";
-import { Fixtures } from "./components/Fixtures";
+import { CurrentFixtureCard } from "./components/fixtures/CurrentFixtureCard";
 
 type PageParams = { params: Promise<{ leagueSlug: string; seasonSlug: string }> };
 
@@ -45,7 +45,7 @@ export default async ({ params }: PageParams) => {
               )}
               {!isEloSeason && (
                 <OverviewCard title={"Fixtures"}>
-                  <Fixtures />
+                  <CurrentFixtureCard />
                 </OverviewCard>
               )}
             </div>
