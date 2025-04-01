@@ -10,6 +10,7 @@ import type { SeasonPlayerDTO } from "@scorebrawl/api";
 import { CheckIcon, Loader2, MinusIcon, PenIcon, PlusIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { z } from "zod";
+import { findCurrentRound } from "./utils/fixtureUtils";
 
 type Fixture = {
   id: string;
@@ -293,15 +294,14 @@ export const Fixtures = () => {
   if (isLoading) {
     return <Skeleton className="w-full h-80" />;
   }
-  const roundIndex = rounds.findIndex((round) => round.fixtures.some((f) => !f.matchId));
-  const currentRound = rounds[roundIndex];
+  const { currentRound, currentRoundIndex } = findCurrentRound({ rounds });
   const firstRound = rounds[0];
   const lastRound = rounds[rounds.length - 1];
   const roundsToShow = currentRound
     ? [
-        ...(showPrev ? rounds.slice(0, roundIndex) : []),
+        ...(showPrev ? rounds.slice(0, currentRoundIndex) : []),
         currentRound,
-        ...(showNext ? rounds.slice(roundIndex + 1) : []),
+        ...(showNext ? rounds.slice(currentRoundIndex + 1) : []),
       ]
     : rounds;
 
