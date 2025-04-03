@@ -304,8 +304,8 @@ export const create = async (input: z.input<typeof SeasonCreateSchema>) => {
         for (const fixture of roundFixtures) {
           fixtures.push({
             id: createCuid(),
-            homePlayerId: fixture.homeId,
-            awayPlayerId: fixture.awayId,
+            homePlayerId: fixture.homeId as string,
+            awayPlayerId: fixture.awayId as string,
             seasonId: season.id,
             round: actualRound + 1,
             createdAt: now,
