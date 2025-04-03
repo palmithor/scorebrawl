@@ -130,8 +130,12 @@ export const SeasonFixtures = pgTable("season_fixture", {
     .notNull()
     .references(() => Seasons.id),
   matchId: varchar("match_id", cuidConfig).references(() => Matches.id),
-  homePlayerId: varchar("home_player_id", cuidConfig).references(() => SeasonPlayers.id),
-  awayPlayerId: varchar("away_player_id", cuidConfig).references(() => SeasonPlayers.id),
+  homePlayerId: varchar("home_player_id", cuidConfig)
+    .notNull()
+    .references(() => SeasonPlayers.id),
+  awayPlayerId: varchar("away_player_id", cuidConfig)
+    .notNull()
+    .references(() => SeasonPlayers.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
