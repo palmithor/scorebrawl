@@ -18,7 +18,6 @@ import {
 } from "drizzle-orm";
 import type { z } from "zod";
 import {
-  LeagueEvents,
   LeagueMembers,
   LeaguePlayers,
   Leagues,
@@ -30,7 +29,6 @@ import {
   Seasons,
   db,
 } from "../";
-import type { SeasonCreatedEventData } from "../types";
 import { getStanding } from "./season-player-repository";
 import { slugifyWithCustomReplacement } from "./slug";
 
@@ -331,14 +329,6 @@ export const create = async (input: z.input<typeof SeasonCreateSchema>) => {
     }
   }
 
-  await db.insert(LeagueEvents).values({
-    leagueId: input.leagueId,
-    id: createCuid(),
-    type: "season_created_v1",
-    data: { seasonId: season?.id } as SeasonCreatedEventData,
-    createdBy: input.userId,
-    createdAt: now,
-  });
   return season as typeof Seasons.$inferSelect;
 };
 

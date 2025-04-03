@@ -1,11 +1,10 @@
-import { type NotificationData, leagueAchievementType, notificationType } from "@scorebrawl/model";
+import { leagueAchievementType } from "@scorebrawl/model";
 import { cuidConfig } from "@scorebrawl/utils/id";
 import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
   integer,
-  json,
   pgTable,
   real,
   text,
@@ -13,8 +12,6 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import type { z } from "zod";
-import type { LeagueEventData } from "./types";
 
 const defaultVarcharConfig = { length: 100 };
 
@@ -33,26 +30,6 @@ export const Leagues = pgTable(
   },
   (league) => [uniqueIndex("league_name_slug_uq_idx").on(league.slug)],
 );
-
-const leagueEventType = [
-  "match_created_v1",
-  "player_joined_v1",
-  "season_created_v1",
-  "match_undo_v1",
-] as const;
-
-export const LeagueEvents = pgTable("league_event", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  leagueId: varchar("league_id", cuidConfig)
-    .notNull()
-    .references(() => Leagues.id),
-  type: varchar("type", {
-    enum: leagueEventType,
-  }).notNull(),
-  data: json("data").$type<LeagueEventData>(),
-  createdBy: varchar("created_by", defaultVarcharConfig).notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
 
 export const LeaguePlayers = pgTable(
   "league_player",
@@ -339,18 +316,6 @@ export const Verifications = pgTable("verification", {
   createdAt: timestamp("created_at"),
 });
 
-export const Notifications = pgTable("notification", {
-  id: varchar("id", cuidConfig).primaryKey(),
-  userId: varchar("user_id", cuidConfig)
-    .notNull()
-    .references(() => Users.id),
-  type: varchar("type", { enum: notificationType }).notNull(),
-  data: json("data").$type<z.output<typeof NotificationData>>().notNull(),
-  read: boolean("read").notNull().default(false),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
 export const LeaguePlayerAchievement = pgTable(
   "league_player_achievement",
   {
@@ -376,7 +341,6 @@ export const leaguesRelations = relations(Leagues, ({ many }) => ({
   leaguePlayers: many(LeaguePlayers),
   leagueTeams: many(LeagueTeams),
   members: many(LeagueMembers),
-  events: many(LeagueEvents),
 }));
 
 export const leagueInvitesRelations = relations(LeagueInvites, ({ one }) => ({
@@ -447,13 +411,6 @@ export const seasonRelations = relations(Seasons, ({ one, many }) => ({
   seasonTeams: many(SeasonTeams),
   league: one(Leagues, {
     fields: [Seasons.leagueId],
-    references: [Leagues.id],
-  }),
-}));
-
-export const leagueEventRelations = relations(LeagueEvents, ({ one }) => ({
-  league: one(Leagues, {
-    fields: [LeagueEvents.leagueId],
     references: [Leagues.id],
   }),
 }));

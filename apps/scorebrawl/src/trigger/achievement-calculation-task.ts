@@ -1,6 +1,5 @@
 import { createAchievement } from "@scorebrawl/db/achievement";
 import { findLeaguePlayerIds } from "@scorebrawl/db/league-player";
-import { createNotification } from "@scorebrawl/db/notification";
 import {
   getGoalsConcededAgainst,
   getLastFiveMatchesGoals,
@@ -110,11 +109,6 @@ export const achievementCalculationTask = task({
           await createAchievement({
             leaguePlayerId: player.leaguePlayerId,
             type: achievement,
-          });
-          await createNotification({
-            userId: player.userId,
-            type: "achievement",
-            data: { leagueAchievementType: achievement },
           });
         }
       }

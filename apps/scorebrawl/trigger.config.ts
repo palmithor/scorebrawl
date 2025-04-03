@@ -14,4 +14,5 @@ export const config: TriggerConfig = {
     },
   },
   triggerDirectories: ["src/trigger"],
+  maxDuration: 8,
 };
