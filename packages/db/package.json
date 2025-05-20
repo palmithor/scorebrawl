@@ -21,6 +21,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@neondatabase/serverless": "^0.9.4",
     "@paralleldrive/cuid2": "2.2.2",
     "@scorebrawl/model": "workspace:*",
     "@scorebrawl/utils": "workspace:*",
