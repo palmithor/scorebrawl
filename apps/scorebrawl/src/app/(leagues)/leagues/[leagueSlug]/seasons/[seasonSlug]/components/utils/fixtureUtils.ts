@@ -1,5 +1,5 @@
 "use client";
-import type { useFixturesRounds } from "../Fixtures";
+import type { useFixturesRounds } from "../fixtures/Fixtures";
 export const findCurrentRound = ({
   rounds,
 }: { rounds: ReturnType<typeof useFixturesRounds>["data"] }) => {

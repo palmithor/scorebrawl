@@ -2,32 +2,14 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSeason } from "@/context/season-context";
 import { api } from "@/trpc/react";
-import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { useEffect } from "react";
-import { useFixturesRounds } from "../components/Fixtures";
-import { findCurrentRound } from "../components/utils/fixtureUtils";
+import { Fixtures } from "../components/fixtures/Fixtures";
 
 const SeasonFixturesPage = () => {
-  const [seasonPlayerIds, setSeasonPlayerIds] = useQueryState(
-    "seasonPlayerId",
-    parseAsArrayOf(parseAsString),
-  );
-  const [round, setRound] = useQueryState("round", parseAsInteger);
-
   const { leagueSlug, seasonSlug } = useSeason();
   const { data: season, isLoading: isLoadingSeason } = api.season.getBySlug.useQuery({
     leagueSlug,
     seasonSlug,
   });
-  const { data } = useFixturesRounds();
-  useEffect(() => {
-    if (data && !round) {
-      const { currentRoundIndex } = findCurrentRound({ rounds: data });
-      if (currentRoundIndex > 0) {
-        setRound(currentRoundIndex);
-      }
-    }
-  }, [data, setRound, round]);
 
   if (isLoadingSeason || !season) {
     return <Skeleton className="h-96 w-full" />;
@@ -43,11 +25,7 @@ const SeasonFixturesPage = () => {
     );
   }
 
-  console.log(data);
-  console.log(seasonPlayerIds);
-  console.log(round);
-
-  return <p>fixtures</p>;
+  return <Fixtures />;
 };
 
 export default SeasonFixturesPage;
