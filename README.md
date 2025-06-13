@@ -14,7 +14,7 @@ with [better-auth](https://www.better-auth.com) and [uploadthing](https://upload
 
 ### Setup
 
-Neon database has to be set up for the development environment.
+Supabase database has to be set up for the development environment.
 
 Uploadthing credentials have to be set up in the environment variables.
 
@@ -34,4 +34,4 @@ Run db migrations and start the development server by executing `bun run dev`.
 - Uploadthing
 - Shadcn
 - Tailwind
-- Neon
+- Supabase
