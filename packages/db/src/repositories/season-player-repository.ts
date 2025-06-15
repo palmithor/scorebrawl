@@ -436,15 +436,14 @@ export const getTeammateStatistics = async ({
 }: {
   seasonPlayerId: string;
 }) => {
-  const matches = await db
+  const playerMatches = db
     .select({
       matchId: MatchPlayers.matchId,
       homeTeam: MatchPlayers.homeTeam,
     })
     .from(MatchPlayers)
-    .where(eq(MatchPlayers.seasonPlayerId, seasonPlayerId));
-
-  const matchIds = matches.map((d) => d.matchId);
+    .where(eq(MatchPlayers.seasonPlayerId, seasonPlayerId))
+    .as("player_matches");
 
   const matchPlayers = await db
     .select({
@@ -459,53 +458,52 @@ export const getTeammateStatistics = async ({
       name: Users.name,
     })
     .from(MatchPlayers)
+    .innerJoin(
+      playerMatches,
+      and(
+        eq(MatchPlayers.matchId, playerMatches.matchId),
+        eq(MatchPlayers.homeTeam, playerMatches.homeTeam),
+        ne(MatchPlayers.seasonPlayerId, seasonPlayerId),
+      ),
+    )
     .innerJoin(SeasonPlayers, eq(MatchPlayers.seasonPlayerId, SeasonPlayers.id))
     .innerJoin(LeaguePlayers, eq(SeasonPlayers.leaguePlayerId, LeaguePlayers.id))
-    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId))
-    .where(
-      and(inArray(MatchPlayers.matchId, matchIds), ne(MatchPlayers.seasonPlayerId, seasonPlayerId)),
-    );
+    .innerJoin(Users, eq(Users.id, LeaguePlayers.userId));
 
-  const stats = matchPlayers
-    .filter((mp) => {
-      const match = matches.find((m) => m.matchId === mp.matchId);
-      return match?.homeTeam === mp.homeTeam;
-    })
-    .reduce(
-      (acc, player) => {
-        const { seasonPlayerId, result, scoreBefore, scoreAfter } = player;
+  const stats = matchPlayers.reduce(
+    (acc, player) => {
+      const { seasonPlayerId, result, scoreBefore, scoreAfter } = player;
 
-        if (!acc[seasonPlayerId]) {
-          acc[seasonPlayerId] = {
-            seasonPlayerId,
-            totalMatches: 0,
-            totalWins: 0,
-            scoreChangeSum: 0,
-            name: player.name,
-            image: player.image ?? undefined,
-          };
-        }
+      if (!acc[seasonPlayerId]) {
+        acc[seasonPlayerId] = {
+          seasonPlayerId,
+          totalMatches: 0,
+          totalWins: 0,
+          scoreChangeSum: 0,
+          name: player.name,
+          image: player.image ?? undefined,
+        };
+      }
 
-        acc[seasonPlayerId].totalMatches += 1;
-        if (result === "W") acc[seasonPlayerId].totalWins += 1;
-        acc[seasonPlayerId].scoreChangeSum += scoreAfter - scoreBefore;
+      acc[seasonPlayerId].totalMatches += 1;
+      if (result === "W") acc[seasonPlayerId].totalWins += 1;
+      acc[seasonPlayerId].scoreChangeSum += scoreAfter - scoreBefore;
 
-        return acc;
-      },
-      {} as Record<
-        string,
-        {
-          seasonPlayerId: string;
-          totalMatches: number;
-          totalWins: number;
-          scoreChangeSum: number;
-          name: string;
-          image?: string;
-        }
-      >,
-    );
+      return acc;
+    },
+    {} as Record<
+      string,
+      {
+        seasonPlayerId: string;
+        totalMatches: number;
+        totalWins: number;
+        scoreChangeSum: number;
+        name: string;
+        image?: string;
+      }
+    >,
+  );
 
-  // Transform the stats object into an array with score averages
   const result = Object.values(stats).map((stat) => ({
     seasonPlayerId: stat.seasonPlayerId,
     totalMatches: stat.totalMatches,
