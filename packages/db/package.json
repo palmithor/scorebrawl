@@ -21,7 +21,6 @@
   },
   "scripts": {},
   "dependencies": {
-  
     "@paralleldrive/cuid2": "2.2.2",
     "@scorebrawl/model": "workspace:*",
     "@scorebrawl/utils": "workspace:*",
