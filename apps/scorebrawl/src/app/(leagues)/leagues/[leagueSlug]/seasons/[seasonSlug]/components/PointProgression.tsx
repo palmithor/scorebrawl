@@ -15,12 +15,17 @@ export const PointProgression = () => {
   const { data: season } = api.season.findBySlug.useQuery({ leagueSlug, seasonSlug });
   const { data: seasonPlayers } = api.seasonPlayer.getAll.useQuery({ leagueSlug, seasonSlug });
   const { data } = api.seasonPlayer.getPointProgression.useQuery({ leagueSlug, seasonSlug });
+  const { data: latestMatch } = api.match.getLatest.useQuery({
+    leagueSlug,
+    seasonSlug,
+  });
 
   if (seasonPlayers === undefined || data === undefined || season === undefined) return null; // possibly loading state?
   const chartData = transformData({
     startDate: season.startDate,
     data,
     initialScore: season.initialScore,
+    endDate: latestMatch?.createdAt,
   });
 
   if (chartData.length < 2) {

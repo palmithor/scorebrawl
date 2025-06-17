@@ -2,7 +2,6 @@ import { findSeasonBySlug } from "@/actions/season";
 import { DashboardCards } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/DashboardCards";
 import { LatestMatches } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/LatestMatches";
 import { OverviewCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/OverviewCard";
-import { PointDiffProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointDiffProgression";
 import { PointProgression } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/PointProgression";
 import { StandingTabs } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/StandingTabs";
 import { AddMatchButton } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[seasonSlug]/components/actions/addMatchButton";
@@ -46,13 +45,6 @@ export default async ({ params }: PageParams) => {
               {!isEloSeason && (
                 <OverviewCard title={"Fixtures"}>
                   <Fixtures />
-                </OverviewCard>
-              )}
-            </div>
-            <div className="grid gap-6">
-              {isEloSeason && (
-                <OverviewCard title={"Daily Point +/-"}>
-                  <PointDiffProgression />
                 </OverviewCard>
               )}
             </div>

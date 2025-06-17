@@ -10,9 +10,11 @@ type InputData = {
 export const transformData = ({
   data,
   startDate,
+  endDate = new Date(),
   initialScore,
 }: {
   data: InputData[];
+  endDate?: Date;
   startDate: Date;
   initialScore: number;
 }) => {
@@ -42,9 +44,8 @@ export const transformData = ({
     {} satisfies Record<string, number[]>,
   );
 
-  const currentDate = new Date();
   const output: ChartData[] = [];
-  for (let date = new Date(startDate); date <= currentDate; date.setDate(date.getDate() + 1)) {
+  for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
     const outputItem: ChartData = { label: format(date, "MM-dd") };
     for (const player in playerScores) {
       const dateClone = new Date(date);
