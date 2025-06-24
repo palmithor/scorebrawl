@@ -11,7 +11,6 @@ const devDb = (): PostgresJsDatabase<typeof schema> => {
   }
   globalThis.dbCache = drizzle(postgres(databaseUrl), {
     schema,
-    logger: true,
   });
   return globalThis.dbCache;
 };
