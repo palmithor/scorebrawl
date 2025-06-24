@@ -7,6 +7,9 @@ import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
   plugins: [nextCookies()],
+  logger: {
+    level: "debug",
+  },
   emailAndPassword: {
     enabled: false,
   },
