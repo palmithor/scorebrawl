@@ -19,24 +19,6 @@
         "typescript": "5.5.4",
       },
     },
-    "apps/landing": {
-      "name": "landing",
-      "version": "1.0.0",
-      "dependencies": {
-        "next": "15.2.4",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0",
-      },
-      "devDependencies": {
-        "@scorebrawl/typescript-config": "workspace:*",
-        "@types/react": "^19.0.12",
-        "@types/react-dom": "^19.0.4",
-        "autoprefixer": "10.4.19",
-        "tailwindcss": "3.4.7",
-        "tailwindcss-animate": "1.0.7",
-        "typescript": "5.5.4",
-      },
-    },
     "apps/scorebrawl": {
       "name": "scorebrawl",
       "version": "1.0.0",
@@ -1271,8 +1253,6 @@
     "json5": ["json5@2.2.3", "", { "bin": { "json5": "lib/cli.js" } }, "sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg=="],
 
     "kysely": ["kysely@0.27.6", "", {}, "sha512-FIyV/64EkKhJmjgC0g2hygpBv5RNWVPyNCqSAD7eTCv6eFWNIi4PN1UvdSJGicN/o35bnevgis4Y0UDC0qi8jQ=="],
-
-    "landing": ["landing@workspace:apps/landing"],
 
     "leac": ["leac@0.6.0", "", {}, "sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg=="],
 
