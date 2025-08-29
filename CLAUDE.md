@@ -1,167 +1,297 @@
-# Claude Code Context
+# Scorebrawl Repository
 
-## Project Overview
+Scorebrawl is the ultimate score-tracking solution for gaming, sports, and competitions, bringing your victories to life in real-time. This is a full-stack TypeScript application built with modern web technologies.
 
-Scorebrawl is a score-tracking application for gaming, sports, and competitions built with a modern tech stack. It's a monorepo using Turborepo with multiple packages and applications.
+## Architecture Overview
 
-## Tech Stack
+This is a **Turborepo monorepo** managed with **Bun** (not npm), featuring multiple applications and shared packages. The repository follows a modular architecture with clear separation of concerns.
 
-- **Runtime**: Bun (package manager and runtime)
-- **Frontend**: Next.js 15 with React 19
-- **Styling**: Tailwind CSS + Shadcn/ui components
-- **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Better-Auth with Google OAuth
-- **File Uploads**: UploadThing
-- **API**: tRPC for type-safe APIs
-- **Monitoring**: Sentry
-- **Background Jobs**: Trigger.dev
-- **Charts**: Recharts
-- **Forms**: React Hook Form with Zod validation
-
-## Project Structure
+### Repository Structure
 
 ```
-/
+scorebrawl-nextjs/
 ├── apps/
-│   └── scorebrawl/           # Main Next.js application
+│   ├── landing/           # Marketing/landing page
+│   └── scorebrawl/        # Main application
+│       └── src/
+│           ├── db/        # Database layer (Drizzle ORM)
+│           ├── model/     # Data models and types
+│           ├── server/    # API utilities and configurations
+│           └── ...        # Other application code
 ├── packages/
-│   ├── api/                  # API DTOs and types
-│   ├── db/                   # Database schema and repositories
-│   ├── model/                # Domain models
-│   ├── utils/                # Shared utilities
-│   └── typescript-config/    # Shared TypeScript config
-└── dev/                      # Development tooling and Docker setup
+│   ├── typescript-config/ # Shared TypeScript configurations
+│   └── utils/             # Shared utility functions
+├── package.json           # Root workspace configuration
+├── turbo.json            # Turborepo configuration
+└── biome.json            # Biome linting/formatting configuration
 ```
 
-## Development Commands
+## Technology Stack
 
-### Essential Commands
-- **Start Development**: `bun run dev` (runs migration + starts Next.js on port 5050)
-- **Lint**: `bun flint` (Biome linter with auto-fix)
-- **Lint Check**: `bun flint:check` (Biome linter check-only)
-- **Build**: `bun run build`
-- **Database Start**: `bun run db:start`
-- **Database Stop**: `bun run db:stop`
+### Core Technologies
+- **Runtime**: Bun (package manager and runtime)
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript 5.5+
+- **Monorepo**: Turborepo
+- **Database**: PostgreSQL (Supabase) with optional PGlite for development
+- **ORM**: Drizzle ORM
+- **Authentication**: Better-Auth (comprehensive documentation: https://www.better-auth.com/llms.txt)
+- **File Uploads**: UploadThing
+- **Styling**: Tailwind CSS + Shadcn/ui components
 
-### Database Commands
-- **Generate Migration**: `bun run generate-db-changeset`
-- **Run Migrations**: Automatically run during `bun run dev`
+### Development Tools
+- **Linting/Formatting**: Biome (`flint` command)
+- **Testing**: Bun test + Playwright (E2E)
+- **Background Jobs**: Trigger.dev
+- **Monitoring**: Sentry
+- **Deployment**: Vercel
 
-### Trigger.dev Commands
-- **Development**: `bun run trigger`
-- **Deploy**: `bun run trigger-deploy`
+## Getting Started
 
-## Key Architecture Patterns
+### Prerequisites
+1. **Bun**: Install from [bun.sh](https://bun.sh/)
+2. **Database**: Supabase account and project
+3. **Authentication**: Google OAuth credentials
+4. **File Storage**: UploadThing account
+5. **Optional**: Trigger.dev account for background jobs
 
-### Database Layer
-- **ORM**: Drizzle ORM with PostgreSQL
-- **Schema**: Defined in `packages/db/src/schema.ts`
-- **Repositories**: Domain-specific repositories in `packages/db/src/repositories/`
-- **Migrations**: Located in `apps/scorebrawl/migrations/`
+### Environment Setup
 
-### API Layer
-- **Framework**: tRPC for type-safe APIs
-- **Routers**: Organized by domain in `src/server/api/routers/`
-- **Authentication**: Better-Auth integration with session management
-- **Available Routers**: achievement, avatar, invite, league, match, member, leaguePlayer, leagueTeam, seasonPlayer, season, seasonTeam, user
+1. **Clone and install dependencies**:
+   ```bash
+   git clone <repository-url>
+   cd scorebrawl-nextjs
+   bun install
+   ```
 
-### Frontend Architecture
-- **App Router**: Next.js 13+ app directory structure
-- **Route Groups**: 
-  - `(auth)/`: Authentication pages
-  - `(leagues)/`: Main league-related pages
-  - `(onboarding)/`: User onboarding flow
-  - `(profile)/`: User profile pages
-- **Components**: Organized by domain with shared UI components
-- **Styling**: Tailwind + Shadcn/ui component library
+2. **Environment Variables**:
+   Copy `apps/scorebrawl/.env.example` to `apps/scorebrawl/.env.local` and configure:
+   ```env
+   # Database
+   DATABASE_URL="postgresql://..."
+   
+   # Authentication
+   BETTER_AUTH_SECRET="your-secret"
+   GOOGLE_CLIENT_ID="your-google-client-id"
+   GOOGLE_CLIENT_SECRET="your-google-client-secret"
+   
+   # File Upload
+   UPLOADTHING_TOKEN="your-uploadthing-token"
+   
+   # Optional: Background Jobs
+   TRIGGER_SECRET_KEY="your-trigger-key"
+   
+   # Optional: Monitoring
+   SENTRY_AUTH_TOKEN="your-sentry-token"
+   ```
 
-### State Management
-- **Server State**: tRPC with React Query for server state
-- **Context**: React Context for league/season context
-- **Forms**: React Hook Form with Zod validation
+3. **Database Setup**:
+   ```bash
+   # Run database migrations (from the main app directory)
+   cd apps/scorebrawl
+   bun run drizzle-generate
+   ```
 
-## Environment Variables
+### Development Commands
 
-Required environment variables (see `apps/scorebrawl/.env.example`):
-- `DATABASE_URL`: PostgreSQL connection string
-- `BETTER_AUTH_SECRET`: Auth secret key
-- `GOOGLE_CLIENT_ID`: Google OAuth client ID
-- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
-- `UPLOADTHING_TOKEN`: UploadThing API token
-- `TRIGGER_SECRET_KEY`: Trigger.dev secret key
+```bash
+# Start development server
+bun run dev                    # Start main app only
 
-## Development Workflow
+# Database management
+bun run drizzle-generate      # Generate database migrations
+bun run drizzle-migrate       # Run database migrations  
+bun run drizzle-studio        # Open Drizzle Studio
+bun run db-start              # Start local database (Docker)
+bun run db-stop               # Stop local database
 
-1. **Starting Development**: Run `bun run dev` which:
-   - Starts Docker containers for infrastructure
-   - Runs database migrations
-   - Starts Next.js dev server on port 5050
+# Code quality
+bun run flint                 # Format and lint all code
+bun run flint-check          # Check formatting/linting
 
-2. **Code Changes**: Always run `bun flint` after making changes
+# Testing
+bun run test                  # Run all tests
 
-3. **Database Changes**: 
-   - Modify schema in `packages/db/src/schema.ts`
-   - Generate migration with `bun run generate-db-changeset`
-   - Migrations run automatically on dev restart
+# Building
+bun run build                 # Build all apps for production
+```
 
-## Common Patterns
+### Development with Postgres locally
 
-### tRPC Usage
+bun
+
+```bash
+bun run dev
+```
+
+## Package Architecture
+
+### Apps
+
+#### `apps/scorebrawl` - Main Application
+The core Scorebrawl application built with Next.js 15:
+- **Framework**: Next.js with App Router
+- **Authentication**: Better-Auth integration
+- **Database**: Drizzle ORM with PostgreSQL (integrated in `src/db/`)
+- **Models**: TypeScript types and data models (integrated in `src/model/`)
+- **API**: Server-side API utilities (integrated in `src/server/`)
+- **UI**: Shadcn/ui components with Tailwind CSS
+- **Features**: Score tracking, leagues, matches, player management
+
+#### `apps/landing` - Landing Page
+Marketing website for Scorebrawl.
+
+### Packages
+
+#### `packages/utils` - Utility Functions
+Shared utility functions:
+- Date/time helpers
+- String manipulation utilities
+- ID generation utilities
+
+**Key exports**:
 ```typescript
-import { api } from "@/trpc/react";
-
-// In components
-const { data, isLoading } = api.user.me.useQuery();
-const { mutate, isPending } = api.user.setPassword.useMutation();
+// Utility functions
+import { formatDate } from "@scorebrawl/utils/date"
+import { generateId } from "@scorebrawl/utils/id"
+import { capitalizeFirst } from "@scorebrawl/utils/string"
 ```
 
-### Authentication
+#### `packages/typescript-config` - TypeScript Configuration
+Shared TypeScript configurations:
+- `base.json` - Base TypeScript config
+- `nextjs.json` - Next.js specific config
+- `react-library.json` - React library config
+
+## Authentication with Better-Auth
+
+The application uses Better-Auth for authentication. Comprehensive documentation is available at: https://www.better-auth.com/llms.txt
+
+### Authentication Patterns
+
+#### Server-side Authentication
 ```typescript
-import { auth } from "@/lib/auth";
-// Server-side auth context available in tRPC procedures
+import { auth } from "@/auth"
+import { headers } from "next/headers"
+
+// Get session in server components/API routes
+const session = await auth.api.getSession({
+  headers: await headers()
+})
+
+if (!session) {
+  // Handle unauthenticated user
+  return redirect("/auth/sign-in")
+}
 ```
 
-### Form Handling
+#### Client-side Authentication
 ```typescript
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { authClient } from "@/auth-client"
 
-const schema = z.object({...});
-const form = useForm({ resolver: zodResolver(schema) });
+// Sign in with email/password
+const { data } = await authClient.signIn.email({
+  email: "user@email.com",
+  password: "password"
+})
+
+// Sign in with Google OAuth
+const { data } = await authClient.signIn.social({
+  provider: "google"
+})
+
+// Get current session
+const session = authClient.useSession()
 ```
 
-### UI Components
-- Use Shadcn/ui components from `@/components/ui/`
-- Custom components organized by domain in `@/components/`
-- Toast notifications via `useToast()` hook
+#### Key Configuration
+- Email/password authentication enabled
+- Google OAuth configured
+- Session management with database storage
+- Middleware-based route protection
+- Type-safe auth hooks and utilities
 
-## Testing
+## Database Schema
 
-- Test framework: Bun test
-- Run tests: `bun test`
+The application uses Drizzle ORM with a PostgreSQL database. Key entities include:
 
-## Key Dependencies
+- **Users**: User accounts and profiles
+- **Leagues**: Competition leagues and tournaments
+- **Seasons**: Time-based competition periods
+- **Matches**: Individual games/competitions
+- **Players**: League participants
+- **Teams**: Team-based competitions
+- **Achievements**: User accomplishments
+- **Notifications**: User notifications
 
-### Core
-- Next.js 15, React 19, TypeScript 5.5
-- Bun as package manager and runtime
-- Turborepo for monorepo management
+## Deployment
 
-### UI/Styling
-- Tailwind CSS with custom configuration
-- Shadcn/ui component library
-- Lucide React icons
-- Recharts for data visualization
+### Vercel Deployment
+The application is optimized for Vercel deployment:
 
-### Backend/Data
-- tRPC for API layer
-- Drizzle ORM with PostgreSQL
-- Better-Auth for authentication
-- Trigger.dev for background jobs
+1. **Environment Variables**: Configure all required env vars in Vercel dashboard
+2. **Database**: Ensure Supabase connection string is set
+3. **Build**: Turborepo automatically handles build optimization
 
-### Utilities
-- Zod for schema validation
-- Date-fns for date manipulation
-- React Hook Form for form handling
-- LRU-cache for caching
+### Database Migrations
+Migrations are handled automatically in production environments through Vercel build process.
+
+## Development Guidelines
+
+### Code Quality
+- **Formatting**: Use `bun run flint` to format code with Biome
+- **Type Safety**: Maintain strict TypeScript types throughout
+- **Components**: Use Shadcn/ui components for consistency
+- **Database**: Access database layer through `src/db/` in the main app
+- **Models**: Import types from `src/model/` in the main app
+- **Utilities**: Use shared utilities from `@scorebrawl/utils` package
+- **IMPORTANT**: Always run `bun flint` before wrapping up TypeScript code to ensure proper formatting and linting
+
+### Import Patterns
+```typescript
+// Database access (from within scorebrawl app)
+import { db } from "@/db"
+import { userRepository } from "@/db/repositories/user"
+
+// Models and types (from within scorebrawl app)  
+import type { User, Match } from "@/model"
+
+// Shared utilities (from any app/package)
+import { formatDate } from "@scorebrawl/utils/date"
+import { generateId } from "@scorebrawl/utils/id"
+```
+
+### Testing Strategy
+- **Unit Tests**: Bun test for utilities and business logic
+- **E2E Tests**: Playwright for user workflows
+- **Database Tests**: PGlite for isolated database testing
+
+### Performance Considerations
+- **Bundle Size**: Leverage tree-shaking with Bun and Turborepo
+- **Database**: Use connection pooling and efficient queries
+- **Caching**: Implement appropriate caching strategies
+- **Image Optimization**: Use Next.js Image component with UploadThing
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Connection**: Ensure DATABASE_URL is correctly formatted
+2. **Authentication**: Verify Google OAuth credentials
+3. **File Uploads**: Check UploadThing token and configuration
+4. **Build Errors**: Clear `.next` cache and rebuild
+
+## Contributing
+
+1. **Code Style**: Follow existing patterns and use `bun run flint`
+2. **Database Changes**: Create migrations with `bun run drizzle-generate`
+3. **Testing**: Add tests for new features
+4. **Documentation**: Update relevant documentation
+
+## Additional Resources
+
+- [Turborepo Documentation](https://turbo.build/repo/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Drizzle ORM Documentation](https://orm.drizzle.team)
+- [Better-Auth Documentation](https://better-auth.com)
+- [Biome Documentation](https://biomejs.dev)

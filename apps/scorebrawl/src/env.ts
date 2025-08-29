@@ -10,10 +10,15 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string().min(1),
     DEBUG: z.string().min(8).optional(),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_ENABLE_USERNAME_PASSWORD: z.coerce.boolean().default(false),
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+  },
   runtimeEnv: {
+    NEXT_PUBLIC_ENABLE_USERNAME_PASSWORD: process.env.NEXT_PUBLIC_ENABLE_USERNAME_PASSWORD,
     NODE_ENV: process.env.NODE_ENV,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,

@@ -1,6 +1,8 @@
-import { create, getUserLeagues, update } from "@scorebrawl/db/league";
+import { create, getUserLeagues, update } from "@/db/repositories/league-repository";
 import { z } from "zod";
 
+import { LeagueCreateDTO, LeagueEditDTO } from "@/dto";
+import { LeagueCreate, LeagueEdit } from "@/model";
 import {
   createTRPCRouter,
   leagueEditorProcedure,
@@ -8,8 +10,6 @@ import {
   protectedProcedure,
 } from "@/server/api/trpc";
 import { editorRoles } from "@/utils/permission-util";
-import { LeagueCreateDTO, LeagueEditDTO } from "@scorebrawl/api/src/league";
-import { LeagueCreate, LeagueEdit } from "@scorebrawl/model";
 
 export const leagueRouter = createTRPCRouter({
   hasEditorAccess: leagueProcedure

@@ -1,7 +1,7 @@
 "use client";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useSeason } from "@/context/season-context";
-import type { MatchDTO } from "@scorebrawl/api";
+import type { MatchDTO } from "@/dto";
 import { formatDistanceToNow } from "date-fns";
 import type { z } from "zod";
 import { MatchResult } from "./match-result";

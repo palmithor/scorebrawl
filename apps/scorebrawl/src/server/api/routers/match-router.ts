@@ -1,14 +1,20 @@
-import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
-import type { achievementCalculationTask } from "@/trigger/achievement-calculation-task";
+import {
+  create,
+  findById,
+  findLatest,
+  getBySeasonId,
+  remove,
+} from "@/db/repositories/match-repository";
+import { assignMatchToFixture, findFixtureById } from "@/db/repositories/season-repository";
 import {
   EloMatchInputDTOSchema,
   FixtureMatchInputDTOSchema,
   MatchDTO,
   RemoveMatchDTO,
-} from "@scorebrawl/api";
-import { create, findById, findLatest, getBySeasonId, remove } from "@scorebrawl/db/match";
-import { assignMatchToFixture, findFixtureById } from "@scorebrawl/db/season";
-import { MatchInput } from "@scorebrawl/model";
+} from "@/dto";
+import { MatchInput } from "@/model";
+import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
+import type { achievementCalculationTask } from "@/trigger/achievement-calculation-task";
 import { tasks } from "@trigger.dev/sdk/v3";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

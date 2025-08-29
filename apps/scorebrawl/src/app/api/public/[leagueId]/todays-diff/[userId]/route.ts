@@ -1,4 +1,4 @@
-import { getTodayDiff } from "@scorebrawl/db/season";
+import { getTodayDiff } from "@/db/repositories/season-repository";
 import type { NextRequest } from "next/server";
 
 export async function GET(

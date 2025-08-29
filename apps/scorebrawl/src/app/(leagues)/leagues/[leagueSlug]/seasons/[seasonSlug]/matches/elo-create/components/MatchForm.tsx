@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/drawer";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useSeason } from "@/context/season-context";
+import { SeasonPlayerStandingDTO } from "@/dto";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SeasonPlayerStandingDTO } from "@scorebrawl/api";
 import { capitalize } from "@scorebrawl/utils/string";
 import { isAfter, isWithinInterval } from "date-fns";
 import { CircleEqual, MinusIcon, PlusIcon, Shuffle, TriangleAlert } from "lucide-react";

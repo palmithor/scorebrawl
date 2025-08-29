@@ -11,9 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import type { LeagueAchievementType } from "@/dto"; // Removed 'typeof'
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import type { LeagueAchievementType } from "@scorebrawl/api"; // Removed 'typeof'
 import { Medal } from "lucide-react";
 import type { z } from "zod";
 

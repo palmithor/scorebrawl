@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
-import { SeasonPlayerDTO, SeasonPlayerStandingDTO } from "@scorebrawl/api";
 import {
   findAll,
   getOnFire,
@@ -12,7 +10,9 @@ import {
   getTeammateStatistics,
   getTopPlayer,
   isUserInSeason,
-} from "@scorebrawl/db/season-player";
+} from "@/db/repositories/season-player-repository";
+import { SeasonPlayerDTO, SeasonPlayerStandingDTO } from "@/dto";
+import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
 
 export const seasonPlayerRouter = createTRPCRouter({
   getAll: seasonProcedure

@@ -1,7 +1,7 @@
+import { claim, findByCode } from "@/db/repositories/invite-repository";
+import { getByIdWhereMember } from "@/db/repositories/league-repository";
 import { auth } from "@/lib/auth";
 import { getURL } from "@/lib/auth-client";
-import { claim, findByCode } from "@scorebrawl/db/invite";
-import { getByIdWhereMember } from "@scorebrawl/db/league";
 import { headers } from "next/headers";
 
 export const GET = async (_request: Request, { params }: { params: Promise<{ code: string }> }) => {

@@ -1,8 +1,8 @@
 "use client";
 import { MultiAvatarWithSkeletonLoading } from "@/components/multi-avatar";
 import { Badge } from "@/components/ui/badge";
+import type { MatchDTO } from "@/dto";
 import { api } from "@/trpc/react";
-import type { MatchDTO } from "@scorebrawl/api";
 import type { z } from "zod";
 
 export const MatchResult = ({

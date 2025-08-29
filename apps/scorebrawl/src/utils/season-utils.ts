@@ -1,4 +1,4 @@
-import type { Season } from "@scorebrawl/db/types";
+import type { Season } from "@/db/types";
 import { getPeriodStatus } from "@scorebrawl/utils/date";
 
 export const sortSeasons = (seasons: Season[]): Season[] => {

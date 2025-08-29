@@ -1,8 +1,8 @@
+import { ScoreBrawlError } from "@/db";
+import { findBySlugWithUserRole } from "@/db/repositories/league-repository";
+import { findSeasonAndLeagueBySlug } from "@/db/repositories/season-repository";
 import type { Session } from "@/lib/auth";
 import { editorRoles } from "@/utils/permission-util";
-import { ScoreBrawlError } from "@scorebrawl/db";
-import { findBySlugWithUserRole } from "@scorebrawl/db/league";
-import { findSeasonAndLeagueBySlug } from "@scorebrawl/db/season";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { TRPC_ERROR_CODES_BY_KEY } from "@trpc/server/rpc";
 import superjson from "superjson";

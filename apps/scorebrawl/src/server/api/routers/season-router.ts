@@ -1,13 +1,6 @@
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  leagueEditorProcedure,
-  leagueProcedure,
-  seasonProcedure,
-} from "@/server/api/trpc";
-import { SeasonCreateDTOSchema, SeasonEditDTOSchema } from "@scorebrawl/api";
-import { getLeaguePlayers } from "@scorebrawl/db/player";
+import { getLeaguePlayers } from "@/db/repositories/player-repository";
 import {
   create,
   findActive,
@@ -16,8 +9,15 @@ import {
   getBySlug,
   getCountInfo,
   update,
-} from "@scorebrawl/db/season";
-import { SeasonCreateSchema, SeasonEditSchema } from "@scorebrawl/model";
+} from "@/db/repositories/season-repository";
+import { SeasonCreateDTOSchema, SeasonEditDTOSchema } from "@/dto";
+import { SeasonCreateSchema, SeasonEditSchema } from "@/model";
+import {
+  createTRPCRouter,
+  leagueEditorProcedure,
+  leagueProcedure,
+  seasonProcedure,
+} from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
 const validateStartBeforeEnd = ({

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
+import { getAll } from "@/db/repositories/league-player-repository";
+import { LeaguePlayerDTO } from "@/dto";
 import { createTRPCRouter, leagueProcedure } from "@/server/api/trpc";
-import { LeaguePlayerDTO } from "@scorebrawl/api";
-import { getAll } from "@scorebrawl/db/league-player";
 
 export const leaguePlayerRouter = createTRPCRouter({
   getAll: leagueProcedure

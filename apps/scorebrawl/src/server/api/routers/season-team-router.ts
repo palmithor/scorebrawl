@@ -1,7 +1,7 @@
 import { z } from "zod";
 
+import { getStanding, getTopTeam } from "@/db/repositories/season-team-repository";
 import { createTRPCRouter, seasonProcedure } from "@/server/api/trpc";
-import { getStanding, getTopTeam } from "@scorebrawl/db/season-team";
 
 export const seasonTeamRouter = createTRPCRouter({
   getStanding: seasonProcedure

@@ -1,10 +1,8 @@
 import { z } from "zod";
 
-import { auth } from "@/lib/auth";
+import { findUserById, setDefaultLeague } from "@/db/repositories/user-repository";
+import { UserDTO } from "@/dto";
 import { createTRPCRouter, leagueProcedure, protectedProcedure } from "@/server/api/trpc";
-import { UserDTO } from "@scorebrawl/api";
-import { findUserById, setDefaultLeague } from "@scorebrawl/db/user";
-import { headers } from "next/headers";
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx }) => {
@@ -16,14 +14,6 @@ export const userRouter = createTRPCRouter({
       defaultLeagueId: user?.defaultLeagueId ?? undefined,
     });
   }),
-  setPassword: protectedProcedure
-    .input(z.object({ password: z.string() }))
-    .mutation(async ({ input: { password } }) => {
-      await auth.api.setPassword({
-        body: { newPassword: password },
-        headers: await headers(),
-      });
-    }),
   setDefaultLeague: leagueProcedure.input(z.object({ leagueSlug: z.string() })).query(({ ctx }) =>
     setDefaultLeague({
       leagueId: ctx.league.id,

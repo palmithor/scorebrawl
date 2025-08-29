@@ -1,5 +1,5 @@
 "use server";
-import type { LeagueMemberRole } from "@scorebrawl/api";
+import type { LeagueMemberRole } from "@/dto";
 import { redirect } from "next/navigation";
 import type { z } from "zod";
 

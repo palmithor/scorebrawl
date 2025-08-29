@@ -1,7 +1,7 @@
 import { z } from "zod";
 
+import { findAll } from "@/db/repositories/member-repository";
 import { createTRPCRouter, leagueEditorProcedure } from "@/server/api/trpc";
-import { findAll } from "@scorebrawl/db/member";
 
 export const memberRouter = createTRPCRouter({
   getAll: leagueEditorProcedure

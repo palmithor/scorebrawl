@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 
+import { Accounts, Sessions, Users, Verifications, db } from "@/db";
 import { env } from "@/env";
-import { Accounts, Sessions, Users, Verifications, db } from "@scorebrawl/db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 
@@ -11,20 +11,31 @@ export const auth = betterAuth({
     level: "debug",
   },
   emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: false,
+    enabled:
+      process.env.NEXT_PUBLIC_ENABLE_USERNAME_PASSWORD === "true" ||
+      process.env.NODE_ENV === "development",
   },
-  socialProviders: {
-    google: {
+  socialProviders:
+    env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+          },
+        }
+      : undefined,
+  session: {
+    expiresIn: 3600 * 24,
+    cookieCache: {
       enabled: true,
-      clientId: env.GOOGLE_CLIENT_ID as string,
-      clientSecret: env.GOOGLE_CLIENT_SECRET as string,
+      maxAge: 5 * 60, // Cache duration in seconds
     },
   },
+  trustedOrigins: ["http://localhost:3000"],
   account: {
     accountLinking: {
       enabled: true,
-      trustedProviders: ["google"],
+      trustedProviders: ["google", "email-password"],
     },
   },
   database: drizzleAdapter(db, {

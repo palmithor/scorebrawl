@@ -1,7 +1,11 @@
+import {
+  getBySeasonPlayerIds,
+  getLeagueTeams,
+  update,
+} from "@/db/repositories/league-team-repository";
+import { LeagueTeamInputDTO } from "@/dto";
 import { createTRPCRouter, leagueProcedure, seasonProcedure } from "@/server/api/trpc";
 import { editorRoles } from "@/utils/permission-util";
-import { LeagueTeamInputDTO } from "@scorebrawl/api";
-import { getBySeasonPlayerIds, getLeagueTeams, update } from "@scorebrawl/db/league-team";
 import { z } from "zod";
 
 export const leagueTeamRouter = createTRPCRouter({

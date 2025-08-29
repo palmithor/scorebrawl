@@ -1,9 +1,9 @@
 "use client";
 import AutoForm from "@/components/auto-form";
 import { LoadingButton } from "@/components/loading-button";
+import { EloSeasonCreateDTOSchema } from "@/dto";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
-import { EloSeasonCreateDTOSchema } from "@scorebrawl/api";
 import { endOfDay, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
