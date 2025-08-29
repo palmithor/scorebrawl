@@ -45,3 +45,4 @@ yarn-error.log*
 !dev/.local/.gitkeep
 dev/.local
 .trigger
+.claude
