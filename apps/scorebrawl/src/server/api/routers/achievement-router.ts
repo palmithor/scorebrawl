@@ -1,7 +1,7 @@
 import { z } from "zod";
 
+import { getAchievements } from "@/db/repositories/achievement-repository";
 import { createTRPCRouter, leagueProcedure } from "@/server/api/trpc";
-import { getAchievements } from "@scorebrawl/db/achievement";
 
 export const achievementRouter = createTRPCRouter({
   getUserAchievements: leagueProcedure

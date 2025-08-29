@@ -2,8 +2,8 @@
 
 import AutoForm from "@/components/auto-form";
 import { LoadingButton } from "@/components/loading-button";
+import { InviteInputDTO, type LeagueMemberRole } from "@/dto";
 import { api } from "@/trpc/react";
-import { InviteInputDTO, type LeagueMemberRole } from "@scorebrawl/api";
 import { endOfDay } from "date-fns";
 import type { z } from "zod";
 

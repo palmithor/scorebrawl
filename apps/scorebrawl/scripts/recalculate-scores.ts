@@ -1,5 +1,5 @@
+import { MatchPlayers, Matches, SeasonPlayers, Seasons, db } from "@/db";
 import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
-import { MatchPlayers, Matches, SeasonPlayers, Seasons, db } from "@scorebrawl/db";
 import { and, asc, eq } from "drizzle-orm";
 console.log("starting....");
 if (!process.env.VERCEL) {

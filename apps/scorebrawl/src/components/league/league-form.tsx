@@ -2,9 +2,9 @@
 import AutoForm from "@/components/auto-form";
 import { LoadingButton } from "@/components/loading-button";
 import { UploadButton } from "@/components/uploadthing";
+import { LeagueCreateDTO } from "@/dto";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
-import { LeagueCreateDTO } from "@scorebrawl/api/src/league";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

@@ -1,11 +1,11 @@
-import { createAchievement } from "@scorebrawl/db/achievement";
-import { findLeaguePlayerIds } from "@scorebrawl/db/league-player";
+import { createAchievement } from "@/db/repositories/achievement-repository";
+import { findLeaguePlayerIds } from "@/db/repositories/league-player-repository";
 import {
   getGoalsConcededAgainst,
   getLastFiveMatchesGoals,
   getPlayerMatches,
-} from "@scorebrawl/db/season-player";
-import type { LeagueAchievementType, leagueAchievementType } from "@scorebrawl/model";
+} from "@/db/repositories/season-player-repository";
+import type { LeagueAchievementType, leagueAchievementType } from "@/model";
 import { task } from "@trigger.dev/sdk/v3";
 import type { z } from "zod";
 

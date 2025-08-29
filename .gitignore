@@ -46,3 +46,4 @@ yarn-error.log*
 dev/.local
 .trigger
 .claude
+.dump.sql

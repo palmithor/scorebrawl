@@ -1,8 +1,8 @@
-import { create, findByLeagueId } from "@scorebrawl/db/invite";
+import { create, findByLeagueId } from "@/db/repositories/invite-repository";
 import { z } from "zod";
 
+import { InviteInputDTO } from "@/dto";
 import { createTRPCRouter, leagueEditorProcedure } from "@/server/api/trpc";
-import { InviteInputDTO } from "@scorebrawl/api";
 
 export const inviteRouter = createTRPCRouter({
   getAll: leagueEditorProcedure.input(z.object({ leagueSlug: z.string() })).query(({ ctx }) =>

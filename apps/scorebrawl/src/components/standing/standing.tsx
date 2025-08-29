@@ -13,8 +13,8 @@ import {
 import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
 import { useSeason } from "@/context/season-context";
 import { cn } from "@/lib/utils";
+import type { PlayerForm } from "@/model";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import type { PlayerForm } from "@scorebrawl/model";
 import { useState } from "react";
 import { FormDots } from "../league/player-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";

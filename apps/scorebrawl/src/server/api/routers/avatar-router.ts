@@ -1,7 +1,11 @@
 //
 
+import {
+  getSeasonPlayerAvatars,
+  getSeasonTeamAvatars,
+  getUserAvatar,
+} from "@/db/repositories/user-repository";
 import { createTRPCRouter, protectedProcedure, seasonProcedure } from "@/server/api/trpc";
-import { getSeasonPlayerAvatars, getSeasonTeamAvatars, getUserAvatar } from "@scorebrawl/db/user";
 import { z } from "zod";
 
 export const avatarRouter = createTRPCRouter({

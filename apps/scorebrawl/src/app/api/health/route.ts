@@ -1,4 +1,4 @@
-import { Leagues, db } from "@scorebrawl/db";
+import { Leagues, db } from "@/db";
 
 export async function GET(request: Request) {
   const apiKey = "Rosquj-8cozdu-jepwoz-sunwon-0jewjo-Xuxqur";

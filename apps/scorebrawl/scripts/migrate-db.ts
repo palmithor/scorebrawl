@@ -1,4 +1,4 @@
-import { migrateDb } from "@scorebrawl/db";
+import { migrateDb } from "@/db";
 
 try {
   await migrateDb();

@@ -4,9 +4,9 @@ import { DashboardCard } from "@/app/(leagues)/leagues/[leagueSlug]/seasons/[sea
 import { MatchResult } from "@/components/match/match-result";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { MatchDTO } from "@/dto";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
-import type { MatchDTO } from "@scorebrawl/api";
 import { CalendarCheck2, CheckIcon, Undo2Icon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { z } from "zod";

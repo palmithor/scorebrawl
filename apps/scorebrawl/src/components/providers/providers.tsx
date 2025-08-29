@@ -1,6 +1,7 @@
 "use client";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { env } from "@/env";
 import { authClient } from "@/lib/auth-client";
 import { AuthUIProvider } from "@daveyplate/better-auth-ui";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
@@ -21,9 +22,8 @@ export const Providers = ({ children, ...props }: ThemeProviderProps) => {
               authClient={authClient}
               navigate={router.push}
               replace={router.replace}
-              providers={["google"]}
-              credentials={false}
-              //forgotPassword={process.env.VERCEL_ENV !== "production"}
+              providers={env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? ["google"] : undefined}
+              credentials={env.NEXT_PUBLIC_ENABLE_USERNAME_PASSWORD}
               onSessionChange={() => router.refresh()}
               defaultRedirectTo="/"
             >
