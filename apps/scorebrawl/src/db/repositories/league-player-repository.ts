@@ -248,7 +248,7 @@ export const getPlayerStats = async ({
     losses,
     winRate: Math.round(winRate * 10) / 10,
     currentSeason: currentSeasonStats.seasonName,
-    rank: getRankFromElo(currentSeasonStats.currentElo).title,
+    rank: getRankFromElo(currentSeasonStats.currentElo).name,
     team: null, // Will be implemented when team system is ready
   };
 };

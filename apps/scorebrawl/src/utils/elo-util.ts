@@ -1,23 +1,53 @@
-export interface EloRank {
-  title: string;
-  short: string;
-}
+type EloRank = { name: string; short: string };
 
-/**
- * Get the rank tier from ELO score
- * @param elo - The ELO score
- * @returns The rank tier object with title and short
- */
+const tiers = [
+  { name: "Gold", short: "G" },
+  { name: "Platinum", short: "P" },
+  { name: "Diamond", short: "D" },
+  { name: "Champion", short: "C" },
+  { name: "Grand Champion", short: "GC" },
+];
+const subRanks = ["I", "II", "III"];
+
+const mockingTiers = [
+  { name: "Casual", short: "CZ" },
+  { name: "Newbie", short: "NB" },
+  { name: "Clueless", short: "CL" },
+  { name: "Hopeless", short: "HP" },
+  { name: "Disaster", short: "DS" },
+  { name: "Burden", short: "BD" },
+  { name: "Dead Weight", short: "DW" },
+  { name: "Why Bother?", short: "??" },
+];
+const rockBottom = { name: "Rock Bottom", short: "RB" };
+
 export function getRankFromElo(elo: number): EloRank {
-  if (elo >= 2000) return { title: "Champion", short: "C" };
-  if (elo >= 1800) return { title: "Diamond III", short: "D3" };
-  if (elo >= 1600) return { title: "Diamond II", short: "D2" };
-  if (elo >= 1400) return { title: "Diamond I", short: "D1" };
-  if (elo >= 1200) return { title: "Platinum III", short: "P3" };
-  if (elo >= 1000) return { title: "Platinum II", short: "P2" };
-  if (elo >= 800) return { title: "Platinum I", short: "P1" };
-  if (elo >= 600) return { title: "Gold III", short: "G3" };
-  if (elo >= 400) return { title: "Gold II", short: "G2" };
-  if (elo >= 200) return { title: "Gold I", short: "G1" };
-  return { title: "Bronze", short: "B" };
+  // At or above 1200 → real ranks
+  if (elo >= 1200) {
+    const steps = Math.floor((elo - 1200) / 30); // how many 30-point jumps above 1200
+    const tierIndex = Math.floor(steps / 3); // each tier has 3 subranks
+    const subRankIndex = steps % 3;
+
+    // If we’ve gone past Champion → Grand Champion loops forever
+    if (tierIndex >= tiers.length - 1) {
+      return {
+        name: `Grand Champion ${subRanks[subRankIndex]}`,
+        short: `GC${subRanks[subRankIndex]}`,
+      };
+    }
+
+    const tier = tiers[tierIndex] as EloRank;
+    return {
+      name: `${tier.name} ${subRanks[subRankIndex]}`,
+      short: `${tier.short}${subRanks[subRankIndex]}`,
+    };
+  }
+
+  // 750 and below → worst
+  if (elo <= 750) return rockBottom;
+
+  // Below 1200 → mocking ranks, every 60 Elo down
+  const idx = Math.min(mockingTiers.length - 1, Math.floor((1200 - elo) / 60));
+  const tier = mockingTiers[idx] as EloRank;
+  return { name: tier.name, short: tier.short };
 }
