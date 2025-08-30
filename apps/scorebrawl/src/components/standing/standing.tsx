@@ -36,28 +36,50 @@ const EloTierBadge = ({ elo }: { elo: number }) => {
   // Different colors/styles based on tier
   let className = "bg-purple-600 text-white border-purple-600";
 
-  if (rank.title === "Champion") {
+  if (rank.name.startsWith("Grand Champion")) {
+    className = "bg-purple-600 text-white border-purple-600";
+  } else if (rank.name.startsWith("Champion")) {
     className = "bg-yellow-600 text-white border-yellow-600";
-  } else if (rank.title.startsWith("Diamond")) {
+  } else if (rank.name.startsWith("Diamond")) {
     className = "bg-blue-600 text-white border-blue-600";
-  } else if (rank.title.startsWith("Platinum")) {
+  } else if (rank.name.startsWith("Platinum")) {
     className = "bg-cyan-600 text-white border-cyan-600";
-  } else if (rank.title.startsWith("Gold")) {
-    className = "bg-yellow-600 text-white border-yellow-600";
-  } else if (rank.title === "Bronze") {
-    className = "bg-orange-600 text-white border-orange-600";
+  } else if (rank.name.startsWith("Gold")) {
+    className = "bg-yellow-500 text-white border-yellow-500";
+  } else if (rank.name === "Rock Bottom") {
+    className = "bg-gray-800 text-white border-gray-800";
+  } else if (
+    [
+      "Casual",
+      "Newbie",
+      "Clueless",
+      "Hopeless",
+      "Disaster",
+      "Burden",
+      "Dead Weight",
+      "Why Bother?",
+    ].includes(rank.name)
+  ) {
+    className = "bg-red-600 text-white border-red-600";
   }
 
   return (
-    <Badge
-      variant="secondary"
-      className={cn(
-        "text-[9px] px-0.5 py-0 min-w-[16px] h-4 text-center font-bold shadow-sm border",
-        className,
-      )}
-    >
-      {rank.short}
-    </Badge>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Badge
+          variant="secondary"
+          className={cn(
+            "text-[9px] px-0.5 py-0 min-w-[16px] h-4 text-center font-bold shadow-sm border cursor-help",
+            className,
+          )}
+        >
+          {rank.short}
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{rank.name}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 

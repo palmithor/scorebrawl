@@ -132,7 +132,7 @@ function PlayerProfile({
   if (playerError) {
     if (playerError.data?.code === "BAD_REQUEST") {
       return (
-        <div className="min-h-screen bg-background p-6 dark">
+        <div className="min-h-screen bg-background p-6">
           <div className="max-w-7xl mx-auto">
             <Card className="bg-card border-border">
               <CardContent className="p-6">
@@ -148,7 +148,7 @@ function PlayerProfile({
     }
 
     return (
-      <div className="min-h-screen bg-background p-6 dark">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto">
           <Card className="bg-card border-border">
             <CardContent className="p-6">
@@ -161,7 +161,7 @@ function PlayerProfile({
     );
   }
   return (
-    <div className="min-h-screen bg-background p-6 dark">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -189,7 +189,10 @@ function PlayerProfile({
                 <div>
                   <h1 className="text-3xl font-bold text-foreground">{player?.user.name}</h1>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="secondary" className="bg-purple-600/20 text-purple-300">
+                    <Badge
+                      variant="secondary"
+                      className="bg-purple-500/10 text-purple-600 dark:bg-purple-600/20 dark:text-purple-300"
+                    >
                       {playerStats?.rank || "Unranked"}
                     </Badge>
                     {playerStats?.team && <Badge variant="outline">{playerStats.team}</Badge>}
