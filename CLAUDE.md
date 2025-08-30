@@ -245,6 +245,7 @@ Migrations are handled automatically in production environments through Vercel b
 - **Database**: Access database layer through `src/db/` in the main app
 - **Models**: Import types from `src/model/` in the main app
 - **Utilities**: Use shared utilities from `@scorebrawl/utils` package
+- **Database Queries**: **ALWAYS** use Drizzle ORM queries instead of raw SQL. Use functions like `eq()`, `and()`, `or()`, `lt()`, `gt()`, etc. from drizzle-orm instead of writing raw SQL strings
 - **IMPORTANT**: Always run `bun flint` before wrapping up TypeScript code to ensure proper formatting and linting
 
 ### Import Patterns
