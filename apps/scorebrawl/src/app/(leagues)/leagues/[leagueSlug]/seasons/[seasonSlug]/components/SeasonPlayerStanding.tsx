@@ -30,7 +30,10 @@ export const SeasonPlayerStanding = () => {
         lossCount: sp.lossCount,
         pointDiff: sp.pointDiff,
         avatars: [{ id: sp.user.userId, image: sp.user.image, name: sp.user.name }],
+        currentElo: sp.score,
+        leaguePlayerId: sp.leaguePlayerId,
       }))}
+      showEloRank={true}
     />
   );
 };

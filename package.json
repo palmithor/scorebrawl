@@ -14,10 +14,11 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@scorebrawl/typescript-config": "*",
-    "turbo": "^2.4.4",
-    "typescript": "5.5.4",
     "@types/react": "^19.0.12",
-    "@types/react-dom": "^19.0.4"
+    "@types/react-dom": "^19.0.4",
+    "shadcn": "^3.0.0",
+    "turbo": "^2.4.4",
+    "typescript": "5.5.4"
   },
   "packageManager": "bun@1.1.30",
   "workspaces": ["apps/*", "packages/*"],

@@ -47,6 +47,13 @@ export const ErrorToast = () => {
           description: "Page not supported for this score type",
           duration: 2000,
         });
+      } else if (errorCode === "PLAYER_PROFILE_NOT_SUPPORTED") {
+        toast({
+          title: "Feature not available",
+          description: "League player profiles are not available for non-ELO seasons",
+          variant: "destructive",
+          duration: 3000,
+        });
       } else {
         toast({
           title: "Something went wrong",

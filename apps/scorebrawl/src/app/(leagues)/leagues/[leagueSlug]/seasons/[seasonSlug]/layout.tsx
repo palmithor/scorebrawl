@@ -25,12 +25,13 @@ export const generateMetadata = async ({
   };
 };
 
-export default function Layout({
+export default async function Layout({
   children,
   params,
-}: { children: ReactNode; params: { leagueSlug: string; seasonSlug: string } }) {
+}: { children: ReactNode; params: Promise<{ leagueSlug: string; seasonSlug: string }> }) {
+  const { leagueSlug, seasonSlug } = await params;
   return (
-    <SeasonProvider leagueSlug={params.leagueSlug} seasonSlug={params.seasonSlug}>
+    <SeasonProvider leagueSlug={leagueSlug} seasonSlug={seasonSlug}>
       {children}
     </SeasonProvider>
   );
