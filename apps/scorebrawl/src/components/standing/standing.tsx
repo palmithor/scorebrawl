@@ -1,5 +1,6 @@
 "use client";
 import { api } from "@/trpc/react";
+import React from "react";
 
 import { MultiAvatar } from "@/components/multi-avatar";
 import { Badge } from "@/components/ui/badge";
@@ -180,9 +181,8 @@ export const Standing = ({
               leaguePlayerId,
             }) => {
               return (
-                <>
+                <React.Fragment key={id}>
                   <TableRow
-                    key={id}
                     onClick={
                       enableRowClick
                         ? () => setSelectedPlayerId((prev) => (prev === id ? null : id))
@@ -194,7 +194,7 @@ export const Standing = ({
                     )}
                   >
                     <TableCell className="py-2">
-                      <div className="flex gap-3 items-center h-full" key={id}>
+                      <div className="flex gap-3 items-center h-full">
                         <div
                           className={cn(
                             "relative flex-shrink-0",
@@ -272,12 +272,12 @@ export const Standing = ({
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <div className={"flex justify-center"}>
-                        <FormDots form={form} key={id} />
+                        <FormDots form={form} />
                       </div>
                     </TableCell>
                   </TableRow>
                   {selectedPlayerId === id && matchCount > 0 && (
-                    <TableRow className="w-full">
+                    <TableRow className="w-full" key={`${id}-details`}>
                       <TableCell colSpan={8} className="w-full">
                         <Tabs defaultValue="averageTeammate">
                           <TabsList className="grid w-full grid-cols-2">
@@ -300,7 +300,7 @@ export const Standing = ({
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </React.Fragment>
               );
             },
           )}

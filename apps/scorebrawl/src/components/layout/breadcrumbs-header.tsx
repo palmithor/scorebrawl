@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import React from "react";
 import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
 
@@ -29,24 +30,25 @@ export const BreadcrumbsHeader = ({
       <Separator orientation="vertical" className=" h-4" />
       <Breadcrumb>
         <BreadcrumbList className="flex-nowrap">
-          {breadcrumbs.map((crumb, index) => (
-            <>
-              <BreadcrumbItem key={`item-${crumb.name}-${crumb.href}`}>
-                {crumb.href ? (
-                  <>
+          {breadcrumbs.map((crumb, index) => {
+            const key = `${crumb.name}-${crumb.href ?? ""}-${index}`;
+            return (
+              <React.Fragment key={key}>
+                <BreadcrumbItem>
+                  {crumb.href ? (
                     <BreadcrumbLink asChild>
                       <Link href={crumb.href} prefetch={false}>
                         {crumb.name}
                       </Link>
                     </BreadcrumbLink>
-                  </>
-                ) : (
-                  <BreadcrumbPage className="truncate">{crumb.name}</BreadcrumbPage>
-                )}
-              </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
-            </>
-          ))}
+                  ) : (
+                    <BreadcrumbPage className="truncate">{crumb.name}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+                {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+              </React.Fragment>
+            );
+          })}
         </BreadcrumbList>
       </Breadcrumb>
     </div>
