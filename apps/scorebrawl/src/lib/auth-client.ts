@@ -14,5 +14,5 @@ export const getURL = () => {
 };
 
 export const authClient = createAuthClient({
-  baseURL: getURL(),
+  baseURL: typeof window !== "undefined" ? window.location.origin : undefined,
 });

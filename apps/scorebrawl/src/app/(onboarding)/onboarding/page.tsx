@@ -2,6 +2,8 @@ import { api } from "@/trpc/server";
 import { redirect } from "next/navigation";
 import { OnboardingStepper } from "./components/OnboardingStepper";
 
+export const dynamic = "force-dynamic";
+
 export default async () => {
   const leagues = await api.league.getAll();
   if (leagues.length > 0) {

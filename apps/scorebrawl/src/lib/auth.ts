@@ -31,7 +31,7 @@ export const auth = betterAuth({
       maxAge: 5 * 60, // Cache duration in seconds
     },
   },
-  trustedOrigins: ["http://localhost:3000"],
+  trustedOrigins: process.env.VERCEL_URL ? [process.env.VERCEL_URL] : ["http://localhost:3000"],
   account: {
     accountLinking: {
       enabled: true,

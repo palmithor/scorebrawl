@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { api } from "@/trpc/server";
 import { headers } from "next/headers";
 import type { ReactNode } from "react";
+export const dynamic = "force-dynamic";
 interface LayoutProps {
   children: ReactNode;
 }
