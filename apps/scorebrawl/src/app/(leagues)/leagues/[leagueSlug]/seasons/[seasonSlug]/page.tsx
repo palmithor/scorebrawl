@@ -24,7 +24,7 @@ export default async ({ params }: PageParams) => {
       >
         {isEloSeason && <AddMatchButton />}
       </BreadcrumbsHeader>
-      <div className="grid gap-6 w-full overflow-hidden">
+      <div className="grid gap-6">
         <DashboardCards />
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
           <div className="flex flex-col gap-6">
