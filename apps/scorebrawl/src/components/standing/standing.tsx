@@ -194,7 +194,7 @@ export const Standing = ({
                     )}
                   >
                     <TableCell className="py-2">
-                      <div className="flex gap-3 items-center h-full">
+                      <div className="max-w-[120px] sm:max-w-none flex gap-3 items-center h-full">
                         <div
                           className={cn(
                             "relative flex-shrink-0",
