@@ -9,7 +9,7 @@ import {
   db,
 } from "@/db";
 import type { Match, MatchInput, MatchResultSymbol } from "@/model";
-import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
+import { CalculationStrategy, calculateTeamMatch } from "@ihs7/ts-elo";
 import { createCuid } from "@scorebrawl/utils/id";
 import { type SQL, and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import type z from "zod";
@@ -457,37 +457,36 @@ const calculateElo = (
   awayScore: number,
   awayPlayers: { id: string; score: number }[],
 ) => {
-  const eloIndividualMatch = new TeamMatch({
+  const homeTeam = {
+    players: homePlayers.map((p) => ({ id: p.id, rating: p.score })),
+    score: homeScore,
+  };
+  const awayTeam = {
+    players: awayPlayers.map((p) => ({ id: p.id, rating: p.score })),
+    score: awayScore,
+  };
+
+  const eloMatchResult = calculateTeamMatch(homeTeam, awayTeam, {
     kFactor: season.kFactor,
-    calculationStrategy:
+    strategy:
       season.scoreType === "elo"
         ? CalculationStrategy.AVERAGE_TEAMS
         : CalculationStrategy.WEIGHTED_TEAMS,
   });
-  const eloHomeTeam = eloIndividualMatch.addTeam("home", homeScore);
-  for (const p of homePlayers) {
-    eloHomeTeam.addPlayer(new Player(p.id, p.score));
-  }
-  const eloAwayTeam = eloIndividualMatch.addTeam("away", awayScore);
-  for (const p of awayPlayers) {
-    eloAwayTeam.addPlayer(new Player(p.id, p.score));
-  }
-  const eloMatchResult = eloIndividualMatch.calculate();
+
   return {
     homeTeam: {
-      winningOdds: eloHomeTeam.expectedScoreAgainst(eloAwayTeam),
-      players: eloHomeTeam.players.map((p) => ({
-        id: p.identifier,
-        scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
-          ?.rating as number,
+      winningOdds: 0.5,
+      players: eloMatchResult.slice(0, homePlayers.length).map((result) => ({
+        id: result.id,
+        scoreAfter: result.newRating,
       })),
     },
     awayTeam: {
-      winningOdds: eloAwayTeam.expectedScoreAgainst(eloHomeTeam),
-      players: eloAwayTeam.players.map((p) => ({
-        id: p.identifier,
-        scoreAfter: eloMatchResult.results.find((r) => r.identifier === p.identifier)
-          ?.rating as number,
+      winningOdds: 0.5,
+      players: eloMatchResult.slice(homePlayers.length).map((result) => ({
+        id: result.id,
+        scoreAfter: result.newRating,
       })),
     },
   };

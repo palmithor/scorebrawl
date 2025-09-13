@@ -26,7 +26,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@hookform/resolvers": "^3.9.0",
-        "@ihs7/ts-elo": "1.0.2",
+        "@ihs7/ts-elo": "^2.0.0",
         "@paralleldrive/cuid2": "^2.2.2",
         "@radix-ui/react-icons": "^1.3.2",
         "@sentry/nextjs": "^9.9.0",
@@ -252,7 +252,7 @@
 
     "@hookform/resolvers": ["@hookform/resolvers@3.10.0", "", { "peerDependencies": { "react-hook-form": "^7.0.0" } }, "sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag=="],
 
-    "@ihs7/ts-elo": ["@ihs7/ts-elo@1.0.2", "", {}, "sha512-XMLAn58cJrJo1z384FRtVGa0MJmrSDar13X9TbBopH41OVcgVnqMpnDTwvkKoiv+/tMaWqawThQOTSJmEMIsTw=="],
+    "@ihs7/ts-elo": ["@ihs7/ts-elo@2.0.0", "", {}, "sha512-x+nogiAuhh/jlai6wd3vl0yOr6UkaIO0StVkaheqKAbUGqDwoiouZ7kf5CQHa7KcwmvrSx1Y/gE8oPa6UNhXjA=="],
 
     "@img/sharp-darwin-arm64": ["@img/sharp-darwin-arm64@0.34.3", "", { "optionalDependencies": { "@img/sharp-libvips-darwin-arm64": "1.2.0" }, "os": "darwin", "cpu": "arm64" }, "sha512-ryFMfvxxpQRsgZJqBd4wsttYQbCxsJksrv9Lw/v798JcQ8+w84mBWuXwl+TT0WJ/WrYOLaYpwQXi3sA9nTIaIg=="],
 
