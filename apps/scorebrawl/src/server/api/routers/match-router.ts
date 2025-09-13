@@ -27,6 +27,12 @@ export const matchRouter = createTRPCRouter({
         message: "This season does not support Elo matches",
       });
     }
+    if (ctx.season.closed) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "This season is closed",
+      });
+    }
     const match = await create(
       MatchInput.parse({
         userId: ctx.auth.user.id,

@@ -15,21 +15,27 @@ export const AddMatchButton = () => {
     seasonSlug,
   });
   const hasTwoPlayersOrMore = ongoingSeasonPlayers && ongoingSeasonPlayers.length > 1;
+  const isSeasonClosed = season?.closed ?? false;
+  const isDisabled = !hasTwoPlayersOrMore || !season || isSeasonClosed;
+
   return (
     <Tooltip>
       <TooltipTrigger>
         <LayoutActionButton
           text={"Match"}
           onClick={() =>
-            void push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches/elo-create`)
+            !isDisabled && push(`/leagues/${leagueSlug}/seasons/${seasonSlug}/matches/elo-create`)
           }
           Icon={PlusIcon}
+          disabled={isDisabled}
         />
       </TooltipTrigger>
-      {!(hasTwoPlayersOrMore && season) && (
+      {isDisabled && (
         <TooltipContent side="bottom">
           <p className="w-52">
-            An ongoing season or at least two players required for adding match
+            {isSeasonClosed
+              ? "This season is over"
+              : "An ongoing season or at least two players required for adding match"}
           </p>
         </TooltipContent>
       )}

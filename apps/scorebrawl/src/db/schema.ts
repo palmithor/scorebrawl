@@ -115,6 +115,7 @@ export const Seasons = pgTable(
     leagueId: varchar("league_id", cuidConfig)
       .notNull()
       .references(() => Leagues.id),
+    closed: boolean("closed").default(false).notNull(),
     createdBy: varchar("created_by").notNull(),
     updatedBy: varchar("updated_by").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),

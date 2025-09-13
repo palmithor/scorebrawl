@@ -116,6 +116,7 @@ const seasonAccessMiddleware = isAuthed.unstable_pipe(async ({ ctx, input, next 
         endDate: seasonWithLeagueAndRole.endDate,
         initialScore: seasonWithLeagueAndRole.initialScore,
         scoreType: seasonWithLeagueAndRole.scoreType,
+        closed: seasonWithLeagueAndRole.closed,
       },
       role: seasonWithLeagueAndRole.role,
     },
