@@ -2,6 +2,7 @@
 
 import { AvatarName } from "@/components/avatar/avatar-name";
 import { MultiAvatar } from "@/components/multi-avatar";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -12,10 +13,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
 import { sortSeasons } from "@/utils/season-utils";
 import { getPeriodStatus } from "@scorebrawl/utils/date";
-import { CircleCheck, CirclePlay, FastForward } from "lucide-react";
+import { Ban, CircleCheck, CirclePlay, FastForward, Lock, LockOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const TopPlayerCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlug: string }) => {
@@ -44,20 +46,61 @@ const TopTeamCell = ({ seasonSlug, leagueSlug }: { seasonSlug: string; leagueSlu
   );
 };
 
-/*const ActionMenu = ({ leagueSlug, seasonId }: { leagueSlug: string; seasonId: string }) => {
+const ActionCell = ({
+  season,
+  leagueSlug,
+}: {
+  season: { id: string; slug: string; closed: boolean; name: string };
+  leagueSlug: string;
+}) => {
+  const { toast } = useToast();
+  const utils = api.useUtils();
+  const updateClosedStatus = api.season.updateClosedStatus.useMutation({
+    onSuccess: () => {
+      void utils.season.getAll.invalidate({ leagueSlug });
+      toast({
+        title: season.closed ? "Season reopened" : "Season closed",
+        description: season.closed
+          ? `${season.name} has been reopened for new matches.`
+          : `${season.name} has been closed. No new matches can be created.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to update season status.",
+      });
+    },
+  });
+
+  const handleToggleClosed = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    updateClosedStatus.mutate({
+      leagueSlug,
+      seasonSlug: season.slug,
+      closed: !season.closed,
+    });
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-9 px-0">
-          <EllipsisVerticalIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem className="cursor-pointer">Edit Season</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center space-x-2">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleToggleClosed}
+            disabled={updateClosedStatus.isPending}
+          >
+            {season.closed ? <LockOpen className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{season.closed ? "Reopen Season" : "Close Season"}</TooltipContent>
+      </Tooltip>
+    </div>
   );
-};*/
+};
 
 export const SeasonTable = ({
   leagueSlug,
@@ -90,12 +133,20 @@ export const SeasonTable = ({
             {seasons?.map((season) => {
               const periodStatus = getPeriodStatus(season);
               let StatusIcon = null;
-              if (periodStatus === "ongoing") {
+              let statusText = "";
+
+              if (season.closed) {
+                StatusIcon = Ban;
+                statusText = "closed";
+              } else if (periodStatus === "ongoing") {
                 StatusIcon = CirclePlay;
+                statusText = "ongoing";
               } else if (periodStatus === "finished") {
                 StatusIcon = CircleCheck;
+                statusText = "finished";
               } else {
                 StatusIcon = FastForward;
+                statusText = "future";
               }
               return (
                 <TableRow
@@ -108,7 +159,7 @@ export const SeasonTable = ({
                       <TooltipTrigger>
                         <StatusIcon className={"h-6 w-6 pointer-events-none"} />
                       </TooltipTrigger>
-                      <TooltipContent className="capitalize">{periodStatus}</TooltipContent>
+                      <TooltipContent className="capitalize">{statusText}</TooltipContent>
                     </Tooltip>
                   </TableCell>
                   <TableCell>
@@ -135,6 +186,11 @@ export const SeasonTable = ({
                         <TopTeamCell seasonSlug={season.slug} leagueSlug={leagueSlug} />
                       </TableCell>
                     </>
+                  )}
+                  {hasEditorAccess && (
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <ActionCell season={season} leagueSlug={leagueSlug} />
+                    </TableCell>
                   )}
                 </TableRow>
               );

@@ -6,8 +6,15 @@ export const LayoutActionButton = ({
   Icon,
   onClick,
   variant = "default",
-}: { text: string; Icon?: LucideIcon; onClick?: () => void; variant?: "outline" | "default" }) => (
-  <Button size={"sm"} variant={variant} onClick={onClick}>
+  disabled = false,
+}: {
+  text: string;
+  Icon?: LucideIcon;
+  onClick?: () => void;
+  variant?: "outline" | "default";
+  disabled?: boolean;
+}) => (
+  <Button size={"sm"} variant={variant} onClick={onClick} disabled={disabled}>
     {Icon && <Icon className="mr-1 h-4 w-4" />}
     {text}
   </Button>

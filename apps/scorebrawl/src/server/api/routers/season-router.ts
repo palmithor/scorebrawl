@@ -9,6 +9,7 @@ import {
   getBySlug,
   getCountInfo,
   update,
+  updateClosedStatus,
 } from "@/db/repositories/season-repository";
 import { SeasonCreateDTOSchema, SeasonEditDTOSchema } from "@/dto";
 import { SeasonCreateSchema, SeasonEditSchema } from "@/model";
@@ -107,4 +108,20 @@ export const seasonRouter = createTRPCRouter({
     }
     return updatedSeason;
   }),
+  updateClosedStatus: leagueEditorProcedure
+    .input(z.object({ leagueSlug: z.string(), seasonSlug: z.string(), closed: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const season = await getBySlug({ seasonSlug: input.seasonSlug });
+      if (season.leagueId !== ctx.league.id) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Season not found",
+        });
+      }
+      return updateClosedStatus({
+        seasonId: season.id,
+        userId: ctx.auth.user.id,
+        closed: input.closed,
+      });
+    }),
 });

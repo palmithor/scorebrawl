@@ -84,11 +84,7 @@ export const getById = async ({ seasonId }: { seasonId: string }) => {
 };
 
 export const getBySlug = async ({ seasonSlug }: { seasonSlug: string }) => {
-  const [season] = await db
-    .select()
-    .from(Seasons)
-
-    .where(eq(Seasons.id, seasonSlug));
+  const [season] = await db.select().from(Seasons).where(eq(Seasons.slug, seasonSlug));
 
   if (!season) {
     throw new ScoreBrawlError({
@@ -196,6 +192,27 @@ export const update = async ({
       updatedAt: new Date(),
       updatedBy: userId,
       ...rest,
+    })
+    .where(eq(Seasons.id, seasonId))
+    .returning();
+  return season;
+};
+
+export const updateClosedStatus = async ({
+  seasonId,
+  userId,
+  closed,
+}: {
+  seasonId: string;
+  userId: string;
+  closed: boolean;
+}) => {
+  const [season] = await db
+    .update(Seasons)
+    .set({
+      closed,
+      updatedAt: new Date(),
+      updatedBy: userId,
     })
     .where(eq(Seasons.id, seasonId))
     .returning();
@@ -396,6 +413,7 @@ export const findSeasonAndLeagueBySlug = async ({
       endDate: Seasons.endDate,
       initialScore: Seasons.initialScore,
       scoreType: Seasons.scoreType,
+      closed: Seasons.closed,
     })
     .from(Seasons)
     .innerJoin(Leagues, and(eq(Leagues.slug, leagueSlug), eq(Leagues.id, Seasons.leagueId)))
