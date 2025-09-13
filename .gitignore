@@ -47,3 +47,6 @@ dev/.local
 .trigger
 .claude
 .dump.sql
+
+# agents
+.playwright-mcp

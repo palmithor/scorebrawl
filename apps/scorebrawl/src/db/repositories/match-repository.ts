@@ -461,8 +461,8 @@ const calculateElo = (
     kFactor: season.kFactor,
     calculationStrategy:
       season.scoreType === "elo"
-        ? CalculationStrategy.TEAM_VS_TEAM
-        : CalculationStrategy.INDIVIDUAL_VS_TEAM,
+        ? CalculationStrategy.AVERAGE_TEAMS
+        : CalculationStrategy.WEIGHTED_TEAMS,
   });
   const eloHomeTeam = eloIndividualMatch.addTeam("home", homeScore);
   for (const p of homePlayers) {
