@@ -1,5 +1,5 @@
 import { MatchPlayers, Matches, SeasonPlayers, Seasons, db } from "@/db";
-import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
+import { CalculationStrategy, calculateTeamMatch } from "@ihs7/ts-elo";
 import { and, asc, eq } from "drizzle-orm";
 console.log("starting....");
 if (!process.env.VERCEL) {
@@ -106,33 +106,37 @@ const seasonPlayers = (
 const transformedMatches = transformMatches(matchesAndPlayers);
 
 for (const match of transformedMatches) {
-  const eloIndividualMatch = new TeamMatch({
+  const homeTeam = {
+    players: match.teams.home.map((p) => {
+      const player = seasonPlayers.find((sp) => sp.seasonPlayerId === p.seasonPlayerId) as {
+        seasonPlayerId: string;
+        score: number;
+      };
+      return { id: player.seasonPlayerId, rating: player.score };
+    }),
+    score: match.homeScore,
+  };
+  const awayTeam = {
+    players: match.teams.away.map((p) => {
+      const player = seasonPlayers.find((sp) => sp.seasonPlayerId === p.seasonPlayerId) as {
+        seasonPlayerId: string;
+        score: number;
+      };
+      return { id: player.seasonPlayerId, rating: player.score };
+    }),
+    score: match.awayScore,
+  };
+
+  const eloMatchResult = calculateTeamMatch(homeTeam, awayTeam, {
     kFactor: season.kFactor,
-    calculationStrategy:
+    strategy:
       season.scoreType === "elo"
         ? CalculationStrategy.AVERAGE_TEAMS
         : CalculationStrategy.WEIGHTED_TEAMS,
   });
-  const eloHomeTeam = eloIndividualMatch.addTeam("home", match.homeScore);
-  for (const p of match.teams.home) {
-    const player = seasonPlayers.find((sp) => sp.seasonPlayerId === p.seasonPlayerId) as {
-      seasonPlayerId: string;
-      score: number;
-    };
-    eloHomeTeam.addPlayer(new Player(player.seasonPlayerId, player.score));
-  }
-  const eloAwayTeam = eloIndividualMatch.addTeam("away", match.awayScore);
-  for (const p of match.teams.away) {
-    const player = seasonPlayers.find((sp) => sp.seasonPlayerId === p.seasonPlayerId) as {
-      seasonPlayerId: string;
-      score: number;
-    };
-    eloAwayTeam.addPlayer(new Player(player.seasonPlayerId, player.score));
-  }
-  const eloMatchResult = eloIndividualMatch.calculate();
 
-  for (const matchResult of eloMatchResult.results) {
-    const player = seasonPlayers.find((sp) => sp.seasonPlayerId === matchResult.identifier) as {
+  for (const playerResult of eloMatchResult) {
+    const player = seasonPlayers.find((sp) => sp.seasonPlayerId === playerResult.id) as {
       seasonPlayerId: string;
       score: number;
     };
@@ -141,7 +145,7 @@ for (const match of transformedMatches) {
       .update(MatchPlayers)
       .set({
         scoreBefore: player.score,
-        scoreAfter: matchResult.rating,
+        scoreAfter: playerResult.newRating,
       })
       .where(
         and(
@@ -150,7 +154,7 @@ for (const match of transformedMatches) {
         ),
       );
 
-    player.score = matchResult.rating;
+    player.score = playerResult.newRating;
   }
 }
 
