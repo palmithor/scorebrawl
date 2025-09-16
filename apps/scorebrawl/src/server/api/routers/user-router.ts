@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { findUserById, setDefaultLeague } from "@/db/repositories/user-repository";
+import { findUserById, setDefaultLeague, updateUser } from "@/db/repositories/user-repository";
 import { UserDTO } from "@/dto";
 import { auth } from "@/lib/auth";
 import { createTRPCRouter, leagueProcedure, protectedProcedure } from "@/server/api/trpc";
@@ -22,6 +22,20 @@ export const userRouter = createTRPCRouter({
       await auth.api.setPassword({
         body: { newPassword: password },
         headers: await headers(),
+      });
+    }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().optional(),
+        image: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await updateUser({
+        id: ctx.auth.user.id,
+        name: input.name,
+        image: input.image,
       });
     }),
   setDefaultLeague: leagueProcedure.input(z.object({ leagueSlug: z.string() })).query(({ ctx }) =>

@@ -97,6 +97,31 @@ export const setDefaultLeague = async ({
   return user;
 };
 
+export const updateUser = async ({
+  id,
+  name,
+  image,
+}: {
+  id: string;
+  name?: string;
+  image?: string;
+}) => {
+  const updateData: { name?: string; image?: string; updatedAt: Date } = {
+    updatedAt: new Date(),
+  };
+
+  if (name !== undefined) {
+    updateData.name = name;
+  }
+
+  if (image !== undefined) {
+    updateData.image = image;
+  }
+
+  const [user] = await db.update(Users).set(updateData).where(eq(Users.id, id)).returning();
+  return user;
+};
+
 export const upsertUser = async ({
   id,
   firstName,

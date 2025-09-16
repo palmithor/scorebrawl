@@ -3,42 +3,48 @@ import { AvatarWithFallback } from "@/components/avatar/avatar-with-fallback";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { UploadButton } from "@/components/uploadthing";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/trpc/react";
 import { getInitialsFromString } from "@scorebrawl/utils/string";
-import { type ChangeEvent, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const ProfileStep = () => {
-  // todo better-auth create trpc root to get user
-  const [first, setFirst] = useState("");
-  const [last, setLast] = useState("");
+  const { data: user } = api.user.me.useQuery();
+  const { mutate: updateUser } = api.user.update.useMutation();
+  const { user: userUtils } = api.useUtils();
 
+  const [name, setName] = useState(user?.name ?? "");
+  const [uploadError, setUploadError] = useState<string | undefined>();
+
+  const timerRef = useRef<null | Timer>(null);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      toast({ title: "Uploading profile image" });
-      // todo better-auth create trpc root to get user
-      //await user?.setProfileImage({ file });
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
     }
-  };
+  }, [user]);
 
-  // todo better-auth create trpc root to get user
-  /*const debouncedUpdate = useCallback(
-    ({ firstName, lastName }: { firstName: string; lastName: string }) => {
+  const debouncedUpdate = useCallback(
+    ({ name }: { name: string }) => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
       timerRef.current = setTimeout(async () => {
-        if (user) {
-          await user.update({ firstName, lastName });
-          toast({ title: "Updated profile" });
-        }
+        updateUser(
+          { name },
+          {
+            onSuccess: () => {
+              toast({ title: "Profile updated" });
+              userUtils.me.invalidate();
+            },
+          },
+        );
       }, 300);
     },
-    [user, toast],
-  );*/
+    [updateUser, toast, userUtils.me],
+  );
 
   return (
     <>
@@ -47,40 +53,62 @@ export const ProfileStep = () => {
         <CardDescription>Customize your profile</CardDescription>
       </CardHeader>
       <CardContent className={"flex flex-col items-center gap-3"}>
-        <Input
-          ref={fileInputRef}
-          id="picture"
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
+        <AvatarWithFallback size="xl" image={user?.image} name={getInitialsFromString(name)} />
+        <UploadButton
+          className="ut-button:h-10 ut-button:items-center ut-button:justify-center ut-button:rounded-md ut-button:bg-primary ut-button:px-4 ut-button:py-2 ut-button:text-sm ut-button:font-medium ut-button:text-primary-foreground ut-button:ring-offset-background ut-button:transition-colors ut-button:hover:bg-primary/90 ut-button:focus-visible:outline-none ut-button:focus-visible:ring-2 ut-button:focus-visible:ring-ring ut-button:focus-visible:ring-offset-2 ut-button:disabled:pointer-events-none ut-button:disabled:opacity-50"
+          endpoint="profileAvatar"
+          onUploadBegin={() => {}}
+          onUploadProgress={() => {
+            setUploadError(undefined);
+          }}
+          content={{
+            allowedContent: ({
+              isUploading,
+              uploadProgress,
+            }: {
+              isUploading: boolean;
+              uploadProgress: number;
+            }) => {
+              if (uploadError) {
+                return <p className="text-destructive">{uploadError}</p>;
+              }
+              return isUploading ? (
+                <p>{`Uploading ${uploadProgress}%...`}</p>
+              ) : (
+                <p>Square images recommended (Max 4MB)</p>
+              );
+            },
+          }}
+          onClientUploadComplete={(res: { url: string }[]) => {
+            const fileUrl = res?.[0]?.url;
+            if (fileUrl) {
+              updateUser(
+                { image: fileUrl },
+                {
+                  onSuccess: () => {
+                    userUtils.me.invalidate();
+                    toast({ title: "Profile picture updated" });
+                  },
+                },
+              );
+            }
+          }}
+          onUploadError={(error: Error) => {
+            setUploadError(error.message);
+          }}
         />
-        <AvatarWithFallback size="xl" name={getInitialsFromString(`${first} ${last}`)} />
-        <div className="w-full max-w-sm  md:max-w-2xl xl:max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+        <div className="w-full max-w-sm md:max-w-2xl xl:max-w-4xl mx-auto">
+          <div className="flex flex-col">
             <div className="flex-1">
-              <Label htmlFor="firstName">First name</Label>
+              <Label htmlFor="name">Name</Label>
               <Input
                 type="text"
-                id="firstName"
-                value={first}
+                id="name"
+                value={name}
                 onChange={(e) => {
-                  const updatedFirstName = e.target.value;
-                  setFirst(updatedFirstName);
-                  /*debouncedUpdate({ firstName: updatedFirstName, lastName: last });*/
-                }}
-              />
-            </div>
-            <div className="flex-1">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                type="text"
-                id="lastName"
-                value={last}
-                onChange={(e) => {
-                  const updatedLastName = e.target.value;
-                  setLast(updatedLastName);
-                  /*debouncedUpdate({ lastName: updatedLastName, firstName: first });*/
+                  const updatedName = e.target.value;
+                  setName(updatedName);
+                  debouncedUpdate({ name: updatedName });
                 }}
               />
             </div>
