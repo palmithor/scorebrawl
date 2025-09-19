@@ -8,6 +8,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { env } from "@/env";
+import { authClient } from "@/lib/auth-client";
 import { api } from "@/trpc/react";
 import {
   ChartNoAxesGantt,
@@ -19,6 +21,7 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LeagueSwitcher } from "./layout/league-switcher";
@@ -141,6 +144,26 @@ export function AppSidebar({
         />
       </SidebarContent>
       <SidebarFooter>
+        <button
+          className="flex cursor-pointer items-center justify-center rounded-md p-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full"
+          onClick={async () => {
+            console.log(env);
+            if (env.NEXT_PUBLIC_BUY_ME_A_COFFEE_PRODUCT_ID) {
+              await authClient.checkout({
+                products: [env.NEXT_PUBLIC_BUY_ME_A_COFFEE_PRODUCT_ID],
+              });
+            }
+          }}
+          type="button"
+        >
+          <Image
+            src="/buy-me-coffee.png"
+            alt="Buy me a coffee"
+            width={200}
+            height={50}
+            className="rounded w-full h-auto"
+          />
+        </button>
         <NavUser />
       </SidebarFooter>
       <SidebarRail />

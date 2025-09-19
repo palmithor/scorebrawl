@@ -17,7 +17,9 @@
         "SENTRY_ORG",
         "SENTRY_PROJECT",
         "TRIGGER_SECRET_KEY",
-        "UPLOADTHING_TOKEN"
+        "UPLOADTHING_TOKEN",
+        "POLAR_ACCESS_TOKEN",
+        "POLAR_SUCCESS_URL"
       ]
     },
     "dev": {
