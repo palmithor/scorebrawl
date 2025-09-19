@@ -3,7 +3,7 @@ import { CalculationStrategy, Player, TeamMatch } from "@ihs7/ts-elo";
 import { and, asc, eq } from "drizzle-orm";
 console.log("starting....");
 if (!process.env.VERCEL) {
-  console.error("prod not wowrking ");
+  console.error("prod not working ");
   process.exit(1);
 }
 

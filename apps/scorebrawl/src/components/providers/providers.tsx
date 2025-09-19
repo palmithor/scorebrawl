@@ -12,7 +12,6 @@ import { Provider as BalancerProvider } from "react-wrap-balancer";
 
 export const Providers = ({ children, ...props }: ThemeProviderProps) => {
   const router = useRouter();
-
   return (
     <NextThemesProvider {...props}>
       <BalancerProvider>
@@ -22,10 +21,10 @@ export const Providers = ({ children, ...props }: ThemeProviderProps) => {
               authClient={authClient}
               navigate={router.push}
               replace={router.replace}
-              providers={env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? ["google"] : undefined}
+              social={{ providers: env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? ["google"] : [] }}
               credentials={env.NEXT_PUBLIC_ENABLE_USERNAME_PASSWORD}
               onSessionChange={() => router.refresh()}
-              defaultRedirectTo="/"
+              redirectTo="/"
             >
               {children}
             </AuthUIProvider>

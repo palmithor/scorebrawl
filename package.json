@@ -22,8 +22,6 @@
   "packageManager": "bun@1.1.30",
   "workspaces": ["apps/*", "packages/*"],
   "dependencies": {
-    "@daveyplate/better-auth-ui": "^1.2.42",
-    "@sentry/nextjs": "^10.8.0",
     "lru-cache": "^11.1.0",
     "next": "^15.5.2",
     "postcss": "^8.4.40",

@@ -1,3 +1,4 @@
+import { polarClient } from "@polar-sh/better-auth";
 import { createAuthClient } from "better-auth/react";
 
 export const getURL = () => {
@@ -15,4 +16,5 @@ export const getURL = () => {
 
 export const authClient = createAuthClient({
   baseURL: typeof window !== "undefined" ? window.location.origin : undefined,
+  plugins: [polarClient()],
 });
